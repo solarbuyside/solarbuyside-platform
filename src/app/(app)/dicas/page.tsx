@@ -1,6 +1,5 @@
-import { Lightbulb, CheckCircle2, ShieldCheck, DollarSign, BookOpen } from "lucide-react";
+import { CheckCircle2, ShieldCheck, DollarSign } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 export default function DicasPage() {
   const tips = [

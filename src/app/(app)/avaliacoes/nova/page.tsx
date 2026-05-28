@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createComparisonDraftAction } from "../actions";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const PRESET_PLACEHOLDERS = [
@@ -115,11 +114,12 @@ export default function NovaAvaliacaoPage() {
     startTransition(async () => {
       try {
         await createComparisonDraftAction(formData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Next.js redirect internally throws a NEXT_REDIRECT error which is normal behavior.
         // We only show errors if it's not a redirect
-        if (err && typeof err.message === "string" && !err.message.includes("NEXT_REDIRECT")) {
-          setError(err.message || "Erro inesperado ao criar a avaliação. Tente novamente.");
+        const message = err instanceof Error ? err.message : "";
+        if (message && !message.includes("NEXT_REDIRECT")) {
+          setError(message || "Erro inesperado ao criar a avaliação. Tente novamente.");
         }
       }
     });

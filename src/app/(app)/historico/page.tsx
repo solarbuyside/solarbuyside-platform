@@ -1,5 +1,5 @@
-import { History, Calendar, Award, ExternalLink } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Calendar, ExternalLink } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function HistoricoPage() {

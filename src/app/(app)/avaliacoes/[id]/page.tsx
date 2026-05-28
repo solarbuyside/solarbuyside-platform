@@ -1,8 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { 
-  Building2, 
-  Zap, 
   CheckCircle2, 
   ArrowRight, 
   ArrowLeft, 
@@ -12,14 +10,12 @@ import {
   Sliders,
   ChevronRight,
   TrendingUp,
-  Award,
   Info
 } from "lucide-react";
 
 import { getComparisonSummary } from "@/lib/comparisons/repository";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type AvaliacaoPageProps = {
   params: Promise<{

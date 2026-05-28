@@ -3,18 +3,14 @@
 import * as React from "react";
 import {
   calculateComparisonResult,
-  summarizeCategoryScore
 } from "@/domain/comparisons/scoring";
 import { sampleComparison } from "@/domain/comparisons/sample-data";
 import {
   companyScoreDefinitions,
   technicalScoreDefinitions,
-  scoreDefinitions
 } from "@/domain/comparisons/score-definitions";
 import type {
   ComparisonInput,
-  CompetitorResult,
-  ScoreSetting,
   ComparisonResult
 } from "@/domain/comparisons/types";
 
@@ -43,7 +39,6 @@ import { cn, formatCurrencyBRL } from "@/lib/utils";
 
 // Icons
 import {
-  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   Info,
@@ -51,13 +46,11 @@ import {
   Zap,
   Sliders,
   Sparkles,
-  ChevronRight,
   ShieldCheck,
   CheckSquare,
   Square,
   RotateCcw,
   Search,
-  Filter,
   BarChart3
 } from "lucide-react";
 

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { buildInitialDraftComparisonStructure } from "@/domain/comparisons/draft-structure";
+import { comparisonWorkflowSummary } from "@/domain/comparisons/workflow";
 import { createClient } from "@/lib/supabase/server";
 
 export const createComparisonDraftSchema = z.object({
@@ -8,7 +10,11 @@ export const createComparisonDraftSchema = z.object({
     .array(z.string().trim().min(1).max(120))
     .min(2)
     .max(6)
-    .transform((names) => names.map((name) => name.trim())),
+    .transform((names) => names.map((name) => name.trim()))
+    .refine(
+      (names) => new Set(names.map((name) => name.toLocaleLowerCase("pt-BR"))).size === names.length,
+      "Competitor names must be unique.",
+    ),
 });
 
 export type CreateComparisonDraftInput = z.input<typeof createComparisonDraftSchema>;
@@ -33,6 +39,8 @@ type CompetitorRow = {
   position: number;
 };
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
 type ComparisonWithCompetitors = {
   id: string;
   title: string;
@@ -54,6 +62,10 @@ async function getAuthenticatedUserId() {
     supabase,
     userId: data.claims.sub,
   };
+}
+
+async function cleanupDraftAfterSeedFailure(supabase: SupabaseServerClient, comparisonId: string) {
+  await supabase.from("comparisons").delete().eq("id", comparisonId);
 }
 
 function toSummary(row: ComparisonWithCompetitors): ComparisonSummary {
@@ -101,10 +113,67 @@ export async function createComparisonDraft(input: CreateComparisonDraftInput) {
     company_name: companyName,
   }));
 
-  const { error: competitorsError } = await supabase.from("competitors").insert(competitors);
+  const { data: insertedCompetitors, error: competitorsError } = await supabase
+    .from("competitors")
+    .insert(competitors)
+    .select("id,company_name,position");
 
-  if (competitorsError) {
-    throw new Error(competitorsError.message);
+  if (competitorsError || !insertedCompetitors) {
+    await cleanupDraftAfterSeedFailure(supabase, comparison.id);
+    throw new Error(competitorsError?.message ?? "Could not create competitors.");
+  }
+
+  const draftCompetitors = (insertedCompetitors as CompetitorRow[])
+    .sort((a, b) => a.position - b.position)
+    .map((competitor) => ({
+      id: competitor.id,
+      position: competitor.position,
+      companyName: competitor.company_name,
+    }));
+  const initialStructure = buildInitialDraftComparisonStructure(comparison.id, draftCompetitors);
+
+  const seedResults = await Promise.all([
+    supabase.from("company_evaluations").insert(
+      initialStructure.companyEvaluations.map((row) => ({
+        comparison_id: row.comparisonId,
+        competitor_id: row.competitorId,
+      })),
+    ),
+    supabase.from("technical_evaluations").insert(
+      initialStructure.technicalEvaluations.map((row) => ({
+        comparison_id: row.comparisonId,
+        competitor_id: row.competitorId,
+      })),
+    ),
+    supabase.from("financial_evaluations").insert(
+      initialStructure.financialEvaluations.map((row) => ({
+        comparison_id: row.comparisonId,
+        competitor_id: row.competitorId,
+      })),
+    ),
+    supabase.from("comparison_score_settings").insert(
+      initialStructure.scoreSettings.map((setting) => ({
+        comparison_id: setting.comparisonId,
+        criterion_key: setting.criterionKey,
+        enabled: setting.enabled,
+        weight: setting.weight,
+      })),
+    ),
+    supabase.from("score_entries").insert(
+      initialStructure.scoreEntries.map((entry) => ({
+        comparison_id: entry.comparisonId,
+        competitor_id: entry.competitorId,
+        criterion_key: entry.criterionKey,
+        category: entry.category,
+        score: entry.score,
+      })),
+    ),
+  ]);
+  const seedError = seedResults.find((result) => result.error)?.error;
+
+  if (seedError) {
+    await cleanupDraftAfterSeedFailure(supabase, comparison.id);
+    throw new Error(seedError.message);
   }
 
   await supabase.from("comparison_events").insert({
@@ -113,6 +182,11 @@ export async function createComparisonDraft(input: CreateComparisonDraftInput) {
     event_type: "comparison.created",
     payload: {
       competitorCount: competitors.length,
+      workflowVersion: initialStructure.workflowVersion,
+      companyCriteriaCount: comparisonWorkflowSummary.companyCriteriaCount,
+      technicalCriteriaCount: comparisonWorkflowSummary.technicalCriteriaCount,
+      totalCriteriaCount: comparisonWorkflowSummary.totalCriteriaCount,
+      financialAffectsScore: comparisonWorkflowSummary.financialAffectsScore,
     },
   });
 
