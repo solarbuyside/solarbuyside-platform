@@ -1,4 +1,7 @@
 import { updatePasswordAction } from "../actions";
+import { AuthShell, AuthAlert } from "../_components/auth-shell";
+import { PasswordField } from "../_components/auth-fields";
+import { SubmitButton } from "../_components/submit-button";
 
 type UpdatePasswordPageProps = {
   searchParams: Promise<{
@@ -10,47 +13,35 @@ export default async function UpdatePasswordPage({ searchParams }: UpdatePasswor
   const params = await searchParams;
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f8fafc] px-6 text-[#020719]">
-      <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold">Nova senha</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+    <AuthShell>
+      <div className="mb-7">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Defina sua nova senha</h2>
+        <p className="mt-1 text-sm text-slate-500">
           Crie uma senha nova para continuar usando a plataforma.
         </p>
+      </div>
 
-        {params.error ? (
-          <div className="mt-4 rounded-md border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
-            {params.error}
-          </div>
-        ) : null}
+      <AuthAlert error={params.error} />
 
-        <form action={updatePasswordAction} className="mt-6 grid gap-4">
-          <label className="grid gap-2 text-sm font-medium">
-            Nova senha
-            <input
-              className="h-11 rounded-md border border-slate-300 px-3 text-base outline-none focus:border-[#f97316] focus:ring-2 focus:ring-orange-100"
-              minLength={8}
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
-            />
-          </label>
-          <label className="grid gap-2 text-sm font-medium">
-            Confirmar senha
-            <input
-              className="h-11 rounded-md border border-slate-300 px-3 text-base outline-none focus:border-[#f97316] focus:ring-2 focus:ring-orange-100"
-              minLength={8}
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-            />
-          </label>
-          <button className="h-11 rounded-md bg-[#f97316] px-4 font-semibold text-white transition hover:bg-[#ea580c]">
-            Atualizar senha
-          </button>
-        </form>
-      </section>
-    </main>
+      <form action={updatePasswordAction} className="grid gap-4">
+        <PasswordField
+          label="Nova senha"
+          name="password"
+          autoComplete="new-password"
+          placeholder="Mínimo de 8 caracteres"
+          minLength={8}
+          required
+        />
+        <PasswordField
+          label="Confirmar senha"
+          name="confirmPassword"
+          autoComplete="new-password"
+          placeholder="Repita a senha"
+          minLength={8}
+          required
+        />
+        <SubmitButton pendingLabel="Atualizando…">Atualizar senha</SubmitButton>
+      </form>
+    </AuthShell>
   );
 }

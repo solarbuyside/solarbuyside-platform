@@ -35,6 +35,19 @@ export function getSupabaseSecretKey() {
   );
 }
 
+export function getAdminEmails() {
+  const raw = cleanEnv(process.env.ADMIN_EMAILS) ?? "gab.feelix@gmail.com";
+  return raw
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function isAdminEmail(email: string | null | undefined) {
+  if (!email) return false;
+  return getAdminEmails().includes(email.trim().toLowerCase());
+}
+
 export function getAppUrl() {
   const explicitUrl = cleanEnv(process.env.NEXT_PUBLIC_APP_URL);
   if (explicitUrl) return explicitUrl;

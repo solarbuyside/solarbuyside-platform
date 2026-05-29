@@ -22,5 +22,6 @@ export async function createComparisonDraftAction(formData: FormData) {
     competitorNames,
   });
 
-  redirect(`/avaliacoes/${id}`);
+  // Go straight into the interview flow — no intermediate "created" screen.
+  redirect(`/avaliacoes/${id}/preencher`);
 }

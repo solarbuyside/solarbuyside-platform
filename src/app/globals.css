@@ -114,3 +114,14 @@ body {
 .table-zebra tr:nth-child(odd) {
   background-color: #ffffff;
 }
+
+/* Remove os spinners nativos de inputs number (ficam colados na borda e poluem) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

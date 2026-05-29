@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import { resetPasswordAction } from "../actions";
+import { AuthShell, AuthAlert } from "../_components/auth-shell";
+import { TextField } from "../_components/auth-fields";
+import { SubmitButton } from "../_components/submit-button";
 
 type ResetPasswordPageProps = {
   searchParams: Promise<{
@@ -13,44 +17,35 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   const params = await searchParams;
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#f8fafc] px-6 text-[#020719]">
-      <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold">Recuperar senha</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          Enviaremos um link seguro para criar uma nova senha.
+    <AuthShell>
+      <div className="mb-7">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Recuperar senha</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Enviaremos um link seguro para você criar uma nova senha.
         </p>
+      </div>
 
-        {params.error ? (
-          <div className="mt-4 rounded-md border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
-            {params.error}
-          </div>
-        ) : null}
-        {params.message ? (
-          <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-            {params.message}
-          </div>
-        ) : null}
+      <AuthAlert error={params.error} message={params.message} />
 
-        <form action={resetPasswordAction} className="mt-6 grid gap-4">
-          <label className="grid gap-2 text-sm font-medium">
-            E-mail
-            <input
-              className="h-11 rounded-md border border-slate-300 px-3 text-base outline-none focus:border-[#f97316] focus:ring-2 focus:ring-orange-100"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
-          </label>
-          <button className="h-11 rounded-md bg-[#f97316] px-4 font-semibold text-white transition hover:bg-[#ea580c]">
-            Enviar link
-          </button>
-        </form>
+      <form action={resetPasswordAction} className="grid gap-4">
+        <TextField
+          label="E-mail"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="voce@empresa.com"
+          required
+        />
+        <SubmitButton pendingLabel="Enviando…">Enviar link de recuperação</SubmitButton>
+      </form>
 
-        <Link className="mt-5 inline-flex text-sm font-medium underline" href="/login">
-          Voltar ao login
-        </Link>
-      </section>
-    </main>
+      <Link
+        href="/login"
+        className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-primary transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar ao login
+      </Link>
+    </AuthShell>
   );
 }

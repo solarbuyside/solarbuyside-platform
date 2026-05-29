@@ -3,6 +3,26 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          full_name: string | null;
+          company_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string | null;
+          full_name?: string | null;
+          company_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;
@@ -43,6 +63,8 @@ export type Database = {
           company_name: string;
           seller_name: string | null;
           notes: string | null;
+          share_token: string | null;
+          share_enabled: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -53,6 +75,8 @@ export type Database = {
           company_name: string;
           seller_name?: string | null;
           notes?: string | null;
+          share_token?: string | null;
+          share_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };
