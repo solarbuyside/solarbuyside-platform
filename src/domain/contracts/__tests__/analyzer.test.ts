@@ -50,4 +50,36 @@ describe("analyzeContract", () => {
     expect(titles).toMatch(/Prazo/i);
     expect(titles).toMatch(/CREA|t[eé]cnico/i);
   });
+
+  it("reprova o contrato-gabarito cheio de cláusulas abusivas (CDC)", () => {
+    const ABUSIVE = `
+      As partes declaram aceitar de forma irrevogável, irretratável e incondicional.
+      A CONTRATADA reserva-se o direito de alterar marca, modelo, potência e quantidade de
+      módulos a seu exclusivo critério, sem aviso prévio. Qualquer menção verbal a economia
+      tem caráter meramente publicitário e não integra este contrato.
+      A CONTRATADA poderá reajustar o preço final inclusive após a assinatura.
+      O CONTRATANTE renuncia expressamente ao direito de arrependimento previsto no art. 49 do CDC.
+      Em caso de rescisão, multa de 90% do valor, com retenção integral dos valores pagos.
+      A instalação ocorrerá em prazo a combinar, não havendo data limite de entrega.
+      A garantia será automaticamente cancelada caso o contratante faça qualquer reclamação.
+      O CONTRATANTE obriga-se a contratar exclusivamente da CONTRATADA, que poderá desativar
+      remotamente o sistema. O CONTRATANTE cede à CONTRATADA todos os créditos de energia.
+      Autoriza a emissão de nota promissória em branco e a inscrição imediata de seu nome em SPC.
+      Fica vedado registrar reclamação no Procon, sob pena de multa de R$ 50.000,00 por publicação.
+      Toda e qualquer responsabilidade é transferida ao CONTRATANTE.
+      Este contrato renova-se automaticamente, com cobrança recorrente, sem necessidade de novo aceite.
+      Fica eleito o foro da comarca da sede da CONTRATADA, renunciando o contratante ao foro de seu domicílio.
+    `;
+    const r = analyzeContract(ABUSIVE);
+    expect(r.verdict).toBe("reproved");
+    expect(r.summary.danger).toBeGreaterThanOrEqual(10);
+    expect(r.score).toBe(0);
+
+    const titles = r.findings.map((f) => f.title).join(" | ");
+    expect(titles).toMatch(/arrependimento/i);
+    expect(titles).toMatch(/cr[eé]ditos de energia/i);
+    expect(titles).toMatch(/promiss[oó]ria|negativa/i);
+    expect(titles).toMatch(/reclamar/i);
+    expect(titles).toMatch(/renova/i);
+  });
 });
