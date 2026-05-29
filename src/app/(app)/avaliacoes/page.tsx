@@ -1,16 +1,26 @@
 import Link from "next/link";
-import { Plus, ArrowRight } from "lucide-react";
+import { Plus, ArrowRight, FileSpreadsheet, Users, Clock } from "lucide-react";
+
+import { listComparisonSummaries } from "@/lib/comparisons/repository";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function AvaliacoesPage() {
+const STATUS: Record<string, { label: string; variant: "secondary" | "orange" | "emerald" }> = {
+  draft: { label: "Rascunho", variant: "orange" },
+  ready_for_review: { label: "Em revisão", variant: "orange" },
+  completed: { label: "Concluída", variant: "emerald" },
+};
+
+export default async function AvaliacoesPage() {
+  const comparisons = await listComparisonSummaries().catch(() => []);
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center justify-between border-b border-slate-200 pb-6">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900">Avaliações Solar</h2>
           <p className="text-sm text-slate-500 mt-1">
-            Gerencie e crie novas planilhas de comparação para seus fornecedores de energia solar.
+            Gerencie e crie novas comparações para seus fornecedores de energia solar.
           </p>
         </div>
         <Link
@@ -22,53 +32,76 @@ export default function AvaliacoesPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Comparison card */}
-        <Card hoverGlow className="border-primary/20 bg-white">
-          <CardHeader>
-            <div className="flex items-center justify-between mb-2">
-              <Badge variant="orange" className="text-[10px]">ATIVO</Badge>
-              <span className="text-[10px] text-slate-400 font-semibold">27.05.2026</span>
-            </div>
-            <CardTitle className="text-lg text-slate-900">Avaliação Residencial Gabriel</CardTitle>
-            <CardDescription className="text-xs text-slate-500">6 Fornecedores • 2 Finalistas definidos</CardDescription>
-          </CardHeader>
-          <CardContent className="text-xs text-slate-700 space-y-2">
-            <p><strong>Melhor avaliado:</strong> SOLI SOLAR (9.2/10)</p>
-            <p><strong>Finalistas escolhidos:</strong> RENOVA, SOLI SOLAR</p>
-            <p className="text-[10px] text-slate-400">Criado a partir da planilha: <i>Solar Buy-Side 27.05.2026-1.xlsx</i></p>
-          </CardContent>
-          <CardFooter className="pt-4 justify-between bg-slate-50/50 border-t border-slate-100">
-            <span className="text-xs text-slate-500">Ver detalhes técnicos</span>
-            <Link href="/dashboard" className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
-              Abrir Painel <ArrowRight className="h-3 w-3" />
-            </Link>
-          </CardFooter>
-        </Card>
-
-        {/* Dummy comparison card 2 */}
-        <Card hoverGlow className="opacity-60 bg-white border border-slate-200">
-          <CardHeader>
-            <div className="flex items-center justify-between mb-2">
-              <Badge variant="secondary" className="text-[10px]">CONCLUÍDO</Badge>
-              <span className="text-[10px] text-slate-400 font-semibold">12.04.2026</span>
-            </div>
-            <CardTitle className="text-lg text-slate-900">Projeto Comercial Solar SP</CardTitle>
-            <CardDescription className="text-xs text-slate-500">3 Fornecedores • Contrato Fechado</CardDescription>
-          </CardHeader>
-          <CardContent className="text-xs text-slate-600 space-y-2">
-            <p><strong>Melhor avaliado:</strong> ENERGIA SGE (8.4/10)</p>
-            <p><strong>Vencedor contratado:</strong> ENERGIA SGE</p>
-            <p className="text-[10px] text-slate-400">Armazenado no banco de dados Supabase</p>
-          </CardContent>
-          <CardFooter className="pt-4 justify-between bg-slate-50/50 border-t border-slate-100">
-            <span className="text-xs text-slate-500">Arquivado</span>
-            <span className="text-xs text-slate-400 font-bold flex items-center gap-1 cursor-not-allowed">
-              Visualizar <ArrowRight className="h-3 w-3" />
-            </span>
-          </CardFooter>
-        </Card>
-      </div>
+      {comparisons.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-12 text-center">
+          <FileSpreadsheet className="mx-auto h-10 w-10 text-slate-300" />
+          <h3 className="mt-3 text-base font-bold text-slate-700">Nenhuma avaliação ainda</h3>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
+            Crie sua primeira comparação para começar a entrevistar fornecedores e decidir com critério.
+          </p>
+          <Link
+            href="/avaliacoes/nova"
+            className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/95 active:scale-[0.98]"
+          >
+            <Plus className="h-4 w-4" />
+            Criar primeira avaliação
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {comparisons.map((c) => {
+            const status = STATUS[c.status] ?? { label: c.status, variant: "secondary" as const };
+            const updated = new Date(c.updatedAt).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            return (
+              <Card key={c.id} hoverGlow className="flex flex-col border-slate-200 bg-white">
+                <CardHeader>
+                  <div className="mb-2 flex items-center justify-between">
+                    <Badge variant={status.variant} className="text-[10px] uppercase">
+                      {status.label}
+                    </Badge>
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-slate-400">
+                      <Clock className="h-3 w-3" />
+                      {updated}
+                    </span>
+                  </div>
+                  <CardTitle className="text-lg text-slate-900">{c.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <Users className="h-3.5 w-3.5" />
+                    {c.competitorCount} {c.competitorCount === 1 ? "fornecedor" : "fornecedores"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 text-xs text-slate-600">
+                  {c.competitors.length > 0 ? (
+                    <p className="line-clamp-2">
+                      {c.competitors.map((comp) => comp.name).join(" · ")}
+                    </p>
+                  ) : (
+                    <p className="text-slate-400">Sem fornecedores cadastrados.</p>
+                  )}
+                </CardContent>
+                <CardFooter className="justify-between border-t border-slate-100 bg-slate-50/50 pt-4">
+                  <Link
+                    href={`/avaliacoes/${c.id}/preencher`}
+                    className="text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800"
+                  >
+                    Continuar preenchimento
+                  </Link>
+                  <Link
+                    href={`/avaliacoes/${c.id}/comparativo`}
+                    className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                  >
+                    Ver comparativo <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
