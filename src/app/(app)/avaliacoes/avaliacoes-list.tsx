@@ -15,6 +15,7 @@ import {
   X,
   Check,
   AlertTriangle,
+  FileDown,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -151,18 +152,28 @@ export function AvaliacoesList({ items }: { items: ComparisonListItem[] }) {
                   )}
                 </div>
                 <div className="mt-auto flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3">
-                  <Link
-                    href={`/avaliacoes/${c.id}/preencher`}
-                    className="text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800"
+                  <a
+                    href={`/avaliacoes/${c.id}/export`}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-800"
+                    title="Baixar planilha (.xlsx) com os dados desta avaliação"
                   >
-                    Continuar
-                  </Link>
-                  <Link
-                    href={`/avaliacoes/${c.id}/comparativo`}
-                    className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
-                  >
-                    Comparativo <ArrowRight className="h-3 w-3" />
-                  </Link>
+                    <FileDown className="h-3.5 w-3.5" />
+                    Excel
+                  </a>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/avaliacoes/${c.id}/preencher`}
+                      className="text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800"
+                    >
+                      Continuar
+                    </Link>
+                    <Link
+                      href={`/avaliacoes/${c.id}/comparativo`}
+                      className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    >
+                      Comparativo <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             );

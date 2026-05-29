@@ -52,6 +52,7 @@ export type NotificationItem = {
 const BASE_ITEMS: SidebarItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
+  { name: "Curadoria", href: "/curadoria", icon: ShieldCheck },
   { name: "Curso", href: "/curso", icon: GraduationCap },
   { name: "Histórico", href: "/historico", icon: History },
   { name: "Dicas & Guias", href: "/dicas", icon: Lightbulb },
@@ -87,10 +88,10 @@ export function AppShell({
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
-      {/* Sidebar (desktop) */}
+      {/* Sidebar (desktop) — flex item (not fixed), full height, no padding hack */}
       <aside
         className={cn(
-          "hidden md:flex flex-col shrink-0 glass-panel-sidebar fixed h-screen z-20 transition-[width] duration-200",
+          "hidden md:flex flex-col shrink-0 glass-panel-sidebar h-screen z-20 transition-[width] duration-200",
           collapsed ? "w-20" : "w-64",
         )}
       >
@@ -219,12 +220,8 @@ export function AppShell({
       </aside>
 
       {/* Content */}
-      <div
-        className={cn(
-          "flex h-screen flex-1 flex-col pt-16 md:pt-0 min-w-0 transition-[padding] duration-200",
-          collapsed ? "md:pl-20" : "md:pl-64",
-        )}
-      >
+      <div className="flex h-screen flex-1 flex-col pt-16 md:pt-0 min-w-0">
+
         <header className="h-20 glass-panel-header sticky top-0 z-10 hidden md:flex items-center gap-4 px-6 md:px-8">
           {/* Left: toggle + breadcrumb */}
           <button
@@ -263,9 +260,9 @@ export function AppShell({
           </div>
         </header>
 
-        {/* Scrollable content area — sidebar stays fixed full-height */}
+        {/* Scrollable content area — sidebar stays full-height alongside */}
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full max-w-7xl p-6 md:p-10">{children}</div>
+          <div className="w-full max-w-[1600px] p-6 md:px-10 md:py-8">{children}</div>
         </main>
       </div>
     </div>
@@ -281,6 +278,7 @@ function breadcrumbFor(pathname: string): string[] {
     comparativo: "Comparativo",
     finalistas: "Finalistas",
     curso: "Curso",
+    curadoria: "Curadoria",
     historico: "Histórico",
     dicas: "Dicas & Guias",
     configuracoes: "Configurações",

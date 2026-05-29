@@ -319,6 +319,34 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["saved_companies"]["Insert"]>;
         Relationships: [];
       };
+      contract_reviews: {
+        Row: {
+          id: string;
+          owner_id: string;
+          title: string;
+          contract_text: string;
+          verdict: "reproved" | "attention" | "approved";
+          score: number;
+          findings: Json;
+          approved_by_user: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          title: string;
+          contract_text: string;
+          verdict: "reproved" | "attention" | "approved";
+          score?: number;
+          findings?: Json;
+          approved_by_user?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["contract_reviews"]["Insert"]>;
+        Relationships: [];
+      };
       course_progress: {
         Row: {
           user_id: string;

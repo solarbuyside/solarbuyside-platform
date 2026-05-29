@@ -9,6 +9,7 @@ const protectedPrefixes = [
   "/historico",
   "/dicas",
   "/curso",
+  "/curadoria",
   "/configuracoes",
   "/admin",
 ];

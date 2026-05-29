@@ -11,6 +11,7 @@ import {
   Sparkles,
   ArrowLeft,
   Crown,
+  FileDown,
 } from "lucide-react";
 
 import { calculateComparisonResult } from "@/domain/comparisons/scoring";
@@ -125,12 +126,13 @@ export function FinalistsView({ comparison: initial }: { comparison: ComparisonI
           <ArrowLeft className="h-4 w-4" />
           Voltar ao comparativo
         </Link>
-        <Link
-          href="/avaliacoes"
-          className="text-xs font-semibold text-slate-400 transition-colors hover:text-slate-600"
+        <a
+          href={`/avaliacoes/${comparison.id}/export`}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
         >
-          Concluir
-        </Link>
+          <FileDown className="h-4 w-4" />
+          Baixar resultado (Excel)
+        </a>
       </div>
     </div>
   );
