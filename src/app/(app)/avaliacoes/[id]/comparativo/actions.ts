@@ -6,6 +6,8 @@ import {
   saveScoreEntry,
   saveScoreSetting,
   saveSelectedFinalists,
+  saveScoringMode,
+  applyAutoScoresToAll,
 } from "@/lib/comparisons/repository";
 
 function revalidate(comparisonId: string) {
@@ -44,5 +46,17 @@ export async function toggleCriterionAction(
 
 export async function setFinalistsAction(comparisonId: string, finalistIds: string[]) {
   await saveSelectedFinalists(comparisonId, finalistIds);
+  revalidate(comparisonId);
+}
+
+/** Define o modo de pontuação da avaliação (automático ou manual). */
+export async function setScoringModeAction(comparisonId: string, mode: "auto" | "manual") {
+  await saveScoringMode(comparisonId, mode);
+  revalidate(comparisonId);
+}
+
+/** Aplica as notas automáticas a todos os critérios (override em massa). */
+export async function applyAutoScoresAction(comparisonId: string) {
+  await applyAutoScoresToAll(comparisonId);
   revalidate(comparisonId);
 }

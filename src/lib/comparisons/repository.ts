@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { buildInitialDraftComparisonStructure } from "@/domain/comparisons/draft-structure";
 import { comparisonWorkflowSummary } from "@/domain/comparisons/workflow";
+import { autoScoreFor } from "@/domain/comparisons/auto-scoring";
+import { scoreDefinitions } from "@/domain/comparisons/score-definitions";
 import {
   comparisonInputSchema,
   companyEvaluationSchema,
@@ -343,7 +345,7 @@ export async function loadComparisonInput(id: string): Promise<ComparisonInput |
 
   const { data: comparison, error: comparisonError } = await supabase
     .from("comparisons")
-    .select("id,owner_id,title,status,selected_finalist_ids,created_at,updated_at")
+    .select("id,owner_id,title,status,selected_finalist_ids,summary,created_at,updated_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -427,6 +429,9 @@ export async function loadComparisonInput(id: string): Promise<ComparisonInput |
     }),
   );
 
+  const summary = (comparison.summary ?? {}) as { scoringMode?: string };
+  const scoringMode = summary.scoringMode === "manual" ? "manual" : "auto";
+
   const parsed = comparisonInputSchema.safeParse({
     id: comparison.id,
     ownerId: comparison.owner_id,
@@ -436,6 +441,7 @@ export async function loadComparisonInput(id: string): Promise<ComparisonInput |
     scoreEntries,
     scoreSettings,
     selectedFinalistIds: comparison.selected_finalist_ids ?? [],
+    scoringMode,
     createdAt: comparison.created_at,
     updatedAt: comparison.updated_at,
   });
@@ -585,5 +591,62 @@ export async function saveSelectedFinalists(comparisonId: string, finalistIds: s
     .update({ selected_finalist_ids: finalistIds })
     .eq("id", comparisonId);
 
+  if (error) throw new Error(error.message);
+}
+
+/** Persiste o modo de pontuação (auto/manual) dentro do summary jsonb. */
+export async function saveScoringMode(comparisonId: string, mode: "auto" | "manual") {
+  const { supabase } = await ownedComparisonOrThrow(comparisonId);
+  const { data: row, error: readError } = await supabase
+    .from("comparisons")
+    .select("summary")
+    .eq("id", comparisonId)
+    .single();
+  if (readError) throw new Error(readError.message);
+
+  const summary = { ...((row?.summary as Record<string, unknown>) ?? {}), scoringMode: mode };
+  const { error } = await supabase
+    .from("comparisons")
+    .update({ summary })
+    .eq("id", comparisonId);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Aplica as notas automáticas a TODOS os critérios pontuáveis (grava como
+ * override), para o comprador partir das sugestões. Usado pelo botão
+ * "Pontuar tudo automaticamente".
+ */
+export async function applyAutoScoresToAll(comparisonId: string) {
+  const input = await loadComparisonInput(comparisonId);
+  if (!input) throw new Error("Comparison not found.");
+
+  const { supabase } = await ownedComparisonOrThrow(comparisonId);
+  const rows: Array<{
+    comparison_id: string;
+    competitor_id: string;
+    criterion_key: string;
+    category: "company" | "technical";
+    score: number | null;
+  }> = [];
+
+  for (const competitor of input.competitors) {
+    for (const def of scoreDefinitions) {
+      const score = autoScoreFor(def.key, def.category, competitor);
+      if (score == null) continue; // mantém manuais/subjetivos vazios
+      rows.push({
+        comparison_id: comparisonId,
+        competitor_id: competitor.id,
+        criterion_key: def.key,
+        category: def.category,
+        score,
+      });
+    }
+  }
+
+  if (rows.length === 0) return;
+  const { error } = await supabase
+    .from("score_entries")
+    .upsert(rows, { onConflict: "competitor_id,criterion_key" });
   if (error) throw new Error(error.message);
 }

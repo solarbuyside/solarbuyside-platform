@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const comparisonStatusSchema = z.enum(["draft", "ready_for_review", "completed"]);
+export const scoringModeSchema = z.enum(["auto", "manual"]);
+export type ScoringMode = z.infer<typeof scoringModeSchema>;
 export const scoreCategorySchema = z.enum(["company", "technical"]);
 export const triStateAnswerSchema = z.enum(["yes", "no", "unknown"]);
 export const viabilityConfidenceSchema = z.enum(["high", "medium", "low", "unknown"]);
@@ -122,6 +124,8 @@ export const comparisonInputSchema = z.object({
   scoreEntries: z.array(scoreEntrySchema).default([]),
   scoreSettings: z.array(scoreSettingSchema).default([]),
   selectedFinalistIds: z.array(z.string().uuid()).max(2).default([]),
+  // "auto": notas calculadas dos dados; "manual": comprador pontua tudo.
+  scoringMode: scoringModeSchema.default("auto"),
   // Display-only metadata. Postgres returns timestamps like
   // "2026-05-28 23:17:50.62+00" (space + offset), which is not strict ISO,
   // so we accept any non-empty string rather than z.string().datetime().

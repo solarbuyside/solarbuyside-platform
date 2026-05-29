@@ -13,6 +13,9 @@ import {
   X,
   Loader2,
   Info,
+  Sparkles,
+  Pencil,
+  Wand2,
 } from "lucide-react";
 
 import {
@@ -28,7 +31,13 @@ import { applyAutoScores, autoScoreFor } from "@/domain/comparisons/auto-scoring
 import type { ComparisonInput, CompetitorProposal } from "@/domain/comparisons/types";
 import { cn } from "@/lib/utils";
 import { ScoreCell } from "./score-cell";
-import { setScoreAction, toggleCriterionAction, setFinalistsAction } from "./actions";
+import {
+  setScoreAction,
+  toggleCriterionAction,
+  setFinalistsAction,
+  setScoringModeAction,
+  applyAutoScoresAction,
+} from "./actions";
 
 type TabId = "company" | "technical" | "financial" | "overview";
 
@@ -45,11 +54,13 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
   const [comparison, setComparison] = React.useState<ComparisonInput>(initial);
   const [tab, setTab] = React.useState<TabId>("company");
   const [saving, setSaving] = React.useState(false);
+  const [applyingAuto, setApplyingAuto] = React.useState(false);
 
   const result = React.useMemo(
     () => calculateComparisonResult(applyAutoScores(comparison)),
     [comparison],
   );
+  const isAuto = comparison.scoringMode !== "manual";
 
   const run = React.useCallback((fn: () => Promise<void>) => {
     setSaving(true);
@@ -109,8 +120,85 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
     });
   }
 
+  function handleSetMode(mode: "auto" | "manual") {
+    setComparison((prev) => ({ ...prev, scoringMode: mode }));
+    run(() => setScoringModeAction(comparison.id, mode));
+  }
+
+  function handleApplyAuto() {
+    setApplyingAuto(true);
+    applyAutoScoresAction(comparison.id)
+      .then(() => {
+        // Reflete localmente: grava as notas auto como entries (override).
+        setComparison((prev) => {
+          const entries = [...prev.scoreEntries];
+          const byKey = new Map(entries.map((e) => [`${e.competitorId}::${e.criterionKey}`, e]));
+          for (const c of prev.competitors) {
+            for (const cat of ["company", "technical"] as const) {
+              const defs = cat === "company" ? companyComparisonRows : technicalComparisonRows;
+              for (const row of defs) {
+                if (!row.scoreKey) continue;
+                const auto = autoScoreFor(row.scoreKey, cat, c);
+                if (auto == null) continue;
+                byKey.set(`${c.id}::${row.scoreKey}`, {
+                  competitorId: c.id,
+                  criterionKey: row.scoreKey,
+                  score: auto,
+                });
+              }
+            }
+          }
+          return { ...prev, scoreEntries: Array.from(byKey.values()) };
+        });
+      })
+      .finally(() => setApplyingAuto(false));
+  }
+
   return (
     <div className="space-y-5">
+      {/* Barra de modo de pontuação */}
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+            <button
+              onClick={() => handleSetMode("auto")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
+                isAuto ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
+              )}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Automática
+            </button>
+            <button
+              onClick={() => handleSetMode("manual")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
+                !isAuto ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
+              )}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Manual
+            </button>
+          </div>
+          <p className="max-w-md text-[11px] leading-snug text-slate-400">
+            {isAuto
+              ? "O sistema calcula as notas a partir dos dados da entrevista (✨). Você pode ajustar qualquer nota manualmente."
+              : "Você define todas as notas manualmente. As sugestões aparecem como placeholder, sem contar no ranking."}
+          </p>
+        </div>
+
+        <button
+          onClick={handleApplyAuto}
+          disabled={applyingAuto}
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3.5 text-xs font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98] disabled:opacity-50"
+          title="Calcula e grava as notas automáticas em todos os critérios"
+        >
+          {applyingAuto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          Pontuar tudo automaticamente
+        </button>
+      </div>
+
       {/* Tabs */}
       <div className="flex items-center justify-between gap-3 border-b border-slate-200">
         <div className="flex gap-1 overflow-x-auto">
@@ -149,7 +237,7 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
           rows={companyComparisonRows}
           category="company"
           comparison={comparison}
-          result={result}
+          autoMode={isAuto}
           getAnswer={(c, prop) => answerFor(c.company, prop)}
           manualScore={manualScore}
           isEnabled={isEnabled}
@@ -164,7 +252,7 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
           rows={technicalComparisonRows}
           category="technical"
           comparison={comparison}
-          result={result}
+          autoMode={isAuto}
           getAnswer={(c, prop) => answerFor(c.technical, prop)}
           manualScore={manualScore}
           isEnabled={isEnabled}
@@ -210,6 +298,7 @@ function ScoreTable({
   rows,
   category,
   comparison,
+  autoMode,
   getAnswer,
   manualScore,
   isEnabled,
@@ -220,7 +309,7 @@ function ScoreTable({
   rows: ComparisonRow[];
   category: "company" | "technical";
   comparison: ComparisonInput;
-  result: ReturnType<typeof calculateComparisonResult>;
+  autoMode: boolean;
   getAnswer: (c: CompetitorProposal, prop: string) => unknown;
   manualScore: (competitorId: string, key: string) => number | null;
   isEnabled: (key: string, fallback: boolean) => boolean;
@@ -287,7 +376,9 @@ function ScoreTable({
                       const answer = getAnswer(c, row.prop);
                       const auto = row.scoreKey ? autoScoreFor(row.scoreKey, category, c) : null;
                       const manual = row.scoreKey ? manualScore(c.id, row.scoreKey) : null;
-                      const effective = manual ?? auto;
+                      // Em modo manual, só vale a nota digitada; a auto fica de fora.
+                      const effective = autoMode ? (manual ?? auto) : manual;
+                      const isAutoValue = autoMode && manual == null;
                       return (
                         <React.Fragment key={c.id}>
                           <td className="border-l border-slate-100 px-3 py-2 text-center text-slate-600">
@@ -297,7 +388,7 @@ function ScoreTable({
                             {row.scoreKey ? (
                               <ScoreCell
                                 value={effective}
-                                auto={manual == null}
+                                auto={isAutoValue}
                                 disabled={!enabled}
                                 onChange={(next) => onScore(c.id, row.scoreKey!, category, next)}
                               />

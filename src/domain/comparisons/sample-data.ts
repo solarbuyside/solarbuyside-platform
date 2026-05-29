@@ -36,6 +36,7 @@ export const sampleComparison: ComparisonInput = {
   id: ids.comparison,
   title: "Avaliacao de propostas Solar Buy-Side",
   status: "ready_for_review",
+  scoringMode: "auto",
   selectedFinalistIds: [ids.renova, ids.soli],
   competitors: [
     {

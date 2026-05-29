@@ -279,6 +279,11 @@ export function isManualCriterion(criterionKey: string): boolean {
  * them. Manual entries (a non-null score the buyer typed) are preserved.
  */
 export function applyAutoScores(comparison: ComparisonInput): ComparisonInput {
+  // No modo manual, o sistema NÃO calcula nada: vale só o que a pessoa digitou.
+  if (comparison.scoringMode === "manual") {
+    return comparison;
+  }
+
   const manualByKey = new Map<string, ScoreEntry>();
   for (const entry of comparison.scoreEntries) {
     manualByKey.set(`${entry.competitorId}::${entry.criterionKey}`, entry);
