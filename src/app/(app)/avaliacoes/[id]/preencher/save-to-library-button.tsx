@@ -37,7 +37,7 @@ export function SaveToLibraryButton({
       disabled={state === "saving"}
       title="Salvar esta empresa para reaproveitar em outros comparativos"
       className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-all active:scale-[0.98]",
+        "inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-xs font-semibold transition-all active:scale-[0.98]",
         state === "saved"
           ? "border-emerald-500/30 bg-emerald-50 text-emerald-600"
           : state === "error"

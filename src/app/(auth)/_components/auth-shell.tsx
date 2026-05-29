@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Zap, ShieldCheck, ListChecks, Trophy } from "lucide-react";
+import Image from "next/image";
+import { ShieldCheck, ListChecks, Trophy } from "lucide-react";
 
 const HIGHLIGHTS = [
   {
@@ -48,8 +49,14 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
 
           {/* Brand */}
           <div className="relative flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/30 bg-primary/15 shadow-[0_0_18px_rgba(249,115,22,0.25)]">
-              <Zap className="h-5 w-5 text-primary" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white p-1.5 shadow-[0_0_18px_rgba(249,115,22,0.2)]">
+              <Image
+                src="/LOGOSOLARBUYSIDE3.png"
+                alt="Solar Buy-Side"
+                width={32}
+                height={32}
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <p className="text-base font-bold leading-none tracking-tight">Solar Buy-Side</p>
@@ -96,9 +103,13 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         <section className="flex w-full flex-col justify-center px-6 py-10 sm:px-10 lg:w-1/2 lg:px-14">
           {/* Mobile brand (shown when the dark panel is hidden) */}
           <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-              <Zap className="h-4.5 w-4.5 text-primary" />
-            </div>
+            <Image
+              src="/LOGOSOLARBUYSIDE3.png"
+              alt="Solar Buy-Side"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+            />
             <span className="text-base font-bold tracking-tight text-slate-900">
               Solar Buy-Side
             </span>

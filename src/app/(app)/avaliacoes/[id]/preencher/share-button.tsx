@@ -50,10 +50,10 @@ export function ShareButton({
     <>
       <button
         onClick={handleOpen}
-        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-all hover:border-primary/50 hover:text-primary active:scale-[0.98]"
+        className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-all hover:border-primary/50 hover:text-primary active:scale-[0.98]"
       >
         <Share2 className="h-3.5 w-3.5" />
-        Compartilhar com o fornecedor
+        Compartilhar
       </button>
 
       {open && (

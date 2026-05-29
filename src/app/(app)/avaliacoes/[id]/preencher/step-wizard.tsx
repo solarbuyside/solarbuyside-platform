@@ -253,7 +253,9 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
           {/* Form */}
           {activeCompetitor && (
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+              {/* key forces uncontrolled inputs to reset when switching supplier/section */}
               <InterviewForm
+                key={`${activeCompetitor.id}-${section.id}`}
                 fields={fields}
                 competitor={activeCompetitor}
                 getValue={getValue}

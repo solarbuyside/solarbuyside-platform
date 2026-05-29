@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -10,7 +11,6 @@ import {
   Lightbulb,
   GraduationCap,
   ShieldCheck,
-  Zap,
   Menu,
   X,
   Bell,
@@ -85,9 +85,15 @@ export function AppShell({
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar (desktop) */}
       <aside className="hidden md:flex flex-col w-64 shrink-0 glass-panel-sidebar fixed h-screen z-20">
-        <div className="flex items-center gap-3 px-6 h-20 border-b border-border/30">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 shadow-[0_0_12px_rgba(249,115,22,0.15)]">
-            <Zap className="h-5 w-5 text-primary" />
+        <div className="relative flex items-center gap-3 px-6 h-20 border-b border-white/5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1.5 shadow-[0_0_12px_rgba(249,115,22,0.2)]">
+            <Image
+              src="/LOGOSOLARBUYSIDE3.png"
+              alt="Solar Buy-Side"
+              width={32}
+              height={32}
+              className="h-full w-full object-contain"
+            />
           </div>
           <div>
             <h1 className="font-bold text-white text-lg tracking-tight leading-none">Solar Buy-Side</h1>
@@ -139,7 +145,13 @@ export function AppShell({
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 glass-panel-sidebar border-b border-border/30 flex items-center justify-between px-4 z-30">
         <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-primary" />
+          <Image
+            src="/LOGOSOLARBUYSIDE3.png"
+            alt="Solar Buy-Side"
+            width={24}
+            height={24}
+            className="h-6 w-6 object-contain"
+          />
           <span className="font-bold text-white text-base">Solar Buy-Side</span>
         </div>
         <button
