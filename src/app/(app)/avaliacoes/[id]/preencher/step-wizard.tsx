@@ -346,12 +346,12 @@ function SupplierPanel({
     <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
       {/* Hero: active supplier */}
       {active && (
-        <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-4 shadow-sm">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Entrevistando · {activeIndex + 1} de {total}
           </span>
           <div className="mt-2 flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-bold text-white">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-base font-bold text-primary">
               {activeIndex + 1}
             </div>
             <div className="min-w-0">
@@ -361,7 +361,7 @@ function SupplierPanel({
               </p>
             </div>
           </div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/15">
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
             <div
               className="h-full rounded-full bg-primary transition-all"
               style={{ width: `${Math.round(activeRatio * 100)}%` }}
@@ -385,14 +385,17 @@ function SupplierPanel({
                 key={c.id}
                 onClick={() => onSelect(c.id)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
-                  isActive ? "bg-primary/10" : "hover:bg-slate-50",
+                  "relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  isActive ? "bg-slate-100" : "hover:bg-slate-50",
                 )}
               >
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-primary" />
+                )}
                 <span
                   className={cn(
                     "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold",
-                    isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500",
+                    isActive ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500",
                   )}
                 >
                   {i + 1}
@@ -401,7 +404,7 @@ function SupplierPanel({
                   <span
                     className={cn(
                       "block truncate text-sm font-semibold",
-                      isActive ? "text-primary" : "text-slate-700",
+                      isActive ? "text-slate-900" : "text-slate-700",
                     )}
                   >
                     {c.companyName}
@@ -445,38 +448,47 @@ function SectionStepper({
         const Icon = s.icon;
         const isActive = i === current;
         const { filled, total } = sectionProgress(competitor, s.id);
-        const complete = filled === total && total > 0;
+        const complete = filled >= total;
+        const ratio = total > 0 ? filled / total : 0;
         return (
           <button
             key={s.id}
             onClick={() => onSelect(i)}
             className={cn(
-              "group flex flex-1 items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
+              "group relative flex flex-1 items-center gap-3 overflow-hidden rounded-xl border bg-white px-4 py-3 text-left transition-all",
               isActive
-                ? "border-primary bg-primary text-white shadow-[0_2px_12px_rgba(249,115,22,0.2)]"
-                : "border-slate-200 bg-white hover:border-slate-300",
+                ? "border-primary shadow-[0_2px_12px_rgba(249,115,22,0.12)]"
+                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50",
             )}
           >
             <span
               className={cn(
                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
-                isActive
-                  ? "bg-white/20 text-white"
-                  : complete
-                    ? "bg-emerald-500/10 text-emerald-600"
+                complete
+                  ? "bg-emerald-500/10 text-emerald-600"
+                  : isActive
+                    ? "bg-primary/10 text-primary"
                     : "bg-slate-100 text-slate-400",
               )}
             >
-              {complete && !isActive ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+              {complete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
             </span>
             <div className="min-w-0">
-              <p className={cn("text-sm font-bold", isActive ? "text-white" : "text-slate-800")}>
+              <p className={cn("text-sm font-bold", isActive ? "text-slate-900" : "text-slate-700")}>
                 {s.short}
               </p>
-              <p className={cn("text-[11px]", isActive ? "text-white/70" : "text-slate-400")}>
-                {filled}/{total} campos
-              </p>
+              <p className="text-[11px] text-slate-400">{filled}/{total} campos</p>
             </div>
+            {/* progress underline */}
+            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-slate-100">
+              <span
+                className={cn(
+                  "block h-full transition-all",
+                  complete ? "bg-emerald-500" : "bg-primary",
+                )}
+                style={{ width: `${Math.round(ratio * 100)}%` }}
+              />
+            </span>
           </button>
         );
       })}

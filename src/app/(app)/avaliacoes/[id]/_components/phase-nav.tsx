@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, BarChart3, Trophy } from "lucide-react";
+import { ClipboardList, BarChart3, Trophy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Phase = "entrevista" | "comparativo" | "finalistas";
@@ -64,21 +64,29 @@ export function PhaseNav({
                 className={cn(
                   "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
                   isActive
-                    ? "bg-primary text-white"
+                    ? "bg-primary/10 text-primary"
                     : isDone
                       ? "bg-emerald-500/10 text-emerald-600"
                       : "bg-slate-100 text-slate-400",
                 )}
               >
-                <Icon className="h-4.5 w-4.5" />
+                {isDone ? <Check className="h-4.5 w-4.5" /> : <Icon className="h-4.5 w-4.5" />}
               </span>
               <div className="min-w-0">
                 <p
                   className={cn(
-                    "text-sm font-bold",
-                    isActive ? "text-primary" : "text-slate-700",
+                    "flex items-center gap-1.5 text-sm font-bold",
+                    isActive ? "text-slate-900" : "text-slate-700",
                   )}
                 >
+                  <span
+                    className={cn(
+                      "text-[11px] font-extrabold",
+                      isActive ? "text-primary" : "text-slate-300",
+                    )}
+                  >
+                    {i + 1}
+                  </span>
                   {phase.label}
                 </p>
                 <p className="truncate text-[11px] text-slate-400">{phase.hint}</p>
