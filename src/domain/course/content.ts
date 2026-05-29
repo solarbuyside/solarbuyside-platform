@@ -15,6 +15,7 @@ export type Lesson = {
   id: string;
   title: string;
   minutes: number;
+  illustration: string;
   blocks: ContentBlock[];
 };
 
@@ -37,6 +38,7 @@ export const COURSE: CourseModule[] = [
         id: "fundamentos-1",
         title: "O que é energia solar fotovoltaica",
         minutes: 8,
+        illustration: "sun",
         blocks: [
           {
             type: "p",
@@ -69,6 +71,7 @@ export const COURSE: CourseModule[] = [
         id: "fundamentos-2",
         title: "Módulos, inversores e estruturas",
         minutes: 12,
+        illustration: "panel",
         blocks: [
           { type: "h", text: "Os três componentes principais" },
           {
@@ -93,6 +96,7 @@ export const COURSE: CourseModule[] = [
         id: "fundamentos-3",
         title: "Geração, consumo e compensação",
         minutes: 10,
+        illustration: "generation",
         blocks: [
           {
             type: "p",
@@ -125,6 +129,7 @@ export const COURSE: CourseModule[] = [
         id: "empresa-1",
         title: "Registro CREA e responsável técnico",
         minutes: 7,
+        illustration: "shield",
         blocks: [
           {
             type: "p",
@@ -140,6 +145,7 @@ export const COURSE: CourseModule[] = [
         id: "empresa-2",
         title: "Tempo de mercado e histórico",
         minutes: 9,
+        illustration: "company",
         blocks: [
           {
             type: "p",
@@ -159,6 +165,7 @@ export const COURSE: CourseModule[] = [
         id: "empresa-3",
         title: "Garantias e assistência técnica",
         minutes: 11,
+        illustration: "warranty",
         blocks: [
           {
             type: "p",
@@ -192,6 +199,7 @@ export const COURSE: CourseModule[] = [
         id: "tecnica-1",
         title: "Potência, módulos e tiers de fabricante",
         minutes: 14,
+        illustration: "module",
         blocks: [
           {
             type: "p",
@@ -211,6 +219,7 @@ export const COURSE: CourseModule[] = [
         id: "tecnica-2",
         title: "Sobrecarga do inversor: a faixa ideal",
         minutes: 10,
+        illustration: "inverter",
         blocks: [
           {
             type: "p",
@@ -234,6 +243,7 @@ export const COURSE: CourseModule[] = [
         id: "financeiro-1",
         title: "Payback e retorno do capital",
         minutes: 13,
+        illustration: "payback",
         blocks: [
           {
             type: "p",
@@ -257,6 +267,7 @@ export const COURSE: CourseModule[] = [
         id: "financeiro-2",
         title: "Por que o menor preço engana",
         minutes: 9,
+        illustration: "price",
         blocks: [
           {
             type: "p",
@@ -280,6 +291,7 @@ export const COURSE: CourseModule[] = [
         id: "decisao-1",
         title: "Montando a matriz de comparação",
         minutes: 12,
+        illustration: "matrix",
         blocks: [
           {
             type: "p",
@@ -299,6 +311,7 @@ export const COURSE: CourseModule[] = [
         id: "decisao-2",
         title: "Negociando com os dois finalistas",
         minutes: 14,
+        illustration: "deal",
         blocks: [
           {
             type: "p",

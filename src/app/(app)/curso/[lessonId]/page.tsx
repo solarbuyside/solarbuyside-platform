@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Lightbulb, CheckCircle2 } from "lucide-react";
 import { findLesson, type ContentBlock } from "@/domain/course/content";
 import { getCompletedLessons } from "@/lib/course/progress";
 import { CompleteButton } from "./complete-button";
+import { LessonIllustration, type IllustrationKey } from "./illustration";
 
 type LessonPageProps = {
   params: Promise<{ lessonId: string }>;
@@ -52,6 +53,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
           {lesson.minutes} min de leitura
         </p>
       </div>
+
+      {/* Illustration hero */}
+      <LessonIllustration kind={lesson.illustration as IllustrationKey} />
 
       {/* Content */}
       <article className="space-y-5">
