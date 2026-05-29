@@ -74,6 +74,42 @@ function fieldProp(key: string) {
   return key.split(".")[1] ?? key;
 }
 
+const SECTION_FIELDS = {
+  company: companyFormFields,
+  technical: technicalFormFields,
+  financial: financialFormFields,
+} as const;
+
+/** How many fields in a section are filled for a given competitor (0..total). */
+function sectionProgress(competitor: CompetitorProposal, sectionId: SectionId) {
+  const fields = SECTION_FIELDS[sectionId];
+  const source =
+    sectionId === "company"
+      ? competitor.company
+      : sectionId === "technical"
+        ? competitor.technical
+        : competitor.financial;
+  const record = source as Record<string, unknown>;
+  let filled = 0;
+  for (const field of fields) {
+    const v = record[fieldProp(field.key)];
+    if (v !== null && v !== undefined && v !== "") filled += 1;
+  }
+  return { filled, total: fields.length };
+}
+
+/** Overall fill ratio across the three sections for one competitor (0..1). */
+function competitorProgress(competitor: CompetitorProposal) {
+  let filled = 0;
+  let total = 0;
+  for (const id of ["company", "technical", "financial"] as SectionId[]) {
+    const p = sectionProgress(competitor, id);
+    filled += p.filled;
+    total += p.total;
+  }
+  return total === 0 ? 0 : filled / total;
+}
+
 export function StepWizard({ comparison: initial }: { comparison: ComparisonInput }) {
   const [comparison, setComparison] = React.useState<ComparisonInput>(initial);
   const [sectionIndex, setSectionIndex] = React.useState(0);
@@ -155,93 +191,80 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
     else handleFinancialChange(prop as keyof FinancialEvaluation, value);
   }
 
+  const totalCompetitors = comparison.competitors.length;
+  const activeIndex = comparison.competitors.findIndex((c) => c.id === activeCompetitor?.id);
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Save indicator + intro */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
-          Anote a entrevista com cada fornecedor. Tudo salva sozinho — pode parar e voltar depois.
-        </p>
-        <SaveIndicator state={saveState} />
-      </div>
-
-      {/* Supplier tabs */}
-      {activeCompetitor && (
-        <CompetitorTabs
-          competitors={comparison.competitors}
-          activeId={activeCompetitor.id}
-          onSelect={setActiveCompetitorId}
-        />
-      )}
-
-      {/* Section tabs + share */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1.5">
-          {SECTIONS.map((s, i) => {
-            const Icon = s.icon;
-            const isActive = i === sectionIndex;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setSectionIndex(i)}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-all",
-                  isActive
-                    ? "bg-primary text-white shadow-[0_0_10px_rgba(249,115,22,0.2)]"
-                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {s.short}
-              </button>
-            );
-          })}
-        </div>
-
+    <div className="animate-in fade-in duration-300">
+      {/* Two columns: WHO (supplier context) on the left, WHAT (interview) on the right */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
+        {/* LEFT — supplier context panel */}
         {activeCompetitor && (
-          <ShareButton
-            key={activeCompetitor.id}
-            comparisonId={comparison.id}
-            competitorId={activeCompetitor.id}
-            competitorName={activeCompetitor.companyName}
+          <SupplierPanel
+            competitors={comparison.competitors}
+            activeId={activeCompetitor.id}
+            activeIndex={activeIndex}
+            total={totalCompetitors}
+            onSelect={setActiveCompetitorId}
           />
         )}
-      </div>
 
-      {/* Section title */}
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-          <section.icon className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-slate-900">
-            {section.title} · <span className="text-primary">{activeCompetitor?.companyName}</span>
-          </h3>
-          <p className="mt-0.5 text-xs text-slate-500">{section.subtitle}</p>
-        </div>
-      </div>
+        {/* RIGHT — interview */}
+        <div className="space-y-5">
+          {/* Section stepper (progress within the interview) */}
+          {activeCompetitor && (
+            <SectionStepper
+              competitor={activeCompetitor}
+              current={sectionIndex}
+              onSelect={setSectionIndex}
+            />
+          )}
 
-      {errorMsg && (
-        <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          <CircleAlert className="h-4 w-4 shrink-0" />
-          {errorMsg}
-        </div>
-      )}
+          {/* Section header + save + share */}
+          <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+                <section.icon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">{section.title}</h3>
+                <p className="mt-0.5 text-xs text-slate-500">{section.subtitle}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <SaveIndicator state={saveState} />
+              {activeCompetitor && (
+                <ShareButton
+                  key={activeCompetitor.id}
+                  comparisonId={comparison.id}
+                  competitorId={activeCompetitor.id}
+                  competitorName={activeCompetitor.companyName}
+                />
+              )}
+            </div>
+          </div>
 
-      {/* Form */}
-      {activeCompetitor && (
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:p-7">
-          <InterviewForm
-            fields={fields}
-            competitor={activeCompetitor}
-            getValue={getValue}
-            onChange={handleChange}
-          />
-        </div>
-      )}
+          {errorMsg && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <CircleAlert className="h-4 w-4 shrink-0" />
+              {errorMsg}
+            </div>
+          )}
 
-      {/* Footer nav */}
-      <div className="flex items-center justify-between">
+          {/* Form */}
+          {activeCompetitor && (
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+              <InterviewForm
+                fields={fields}
+                competitor={activeCompetitor}
+                getValue={getValue}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+
+          {/* Footer nav */}
+          <div className="flex items-center justify-between">
         <button
           onClick={() => setSectionIndex((i) => Math.max(0, i - 1))}
           disabled={sectionIndex === 0}
@@ -274,6 +297,8 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
             <ArrowRight className="h-4 w-4" />
           </button>
         )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -296,43 +321,162 @@ function SaveIndicator({ state }: { state: SaveState }) {
   );
 }
 
-function CompetitorTabs({
+/**
+ * LEFT column: "who am I interviewing". The active supplier is the hero; the
+ * others are a quiet switch list. Each shows a fill-progress ring so the buyer
+ * sees at a glance how complete each interview is.
+ */
+function SupplierPanel({
   competitors,
   activeId,
+  activeIndex,
+  total,
   onSelect,
 }: {
   competitors: CompetitorProposal[];
   activeId: string;
+  activeIndex: number;
+  total: number;
   onSelect: (id: string) => void;
 }) {
+  const active = competitors.find((c) => c.id === activeId);
+  const activeRatio = active ? competitorProgress(active) : 0;
+
   return (
-    <div className="flex items-center gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-slate-50/60 p-2">
-      <span className="flex shrink-0 items-center gap-1.5 px-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-        <Users className="h-3.5 w-3.5" />
-        Fornecedor
-      </span>
-      {competitors.map((c, i) => {
-        const isActive = c.id === activeId;
+    <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
+      {/* Hero: active supplier */}
+      {active && (
+        <div className="rounded-xl border border-primary/30 bg-primary/[0.04] p-4 shadow-sm">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70">
+            Entrevistando · {activeIndex + 1} de {total}
+          </span>
+          <div className="mt-2 flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-bold text-white">
+              {activeIndex + 1}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-base font-bold text-slate-900">{active.companyName}</p>
+              <p className="text-[11px] font-medium text-slate-500">
+                {Math.round(activeRatio * 100)}% preenchido
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-primary/15">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${Math.round(activeRatio * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Switch list */}
+      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+        <p className="flex items-center gap-1.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <Users className="h-3.5 w-3.5" />
+          Trocar de fornecedor
+        </p>
+        <div className="space-y-0.5">
+          {competitors.map((c, i) => {
+            const isActive = c.id === activeId;
+            const ratio = competitorProgress(c);
+            return (
+              <button
+                key={c.id}
+                onClick={() => onSelect(c.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  isActive ? "bg-primary/10" : "hover:bg-slate-50",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold",
+                    isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500",
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block truncate text-sm font-semibold",
+                      isActive ? "text-primary" : "text-slate-700",
+                    )}
+                  >
+                    {c.companyName}
+                  </span>
+                  <span className="mt-1 block h-1 overflow-hidden rounded-full bg-slate-100">
+                    <span
+                      className={cn(
+                        "block h-full rounded-full transition-all",
+                        ratio >= 1 ? "bg-emerald-500" : "bg-primary/60",
+                      )}
+                      style={{ width: `${Math.round(ratio * 100)}%` }}
+                    />
+                  </span>
+                </span>
+                {ratio >= 1 && <Check className="h-4 w-4 shrink-0 text-emerald-500" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/**
+ * RIGHT column header: the three interview sections as a progress stepper
+ * (Empresa → Técnico → Financeiro), with a filled-fields count per step.
+ */
+function SectionStepper({
+  competitor,
+  current,
+  onSelect,
+}: {
+  competitor: CompetitorProposal;
+  current: number;
+  onSelect: (index: number) => void;
+}) {
+  return (
+    <div className="flex items-stretch gap-2">
+      {SECTIONS.map((s, i) => {
+        const Icon = s.icon;
+        const isActive = i === current;
+        const { filled, total } = sectionProgress(competitor, s.id);
+        const complete = filled === total && total > 0;
         return (
           <button
-            key={c.id}
-            onClick={() => onSelect(c.id)}
+            key={s.id}
+            onClick={() => onSelect(i)}
             className={cn(
-              "inline-flex shrink-0 items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all",
+              "group flex flex-1 items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all",
               isActive
-                ? "border-primary bg-white text-primary shadow-sm"
-                : "border-transparent text-slate-600 hover:bg-white/70",
+                ? "border-primary bg-primary text-white shadow-[0_2px_12px_rgba(249,115,22,0.2)]"
+                : "border-slate-200 bg-white hover:border-slate-300",
             )}
           >
             <span
               className={cn(
-                "flex h-5 w-5 items-center justify-center rounded-md text-[10px] font-bold",
-                isActive ? "bg-primary text-white" : "bg-slate-200 text-slate-500",
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
+                isActive
+                  ? "bg-white/20 text-white"
+                  : complete
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : "bg-slate-100 text-slate-400",
               )}
             >
-              {i + 1}
+              {complete && !isActive ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
             </span>
-            {c.companyName}
+            <div className="min-w-0">
+              <p className={cn("text-sm font-bold", isActive ? "text-white" : "text-slate-800")}>
+                {s.short}
+              </p>
+              <p className={cn("text-[11px]", isActive ? "text-white/70" : "text-slate-400")}>
+                {filled}/{total} campos
+              </p>
+            </div>
           </button>
         );
       })}

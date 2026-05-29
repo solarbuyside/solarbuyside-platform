@@ -40,6 +40,13 @@ export type SearchItem = {
   competitors: string[];
 };
 
+export type NotificationItem = {
+  id: string;
+  title: string;
+  description: string;
+  at: string;
+};
+
 const BASE_ITEMS: SidebarItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
@@ -58,22 +65,19 @@ function initials(name: string | null, email: string | null) {
 export function AppShell({
   user,
   searchItems,
+  notifications,
   children,
 }: {
   user: AppShellUser;
   searchItems: SearchItem[];
+  notifications: NotificationItem[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const menuItems = React.useMemo(() => {
-    const items = [...BASE_ITEMS];
-    if (user.isAdmin) {
-      items.push({ name: "Admin", href: "/admin", icon: ShieldCheck });
-    }
-    return items;
-  }, [user.isAdmin]);
+  // Admin lives in the header (not the sidebar) — see header actions below.
+  const menuItems = BASE_ITEMS;
 
   const displayName = user.fullName ?? user.email ?? "Usuário";
 
@@ -189,13 +193,18 @@ export function AppShell({
         <header className="h-20 glass-panel-header flex items-center justify-between px-6 md:px-10 sticky top-0 z-10 hidden md:flex">
           <GlobalSearch items={searchItems} />
 
-          <div className="flex items-center gap-4">
-            <button className="h-9 w-9 flex items-center justify-center rounded-lg bg-slate-100 border border-border text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-colors relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
-            </button>
+          <div className="flex items-center gap-2">
+            {user.isAdmin && (
+              <Link
+                href="/admin"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden lg:inline">Admin</span>
+              </Link>
+            )}
 
-            <div className="h-px w-6 bg-border/60" />
+            <NotificationsBell notifications={notifications} />
 
             <UserMenu user={user} displayName={displayName} />
           </div>
@@ -280,6 +289,63 @@ function GlobalSearch({ items }: { items: SearchItem[] }) {
   );
 }
 
+function NotificationsBell({ notifications }: { notifications: NotificationItem[] }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const hasUnread = notifications.length > 0;
+
+  React.useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+      >
+        <Bell className="h-4 w-4" />
+        {hasUnread && (
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in zoom-in-95">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <p className="text-sm font-bold text-slate-800">Notificações</p>
+            {hasUnread && (
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                {notifications.length}
+              </span>
+            )}
+          </div>
+          <div className="max-h-80 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <Bell className="mx-auto h-7 w-7 text-slate-200" />
+                <p className="mt-2 text-xs text-slate-400">Sem notificações no momento.</p>
+              </div>
+            ) : (
+              notifications.map((n) => (
+                <div key={n.id} className="border-b border-slate-50 px-4 py-3 last:border-0 hover:bg-slate-50">
+                  <p className="text-sm font-semibold text-slate-800">{n.title}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{n.description}</p>
+                  <p className="mt-1 text-[10px] text-slate-400">{n.at}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function UserMenu({ user, displayName }: { user: AppShellUser; displayName: string }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
@@ -296,15 +362,15 @@ function UserMenu({ user, displayName }: { user: AppShellUser; displayName: stri
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 transition-colors hover:bg-primary/15"
+        className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-2 py-1.5 transition-colors hover:bg-slate-50"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-[11px] font-bold text-white">
           {initials(user.fullName, user.email)}
         </span>
-        <span className="hidden lg:block max-w-[120px] truncate text-xs font-semibold text-primary">
+        <span className="hidden lg:block max-w-[120px] truncate text-xs font-semibold text-slate-700">
           {displayName}
         </span>
-        <ChevronDown className={cn("h-3.5 w-3.5 text-primary transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-3.5 w-3.5 text-slate-400 transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (

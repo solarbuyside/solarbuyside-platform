@@ -19,6 +19,16 @@ export type AdminComparisonRow = {
   updatedAt: string;
 };
 
+export type AdminEventRow = {
+  id: string;
+  eventType: string;
+  ownerEmail: string | null;
+  comparisonTitle: string | null;
+  createdAt: string;
+};
+
+export type UsagePoint = { date: string; comparisons: number; users: number };
+
 export type AdminOverview = {
   totals: {
     users: number;
@@ -26,8 +36,10 @@ export type AdminOverview = {
     completed: number;
     competitors: number;
   };
+  usage: UsagePoint[];
   users: AdminUserRow[];
   comparisons: AdminComparisonRow[];
+  events: AdminEventRow[];
 };
 
 /**
@@ -38,21 +50,27 @@ export type AdminOverview = {
 export async function getAdminOverview(): Promise<AdminOverview> {
   const admin = createAdminClient();
 
-  const [profilesRes, comparisonsRes, competitorsRes] = await Promise.all([
+  const [profilesRes, comparisonsRes, competitorsRes, eventsRes] = await Promise.all([
     admin
       .from("profiles")
       .select("id,email,full_name,created_at")
       .order("created_at", { ascending: false }),
     admin
       .from("comparisons")
-      .select("id,owner_id,title,status,selected_finalist_ids,updated_at")
+      .select("id,owner_id,title,status,selected_finalist_ids,created_at,updated_at")
       .order("updated_at", { ascending: false }),
     admin.from("competitors").select("id,comparison_id"),
+    admin
+      .from("comparison_events")
+      .select("id,event_type,comparison_id,actor_id,created_at")
+      .order("created_at", { ascending: false })
+      .limit(40),
   ]);
 
   const profiles = profilesRes.data ?? [];
   const comparisons = comparisonsRes.data ?? [];
   const competitors = competitorsRes.data ?? [];
+  const events = eventsRes.data ?? [];
 
   const emailByOwner = new Map<string, string | null>();
   const nameByOwner = new Map<string, string | null>();
@@ -97,6 +115,34 @@ export async function getAdminOverview(): Promise<AdminOverview> {
     updatedAt: c.updated_at,
   }));
 
+  // Usage over the last 14 days: comparisons created + users registered per day.
+  const days = 14;
+  const usage: UsagePoint[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - i);
+    const key = day.toISOString().slice(0, 10);
+    const label = day.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    const comparisonsOnDay = comparisons.filter(
+      (c) => (c.created_at ?? "").slice(0, 10) === key,
+    ).length;
+    const usersOnDay = profiles.filter((p) => (p.created_at ?? "").slice(0, 10) === key).length;
+    usage.push({ date: label, comparisons: comparisonsOnDay, users: usersOnDay });
+  }
+
+  const titleByComparison = new Map<string, string>();
+  for (const c of comparisons) titleByComparison.set(c.id, c.title);
+
+  const adminEvents: AdminEventRow[] = events.map((e) => ({
+    id: e.id,
+    eventType: e.event_type,
+    ownerEmail: e.actor_id ? emailByOwner.get(e.actor_id) ?? null : null,
+    comparisonTitle: titleByComparison.get(e.comparison_id) ?? null,
+    createdAt: e.created_at,
+  }));
+
   return {
     totals: {
       users: profiles.length,
@@ -104,7 +150,9 @@ export async function getAdminOverview(): Promise<AdminOverview> {
       completed: comparisons.filter((c) => c.status === "completed").length,
       competitors: competitors.length,
     },
+    usage,
     users,
     comparisons: adminComparisons,
+    events: adminEvents,
   };
 }

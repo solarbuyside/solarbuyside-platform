@@ -223,6 +223,31 @@ export async function listComparisonSummaries() {
   return (data as ComparisonWithCompetitors[]).map(toSummary);
 }
 
+export type RecentEvent = {
+  id: string;
+  eventType: string;
+  comparisonId: string;
+  createdAt: string;
+};
+
+/** Recent activity for the current user (drives the header notifications). */
+export async function listRecentEvents(limit = 10): Promise<RecentEvent[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("comparison_events")
+    .select("id,event_type,comparison_id,created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return [];
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    eventType: row.event_type,
+    comparisonId: row.comparison_id,
+    createdAt: row.created_at,
+  }));
+}
+
 export async function getComparisonSummary(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

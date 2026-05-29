@@ -26,3 +26,30 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     isAdmin: isAdminEmail(email),
   };
 }
+
+export type ProfileDetails = {
+  fullName: string | null;
+  phone: string | null;
+  companyName: string | null;
+};
+
+/** Reads the editable profile row for the current user. */
+export async function getProfileDetails(): Promise<ProfileDetails | null> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("full_name,phone,company_name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) return { fullName: null, phone: null, companyName: null };
+  return {
+    fullName: data.full_name,
+    phone: data.phone,
+    companyName: data.company_name,
+  };
+}
