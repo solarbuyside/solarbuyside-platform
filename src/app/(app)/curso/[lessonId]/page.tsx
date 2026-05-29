@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, Lightbulb, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, Lightbulb, CheckCircle2, Quote, BookOpen } from "lucide-react";
 
 import { findLesson, type ContentBlock } from "@/domain/course/content";
 import { getCompletedLessons } from "@/lib/course/progress";
@@ -98,6 +98,26 @@ function Block({ block }: { block: ContentBlock }) {
         <div className="flex gap-3 rounded-xl border border-primary/15 bg-primary/[0.04] p-4">
           <Lightbulb className="h-5 w-5 shrink-0 text-primary" />
           <p className="text-sm leading-relaxed text-slate-700">{block.text}</p>
+        </div>
+      );
+    case "example":
+      return (
+        <div className="rounded-xl border border-sky-200/70 bg-sky-50/70 p-4">
+          <p className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-700">
+            <Quote className="h-3.5 w-3.5" />
+            {block.title}
+          </p>
+          <p className="text-sm leading-relaxed text-slate-700">{block.text}</p>
+        </div>
+      );
+    case "term":
+      return (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="mb-1 flex items-center gap-2 text-sm font-bold text-slate-900">
+            <BookOpen className="h-4 w-4 text-primary" />
+            {block.term}
+          </p>
+          <p className="text-sm leading-relaxed text-slate-600">{block.text}</p>
         </div>
       );
     default:
