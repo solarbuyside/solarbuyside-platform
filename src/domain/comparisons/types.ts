@@ -122,8 +122,11 @@ export const comparisonInputSchema = z.object({
   scoreEntries: z.array(scoreEntrySchema).default([]),
   scoreSettings: z.array(scoreSettingSchema).default([]),
   selectedFinalistIds: z.array(z.string().uuid()).max(2).default([]),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional(),
+  // Display-only metadata. Postgres returns timestamps like
+  // "2026-05-28 23:17:50.62+00" (space + offset), which is not strict ISO,
+  // so we accept any non-empty string rather than z.string().datetime().
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export type CompanyEvaluation = z.infer<typeof companyEvaluationSchema>;

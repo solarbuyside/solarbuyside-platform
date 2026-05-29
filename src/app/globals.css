@@ -83,11 +83,26 @@ body {
 
 /* Custom visual utilities according to design.md */
 
-/* Sidebar permanece em azul escuro profundo para contraste premium */
+/* Sidebar: degradê azul profundo + textura de grid solar bem leve */
 .glass-panel-sidebar {
-  background: rgba(5, 13, 36, 0.98);
-  backdrop-filter: blur(12px);
+  position: relative;
+  background: linear-gradient(160deg, #020719 0%, #061233 55%, #0a1e4d 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
+  isolation: isolate;
+}
+
+.glass-panel-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, black 35%, transparent 80%);
+  mask-image: radial-gradient(120% 80% at 50% 0%, black 35%, transparent 80%);
+  pointer-events: none;
 }
 
 /* Header em tom azul escuro ou translúcido */
@@ -113,4 +128,15 @@ body {
 
 .table-zebra tr:nth-child(odd) {
   background-color: #ffffff;
+}
+
+/* Remove os spinners nativos de inputs number (ficam colados na borda e poluem) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

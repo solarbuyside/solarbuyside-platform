@@ -71,11 +71,11 @@ export default async function AvaliacaoPage({ params }: AvaliacaoPageProps) {
           </Link>
 
           <Link
-            href="/dashboard"
+            href={`/avaliacoes/${comparison.id}/preencher`}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground outline-none transition-all duration-200 ease-in-out hover:-translate-y-[1px] hover:bg-primary/95 hover:shadow-[0_4px_15px_rgba(249,115,22,0.25)] active:scale-[0.98]"
           >
             <Sliders className="h-4 w-4" />
-            Abrir Painel Técnico
+            Preencher Dados das Propostas
           </Link>
         </div>
       </div>
@@ -174,11 +174,11 @@ export default async function AvaliacaoPage({ params }: AvaliacaoPageProps) {
                 O arquivo original <i>Planilha de avaliacao de propostas Solar Buy-Side.xlsx</i> serve como base conceitual.
               </span>
               
-              <Link 
-                href="/dashboard" 
+              <Link
+                href={`/avaliacoes/${comparison.id}/preencher`}
                 className="text-xs text-primary font-bold hover:underline flex items-center gap-1 group active:translate-x-0.5 transition-transform"
               >
-                Prosseguir para o Dashboard <ArrowRight className="h-3.5 w-3.5" />
+                Começar Preenchimento <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </CardFooter>
           </Card>
@@ -208,8 +208,8 @@ export default async function AvaliacaoPage({ params }: AvaliacaoPageProps) {
                   1
                 </div>
                 <div className="space-y-1">
-                  <span className="font-bold text-slate-800 block">Abrir o Dashboard</span>
-                  <p>Acesse o painel principal para carregar o escopo técnico desta avaliação.</p>
+                  <span className="font-bold text-slate-800 block">Preencher os Dados</span>
+                  <p>Insira os dados de cada proposta passo a passo (empresa, técnico e financeiro).</p>
                 </div>
               </div>
 

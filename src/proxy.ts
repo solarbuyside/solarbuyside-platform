@@ -3,8 +3,17 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { getPublicSupabaseConfig } from "@/lib/env";
 
-const protectedPrefixes = ["/dashboard", "/avaliacoes", "/historico", "/dicas"];
-const authPrefixes = ["/login", "/reset-password", "/update-password"];
+const protectedPrefixes = [
+  "/dashboard",
+  "/avaliacoes",
+  "/historico",
+  "/dicas",
+  "/curso",
+  "/curadoria",
+  "/configuracoes",
+  "/admin",
+];
+const authPrefixes = ["/login", "/cadastro", "/reset-password", "/update-password"];
 
 export async function proxy(request: NextRequest) {
   const { url, publishableKey } = getPublicSupabaseConfig();

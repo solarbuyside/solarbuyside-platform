@@ -3,6 +3,28 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          full_name: string | null;
+          company_name: string | null;
+          phone: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string | null;
+          full_name?: string | null;
+          company_name?: string | null;
+          phone?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;
@@ -43,6 +65,8 @@ export type Database = {
           company_name: string;
           seller_name: string | null;
           notes: string | null;
+          share_token: string | null;
+          share_enabled: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -53,6 +77,8 @@ export type Database = {
           company_name: string;
           seller_name?: string | null;
           notes?: string | null;
+          share_token?: string | null;
+          share_enabled?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -265,6 +291,74 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["score_entries"]["Insert"]>;
+        Relationships: [];
+      };
+      saved_companies: {
+        Row: {
+          id: string;
+          owner_id: string;
+          company_name: string;
+          seller_name: string | null;
+          notes: string | null;
+          company_payload: Json;
+          technical_payload: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          company_name: string;
+          seller_name?: string | null;
+          notes?: string | null;
+          company_payload?: Json;
+          technical_payload?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["saved_companies"]["Insert"]>;
+        Relationships: [];
+      };
+      contract_reviews: {
+        Row: {
+          id: string;
+          owner_id: string;
+          title: string;
+          contract_text: string;
+          verdict: "reproved" | "attention" | "approved";
+          score: number;
+          findings: Json;
+          approved_by_user: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          title: string;
+          contract_text: string;
+          verdict: "reproved" | "attention" | "approved";
+          score?: number;
+          findings?: Json;
+          approved_by_user?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["contract_reviews"]["Insert"]>;
+        Relationships: [];
+      };
+      course_progress: {
+        Row: {
+          user_id: string;
+          lesson_id: string;
+          completed_at: string;
+        };
+        Insert: {
+          user_id: string;
+          lesson_id: string;
+          completed_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["course_progress"]["Insert"]>;
         Relationships: [];
       };
       comparison_events: {

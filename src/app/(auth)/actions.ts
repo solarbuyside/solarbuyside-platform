@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -33,9 +34,17 @@ export async function signInAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirectWith("/login", "error", "Nao foi possivel entrar. Confira seus dados.");
+    console.error("[signIn] supabase error:", error.status, error.code, error.message);
+    const friendly =
+      error.code === "email_not_confirmed"
+        ? "Confirme seu e-mail antes de entrar."
+        : "Nao foi possivel entrar. Confira seus dados.";
+    redirectWith("/login", "error", friendly);
   }
 
+  // Refresh server-rendered routes so the freshly written session cookies are
+  // picked up before navigating, avoiding the client "unexpected response" race.
+  revalidatePath("/", "layout");
   redirect(next);
 }
 
@@ -45,11 +54,11 @@ export async function signUpAction(formData: FormData) {
   const password = stringValue(formData, "password");
 
   if (!email || password.length < 8) {
-    redirectWith("/login", "error", "Use um e-mail valido e senha com pelo menos 8 caracteres.");
+    redirectWith("/cadastro", "error", "Use um e-mail valido e senha com pelo menos 8 caracteres.");
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -60,10 +69,18 @@ export async function signUpAction(formData: FormData) {
   });
 
   if (error) {
-    redirectWith("/login", "error", "Nao foi possivel criar sua conta.");
+    redirectWith("/cadastro", "error", "Nao foi possivel criar sua conta.");
   }
 
-  redirectWith("/login", "message", "Conta criada. Confira seu e-mail ou entre para continuar.");
+  // When email confirmation is disabled, signUp already returns an active
+  // session — log the user straight into the dashboard. If confirmation is
+  // still required (no session), fall back to the "check your e-mail" flow.
+  if (data.session) {
+    revalidatePath("/", "layout");
+    redirect("/dashboard");
+  }
+
+  redirectWith("/login", "message", "Conta criada. Confira seu e-mail para ativar e entrar.");
 }
 
 export async function resetPasswordAction(formData: FormData) {
@@ -102,11 +119,13 @@ export async function updatePasswordAction(formData: FormData) {
     redirectWith("/update-password", "error", "Nao foi possivel atualizar a senha.");
   }
 
+  revalidatePath("/", "layout");
   redirect("/dashboard");
 }
 
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  revalidatePath("/", "layout");
   redirect("/login");
 }
