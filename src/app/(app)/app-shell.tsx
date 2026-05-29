@@ -16,6 +16,8 @@ import {
   Bell,
   Search,
   ChevronDown,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -75,32 +77,44 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
 
   // Admin lives in the header (not the sidebar) — see header actions below.
   const menuItems = BASE_ITEMS;
 
   const displayName = user.fullName ?? user.email ?? "Usuário";
+  const breadcrumb = breadcrumbFor(pathname);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar (desktop) */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 glass-panel-sidebar fixed h-screen z-20">
-        <div className="relative flex items-center gap-3 px-6 h-20 border-b border-white/5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1.5 shadow-[0_0_12px_rgba(249,115,22,0.2)]">
-            <Image
-              src="/LOGOSOLARBUYSIDE3.png"
-              alt="Solar Buy-Side"
-              width={32}
-              height={32}
-              className="h-full w-full object-contain"
-            />
-          </div>
-          <div>
-            <h1 className="font-bold text-white text-lg tracking-tight leading-none">Solar Buy-Side</h1>
-            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1 block">
-              SaaS Platform
-            </span>
-          </div>
+      <aside
+        className={cn(
+          "hidden md:flex flex-col shrink-0 glass-panel-sidebar fixed h-screen z-20 transition-[width] duration-200",
+          collapsed ? "w-20" : "w-64",
+        )}
+      >
+        <div
+          className={cn(
+            "relative flex items-center gap-3 h-20 border-b border-white/5",
+            collapsed ? "justify-center px-2" : "px-6",
+          )}
+        >
+          <Image
+            src="/LOGOSOLARBUYSIDE3.png"
+            alt="Solar Buy-Side"
+            width={40}
+            height={40}
+            className="h-10 w-10 shrink-0 object-contain"
+          />
+          {!collapsed && (
+            <div>
+              <h1 className="font-bold text-white text-lg tracking-tight leading-none">Solar Buy-Side</h1>
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1 block">
+                SaaS Platform
+              </span>
+            </div>
+          )}
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-1.5">
@@ -112,8 +126,10 @@ export function AppShell({
               <Link
                 key={item.href}
                 href={item.href}
+                title={collapsed ? item.name : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-4 h-11 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                  "flex items-center gap-3 h-11 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                  collapsed ? "justify-center px-0" : "px-4",
                   isActive ? "text-white bg-white/[0.03]" : "text-slate-400 hover:text-white hover:bg-white/[0.015]",
                 )}
               >
@@ -121,23 +137,25 @@ export function AppShell({
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-md bg-primary shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
                 )}
                 <Icon className={cn("h-4 w-4 transition-colors", isActive ? "text-primary" : "text-slate-400 group-hover:text-slate-200")} />
-                {item.name}
+                {!collapsed && item.name}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-border/30 bg-slate-950/20">
-          <div className="flex items-center gap-3 px-2 py-1.5">
-            <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700/50 flex items-center justify-center text-slate-300 font-semibold text-sm">
+        <div className="p-4 border-t border-white/5">
+          <div className={cn("flex items-center gap-3 py-1.5", collapsed ? "justify-center px-0" : "px-2")}>
+            <div className="h-9 w-9 shrink-0 rounded-full bg-slate-800 border border-slate-700/50 flex items-center justify-center text-slate-300 font-semibold text-sm">
               {initials(user.fullName, user.email)}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-200 truncate leading-none">{displayName}</p>
-              <span className="text-xs text-slate-400 truncate mt-1 block">
-                {user.isAdmin ? "Administrador" : "Comprador Solar"}
-              </span>
-            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-200 truncate leading-none">{displayName}</p>
+                <span className="text-xs text-slate-400 truncate mt-1 block">
+                  {user.isAdmin ? "Administrador" : "Comprador Solar"}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -201,11 +219,36 @@ export function AppShell({
       </aside>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col md:pl-64 pt-16 md:pt-0 min-w-0">
-        <header className="h-20 glass-panel-header flex items-center justify-between px-6 md:px-10 sticky top-0 z-10 hidden md:flex">
-          <GlobalSearch items={searchItems} />
+      <div
+        className={cn(
+          "flex h-screen flex-1 flex-col pt-16 md:pt-0 min-w-0 transition-[padding] duration-200",
+          collapsed ? "md:pl-20" : "md:pl-64",
+        )}
+      >
+        <header className="h-20 glass-panel-header sticky top-0 z-10 hidden md:flex items-center gap-4 px-6 md:px-8">
+          {/* Left: toggle + breadcrumb */}
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            title={collapsed ? "Expandir menu" : "Retrair menu"}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </button>
 
-          <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-1.5 text-sm font-medium text-slate-400 min-w-0">
+            {breadcrumb.map((crumb, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <span className="text-slate-300">/</span>}
+                <span className={cn("truncate", i === breadcrumb.length - 1 && "font-semibold text-slate-700")}>
+                  {crumb}
+                </span>
+              </React.Fragment>
+            ))}
+          </nav>
+
+          {/* Right: search + actions, pushed to the edge */}
+          <div className="ml-auto flex items-center gap-2">
+            <GlobalSearch items={searchItems} />
             {user.isAdmin && (
               <Link
                 href="/admin"
@@ -215,17 +258,42 @@ export function AppShell({
                 <span className="hidden lg:inline">Admin</span>
               </Link>
             )}
-
             <NotificationsBell notifications={notifications} />
-
             <UserMenu user={user} displayName={displayName} />
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">{children}</main>
+        {/* Scrollable content area — sidebar stays fixed full-height */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-7xl p-6 md:p-10">{children}</div>
+        </main>
       </div>
     </div>
   );
+}
+
+function breadcrumbFor(pathname: string): string[] {
+  const LABELS: Record<string, string> = {
+    dashboard: "Dashboard",
+    avaliacoes: "Avaliações",
+    nova: "Nova",
+    preencher: "Entrevista",
+    comparativo: "Comparativo",
+    finalistas: "Finalistas",
+    curso: "Curso",
+    historico: "Histórico",
+    dicas: "Dicas & Guias",
+    configuracoes: "Configurações",
+    admin: "Admin",
+  };
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return ["Dashboard"];
+  const crumbs: string[] = [];
+  for (const part of parts) {
+    // Skip ids (uuids / long tokens); keep readable segment labels.
+    if (LABELS[part]) crumbs.push(LABELS[part]);
+  }
+  return crumbs.length > 0 ? crumbs : ["Dashboard"];
 }
 
 function GlobalSearch({ items }: { items: SearchItem[] }) {

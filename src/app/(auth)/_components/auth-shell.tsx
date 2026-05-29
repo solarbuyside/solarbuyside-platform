@@ -49,15 +49,13 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
 
           {/* Brand */}
           <div className="relative flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white p-1.5 shadow-[0_0_18px_rgba(249,115,22,0.2)]">
-              <Image
-                src="/LOGOSOLARBUYSIDE3.png"
-                alt="Solar Buy-Side"
-                width={32}
-                height={32}
-                className="h-full w-full object-contain"
-              />
-            </div>
+            <Image
+              src="/LOGOSOLARBUYSIDE3.png"
+              alt="Solar Buy-Side"
+              width={44}
+              height={44}
+              className="h-11 w-11 object-contain"
+            />
             <div>
               <p className="text-base font-bold leading-none tracking-tight">Solar Buy-Side</p>
               <span className="mt-1 block text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">
