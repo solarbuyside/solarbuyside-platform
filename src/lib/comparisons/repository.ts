@@ -4,6 +4,8 @@ import { buildInitialDraftComparisonStructure } from "@/domain/comparisons/draft
 import { comparisonWorkflowSummary } from "@/domain/comparisons/workflow";
 import {
   comparisonInputSchema,
+  companyEvaluationSchema,
+  technicalEvaluationSchema,
   type ComparisonInput,
   type ComparisonStatus,
   type CompanyEvaluation,
@@ -22,6 +24,8 @@ import {
 
 export const createComparisonDraftSchema = z.object({
   title: z.string().trim().min(3).max(120),
+  /** Optional: saved-company ids to pre-fill, aligned by competitor name. */
+  savedCompanyIds: z.array(z.string().uuid()).max(6).optional(),
   competitorNames: z
     .array(z.string().trim().min(1).max(120))
     .min(2)
@@ -190,6 +194,39 @@ export async function createComparisonDraft(input: CreateComparisonDraftInput) {
   if (seedError) {
     await cleanupDraftAfterSeedFailure(supabase, comparison.id);
     throw new Error(seedError.message);
+  }
+
+  // Pre-fill company/technical data from the saved-company library when chosen.
+  if (parsed.savedCompanyIds && parsed.savedCompanyIds.length > 0) {
+    const { data: saved } = await supabase
+      .from("saved_companies")
+      .select("company_name,company_payload,technical_payload")
+      .in("id", parsed.savedCompanyIds);
+
+    for (const lib of saved ?? []) {
+      const match = draftCompetitors.find(
+        (c) => c.companyName.toLocaleLowerCase("pt-BR") === lib.company_name.toLocaleLowerCase("pt-BR"),
+      );
+      if (!match) continue;
+      const company = companyDomainToUpdate(
+        companyEvaluationSchema.catch({}).parse(lib.company_payload),
+      );
+      const technical = technicalDomainToUpdate(
+        technicalEvaluationSchema.catch({}).parse(lib.technical_payload),
+      );
+      await Promise.all([
+        supabase
+          .from("company_evaluations")
+          .update(company)
+          .eq("comparison_id", comparison.id)
+          .eq("competitor_id", match.id),
+        supabase
+          .from("technical_evaluations")
+          .update(technical)
+          .eq("comparison_id", comparison.id)
+          .eq("competitor_id", match.id),
+      ]);
+    }
   }
 
   await supabase.from("comparison_events").insert({
@@ -517,6 +554,24 @@ export async function saveScoreSetting(
     { onConflict: "comparison_id,criterion_key" },
   );
 
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteComparison(comparisonId: string) {
+  const { supabase } = await ownedComparisonOrThrow(comparisonId);
+  // ON DELETE CASCADE removes competitors, evaluations, scores and events.
+  const { error } = await supabase.from("comparisons").delete().eq("id", comparisonId);
+  if (error) throw new Error(error.message);
+}
+
+export async function renameComparison(comparisonId: string, title: string) {
+  const trimmed = title.trim();
+  if (trimmed.length < 3) throw new Error("O título precisa de pelo menos 3 caracteres.");
+  const { supabase } = await ownedComparisonOrThrow(comparisonId);
+  const { error } = await supabase
+    .from("comparisons")
+    .update({ title: trimmed })
+    .eq("id", comparisonId);
   if (error) throw new Error(error.message);
 }
 

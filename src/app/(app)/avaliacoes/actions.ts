@@ -16,10 +16,15 @@ export async function createComparisonDraftAction(formData: FormData) {
     .filter((value): value is string => typeof value === "string")
     .map((value) => value.trim())
     .filter(Boolean);
+  const savedCompanyIds = formData
+    .getAll("savedCompanyIds")
+    .filter((value): value is string => typeof value === "string")
+    .filter(Boolean);
 
   const id = await createComparisonDraft({
     title,
     competitorNames,
+    savedCompanyIds: savedCompanyIds.length > 0 ? savedCompanyIds : undefined,
   });
 
   // Go straight into the interview flow — no intermediate "created" screen.

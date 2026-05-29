@@ -319,6 +319,20 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["saved_companies"]["Insert"]>;
         Relationships: [];
       };
+      course_progress: {
+        Row: {
+          user_id: string;
+          lesson_id: string;
+          completed_at: string;
+        };
+        Insert: {
+          user_id: string;
+          lesson_id: string;
+          completed_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["course_progress"]["Insert"]>;
+        Relationships: [];
+      };
       comparison_events: {
         Row: {
           id: string;

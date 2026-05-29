@@ -1,185 +1,134 @@
-import {
-  GraduationCap,
-  Sun,
-  Cpu,
-  Wallet,
-  ShieldCheck,
-  FileSearch,
-  Trophy,
-  Clock,
-  PlayCircle,
-} from "lucide-react";
+import Link from "next/link";
+import { GraduationCap, Clock, PlayCircle, Check } from "lucide-react";
+
+import { COURSE, TOTAL_LESSONS } from "@/domain/course/content";
+import { getCompletedLessons } from "@/lib/course/progress";
 import { Badge } from "@/components/ui/badge";
 
-type Lesson = { title: string; minutes: number };
-type Module = {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  level: "Iniciante" | "Intermediário" | "Avançado";
-  lessons: Lesson[];
-};
-
-const MODULES: Module[] = [
-  {
-    title: "Fundamentos da energia solar",
-    description: "Como funciona um sistema fotovoltaico, componentes e o básico de geração.",
-    icon: Sun,
-    level: "Iniciante",
-    lessons: [
-      { title: "O que é energia solar fotovoltaica", minutes: 8 },
-      { title: "Módulos, inversores e estruturas", minutes: 12 },
-      { title: "Geração, consumo e compensação", minutes: 10 },
-    ],
-  },
-  {
-    title: "Avaliando a empresa instaladora",
-    description: "O que separa uma empresa confiável: CREA, experiência, garantias e suporte.",
-    icon: ShieldCheck,
-    level: "Iniciante",
-    lessons: [
-      { title: "Registro CREA e responsável técnico", minutes: 7 },
-      { title: "Tempo de mercado e histórico de instalações", minutes: 9 },
-      { title: "Garantias de projeto e assistência técnica", minutes: 11 },
-    ],
-  },
-  {
-    title: "Lendo a proposta técnica",
-    description: "Potência, módulos, inversor, sobrecarga e eficiência — sem cair em pegadinhas.",
-    icon: Cpu,
-    level: "Intermediário",
-    lessons: [
-      { title: "Dimensionamento e potência (kWp)", minutes: 14 },
-      { title: "Tiers de fabricantes de módulo e inversor", minutes: 12 },
-      { title: "Sobrecarga do inversor: a faixa ideal", minutes: 10 },
-      { title: "Eficiência e garantia de performance", minutes: 9 },
-    ],
-  },
-  {
-    title: "Viabilidade financeira",
-    description: "Payback, ROI, inflação de energia e por que o menor preço engana.",
-    icon: Wallet,
-    level: "Intermediário",
-    lessons: [
-      { title: "Payback simples e retorno do capital", minutes: 13 },
-      { title: "Economia acumulada em 25 anos", minutes: 10 },
-      { title: "Premissas que distorcem a viabilidade", minutes: 11 },
-    ],
-  },
-  {
-    title: "Pesquisando reputação",
-    description: "Como investigar Reclame Aqui, fabricantes e distribuidores antes de fechar.",
-    icon: FileSearch,
-    level: "Intermediário",
-    lessons: [
-      { title: "Interpretando o Reclame Aqui", minutes: 8 },
-      { title: "Reputação de fabricantes e distribuidoras", minutes: 9 },
-    ],
-  },
-  {
-    title: "Decidindo entre finalistas",
-    description: "Equilibrando empresa, tecnologia e preço para a melhor escolha.",
-    icon: Trophy,
-    level: "Avançado",
-    lessons: [
-      { title: "Montando a matriz de comparação", minutes: 12 },
-      { title: "Negociando com os dois finalistas", minutes: 14 },
-    ],
-  },
-];
-
-const LEVEL_VARIANT: Record<Module["level"], "emerald" | "orange" | "secondary"> = {
+const LEVEL_VARIANT: Record<string, "emerald" | "orange" | "secondary"> = {
   Iniciante: "emerald",
   Intermediário: "orange",
   Avançado: "secondary",
 };
 
-export default function CursoPage() {
-  const totalLessons = MODULES.reduce((sum, m) => sum + m.lessons.length, 0);
-  const totalMinutes = MODULES.reduce(
+export default async function CursoPage() {
+  const completed = await getCompletedLessons().catch(() => new Set<string>());
+  const doneCount = completed.size;
+  const pct = TOTAL_LESSONS > 0 ? Math.round((doneCount / TOTAL_LESSONS) * 100) : 0;
+  const totalMinutes = COURSE.reduce(
     (sum, m) => sum + m.lessons.reduce((s, l) => s + l.minutes, 0),
     0,
   );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200 pb-6">
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
-            <GraduationCap className="h-3.5 w-3.5" />
-            Aprendizado
-          </span>
-        </div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Curso Solar Buy-Side</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Aprenda a comprar energia solar com critério — da tecnologia à negociação final.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 font-medium">
-            <PlayCircle className="h-3.5 w-3.5 text-primary" />
-            {MODULES.length} módulos
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 font-medium">
-            <GraduationCap className="h-3.5 w-3.5 text-primary" />
-            {totalLessons} aulas
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 font-medium">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            ~{Math.round(totalMinutes / 60)}h de conteúdo
-          </span>
+      {/* Header with overall progress */}
+      <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-[#020719] via-[#061233] to-[#0a1e4d] p-8 text-white">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/20 border border-primary/30 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
+              <GraduationCap className="h-3.5 w-3.5" />
+              Aprendizado
+            </span>
+            <h2 className="mt-3 text-3xl font-bold tracking-tight">Curso Solar Buy-Side</h2>
+            <p className="mt-1.5 max-w-xl text-sm text-slate-300">
+              Aprenda a comprar energia solar com critério — da tecnologia à negociação final.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3 text-xs text-slate-300">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-1.5">
+                <PlayCircle className="h-3.5 w-3.5 text-primary" />
+                {COURSE.length} módulos · {TOTAL_LESSONS} aulas
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-1.5">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                ~{Math.round(totalMinutes / 60)}h de conteúdo
+              </span>
+            </div>
+          </div>
+
+          {/* Progress ring-ish */}
+          <div className="shrink-0 rounded-xl bg-white/[0.06] p-5 text-center">
+            <p className="text-4xl font-extrabold">{pct}%</p>
+            <p className="mt-1 text-xs text-slate-300">
+              {doneCount} de {TOTAL_LESSONS} aulas concluídas
+            </p>
+            <div className="mt-3 h-1.5 w-40 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {MODULES.map((mod, idx) => {
-          const Icon = mod.icon;
-          const mins = mod.lessons.reduce((s, l) => s + l.minutes, 0);
+      {/* Modules */}
+      <div className="space-y-6">
+        {COURSE.map((mod, modIdx) => {
+          const modDone = mod.lessons.filter((l) => completed.has(l.id)).length;
+          const modComplete = modDone === mod.lessons.length;
           return (
-            <div
-              key={mod.title}
-              className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_4px_20px_rgba(249,115,22,0.12)]"
-            >
-              <div className="flex items-start justify-between border-b border-slate-100 bg-slate-50/50 p-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
+            <section key={mod.id} className="rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex items-center justify-between border-b border-slate-100 p-5">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold ${
+                      modComplete ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"
+                    }`}
+                  >
+                    {modComplete ? <Check className="h-5 w-5" /> : modIdx + 1}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">{mod.title}</h3>
+                    <p className="text-xs text-slate-500">{mod.description}</p>
+                  </div>
                 </div>
-                <Badge variant={LEVEL_VARIANT[mod.level]} className="text-[10px]">
+                <Badge variant={LEVEL_VARIANT[mod.level] ?? "secondary"} className="shrink-0 text-[10px]">
                   {mod.level}
                 </Badge>
               </div>
-              <div className="flex flex-1 flex-col p-5">
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Módulo {idx + 1}
-                  </span>
-                </div>
-                <h3 className="text-base font-bold text-slate-900">{mod.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-slate-500">{mod.description}</p>
 
-                <ul className="mt-4 space-y-2">
-                  {mod.lessons.map((lesson) => (
-                    <li key={lesson.title} className="flex items-center gap-2 text-xs text-slate-600">
-                      <PlayCircle className="h-3.5 w-3.5 shrink-0 text-slate-300 group-hover:text-primary/60" />
-                      <span className="flex-1">{lesson.title}</span>
-                      <span className="text-[10px] text-slate-400">{lesson.minutes}min</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
-                  <span className="text-[11px] font-medium text-slate-400">
-                    {mod.lessons.length} aulas · {mins}min
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-primary">
-                    <PlayCircle className="h-3.5 w-3.5" />
-                    Em breve
-                  </span>
-                </div>
+              <div className="divide-y divide-slate-50">
+                {mod.lessons.map((lesson) => {
+                  const isDone = completed.has(lesson.id);
+                  return (
+                    <Link
+                      key={lesson.id}
+                      href={`/curso/${lesson.id}`}
+                      className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-slate-50"
+                    >
+                      <span
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[11px] ${
+                          isDone
+                            ? "border-emerald-500 bg-emerald-500 text-white"
+                            : "border-slate-300 text-slate-300 group-hover:border-primary/50 group-hover:text-primary"
+                        }`}
+                      >
+                        {isDone ? <Check className="h-3.5 w-3.5" /> : <PlayCircle className="h-3.5 w-3.5" />}
+                      </span>
+                      <span className="flex-1 text-sm font-medium text-slate-700 group-hover:text-slate-900">
+                        {lesson.title}
+                      </span>
+                      <span className="text-[11px] text-slate-400">{lesson.minutes} min</span>
+                    </Link>
+                  );
+                })}
               </div>
-            </div>
+            </section>
           );
         })}
       </div>
+
+      {pct === 100 && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white">
+            <GraduationCap className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-emerald-800">Parabéns, curso concluído! 🎉</p>
+            <p className="text-xs text-emerald-700">
+              Você dominou os fundamentos para comprar energia solar com critério.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
