@@ -16,6 +16,7 @@ import {
   saveTechnicalEvaluation,
 } from "@/lib/comparisons/repository";
 import { ensureShareToken } from "@/lib/comparisons/share";
+import { saveCompanyToLibrary } from "@/lib/comparisons/saved-companies";
 import { getAppUrl } from "@/lib/env";
 
 /**
@@ -91,4 +92,19 @@ export async function saveSelectedFinalistsAction(comparisonId: string, finalist
 export async function createShareLinkAction(comparisonId: string, competitorId: string) {
   const token = await ensureShareToken(comparisonId, competitorId);
   return `${getAppUrl()}/responder/${token}`;
+}
+
+/** Saves a competitor's company + technical data to the reusable library. */
+export async function saveCompanyToLibraryAction(input: {
+  companyName: string;
+  sellerName?: string | null;
+  company: unknown;
+  technical: unknown;
+}) {
+  await saveCompanyToLibrary({
+    companyName: input.companyName,
+    sellerName: input.sellerName ?? null,
+    company: companyEvaluationSchema.parse(input.company),
+    technical: technicalEvaluationSchema.parse(input.technical),
+  });
 }

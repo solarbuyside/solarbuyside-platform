@@ -293,6 +293,32 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["score_entries"]["Insert"]>;
         Relationships: [];
       };
+      saved_companies: {
+        Row: {
+          id: string;
+          owner_id: string;
+          company_name: string;
+          seller_name: string | null;
+          notes: string | null;
+          company_payload: Json;
+          technical_payload: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          company_name: string;
+          seller_name?: string | null;
+          notes?: string | null;
+          company_payload?: Json;
+          technical_payload?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["saved_companies"]["Insert"]>;
+        Relationships: [];
+      };
       comparison_events: {
         Row: {
           id: string;

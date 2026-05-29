@@ -35,6 +35,7 @@ import {
   saveTechnicalEvaluationAction,
 } from "./actions";
 import { ShareButton } from "./share-button";
+import { SaveToLibraryButton } from "./save-to-library-button";
 
 type SectionId = "company" | "technical" | "financial";
 
@@ -222,6 +223,15 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
                 Etapa {sectionIndex + 1} de {SECTIONS.length}
               </span>
               <SaveIndicator state={saveState} />
+              {activeCompetitor && (
+                <SaveToLibraryButton
+                  key={`lib-${activeCompetitor.id}`}
+                  companyName={activeCompetitor.companyName}
+                  sellerName={activeCompetitor.sellerName ?? null}
+                  company={activeCompetitor.company}
+                  technical={activeCompetitor.technical}
+                />
+              )}
               {activeCompetitor && (
                 <ShareButton
                   key={activeCompetitor.id}
