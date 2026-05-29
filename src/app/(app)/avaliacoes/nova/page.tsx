@@ -12,10 +12,11 @@ import {
   CheckCircle2, 
   FileText, 
   Lightbulb, 
-  Zap, 
+  Zap,
   Info,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Pencil
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createComparisonDraftAction } from "../actions";
@@ -226,15 +227,16 @@ export default function NovaAvaliacaoPage() {
                       Nome da avaliação <span className="text-primary">*</span>
                     </label>
                     <div className="relative">
-                      <Zap className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary/70" />
+                      <Pencil className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         id="title"
                         type="text"
                         required
+                        autoFocus
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full h-13 pl-12 pr-4 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 font-medium placeholder-slate-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 outline-none"
-                        placeholder="Ex: Avaliação Residencial Gabriel - 10kWp"
+                        className="w-full h-13 pl-11 pr-4 rounded-lg bg-white border-2 border-slate-200 text-slate-900 font-semibold placeholder-slate-300 shadow-sm hover:border-slate-300 focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 outline-none caret-primary"
+                        placeholder="Digite o nome da avaliação…"
                       />
                     </div>
                     <span className="text-[11px] text-slate-400 block">

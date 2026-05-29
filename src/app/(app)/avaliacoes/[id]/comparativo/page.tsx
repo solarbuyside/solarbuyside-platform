@@ -29,6 +29,7 @@ export default async function ComparativoPage({ params }: ComparativoPageProps) 
       <DashboardView
         initialComparison={comparison}
         embedded
+        tableOnly
         persistence={{
           onScoreSettingChange: updateScoreSettingAction,
           onFinalistsChange: updateSelectedFinalistsAction,

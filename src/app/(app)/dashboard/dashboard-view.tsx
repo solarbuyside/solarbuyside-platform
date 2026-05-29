@@ -70,6 +70,8 @@ type DashboardViewProps = {
   demo?: boolean;
   /** When true, hides the standalone page header (used inside the phase flow). */
   embedded?: boolean;
+  /** When true, shows only the comparison tables (no ranking cards). */
+  tableOnly?: boolean;
   persistence?: DashboardPersistence;
 };
 
@@ -77,6 +79,7 @@ export function DashboardView({
   initialComparison,
   demo = false,
   embedded = false,
+  tableOnly = false,
   persistence,
 }: DashboardViewProps) {
   const [comparison, setComparison] = React.useState<ComparisonInput>(() =>
@@ -286,6 +289,7 @@ export function DashboardView({
       )}
 
       {/* Ranking cards */}
+      {!tableOnly && (
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -436,6 +440,7 @@ export function DashboardView({
             })}
         </div>
       </section>
+      )}
 
       {/* Tabs */}
       <section className="space-y-6">

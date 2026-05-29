@@ -191,9 +191,6 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
     else handleFinancialChange(prop as keyof FinancialEvaluation, value);
   }
 
-  const totalCompetitors = comparison.competitors.length;
-  const activeIndex = comparison.competitors.findIndex((c) => c.id === activeCompetitor?.id);
-
   return (
     <div className="animate-in fade-in duration-300">
       {/* Two columns: WHO (supplier context) on the left, WHAT (interview) on the right */}
@@ -203,24 +200,13 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
           <SupplierPanel
             competitors={comparison.competitors}
             activeId={activeCompetitor.id}
-            activeIndex={activeIndex}
-            total={totalCompetitors}
             onSelect={setActiveCompetitorId}
           />
         )}
 
         {/* RIGHT — interview */}
         <div className="space-y-5">
-          {/* Section stepper (progress within the interview) */}
-          {activeCompetitor && (
-            <SectionStepper
-              competitor={activeCompetitor}
-              current={sectionIndex}
-              onSelect={setSectionIndex}
-            />
-          )}
-
-          {/* Section header + save + share */}
+          {/* Section header: title + "step X of 3" + save + share */}
           <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
@@ -231,7 +217,10 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
                 <p className="mt-0.5 text-xs text-slate-500">{section.subtitle}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:flex-nowrap">
+              <span className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">
+                Etapa {sectionIndex + 1} de {SECTIONS.length}
+              </span>
               <SaveIndicator state={saveState} />
               {activeCompetitor && (
                 <ShareButton
@@ -329,54 +318,22 @@ function SaveIndicator({ state }: { state: SaveState }) {
 function SupplierPanel({
   competitors,
   activeId,
-  activeIndex,
-  total,
   onSelect,
 }: {
   competitors: CompetitorProposal[];
   activeId: string;
-  activeIndex: number;
-  total: number;
   onSelect: (id: string) => void;
 }) {
-  const active = competitors.find((c) => c.id === activeId);
-  const activeRatio = active ? competitorProgress(active) : 0;
-
   return (
-    <aside className="space-y-3 lg:sticky lg:top-24 lg:self-start">
-      {/* Hero: active supplier */}
-      {active && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Entrevistando · {activeIndex + 1} de {total}
-          </span>
-          <div className="mt-2 flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-base font-bold text-primary">
-              {activeIndex + 1}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-base font-bold text-slate-900">{active.companyName}</p>
-              <p className="text-[11px] font-medium text-slate-500">
-                {Math.round(activeRatio * 100)}% preenchido
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${Math.round(activeRatio * 100)}%` }}
-            />
-          </div>
+    <aside className="lg:sticky lg:top-24 lg:self-start">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center gap-1.5 border-b border-slate-100 px-3 py-2.5">
+          <Users className="h-3.5 w-3.5 text-slate-400" />
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Avaliando agora · clique para trocar
+          </p>
         </div>
-      )}
-
-      {/* Switch list */}
-      <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
-        <p className="flex items-center gap-1.5 px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          <Users className="h-3.5 w-3.5" />
-          Trocar de fornecedor
-        </p>
-        <div className="space-y-0.5">
+        <div className="p-2">
           {competitors.map((c, i) => {
             const isActive = c.id === activeId;
             const ratio = competitorProgress(c);
@@ -385,17 +342,17 @@ function SupplierPanel({
                 key={c.id}
                 onClick={() => onSelect(c.id)}
                 className={cn(
-                  "relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+                  "relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors",
                   isActive ? "bg-slate-100" : "hover:bg-slate-50",
                 )}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r bg-primary" />
+                  <span className="absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-primary" />
                 )}
                 <span
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold",
-                    isActive ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
+                    isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500",
                   )}
                 >
                   {i + 1}
@@ -403,20 +360,25 @@ function SupplierPanel({
                 <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block truncate text-sm font-semibold",
+                      "block truncate text-sm font-bold",
                       isActive ? "text-slate-900" : "text-slate-700",
                     )}
                   >
                     {c.companyName}
                   </span>
-                  <span className="mt-1 block h-1 overflow-hidden rounded-full bg-slate-100">
-                    <span
-                      className={cn(
-                        "block h-full rounded-full transition-all",
-                        ratio >= 1 ? "bg-emerald-500" : "bg-primary/60",
-                      )}
-                      style={{ width: `${Math.round(ratio * 100)}%` }}
-                    />
+                  <span className="mt-1 flex items-center gap-1.5">
+                    <span className="block h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
+                      <span
+                        className={cn(
+                          "block h-full rounded-full transition-all",
+                          ratio >= 1 ? "bg-emerald-500" : "bg-primary/60",
+                        )}
+                        style={{ width: `${Math.round(ratio * 100)}%` }}
+                      />
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">
+                      {Math.round(ratio * 100)}%
+                    </span>
                   </span>
                 </span>
                 {ratio >= 1 && <Check className="h-4 w-4 shrink-0 text-emerald-500" />}
@@ -426,73 +388,6 @@ function SupplierPanel({
         </div>
       </div>
     </aside>
-  );
-}
-
-/**
- * RIGHT column header: the three interview sections as a progress stepper
- * (Empresa → Técnico → Financeiro), with a filled-fields count per step.
- */
-function SectionStepper({
-  competitor,
-  current,
-  onSelect,
-}: {
-  competitor: CompetitorProposal;
-  current: number;
-  onSelect: (index: number) => void;
-}) {
-  return (
-    <div className="flex items-stretch gap-2">
-      {SECTIONS.map((s, i) => {
-        const Icon = s.icon;
-        const isActive = i === current;
-        const { filled, total } = sectionProgress(competitor, s.id);
-        const complete = filled >= total;
-        const ratio = total > 0 ? filled / total : 0;
-        return (
-          <button
-            key={s.id}
-            onClick={() => onSelect(i)}
-            className={cn(
-              "group relative flex flex-1 items-center gap-3 overflow-hidden rounded-xl border bg-white px-4 py-3 text-left transition-all",
-              isActive
-                ? "border-primary shadow-[0_2px_12px_rgba(249,115,22,0.12)]"
-                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50",
-            )}
-          >
-            <span
-              className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold",
-                complete
-                  ? "bg-emerald-500/10 text-emerald-600"
-                  : isActive
-                    ? "bg-primary/10 text-primary"
-                    : "bg-slate-100 text-slate-400",
-              )}
-            >
-              {complete ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
-            </span>
-            <div className="min-w-0">
-              <p className={cn("text-sm font-bold", isActive ? "text-slate-900" : "text-slate-700")}>
-                {s.short}
-              </p>
-              <p className="text-[11px] text-slate-400">{filled}/{total} campos</p>
-            </div>
-            {/* progress underline */}
-            <span className="absolute inset-x-0 bottom-0 h-0.5 bg-slate-100">
-              <span
-                className={cn(
-                  "block h-full transition-all",
-                  complete ? "bg-emerald-500" : "bg-primary",
-                )}
-                style={{ width: `${Math.round(ratio * 100)}%` }}
-              />
-            </span>
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -598,6 +493,7 @@ export function FieldRow({
   value: unknown;
   onCommit: (value: unknown) => void;
 }) {
+  const [localError, setLocalError] = React.useState<string | null>(null);
   const inputClass =
     "h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/15";
   const selectClass = cn(
@@ -669,27 +565,15 @@ export function FieldRow({
     const prefix = field.kind === "currency" ? "R$" : null;
     const suffix = field.kind === "percentage" ? "%" : null;
     control = (
-      <div className="relative">
-        {prefix && (
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">{prefix}</span>
-        )}
-        <input
-          type="number"
-          inputMode="decimal"
-          step="any"
-          defaultValue={typeof value === "number" ? String(value) : ""}
-          onBlur={(e) => {
-            const raw = e.target.value;
-            if (raw === "") return onCommit(null);
-            const num = Number(raw);
-            onCommit(Number.isNaN(num) ? null : num);
-          }}
-          className={cn(inputClass, prefix && "pl-9", suffix && "pr-9")}
-        />
-        {suffix && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">{suffix}</span>
-        )}
-      </div>
+      <NumberInput
+        field={field}
+        value={value}
+        prefix={prefix}
+        suffix={suffix}
+        inputClass={inputClass}
+        onCommit={onCommit}
+        onError={setLocalError}
+      />
     );
   }
 
@@ -697,6 +581,91 @@ export function FieldRow({
     <label className="grid gap-1.5">
       <span className="text-sm font-medium text-slate-700">{field.label}</span>
       {control}
+      {localError && <span className="text-[11px] font-medium text-destructive">{localError}</span>}
     </label>
+  );
+}
+
+const currentYear = new Date().getFullYear();
+const YEAR_FIELD = /year/i;
+
+function NumberInput({
+  field,
+  value,
+  prefix,
+  suffix,
+  inputClass,
+  onCommit,
+  onError,
+}: {
+  field: EvaluationFieldDefinition;
+  value: unknown;
+  prefix: string | null;
+  suffix: string | null;
+  inputClass: string;
+  onCommit: (value: unknown) => void;
+  onError: (msg: string | null) => void;
+}) {
+  const isYear = YEAR_FIELD.test(field.key);
+  const [invalid, setInvalid] = React.useState(false);
+
+  function validate(num: number): string | null {
+    if (isYear) {
+      if (num > currentYear) return `O ano não pode ser maior que ${currentYear}.`;
+      if (num < 1900) return "Informe um ano válido (a partir de 1900).";
+    } else if (num < 0) {
+      return "O valor não pode ser negativo.";
+    }
+    return null;
+  }
+
+  return (
+    <div className="relative">
+      {prefix && (
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">{prefix}</span>
+      )}
+      <input
+        type="number"
+        inputMode={isYear ? "numeric" : "decimal"}
+        step={isYear ? 1 : "any"}
+        max={isYear ? currentYear : undefined}
+        min={isYear ? 1900 : 0}
+        defaultValue={typeof value === "number" ? String(value) : ""}
+        onChange={() => {
+          if (invalid) {
+            setInvalid(false);
+            onError(null);
+          }
+        }}
+        onBlur={(e) => {
+          const raw = e.target.value;
+          if (raw === "") {
+            setInvalid(false);
+            onError(null);
+            return onCommit(null);
+          }
+          const num = Number(raw);
+          if (Number.isNaN(num)) return onCommit(null);
+          const msg = validate(num);
+          if (msg) {
+            setInvalid(true);
+            onError(msg);
+            return; // do not persist invalid values
+          }
+          setInvalid(false);
+          onError(null);
+          onCommit(num);
+        }}
+        className={cn(
+          inputClass,
+          prefix && "pl-9",
+          suffix && "pr-9",
+          invalid && "border-destructive focus:border-destructive focus:ring-destructive/15",
+        )}
+      />
+      {suffix && (
+        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400">{suffix}</span>
+      )}
+    </div>
   );
 }
