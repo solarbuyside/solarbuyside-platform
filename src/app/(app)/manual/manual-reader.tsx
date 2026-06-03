@@ -10,7 +10,6 @@ import {
   ZoomOut,
   ListTree,
   Loader2,
-  BookOpen,
   Maximize2,
   Minimize2,
   X,
@@ -138,7 +137,9 @@ export function ManualReader({
 
   React.useEffect(() => {
     function onFs() {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      const fs = Boolean(document.fullscreenElement);
+      setIsFullscreen(fs);
+      if (!fs) setDrawerOpen(false); // sai da tela cheia → fecha o drawer
     }
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
@@ -271,20 +272,7 @@ export function ManualReader({
   }, [page, goTo]);
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col gap-5">
-      {/* Cabeçalho */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-          <BookOpen className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Manual Solar Buy-Side</h1>
-          <p className="text-xs text-slate-500">
-            {index.numPages} páginas · use a busca no topo para encontrar capítulos
-          </p>
-        </div>
-      </div>
-
+    <div className="flex h-[calc(100vh-9rem)] flex-col">
       <div className="flex min-h-0 flex-1 gap-5">
         {/* Painel do índice — seções agrupadas e recolhíveis */}
         <aside className="hidden w-[310px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:flex">
@@ -317,20 +305,23 @@ export function ManualReader({
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-2">
-              {/* Botão de índice — útil na tela cheia (painel lateral some). */}
-              <button
-                onClick={() => setDrawerOpen((o) => !o)}
-                className={cn(
-                  "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors",
-                  drawerOpen
-                    ? "border-primary/40 bg-primary/10 text-primary"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
-                )}
-                title="Mostrar índice"
-              >
-                <ListTree className="h-4 w-4" />
-                Índice
-              </button>
+              {/* Botão de índice — só na tela cheia (no modo compacto o painel
+                  lateral fixo já mostra o índice). */}
+              {isFullscreen && (
+                <button
+                  onClick={() => setDrawerOpen((o) => !o)}
+                  className={cn(
+                    "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors",
+                    drawerOpen
+                      ? "border-primary/40 bg-primary/10 text-primary"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
+                  )}
+                  title="Mostrar índice"
+                >
+                  <ListTree className="h-4 w-4" />
+                  Índice
+                </button>
+              )}
               <PageInput page={page} numPages={index.numPages} onGo={goTo} />
             </div>
             <div className="flex items-center gap-1">
@@ -351,13 +342,25 @@ export function ManualReader({
               >
                 <ZoomIn className="h-4.5 w-4.5" />
               </button>
-              <button
-                onClick={toggleFullscreen}
-                className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100"
-                title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </button>
+              {isFullscreen ? (
+                <button
+                  onClick={toggleFullscreen}
+                  className="ml-1 inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+                  title="Sair da tela cheia"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                  Sair
+                </button>
+              ) : (
+                <button
+                  onClick={toggleFullscreen}
+                  className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-primary/30 bg-primary/[0.06] px-3.5 text-xs font-bold text-primary transition-all hover:-translate-y-[1px] hover:bg-primary/10 active:scale-[0.98]"
+                  title="Abrir em tela cheia para uma leitura imersiva"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                  Modo leitura
+                </button>
+              )}
             </div>
           </div>
 
