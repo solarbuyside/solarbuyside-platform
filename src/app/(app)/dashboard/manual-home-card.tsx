@@ -22,36 +22,37 @@ export function ManualHomeCard({
 }) {
   const [state, setState] = React.useState<{
     pct: number;
-    lastPage: number;
-    maxPage: number;
+    resumePage: number;
     chapter: string | null;
   } | null>(null);
 
   React.useEffect(() => {
     queueMicrotask(() => {
       const p = readManualProgress();
-      // Capítulo da página onde parou: o de maior página <= lastPage.
+      // "Continuar" leva à página mais avançada já alcançada (maxPage).
+      const resumePage = p.maxPage;
+      // Capítulo correspondente: o de maior página <= página de retomada.
       let chapter: string | null = null;
       let best = 0;
       for (const ch of chapters) {
-        if (ch.page <= p.lastPage && ch.page >= best) {
+        if (ch.page <= resumePage && ch.page >= best) {
           best = ch.page;
           chapter = ch.title;
         }
       }
       setState({
         pct: progressPercent(p.maxPage, numPages),
-        lastPage: p.lastPage,
-        maxPage: p.maxPage,
+        resumePage,
         chapter,
       });
     });
   }, [numPages, chapters]);
 
   const pct = state?.pct ?? 0;
-  const started = (state?.maxPage ?? 1) > 1;
+  const resumePage = state?.resumePage ?? 1;
+  const started = resumePage > 1;
   const finished = pct >= 100;
-  const href = started ? `/manual?page=${state?.lastPage ?? 1}` : "/manual";
+  const href = started ? `/manual?page=${resumePage}` : "/manual";
 
   // Formata título do capítulo (Title Case suave se vier em CAIXA ALTA longa).
   const chapterLabel = state?.chapter
@@ -85,7 +86,7 @@ export function ManualHomeCard({
           <Bookmark className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              Você parou na página {state?.lastPage}
+              Você parou na página {resumePage}
             </p>
             {chapterLabel && (
               <p className="line-clamp-1 text-[13px] font-bold text-slate-700">{chapterLabel}</p>
@@ -103,7 +104,7 @@ export function ManualHomeCard({
                 <CheckCircle2 className="h-3.5 w-3.5" /> Você concluiu a leitura
               </span>
             ) : started ? (
-              `${state?.maxPage ?? 0} de ${numPages} páginas`
+              `${resumePage} de ${numPages} páginas`
             ) : (
               "Comece a ler"
             )}
