@@ -88,14 +88,22 @@ function isMajorSection(title: string): boolean {
 }
 
 // Agrupa os capítulos achatados em seções principais com subtópicos recolhíveis.
-// Cada seção acumula tudo até a próxima seção principal.
+// Cada seção acumula tudo até a próxima seção principal. Seções consecutivas que
+// apontam para a MESMA página são mescladas (evita itens "mortos" que não rolam).
 function buildSections(chapters: Chapter[]): Section[] {
   const sections: Section[] = [];
   for (const ch of chapters) {
+    const last = sections[sections.length - 1];
     if (isMajorSection(ch.title) || sections.length === 0) {
+      // Mescla se a seção anterior já está nesta mesma página: mantém o título
+      // mais longo (geralmente o mais descritivo) e não cria item duplicado.
+      if (last && last.page === ch.page && last.children.length === 0) {
+        if (ch.title.length > last.title.length) last.title = ch.title;
+        continue;
+      }
       sections.push({ title: ch.title, page: ch.page, children: [] });
     } else {
-      sections[sections.length - 1].children.push(ch);
+      last.children.push(ch);
     }
   }
   return sections;
@@ -123,6 +131,35 @@ export function ManualReader({
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [showReadingHint, setShowReadingHint] = React.useState(false);
+
+  // Dica do "Modo leitura": aparece sozinha por alguns segundos (1x por
+  // dispositivo) quando o leitor abre, sugerindo a leitura em tela cheia.
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    let dismissed = false;
+    try {
+      dismissed = window.localStorage.getItem("sbs.manual.readingHint") === "1";
+    } catch {
+      /* ignora */
+    }
+    if (dismissed) return;
+    const showT = window.setTimeout(() => setShowReadingHint(true), 800);
+    const hideT = window.setTimeout(() => setShowReadingHint(false), 7000);
+    return () => {
+      window.clearTimeout(showT);
+      window.clearTimeout(hideT);
+    };
+  }, []);
+
+  function dismissReadingHint() {
+    setShowReadingHint(false);
+    try {
+      window.localStorage.setItem("sbs.manual.readingHint", "1");
+    } catch {
+      /* ignora */
+    }
+  }
 
   // Tela cheia REAL dentro da plataforma (Fullscreen API) — sem abrir o PDF.
   function toggleFullscreen() {
@@ -352,14 +389,39 @@ export function ManualReader({
                   Sair
                 </button>
               ) : (
-                <button
-                  onClick={toggleFullscreen}
-                  className="ml-1 inline-flex h-9 items-center gap-2 rounded-lg border border-primary/30 bg-primary/[0.06] px-3.5 text-xs font-bold text-primary transition-all hover:-translate-y-[1px] hover:bg-primary/10 active:scale-[0.98]"
-                  title="Abrir em tela cheia para uma leitura imersiva"
-                >
-                  <Maximize2 className="h-4 w-4" />
-                  Modo leitura
-                </button>
+                <div className="relative ml-1">
+                  <button
+                    onClick={() => {
+                      dismissReadingHint();
+                      toggleFullscreen();
+                    }}
+                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+                    title="Abrir em tela cheia para uma leitura imersiva"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                    Modo leitura
+                  </button>
+
+                  {/* Balãozinho de dica — sutil, com seta e botão de fechar. */}
+                  {showReadingHint && (
+                    <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 animate-in fade-in slide-in-from-top-1 duration-300">
+                      <div className="absolute -top-1.5 right-6 h-3 w-3 rotate-45 rounded-[2px] bg-slate-900" />
+                      <div className="relative flex items-start gap-2 rounded-xl bg-slate-900 px-3.5 py-3 text-white shadow-xl">
+                        <Maximize2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        <p className="flex-1 text-[12px] leading-snug">
+                          Clique aqui para uma leitura mais confortável, em tela cheia.
+                        </p>
+                        <button
+                          onClick={dismissReadingHint}
+                          className="-mr-1 -mt-1 shrink-0 rounded-md p-0.5 text-slate-400 transition-colors hover:text-white"
+                          title="Fechar"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

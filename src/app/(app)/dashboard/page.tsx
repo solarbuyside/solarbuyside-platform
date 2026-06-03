@@ -12,7 +12,7 @@ import {
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getHomeOverview } from "@/lib/comparisons/home";
-import { loadManualIndex } from "@/lib/manual/manual-index";
+import { loadManualIndex, flattenManualOutline } from "@/lib/manual/manual-index";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrencyBRL } from "@/lib/utils";
 import { ManualHomeCard } from "./manual-home-card";
@@ -34,6 +34,10 @@ export default async function DashboardPage() {
   const firstName = firstNameFrom(user?.fullName ?? null, user?.email ?? null);
   const [overview, manualIndex] = await Promise.all([getHomeOverview(firstName), loadManualIndex()]);
   const manualPages = manualIndex?.numPages ?? 0;
+  // Capítulos (título + página) para o card resolver onde o usuário parou.
+  const manualChapters = manualIndex
+    ? flattenManualOutline(manualIndex.outline).map((c) => ({ title: c.title, page: c.page }))
+    : [];
 
   const greeting = overview.firstName ? `Olá, ${overview.firstName}!` : "Olá!";
 
@@ -103,7 +107,7 @@ export default async function DashboardPage() {
         </Link>
 
         {/* Caminho 2 — Manual (com progresso de leitura) */}
-        <ManualHomeCard numPages={manualPages} />
+        <ManualHomeCard numPages={manualPages} chapters={manualChapters} />
       </section>
 
       {/* Empty state for brand-new users */}
