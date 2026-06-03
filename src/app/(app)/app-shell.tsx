@@ -10,6 +10,7 @@ import {
   History,
   Lightbulb,
   ShieldCheck,
+  BookOpen,
   Menu,
   X,
   Bell,
@@ -117,6 +118,21 @@ export function AppShell({
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-1.5">
+          {/* Destaque: Manual Solar Buy-Side (botão laranja) */}
+          <Link
+            href="/manual"
+            title={collapsed ? "Manual Solar Buy-Side" : undefined}
+            className={cn(
+              "flex items-center gap-3 h-11 rounded-lg text-sm font-bold transition-all duration-200 group relative mb-3",
+              collapsed ? "justify-center px-0" : "px-4",
+              "bg-primary text-white shadow-[0_4px_15px_rgba(249,115,22,0.35)] hover:bg-primary/90 hover:-translate-y-[1px] active:scale-[0.98]",
+              pathname.startsWith("/manual") && "ring-2 ring-primary/40 ring-offset-2 ring-offset-[#050d24]",
+            )}
+          >
+            <BookOpen className="h-4 w-4 shrink-0" />
+            {!collapsed && "Manual Solar Buy-Side"}
+          </Link>
+
           {menuItems.map((item) => {
             const isActive =
               pathname.startsWith(item.href) || (pathname === "/" && item.href === "/dashboard");
@@ -191,6 +207,18 @@ export function AppShell({
       >
         <nav className="py-6 px-4 space-y-1.5 h-full flex flex-col justify-between">
           <div className="space-y-1.5">
+            <Link
+              href="/manual"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 h-11 rounded-lg text-sm font-bold transition-all duration-200 relative mb-3",
+                "bg-primary text-white shadow-[0_4px_15px_rgba(249,115,22,0.35)] hover:bg-primary/90 active:scale-[0.98]",
+                pathname.startsWith("/manual") && "ring-2 ring-primary/40 ring-offset-2 ring-offset-[#050d24]",
+              )}
+            >
+              <BookOpen className="h-4 w-4 shrink-0" />
+              Manual Solar Buy-Side
+            </Link>
             {menuItems.map((item) => {
               const isActive =
                 pathname.startsWith(item.href) || (pathname === "/" && item.href === "/dashboard");
@@ -279,6 +307,7 @@ function breadcrumbFor(pathname: string): string[] {
     curadoria: "Curadoria",
     historico: "Histórico",
     dicas: "Guias",
+    manual: "Manual Solar Buy-Side",
     configuracoes: "Configurações",
     admin: "Admin",
   };

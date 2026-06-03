@@ -59,10 +59,10 @@ create table if not exists public.company_evaluations (
   has_electrical_engineering_crea text check (has_electrical_engineering_crea in ('yes', 'no', 'unknown')),
   engineer_graduation_year int,
   installed_systems_range text check (
-    installed_systems_range in ('lt_10', '10_49', '50_100', 'gt_100', 'unknown')
+    installed_systems_range in ('lt_10', '10_49', '50_100', 'gt_100', 'gt_500', 'gt_1000', 'unknown')
   ),
   own_installation_team text check (
-    own_installation_team in ('yes', 'no', 'outsourced_known', 'unknown')
+    own_installation_team in ('own', 'outsourced', 'unknown')
   ),
   installation_deadline_days numeric,
   project_execution_warranty_years numeric,

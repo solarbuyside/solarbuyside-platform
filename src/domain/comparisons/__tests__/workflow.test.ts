@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { buildInitialDraftComparisonStructure } from "../draft-structure";
 import { companyScoreDefinitions, technicalScoreDefinitions } from "../score-definitions";
+import { companyEvaluationSchema } from "../types";
 import {
   companyFormFields,
   comparisonWorkflow,
@@ -55,6 +58,37 @@ describe("comparison workflow", () => {
   it("scores Reclame Aqui reputation criteria from the buyer's typed note (slide 12)", () => {
     // Todos os critérios técnicos passam a estar habilitados por padrão.
     expect(technicalScoreDefinitions.filter((definition) => !definition.defaultEnabled)).toHaveLength(0);
+  });
+
+  // Guarda contra o bug do slide 5/6: app envia valor que o CHECK do banco
+  // rejeita. Mantém os enums Zod alinhados com os CHECKs do manual-setup.sql.
+  it("keeps company choice enums in sync with the database CHECK constraints", () => {
+    const sql = readFileSync(
+      resolve(__dirname, "../../../../supabase/manual-setup.sql"),
+      "utf-8",
+    );
+    const shape = companyEvaluationSchema.shape;
+
+    function checkValuesFor(column: string): string[] {
+      const re = new RegExp(`${column} in \\(([^)]*)\\)`, "i");
+      const match = sql.match(re);
+      if (!match) throw new Error(`CHECK não encontrado para ${column}`);
+      return match[1]
+        .split(",")
+        .map((s) => s.trim().replace(/^'|'$/g, ""))
+        .sort();
+    }
+
+    function zodValues(field: "installedSystemsRange" | "ownInstallationTeam"): string[] {
+      // Cada campo é z.enum(...).nullable().optional() — desembrulha até o enum.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let def: any = shape[field];
+      while (def && def.def && def.def.innerType) def = def.def.innerType;
+      return [...(def.def.entries ? Object.values(def.def.entries) : def.options)].sort() as string[];
+    }
+
+    expect(zodValues("installedSystemsRange")).toEqual(checkValuesFor("installed_systems_range"));
+    expect(zodValues("ownInstallationTeam")).toEqual(checkValuesFor("own_installation_team"));
   });
 });
 
