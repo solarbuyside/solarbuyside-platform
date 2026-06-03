@@ -12,8 +12,10 @@ import {
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getHomeOverview } from "@/lib/comparisons/home";
+import { loadManualIndex } from "@/lib/manual/manual-index";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrencyBRL } from "@/lib/utils";
+import { ManualHomeCard } from "./manual-home-card";
 
 const STATUS: Record<string, { label: string; variant: "orange" | "emerald" | "secondary" }> = {
   draft: { label: "Rascunho", variant: "orange" },
@@ -30,7 +32,8 @@ function firstNameFrom(fullName: string | null, email: string | null) {
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const firstName = firstNameFrom(user?.fullName ?? null, user?.email ?? null);
-  const overview = await getHomeOverview(firstName);
+  const [overview, manualIndex] = await Promise.all([getHomeOverview(firstName), loadManualIndex()]);
+  const manualPages = manualIndex?.numPages ?? 0;
 
   const greeting = overview.firstName ? `Olá, ${overview.firstName}!` : "Olá!";
 
@@ -53,27 +56,10 @@ export default async function DashboardPage() {
         <div className="relative max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{greeting}</h1>
           <p className="mt-3 text-base leading-relaxed text-slate-300">
-            Que tal realizar um comparativo entre propostas hoje? Reúna os orçamentos, pontue empresa e
-            tecnologia, e descubra com clareza a melhor escolha.
+            Aqui você tem tudo para comprar seu sistema solar com segurança: aprenda no{" "}
+            <strong className="font-semibold text-white">Manual</strong> e compare propostas nas{" "}
+            <strong className="font-semibold text-white">Avaliações</strong>.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <Link
-              href="/avaliacoes/nova"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-primary/95 hover:shadow-[0_4px_20px_rgba(249,115,22,0.4)] active:scale-[0.98]"
-            >
-              <Plus className="h-4.5 w-4.5" />
-              Novo comparativo
-            </Link>
-            {overview.totals.total > 0 && (
-              <Link
-                href="/avaliacoes"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-6 text-sm font-semibold text-white transition-colors hover:bg-white/[0.08]"
-              >
-                Ver minhas avaliações
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            )}
-          </div>
 
           {overview.totals.total > 0 && (
             <div className="mt-7 flex flex-wrap gap-6 text-sm">
@@ -83,6 +69,41 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* Dois caminhos principais: avaliar e ler o manual */}
+      <section className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {/* Caminho 1 — Avaliação */}
+        <Link
+          href="/avaliacoes/nova"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_24px_rgba(249,115,22,0.12)]"
+        >
+          <div className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-primary/5 blur-2xl transition-all group-hover:bg-primary/10" />
+          <div className="relative flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <FileSpreadsheet className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-slate-900">Avaliar propostas</h3>
+              <p className="mt-0.5 text-[13px] leading-snug text-slate-500">
+                Reúna os orçamentos, pontue empresa, tecnologia e viabilidade, e descubra a melhor escolha.
+              </p>
+            </div>
+          </div>
+          <div className="relative mt-5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
+              <Plus className="h-4 w-4" /> Novo comparativo
+            </span>
+            {overview.totals.total > 0 && (
+              <span className="ml-auto text-xs font-medium text-slate-400">
+                {overview.totals.total} no total
+              </span>
+            )}
+          </div>
+        </Link>
+
+        {/* Caminho 2 — Manual (com progresso de leitura) */}
+        <ManualHomeCard numPages={manualPages} />
       </section>
 
       {/* Empty state for brand-new users */}

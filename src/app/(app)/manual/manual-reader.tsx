@@ -1,20 +1,22 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   ZoomIn,
   ZoomOut,
-  Search,
   ListTree,
   Loader2,
-  X,
   BookOpen,
   Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { writeManualProgress } from "./reading-progress";
 import type { ManualIndex, ManualOutlineItem } from "./types";
 
 // Tipos mínimos do pdf.js que usamos (evita depender dos tipos do pacote).
@@ -27,31 +29,21 @@ type PdfPage = {
 };
 type PdfDoc = { numPages: number; getPage: (n: number) => Promise<PdfPage> };
 
-type SearchHit = { page: number; snippet: string; title?: string };
+type Chapter = { title: string; page: number };
+type Section = { title: string; page: number; children: Chapter[] };
 
-// Remove acentos e baixa caixa para uma busca tolerante.
-function normalize(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-}
-
-// Achata o outline mantendo só os títulos de navegação úteis. Filtra ruído
-// (rodapés de copyright, "FASE N" solto, fragmentos de parágrafo) e limita a
-// profundidade para a árvore ficar legível. Deduplica páginas repetidas.
+// Achata o outline mantendo só títulos de navegação úteis (cabeçalhos numerados,
+// CAIXA ALTA ou fases/módulos). Filtra rodapés, fragmentos e duplicatas.
 function flattenOutline(
   items: ManualOutlineItem[],
   depth = 0,
   seen: Set<string> = new Set(),
-): Array<ManualOutlineItem & { depth: number }> {
-  const out: Array<ManualOutlineItem & { depth: number }> = [];
+): Chapter[] {
+  const out: Chapter[] = [];
   for (const it of items) {
     const title = it.title.trim();
-    // Mantém apenas o que parece um título de seção real: cabeçalhos numerados
-    // (ex.: "2.0", "3.2"), títulos em CAIXA ALTA, ou fases/módulos nomeados.
     const looksLikeHeading =
-      /^\d+(\.\d+)*[\s.—-]/.test(title) || // 2.0 / 3.2 / 4.1 —
+      /^\d+(\.\d+)*[\s.—-]/.test(title) ||
       /^(fase|módulo|capítulo|parte|anexo|apêndice)\b/i.test(title) ||
       (title.length >= 6 && title === title.toUpperCase());
     const isNoise =
@@ -63,29 +55,148 @@ function flattenOutline(
       /^fase\s*\d+$/i.test(title) ||
       !looksLikeHeading;
     const key = `${title}|${it.page}`;
-    if (!isNoise && !seen.has(key)) {
+    if (!isNoise && it.page != null && !seen.has(key)) {
       seen.add(key);
-      out.push({ ...it, depth });
+      out.push({ title, page: it.page });
     }
     if (it.children?.length) out.push(...flattenOutline(it.children, depth + 1, seen));
   }
   return out;
 }
 
-export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: string }) {
+// Títulos genéricos que NÃO devem virar seção (agrupam como subitem).
+const GENERIC_TITLES = new Set([
+  "ASSUNTOS",
+  "RESPOSTAS",
+  "DICA 1:",
+  "GUIA INFORMATIVO:",
+  "TÜV NORD",
+]);
+
+// É uma "seção principal"? Capítulos numerados com .0, ETAPA/FASE, divisores
+// conhecidos ou cabeçalhos longos em CAIXA ALTA (não genéricos).
+function isMajorSection(title: string): boolean {
+  const t = title.trim();
+  if (GENERIC_TITLES.has(t)) return false;
+  if (/^\d+\.0\b/.test(t)) return true; // 2.0, 24.0
+  if (/^\d+\.\s/.test(t)) return true; // "17. 4"
+  if (/^(etapa|fase)\b/i.test(t)) return true;
+  if (/^(preliminares|conhecimento|preparação|análise|decisão final|anexos|linha de chegada)\b/i.test(t))
+    return true;
+  if (t.length >= 12 && t === t.toUpperCase() && !/^\d/.test(t)) return true;
+  return false;
+}
+
+// Agrupa os capítulos achatados em seções principais com subtópicos recolhíveis.
+// Cada seção acumula tudo até a próxima seção principal.
+function buildSections(chapters: Chapter[]): Section[] {
+  const sections: Section[] = [];
+  for (const ch of chapters) {
+    if (isMajorSection(ch.title) || sections.length === 0) {
+      sections.push({ title: ch.title, page: ch.page, children: [] });
+    } else {
+      sections[sections.length - 1].children.push(ch);
+    }
+  }
+  return sections;
+}
+
+export function ManualReader({
+  index,
+  pdfUrl,
+  initialPage = 1,
+}: {
+  index: ManualIndex;
+  pdfUrl: string;
+  initialPage?: number;
+}) {
+  const searchParams = useSearchParams();
   const [doc, setDoc] = React.useState<PdfDoc | null>(null);
   const [loadError, setLoadError] = React.useState<string | null>(null);
-  const [page, setPage] = React.useState(1);
+  const [page, setPage] = React.useState(initialPage);
   const [scale, setScale] = React.useState(1.3);
   const [rendering, setRendering] = React.useState(false);
-  const [panel, setPanel] = React.useState<"outline" | "search">("outline");
-  const [query, setQuery] = React.useState("");
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const renderTaskRef = React.useRef<{ cancel: () => void } | null>(null);
-  const pageInputRef = React.useRef<HTMLInputElement>(null);
+  const activeChapterRef = React.useRef<HTMLButtonElement>(null);
+  const viewerRef = React.useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
 
-  const outlineFlat = React.useMemo(() => flattenOutline(index.outline), [index.outline]);
+  // Tela cheia REAL dentro da plataforma (Fullscreen API) — sem abrir o PDF.
+  function toggleFullscreen() {
+    const el = viewerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      el.requestFullscreen().catch(() => {});
+    }
+  }
+
+  React.useEffect(() => {
+    function onFs() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, []);
+
+  const chapters = React.useMemo(() => flattenOutline(index.outline), [index.outline]);
+  const sections = React.useMemo(() => buildSections(chapters), [chapters]);
+
+  // Índice da seção ATIVA (a última cujo início <= página atual). Um único ativo.
+  const activeSectionIndex = React.useMemo(() => {
+    let idx = 0;
+    for (let i = 0; i < sections.length; i += 1) {
+      if (sections[i].page <= page) idx = i;
+      else break;
+    }
+    return idx;
+  }, [sections, page]);
+
+  // Seção aberta no acordeão: por padrão segue a ativa; quando o usuário
+  // alterna manualmente, guardamos o override (e -1 = fechou tudo).
+  const [openOverride, setOpenOverride] = React.useState<{ forPage: number; value: number | null } | null>(
+    null,
+  );
+  const openSection =
+    openOverride && openOverride.forPage === page ? openOverride.value : activeSectionIndex;
+  function toggleSection(si: number) {
+    setOpenOverride({ forPage: page, value: openSection === si ? null : si });
+  }
+
+  const goTo = React.useCallback(
+    (n: number) => {
+      const clamped = Math.min(index.numPages, Math.max(1, n));
+      setPage(clamped);
+      document.getElementById("manual-canvas-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [index.numPages],
+  );
+
+  // Reage a ?page= (ex.: usuário busca um capítulo já estando no /manual).
+  const lastParamPage = React.useRef<string | null>(null);
+  const paramPage = searchParams.get("page");
+  React.useEffect(() => {
+    if (paramPage === lastParamPage.current) return;
+    lastParamPage.current = paramPage;
+    const p = Number(paramPage);
+    if (Number.isFinite(p) && p >= 1 && p <= index.numPages) {
+      // Fora do corpo síncrono do efeito (evita cascata de render).
+      queueMicrotask(() => goTo(p));
+    }
+  }, [paramPage, index.numPages, goTo]);
+
+  // Mantém o capítulo ativo visível no painel.
+  React.useEffect(() => {
+    activeChapterRef.current?.scrollIntoView({ block: "nearest" });
+  }, [activeSectionIndex]);
+
+  // Registra o progresso de leitura (página atual + máxima alcançada).
+  React.useEffect(() => {
+    writeManualProgress(page);
+  }, [page]);
 
   // Carrega o documento PDF uma única vez (streaming por range requests).
   React.useEffect(() => {
@@ -97,8 +208,7 @@ export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: st
           "pdfjs-dist/build/pdf.worker.min.mjs",
           import.meta.url,
         ).toString();
-        const loadingTask = pdfjs.getDocument({ url: pdfUrl });
-        const loaded = await loadingTask.promise;
+        const loaded = await pdfjs.getDocument({ url: pdfUrl }).promise;
         if (!cancelled) setDoc(loaded as unknown as PdfDoc);
       } catch (err) {
         if (!cancelled) setLoadError(err instanceof Error ? err.message : "Falha ao abrir o manual.");
@@ -145,206 +255,139 @@ export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: st
     };
   }, [doc, page, scale]);
 
-  const goTo = React.useCallback(
-    (n: number) => {
-      const clamped = Math.min(index.numPages, Math.max(1, n));
-      setPage(clamped);
-      // Volta o scroll do visualizador ao topo da página.
-      document.getElementById("manual-canvas-scroll")?.scrollTo({ top: 0, behavior: "smooth" });
-    },
-    [index.numPages],
-  );
-
-  // Busca instantânea no texto pré-extraído + títulos do índice.
-  const results = React.useMemo<SearchHit[]>(() => {
-    const q = normalize(query.trim());
-    if (q.length < 2) return [];
-    const titleByPage = new Map<number, string>();
-    for (const it of outlineFlat) if (it.page) titleByPage.set(it.page, it.title);
-
-    const hits: SearchHit[] = [];
-    for (const p of index.pages) {
-      const norm = normalize(p.text);
-      const at = norm.indexOf(q);
-      if (at === -1) continue;
-      const start = Math.max(0, at - 50);
-      const end = Math.min(p.text.length, at + q.length + 90);
-      const snippet = (start > 0 ? "…" : "") + p.text.slice(start, end).trim() + (end < p.text.length ? "…" : "");
-      hits.push({ page: p.page, snippet, title: titleByPage.get(p.page) });
-      if (hits.length >= 80) break;
+  // Navegação por teclado (setas).
+  React.useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      if (e.key === "ArrowRight") goTo(page + 1);
+      if (e.key === "ArrowLeft") goTo(page - 1);
     }
-    return hits;
-  }, [query, index.pages, outlineFlat]);
-
-  function highlight(text: string) {
-    const q = query.trim();
-    if (!q) return text;
-    const nText = normalize(text);
-    const nq = normalize(q);
-    const i = nText.indexOf(nq);
-    if (i === -1) return text;
-    return (
-      <>
-        {text.slice(0, i)}
-        <mark className="rounded bg-primary/20 px-0.5 text-primary">{text.slice(i, i + q.length)}</mark>
-        {text.slice(i + q.length)}
-      </>
-    );
-  }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [page, goTo]);
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] flex-col gap-4">
+    <div className="flex h-[calc(100vh-7rem)] flex-col gap-5">
       {/* Cabeçalho */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-            <BookOpen className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">Manual Solar Buy-Side</h1>
-            <p className="text-xs text-slate-500">{index.numPages} páginas · índice e busca interativos</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+          <BookOpen className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">Manual Solar Buy-Side</h1>
+          <p className="text-xs text-slate-500">
+            {index.numPages} páginas · use a busca no topo para encontrar capítulos
+          </p>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-4">
-        {/* Painel lateral: índice + busca */}
-        <aside className="hidden w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:flex">
-          <div className="flex border-b border-slate-100 p-1.5">
-            <button
-              onClick={() => setPanel("outline")}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-colors",
-                panel === "outline" ? "bg-primary/10 text-primary" : "text-slate-500 hover:text-slate-700",
-              )}
-            >
-              <ListTree className="h-3.5 w-3.5" /> Índice
-            </button>
-            <button
-              onClick={() => setPanel("search")}
-              className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition-colors",
-                panel === "search" ? "bg-primary/10 text-primary" : "text-slate-500 hover:text-slate-700",
-              )}
-            >
-              <Search className="h-3.5 w-3.5" /> Buscar
-            </button>
+      <div className="flex min-h-0 flex-1 gap-5">
+        {/* Painel do índice — seções agrupadas e recolhíveis */}
+        <aside className="hidden w-[310px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:flex">
+          <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
+            <ListTree className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-bold text-slate-800">Índice</h2>
+            <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+              {sections.length} seções
+            </span>
           </div>
-
-          {panel === "search" && (
-            <div className="border-b border-slate-100 p-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  autoFocus
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar no manual…"
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-8 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
-                />
-                {query && (
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
+            {sections.map((section, si) => {
+              const isActive = si === activeSectionIndex;
+              const isOpen = openSection === si;
+              const hasChildren = section.children.length > 0;
+              return (
+                <div key={`${section.title}-${si}`}>
                   <button
-                    onClick={() => setQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    ref={isActive ? activeChapterRef : undefined}
+                    onClick={() => {
+                      goTo(section.page);
+                      if (hasChildren) toggleSection(si);
+                    }}
+                    className={cn(
+                      "relative flex w-full items-center gap-2 rounded-xl py-2.5 pl-3.5 pr-2.5 text-left transition-all",
+                      isActive
+                        ? "bg-primary/[0.07] text-primary"
+                        : "text-slate-700 hover:bg-slate-100",
+                    )}
                   >
-                    <X className="h-4 w-4" />
+                    {isActive && (
+                      <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+                    )}
+                    <span
+                      className={cn(
+                        "line-clamp-2 flex-1 text-[13px] font-semibold leading-snug",
+                        isActive && "font-bold",
+                      )}
+                    >
+                      {section.title}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                        isActive ? "bg-primary/15 text-primary" : "bg-slate-100 text-slate-400",
+                      )}
+                    >
+                      {section.page}
+                    </span>
+                    {hasChildren && (
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform",
+                          isOpen && "rotate-180",
+                        )}
+                      />
+                    )}
                   </button>
-                )}
-              </div>
-              {query.trim().length >= 2 && (
-                <p className="mt-2 text-[11px] font-medium text-slate-400">
-                  {results.length} resultado{results.length === 1 ? "" : "s"}
-                </p>
-              )}
-            </div>
-          )}
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-2">
-            {panel === "outline" &&
-              outlineFlat.map((it, i) => (
-                <button
-                  key={`${it.title}-${i}`}
-                  onClick={() => it.page && goTo(it.page)}
-                  disabled={!it.page}
-                  style={{ paddingLeft: `${8 + it.depth * 12}px` }}
-                  className={cn(
-                    "flex w-full items-center justify-between gap-2 rounded-md py-1.5 pr-2 text-left text-[13px] transition-colors hover:bg-slate-100",
-                    it.page === page ? "bg-primary/10 font-semibold text-primary" : "text-slate-600",
-                    it.depth === 0 && "font-semibold",
+                  {/* Subtópicos da seção (recolhíveis) */}
+                  {hasChildren && isOpen && (
+                    <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                      {section.children.map((ch, ci) => {
+                        const isCurrent = ch.page === page;
+                        return (
+                          <button
+                            key={`${ch.title}-${ci}`}
+                            onClick={() => goTo(ch.page)}
+                            className={cn(
+                              "flex w-full items-center gap-2 rounded-lg py-1.5 pl-2.5 pr-2 text-left transition-colors",
+                              isCurrent ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-100",
+                            )}
+                          >
+                            <span className="line-clamp-2 flex-1 text-[12px] leading-snug">{ch.title}</span>
+                            <span
+                              className={cn(
+                                "shrink-0 text-[10px] font-semibold tabular-nums",
+                                isCurrent ? "text-primary/70" : "text-slate-400",
+                              )}
+                            >
+                              {ch.page}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   )}
-                >
-                  <span className="line-clamp-2">{it.title}</span>
-                  {it.page && <span className="shrink-0 text-[10px] text-slate-400">{it.page}</span>}
-                </button>
-              ))}
-
-            {panel === "search" && query.trim().length < 2 && (
-              <p className="px-2 py-6 text-center text-xs text-slate-400">
-                Digite ao menos 2 caracteres para buscar por título ou conteúdo.
-              </p>
-            )}
-
-            {panel === "search" &&
-              results.map((hit, i) => (
-                <button
-                  key={`${hit.page}-${i}`}
-                  onClick={() => goTo(hit.page)}
-                  className="mb-1 flex w-full flex-col gap-1 rounded-md p-2.5 text-left transition-colors hover:bg-slate-100"
-                >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="line-clamp-1 text-xs font-bold text-slate-700">
-                      {hit.title ?? `Página ${hit.page}`}
-                    </span>
-                    <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
-                      p. {hit.page}
-                    </span>
-                  </span>
-                  <span className="line-clamp-2 text-[11px] leading-relaxed text-slate-500">
-                    {highlight(hit.snippet)}
-                  </span>
-                </button>
-              ))}
-          </div>
+                </div>
+              );
+            })}
+          </nav>
         </aside>
 
         {/* Visualizador */}
-        <div className="flex min-w-0 flex-1 flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div
+          ref={viewerRef}
+          className={cn(
+            "flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+            isFullscreen && "rounded-none",
+          )}
+        >
           {/* Toolbar */}
-          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-2">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => goTo(page - 1)}
-                disabled={page <= 1}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30"
-                title="Página anterior"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <div className="flex items-center gap-1.5 text-sm text-slate-600">
-                <input
-                  ref={pageInputRef}
-                  defaultValue={page}
-                  key={page}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      const v = Number((e.target as HTMLInputElement).value);
-                      if (Number.isFinite(v)) goTo(v);
-                    }
-                  }}
-                  className="h-9 w-12 rounded-lg border border-slate-200 text-center text-sm outline-none focus:border-primary"
-                />
-                <span className="text-slate-400">/ {index.numPages}</span>
-              </div>
-              <button
-                onClick={() => goTo(page + 1)}
-                disabled={page >= index.numPages}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 disabled:opacity-30"
-                title="Próxima página"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <PageInput page={page} numPages={index.numPages} onGo={goTo} />
             </div>
-
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setScale((s) => Math.max(0.6, Math.round((s - 0.2) * 10) / 10))}
@@ -363,23 +406,18 @@ export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: st
               >
                 <ZoomIn className="h-4.5 w-4.5" />
               </button>
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={toggleFullscreen}
                 className="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100"
-                title="Abrir em tela cheia"
+                title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
               >
-                <Maximize2 className="h-4 w-4" />
-              </a>
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
-          {/* Canvas */}
-          <div
-            id="manual-canvas-scroll"
-            className="relative flex-1 overflow-auto bg-slate-100 p-4"
-          >
+          {/* Canvas + setas flutuantes */}
+          <div id="manual-canvas-scroll" className="relative flex-1 overflow-auto bg-slate-100/80 p-5">
             {!doc && !loadError && (
               <div className="flex h-full flex-col items-center justify-center gap-3 text-slate-400">
                 <Loader2 className="h-7 w-7 animate-spin text-primary" />
@@ -389,10 +427,7 @@ export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: st
             {loadError && (
               <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-slate-500">
                 <p className="text-sm font-semibold text-destructive">Não foi possível abrir o manual.</p>
-                <p className="max-w-xs text-xs">{loadError}</p>
-                <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary underline">
-                  Abrir o PDF diretamente
-                </a>
+                <p className="max-w-xs text-xs">Recarregue a página para tentar novamente.</p>
               </div>
             )}
             {doc && (
@@ -407,9 +442,94 @@ export function ManualReader({ index, pdfUrl }: { index: ManualIndex; pdfUrl: st
                 </div>
               </div>
             )}
+
+            {/* Setas flutuantes — só na tela cheia (no modo normal a navegação
+                fica nos botões grandes da barra inferior). */}
+            {doc && isFullscreen && (
+              <>
+                <FloatingArrow side="left" disabled={page <= 1} onClick={() => goTo(page - 1)} />
+                <FloatingArrow side="right" disabled={page >= index.numPages} onClick={() => goTo(page + 1)} />
+              </>
+            )}
+          </div>
+
+          {/* Barra inferior de navegação — botões grandes e fáceis */}
+          <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
+            <button
+              onClick={() => goTo(page - 1)}
+              disabled={page <= 1}
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-all hover:border-primary/40 hover:text-primary active:scale-[0.98] disabled:opacity-30"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Anterior
+            </button>
+            <div className="text-xs font-semibold text-slate-400">
+              Página {page} de {index.numPages}
+            </div>
+            <button
+              onClick={() => goTo(page + 1)}
+              disabled={page >= index.numPages}
+              className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-white shadow-[0_4px_15px_rgba(249,115,22,0.25)] transition-all hover:-translate-y-[1px] hover:bg-primary/90 active:scale-[0.98] disabled:opacity-30 disabled:shadow-none"
+            >
+              Próxima
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function PageInput({
+  page,
+  numPages,
+  onGo,
+}: {
+  page: number;
+  numPages: number;
+  onGo: (n: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1.5 text-sm text-slate-600">
+      <span className="text-xs font-medium text-slate-400">Ir para</span>
+      <input
+        key={page}
+        defaultValue={page}
+        inputMode="numeric"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            const v = Number((e.target as HTMLInputElement).value);
+            if (Number.isFinite(v)) onGo(v);
+          }
+        }}
+        className="h-9 w-14 rounded-lg border border-slate-200 text-center text-sm font-semibold outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+      />
+      <span className="text-slate-400">/ {numPages}</span>
+    </div>
+  );
+}
+
+function FloatingArrow({
+  side,
+  disabled,
+  onClick,
+}: {
+  side: "left" | "right";
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={side === "left" ? "Página anterior" : "Próxima página"}
+      className={cn(
+        "fixed top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-xl backdrop-blur transition-all hover:scale-105 hover:bg-white hover:text-primary active:scale-95 disabled:pointer-events-none disabled:opacity-0",
+        side === "left" ? "left-6" : "right-6",
+      )}
+    >
+      {side === "left" ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
+    </button>
   );
 }

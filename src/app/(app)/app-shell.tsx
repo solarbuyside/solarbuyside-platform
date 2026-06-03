@@ -42,6 +42,11 @@ export type SearchItem = {
   competitors: string[];
 };
 
+export type ManualChapterItem = {
+  title: string;
+  page: number;
+};
+
 export type NotificationItem = {
   id: string;
   title: string;
@@ -67,11 +72,13 @@ function initials(name: string | null, email: string | null) {
 export function AppShell({
   user,
   searchItems,
+  manualChapters,
   notifications,
   children,
 }: {
   user: AppShellUser;
   searchItems: SearchItem[];
+  manualChapters: ManualChapterItem[];
   notifications: NotificationItem[];
   children: React.ReactNode;
 }) {
@@ -118,19 +125,35 @@ export function AppShell({
         </div>
 
         <nav className="flex-1 py-6 px-4 space-y-1.5">
-          {/* Destaque: Manual Solar Buy-Side (botão laranja) */}
+          {/* Destaque sutil: Manual Solar Buy-Side — card escuro com accent
+              laranja (não compete com os CTAs laranja sólidos do conteúdo). */}
           <Link
             href="/manual"
             title={collapsed ? "Manual Solar Buy-Side" : undefined}
             className={cn(
-              "flex items-center gap-3 h-11 rounded-lg text-sm font-bold transition-all duration-200 group relative mb-3",
-              collapsed ? "justify-center px-0" : "px-4",
-              "bg-primary text-white shadow-[0_4px_15px_rgba(249,115,22,0.35)] hover:bg-primary/90 hover:-translate-y-[1px] active:scale-[0.98]",
-              pathname.startsWith("/manual") && "ring-2 ring-primary/40 ring-offset-2 ring-offset-[#050d24]",
+              "group relative mb-3 flex items-center gap-3 rounded-xl border transition-all duration-200",
+              collapsed ? "h-11 justify-center px-0" : "px-3 py-2.5",
+              pathname.startsWith("/manual")
+                ? "border-primary/40 bg-primary/10"
+                : "border-white/10 bg-white/[0.03] hover:border-primary/30 hover:bg-white/[0.05]",
             )}
           >
-            <BookOpen className="h-4 w-4 shrink-0" />
-            {!collapsed && "Manual Solar Buy-Side"}
+            <span
+              className={cn(
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                pathname.startsWith("/manual")
+                  ? "bg-primary text-white"
+                  : "bg-primary/15 text-primary group-hover:bg-primary/25",
+              )}
+            >
+              <BookOpen className="h-4 w-4" />
+            </span>
+            {!collapsed && (
+              <span className="flex min-w-0 flex-col">
+                <span className="text-[13px] font-bold leading-tight text-white">Manual Solar Buy-Side</span>
+                <span className="text-[10px] font-medium text-slate-400">Guia de compra completo</span>
+              </span>
+            )}
           </Link>
 
           {menuItems.map((item) => {
@@ -211,13 +234,24 @@ export function AppShell({
               href="/manual"
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-4 h-11 rounded-lg text-sm font-bold transition-all duration-200 relative mb-3",
-                "bg-primary text-white shadow-[0_4px_15px_rgba(249,115,22,0.35)] hover:bg-primary/90 active:scale-[0.98]",
-                pathname.startsWith("/manual") && "ring-2 ring-primary/40 ring-offset-2 ring-offset-[#050d24]",
+                "group relative mb-3 flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200",
+                pathname.startsWith("/manual")
+                  ? "border-primary/40 bg-primary/10"
+                  : "border-white/10 bg-white/[0.03] hover:border-primary/30 hover:bg-white/[0.05]",
               )}
             >
-              <BookOpen className="h-4 w-4 shrink-0" />
-              Manual Solar Buy-Side
+              <span
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                  pathname.startsWith("/manual") ? "bg-primary text-white" : "bg-primary/15 text-primary",
+                )}
+              >
+                <BookOpen className="h-4 w-4" />
+              </span>
+              <span className="flex flex-col">
+                <span className="text-[13px] font-bold leading-tight text-white">Manual Solar Buy-Side</span>
+                <span className="text-[10px] font-medium text-slate-400">Guia de compra completo</span>
+              </span>
             </Link>
             {menuItems.map((item) => {
               const isActive =
@@ -271,7 +305,7 @@ export function AppShell({
 
           {/* Right: search + actions, pushed to the edge */}
           <div className="ml-auto flex items-center gap-2">
-            <GlobalSearch items={searchItems} />
+            <GlobalSearch items={searchItems} manualChapters={manualChapters} />
             {user.isAdmin && (
               <Link
                 href="/admin"
@@ -281,6 +315,18 @@ export function AppShell({
                 <span className="hidden lg:inline">Admin</span>
               </Link>
             )}
+            <Link
+              href="/manual"
+              title="Manual Solar Buy-Side"
+              className={cn(
+                "relative flex h-9 w-9 items-center justify-center rounded-lg border transition-colors",
+                pathname.startsWith("/manual")
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
+              )}
+            >
+              <BookOpen className="h-4 w-4" />
+            </Link>
             <NotificationsBell notifications={notifications} />
             <UserMenu user={user} displayName={displayName} />
           </div>
@@ -321,23 +367,40 @@ function breadcrumbFor(pathname: string): string[] {
   return crumbs.length > 0 ? crumbs : ["Dashboard"];
 }
 
-function GlobalSearch({ items }: { items: SearchItem[] }) {
+// Busca tolerante a acentos.
+function normalizeSearch(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+function GlobalSearch({
+  items,
+  manualChapters,
+}: {
+  items: SearchItem[];
+  manualChapters: ManualChapterItem[];
+}) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const results = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return items
+  const { evals, chapters } = React.useMemo(() => {
+    const q = normalizeSearch(query.trim());
+    if (!q) return { evals: [], chapters: [] };
+    const evals = items
       .filter(
         (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.competitors.some((c) => c.toLowerCase().includes(q)),
+          normalizeSearch(item.title).includes(q) ||
+          item.competitors.some((c) => normalizeSearch(c).includes(q)),
       )
+      .slice(0, 5);
+    const chapters = manualChapters
+      .filter((ch) => normalizeSearch(ch.title).includes(q))
       .slice(0, 6);
-  }, [query, items]);
+    return { evals, chapters };
+  }, [query, items, manualChapters]);
+
+  const hasResults = evals.length > 0 || chapters.length > 0;
 
   React.useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -349,14 +412,20 @@ function GlobalSearch({ items }: { items: SearchItem[] }) {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  function go(id: string) {
+  function goEval(id: string) {
     setOpen(false);
     setQuery("");
     router.push(`/avaliacoes/${id}/comparativo`);
   }
 
+  function goChapter(page: number) {
+    setOpen(false);
+    setQuery("");
+    router.push(`/manual?page=${page}`);
+  }
+
   return (
-    <div ref={containerRef} className="relative w-72">
+    <div ref={containerRef} className="relative w-80">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
       <input
         value={query}
@@ -365,28 +434,62 @@ function GlobalSearch({ items }: { items: SearchItem[] }) {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Buscar avaliações ou fornecedores…"
+        placeholder="Buscar avaliações ou capítulos do manual…"
         className="pl-9 pr-4 h-10 w-full rounded-lg bg-slate-100 border border-border text-sm text-slate-700 placeholder-slate-400 outline-none focus-within:border-primary/50 focus:border-primary/50 transition-all"
       />
       {open && query.trim() && (
-        <div className="absolute left-0 right-0 top-12 z-50 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
-          {results.length === 0 ? (
-            <p className="px-4 py-3 text-xs text-slate-400">Nenhuma avaliação encontrada.</p>
-          ) : (
-            results.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => go(item.id)}
-                className="flex w-full flex-col items-start gap-0.5 px-4 py-2.5 text-left transition-colors hover:bg-slate-50"
-              >
-                <span className="text-sm font-semibold text-slate-800">{item.title}</span>
-                {item.competitors.length > 0 && (
-                  <span className="truncate text-[11px] text-slate-400">
-                    {item.competitors.join(" · ")}
+        <div className="absolute left-0 right-0 top-12 z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200 bg-white py-1.5 shadow-xl">
+          {!hasResults && (
+            <p className="px-4 py-3 text-xs text-slate-400">Nada encontrado.</p>
+          )}
+
+          {evals.length > 0 && (
+            <div>
+              <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Avaliações
+              </p>
+              {evals.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => goEval(item.id)}
+                  className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-slate-50"
+                >
+                  <FileSpreadsheet className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-sm font-semibold text-slate-800">{item.title}</span>
+                    {item.competitors.length > 0 && (
+                      <span className="truncate text-[11px] text-slate-400">
+                        {item.competitors.join(" · ")}
+                      </span>
+                    )}
                   </span>
-                )}
-              </button>
-            ))
+                </button>
+              ))}
+            </div>
+          )}
+
+          {chapters.length > 0 && (
+            <div>
+              {evals.length > 0 && <div className="my-1 border-t border-slate-100" />}
+              <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Manual Solar Buy-Side
+              </p>
+              {chapters.map((ch, i) => (
+                <button
+                  key={`${ch.page}-${i}`}
+                  onClick={() => goChapter(ch.page)}
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-primary/5"
+                >
+                  <BookOpen className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
+                    {ch.title}
+                  </span>
+                  <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                    p. {ch.page}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}

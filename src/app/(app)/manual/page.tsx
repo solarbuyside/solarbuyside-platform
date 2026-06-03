@@ -19,12 +19,23 @@ async function loadIndex(): Promise<ManualIndex | null> {
   }
 }
 
-export default async function ManualPage() {
+export default async function ManualPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const index = await loadIndex();
   if (!index) notFound();
 
   // URL pública do PDF (o arquivo está em /public). Encoda espaços do nome.
   const pdfUrl = `/${encodeURIComponent(index.pdf)}`;
 
-  return <ManualReader index={index} pdfUrl={pdfUrl} />;
+  const { page } = await searchParams;
+  const requested = Number(page);
+  const initialPage =
+    Number.isFinite(requested) && requested >= 1 && requested <= index.numPages
+      ? requested
+      : 1;
+
+  return <ManualReader index={index} pdfUrl={pdfUrl} initialPage={initialPage} />;
 }

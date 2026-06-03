@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { listComparisonSummaries, listRecentEvents } from "@/lib/comparisons/repository";
-import { AppShell, type SearchItem, type NotificationItem } from "./app-shell";
+import { loadManualChapters } from "@/lib/manual/manual-index";
+import { AppShell, type SearchItem, type NotificationItem, type ManualChapterItem } from "./app-shell";
 
 const EVENT_LABELS: Record<string, { title: string; description: string }> = {
   "comparison.created": {
@@ -31,11 +32,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   let searchItems: SearchItem[] = [];
   let notifications: NotificationItem[] = [];
+  let manualChapters: ManualChapterItem[] = [];
   try {
-    const [summaries, events] = await Promise.all([
+    const [summaries, events, chapters] = await Promise.all([
       listComparisonSummaries(),
       listRecentEvents(8),
+      loadManualChapters(),
     ]);
+    manualChapters = chapters.map((c) => ({ title: c.title, page: c.page }));
     searchItems = summaries.map((s) => ({
       id: s.id,
       title: s.title,
@@ -65,6 +69,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         isAdmin: user?.isAdmin ?? false,
       }}
       searchItems={searchItems}
+      manualChapters={manualChapters}
       notifications={notifications}
     >
       {children}
