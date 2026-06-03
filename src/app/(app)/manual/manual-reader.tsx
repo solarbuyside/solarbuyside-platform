@@ -13,6 +13,7 @@ import {
   BookOpen,
   Maximize2,
   Minimize2,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -122,6 +123,7 @@ export function ManualReader({
   const activeChapterRef = React.useRef<HTMLButtonElement>(null);
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   // Tela cheia REAL dentro da plataforma (Fullscreen API) — sem abrir o PDF.
   function toggleFullscreen() {
@@ -258,6 +260,7 @@ export function ManualReader({
   // Navegação por teclado (setas).
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") return setDrawerOpen(false);
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
       if (e.key === "ArrowRight") goTo(page + 1);
@@ -292,100 +295,42 @@ export function ManualReader({
               {sections.length} seções
             </span>
           </div>
-          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
-            {sections.map((section, si) => {
-              const isActive = si === activeSectionIndex;
-              const isOpen = openSection === si;
-              const hasChildren = section.children.length > 0;
-              return (
-                <div key={`${section.title}-${si}`}>
-                  <button
-                    ref={isActive ? activeChapterRef : undefined}
-                    onClick={() => {
-                      goTo(section.page);
-                      if (hasChildren) toggleSection(si);
-                    }}
-                    className={cn(
-                      "relative flex w-full items-center gap-2 rounded-xl py-2.5 pl-3.5 pr-2.5 text-left transition-all",
-                      isActive
-                        ? "bg-primary/[0.07] text-primary"
-                        : "text-slate-700 hover:bg-slate-100",
-                    )}
-                  >
-                    {isActive && (
-                      <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
-                    )}
-                    <span
-                      className={cn(
-                        "line-clamp-2 flex-1 text-[13px] font-semibold leading-snug",
-                        isActive && "font-bold",
-                      )}
-                    >
-                      {section.title}
-                    </span>
-                    <span
-                      className={cn(
-                        "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                        isActive ? "bg-primary/15 text-primary" : "bg-slate-100 text-slate-400",
-                      )}
-                    >
-                      {section.page}
-                    </span>
-                    {hasChildren && (
-                      <ChevronDown
-                        className={cn(
-                          "h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform",
-                          isOpen && "rotate-180",
-                        )}
-                      />
-                    )}
-                  </button>
-
-                  {/* Subtópicos da seção (recolhíveis) */}
-                  {hasChildren && isOpen && (
-                    <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
-                      {section.children.map((ch, ci) => {
-                        const isCurrent = ch.page === page;
-                        return (
-                          <button
-                            key={`${ch.title}-${ci}`}
-                            onClick={() => goTo(ch.page)}
-                            className={cn(
-                              "flex w-full items-center gap-2 rounded-lg py-1.5 pl-2.5 pr-2 text-left transition-colors",
-                              isCurrent ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-100",
-                            )}
-                          >
-                            <span className="line-clamp-2 flex-1 text-[12px] leading-snug">{ch.title}</span>
-                            <span
-                              className={cn(
-                                "shrink-0 text-[10px] font-semibold tabular-nums",
-                                isCurrent ? "text-primary/70" : "text-slate-400",
-                              )}
-                            >
-                              {ch.page}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
+          <IndexList
+            sections={sections}
+            page={page}
+            activeSectionIndex={activeSectionIndex}
+            openSection={openSection}
+            onToggleSection={toggleSection}
+            onGo={goTo}
+            activeRef={activeChapterRef}
+          />
         </aside>
 
         {/* Visualizador */}
         <div
           ref={viewerRef}
           className={cn(
-            "flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+            "relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
             isFullscreen && "rounded-none",
           )}
         >
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-2">
+              {/* Botão de índice — útil na tela cheia (painel lateral some). */}
+              <button
+                onClick={() => setDrawerOpen((o) => !o)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors",
+                  drawerOpen
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
+                )}
+                title="Mostrar índice"
+              >
+                <ListTree className="h-4 w-4" />
+                Índice
+              </button>
               <PageInput page={page} numPages={index.numPages} onGo={goTo} />
             </div>
             <div className="flex items-center gap-1">
@@ -453,6 +398,43 @@ export function ManualReader({
             )}
           </div>
 
+          {/* Índice flutuante (drawer) — sobrepõe o leitor, útil na tela cheia. */}
+          {drawerOpen && (
+            <>
+              <div
+                className="absolute inset-0 z-30 bg-slate-900/30 backdrop-blur-[1px]"
+                onClick={() => setDrawerOpen(false)}
+              />
+              <div className="absolute inset-y-0 left-0 z-40 flex w-[320px] max-w-[85%] flex-col border-r border-slate-200 bg-white shadow-2xl animate-in slide-in-from-left duration-200">
+                <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
+                  <ListTree className="h-4 w-4 text-primary" />
+                  <h2 className="text-sm font-bold text-slate-800">Índice</h2>
+                  <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+                    {sections.length} seções
+                  </span>
+                  <button
+                    onClick={() => setDrawerOpen(false)}
+                    className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100"
+                    title="Fechar"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <IndexList
+                  sections={sections}
+                  page={page}
+                  activeSectionIndex={activeSectionIndex}
+                  openSection={openSection}
+                  onToggleSection={toggleSection}
+                  onGo={(n) => {
+                    goTo(n);
+                    setDrawerOpen(false);
+                  }}
+                />
+              </div>
+            </>
+          )}
+
           {/* Barra inferior de navegação — botões grandes e fáceis */}
           <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
             <button
@@ -478,6 +460,106 @@ export function ManualReader({
         </div>
       </div>
     </div>
+  );
+}
+
+/** Índice agrupado e recolhível — reutilizado no painel fixo e no drawer. */
+function IndexList({
+  sections,
+  page,
+  activeSectionIndex,
+  openSection,
+  onToggleSection,
+  onGo,
+  activeRef,
+}: {
+  sections: Section[];
+  page: number;
+  activeSectionIndex: number;
+  openSection: number | null;
+  onToggleSection: (si: number) => void;
+  onGo: (n: number) => void;
+  activeRef?: React.Ref<HTMLButtonElement>;
+}) {
+  return (
+    <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
+      {sections.map((section, si) => {
+        const isActive = si === activeSectionIndex;
+        const isOpen = openSection === si;
+        const hasChildren = section.children.length > 0;
+        return (
+          <div key={`${section.title}-${si}`}>
+            <button
+              ref={isActive ? activeRef : undefined}
+              onClick={() => {
+                onGo(section.page);
+                if (hasChildren) onToggleSection(si);
+              }}
+              className={cn(
+                "relative flex w-full items-center gap-2 rounded-xl py-2.5 pl-3.5 pr-2.5 text-left transition-all",
+                isActive ? "bg-primary/[0.07] text-primary" : "text-slate-700 hover:bg-slate-100",
+              )}
+            >
+              {isActive && (
+                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+              )}
+              <span
+                className={cn(
+                  "line-clamp-2 flex-1 text-[13px] font-semibold leading-snug",
+                  isActive && "font-bold",
+                )}
+              >
+                {section.title}
+              </span>
+              <span
+                className={cn(
+                  "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                  isActive ? "bg-primary/15 text-primary" : "bg-slate-100 text-slate-400",
+                )}
+              >
+                {section.page}
+              </span>
+              {hasChildren && (
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform",
+                    isOpen && "rotate-180",
+                  )}
+                />
+              )}
+            </button>
+
+            {hasChildren && isOpen && (
+              <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                {section.children.map((ch, ci) => {
+                  const isCurrent = ch.page === page;
+                  return (
+                    <button
+                      key={`${ch.title}-${ci}`}
+                      onClick={() => onGo(ch.page)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-lg py-1.5 pl-2.5 pr-2 text-left transition-colors",
+                        isCurrent ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-100",
+                      )}
+                    >
+                      <span className="line-clamp-2 flex-1 text-[12px] leading-snug">{ch.title}</span>
+                      <span
+                        className={cn(
+                          "shrink-0 text-[10px] font-semibold tabular-nums",
+                          isCurrent ? "text-primary/70" : "text-slate-400",
+                        )}
+                      >
+                        {ch.page}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
   );
 }
 

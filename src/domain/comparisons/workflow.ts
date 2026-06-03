@@ -91,7 +91,7 @@ export const companyFormFields = [
   },
   {
     key: "company.installationDeadlineDays",
-    label: "Prazo máximo de instalação do sistema solar",
+    label: "Prazo máximo de instalação do sistema solar (dias)",
     kind: "number",
     sourceSheet: "Form. Empresa",
     sourceRow: 18,

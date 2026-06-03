@@ -120,6 +120,26 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
   );
   const [saveState, setSaveState] = React.useState<SaveState>("idle");
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+  // Ao trocar de seção, rola para o topo (o conteúdo rola dentro do <main>).
+  const didMount = React.useRef(false);
+  React.useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    let el: HTMLElement | null = rootRef.current?.parentElement ?? null;
+    while (el) {
+      const oy = window.getComputedStyle(el).overflowY;
+      if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) {
+        el.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      el = el.parentElement;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [sectionIndex]);
 
   const section = SECTIONS[sectionIndex];
   const activeCompetitor =
@@ -194,7 +214,7 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
   }
 
   return (
-    <div className="animate-in fade-in duration-300">
+    <div ref={rootRef} className="animate-in fade-in duration-300">
       {/* Two columns: WHO (supplier context) on the left, WHAT (interview) on the right */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
         {/* LEFT — supplier context panel */}
