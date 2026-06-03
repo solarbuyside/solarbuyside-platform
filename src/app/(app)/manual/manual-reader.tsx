@@ -491,6 +491,7 @@ export function ManualReader({
                   activeSectionIndex={activeSectionIndex}
                   openSection={openSection}
                   onToggleSection={toggleSection}
+                  expandOnly
                   onGo={(n) => {
                     goTo(n);
                     setDrawerOpen(false);
@@ -537,6 +538,7 @@ function IndexList({
   onToggleSection,
   onGo,
   activeRef,
+  expandOnly,
 }: {
   sections: Section[];
   page: number;
@@ -545,6 +547,9 @@ function IndexList({
   onToggleSection: (si: number) => void;
   onGo: (n: number) => void;
   activeRef?: React.Ref<HTMLButtonElement>;
+  /** Quando true (drawer), clicar num capítulo COM subtópicos só os expande
+      (não navega nem fecha) — o usuário escolhe a página nos subitens. */
+  expandOnly?: boolean;
 }) {
   return (
     <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
@@ -557,8 +562,14 @@ function IndexList({
             <button
               ref={isActive ? activeRef : undefined}
               onClick={() => {
-                onGo(section.page);
-                if (hasChildren) onToggleSection(si);
+                if (hasChildren) {
+                  onToggleSection(si);
+                  // No drawer, capítulo com subtópicos só expande (não navega).
+                  if (!expandOnly) onGo(section.page);
+                } else {
+                  // Sem subtópicos: não há o que escolher — navega direto.
+                  onGo(section.page);
+                }
               }}
               className={cn(
                 "relative flex w-full items-center gap-2 rounded-xl py-2.5 pl-3.5 pr-2.5 text-left transition-all",
