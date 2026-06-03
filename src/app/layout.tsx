@@ -8,7 +8,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Solar Buy-Side Platform",
+  title: "Plataforma Solar Buy-Side",
   description: "SaaS de comparação de fornecedores e propostas solares",
 };
 

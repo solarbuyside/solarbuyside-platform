@@ -500,7 +500,7 @@ export function NovaForm({ savedCompanies }: { savedCompanies: SavedCompanyOptio
                 </div>
                 <div>
                   <CardTitle className="text-base text-white">Guia de Comparação</CardTitle>
-                  <CardDescription className="text-[11px] text-slate-400">Solar Buy-Side Platform</CardDescription>
+                  <CardDescription className="text-[11px] text-slate-400">Plataforma Solar Buy-Side</CardDescription>
                 </div>
               </div>
             </CardHeader>
