@@ -6,12 +6,9 @@ import {
   Trophy,
   Medal,
   Check,
-  AlertTriangle,
-  CheckCircle2,
   Sparkles,
   ArrowLeft,
   Crown,
-  FileDown,
 } from "lucide-react";
 
 import { calculateComparisonResult } from "@/domain/comparisons/scoring";
@@ -120,19 +117,12 @@ export function FinalistsView({ comparison: initial }: { comparison: ComparisonI
       {/* Footer */}
       <div className="flex items-center justify-between border-t border-slate-200 pt-6">
         <Link
-          href={`/avaliacoes/${comparison.id}/comparativo`}
+          href={`/avaliacoes/${comparison.id}/comparativo?tab=overview`}
           className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-100 active:scale-[0.98]"
         >
           <ArrowLeft className="h-4 w-4" />
-          Voltar ao comparativo
+          Voltar à Pontuação Geral
         </Link>
-        <a
-          href={`/avaliacoes/${comparison.id}/export`}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
-        >
-          <FileDown className="h-4 w-4" />
-          Baixar resultado (Excel)
-        </a>
       </div>
     </div>
   );
@@ -203,6 +193,7 @@ function FinalistCard({
         <div className="flex-1 space-y-1.5 pb-1">
           <ScoreBar label="Empresa" value={competitor.companyScore.grade10} />
           <ScoreBar label="Técnico" value={competitor.technicalScore.grade10} />
+          <ScoreBar label="Viabilidade" value={competitor.financialScore.grade10} />
         </div>
       </div>
 
@@ -212,31 +203,6 @@ function FinalistCard({
         <span className="text-base font-bold text-slate-900">
           {formatCurrencyBRL(competitor.investment)}
         </span>
-      </div>
-
-      {/* Risk flags / strengths */}
-      <div className="relative mt-5">
-        {competitor.riskFlags.length > 0 ? (
-          <>
-            <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Pontos de atenção
-            </p>
-            <ul className="space-y-1.5">
-              {competitor.riskFlags.map((flag, i) => (
-                <li key={i} className="flex items-start gap-2 text-xs leading-relaxed text-slate-600">
-                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-400" />
-                  {flag}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-200/60 bg-emerald-50 px-3 py-2.5 text-xs font-semibold text-emerald-700">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            Nenhum ponto de atenção identificado.
-          </div>
-        )}
       </div>
 
       {primary && (

@@ -37,23 +37,24 @@ describe("comparison workflow", () => {
 
   it("keeps field and scoring counts aligned with the source spreadsheet", () => {
     expect(companyFormFields).toHaveLength(13);
-    expect(technicalFormFields).toHaveLength(24);
+    // Slide 12: cada item do Reclame Aqui virou nome + nota (24 -> 27 campos).
+    expect(technicalFormFields).toHaveLength(27);
     expect(financialFormFields).toHaveLength(15);
 
     expect(companyScoreDefinitions).toHaveLength(13);
     expect(technicalScoreDefinitions).toHaveLength(22);
+    // Slide 19: 4 critérios de viabilidade passam a pontuar (rubric provisório).
+    // Slide 12: os 3 critérios de reputação do Reclame Aqui passam a contar.
     expect(comparisonWorkflowSummary.enabledCompanyCriteriaCount).toBe(13);
-    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(19);
-    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(35);
-    expect(comparisonWorkflowSummary.financialAffectsScore).toBe(false);
+    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(22);
+    expect(comparisonWorkflowSummary.enabledFinancialCriteriaCount).toBe(4);
+    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(39);
+    expect(comparisonWorkflowSummary.financialAffectsScore).toBe(true);
   });
 
-  it("keeps Reclame Aqui technical reputation criteria disabled by default", () => {
-    expect(technicalScoreDefinitions.filter((definition) => !definition.defaultEnabled).map((definition) => definition.key)).toEqual([
-      "technical.reputation_distributor",
-      "technical.reputation_module_maker",
-      "technical.reputation_inverter_maker",
-    ]);
+  it("scores Reclame Aqui reputation criteria from the buyer's typed note (slide 12)", () => {
+    // Todos os critérios técnicos passam a estar habilitados por padrão.
+    expect(technicalScoreDefinitions.filter((definition) => !definition.defaultEnabled)).toHaveLength(0);
   });
 });
 

@@ -12,6 +12,7 @@ import {
   type ComparisonStatus,
   type CompanyEvaluation,
   type FinancialEvaluation,
+  type ScoreCategory,
   type TechnicalEvaluation,
 } from "@/domain/comparisons/types";
 import { createClient } from "@/lib/supabase/server";
@@ -525,7 +526,7 @@ export async function saveScoreEntry(
   comparisonId: string,
   competitorId: string,
   criterionKey: string,
-  category: "company" | "technical",
+  category: ScoreCategory,
   score: number | null,
 ) {
   const { supabase } = await ownedComparisonOrThrow(comparisonId);
@@ -626,7 +627,7 @@ export async function applyAutoScoresToAll(comparisonId: string) {
     comparison_id: string;
     competitor_id: string;
     criterion_key: string;
-    category: "company" | "technical";
+    category: ScoreCategory;
     score: number | null;
   }> = [];
 

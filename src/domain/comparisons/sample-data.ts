@@ -49,7 +49,7 @@ export const sampleComparison: ComparisonInput = {
         hasElectricalEngineeringCrea: "yes",
         engineerGraduationYear: 2004,
         installedSystemsRange: "gt_100",
-        ownInstallationTeam: "no",
+        ownInstallationTeam: "outsourced",
         installationDeadlineDays: 60,
         projectExecutionWarrantyYears: 3,
         hasMaintenanceSupport: "yes",

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const comparisonStatusSchema = z.enum(["draft", "ready_for_review", "completed"]);
 export const scoringModeSchema = z.enum(["auto", "manual"]);
 export type ScoringMode = z.infer<typeof scoringModeSchema>;
-export const scoreCategorySchema = z.enum(["company", "technical"]);
+export const scoreCategorySchema = z.enum(["company", "technical", "financial"]);
 export const triStateAnswerSchema = z.enum(["yes", "no", "unknown"]);
 export const viabilityConfidenceSchema = z.enum(["high", "medium", "low", "unknown"]);
 
@@ -18,11 +18,11 @@ export const companyEvaluationSchema = z.object({
   hasElectricalEngineeringCrea: triStateAnswerSchema.nullable().optional(),
   engineerGraduationYear: z.number().int().min(1900).max(2100).nullable().optional(),
   installedSystemsRange: z
-    .enum(["lt_10", "10_49", "50_100", "gt_100", "unknown"])
+    .enum(["lt_10", "10_49", "50_100", "gt_100", "gt_500", "gt_1000", "unknown"])
     .nullable()
     .optional(),
   ownInstallationTeam: z
-    .enum(["yes", "no", "outsourced_known", "unknown"])
+    .enum(["own", "outsourced", "unknown"])
     .nullable()
     .optional(),
   installationDeadlineDays: z.number().min(0).nullable().optional(),
@@ -53,9 +53,13 @@ export const technicalEvaluationSchema = z.object({
   inverterDefectWarrantyYears: z.number().min(0).nullable().optional(),
   inverterCount: z.number().int().min(0).nullable().optional(),
   inverterOversizingRatio: z.number().min(0).nullable().optional(),
-  distributorReputation: z.string().nullable().optional(),
-  moduleMakerReputation: z.string().nullable().optional(),
-  inverterMakerReputation: z.string().nullable().optional(),
+  // Reclame Aqui (slide 12): nome do fornecedor + nota (0-10) separados.
+  distributorName: z.string().nullable().optional(),
+  distributorScore: z.number().min(0).max(10).nullable().optional(),
+  moduleMakerName: z.string().nullable().optional(),
+  moduleMakerScore: z.number().min(0).max(10).nullable().optional(),
+  inverterMakerName: z.string().nullable().optional(),
+  inverterMakerScore: z.number().min(0).max(10).nullable().optional(),
   inverterReliability: triStateAnswerSchema.nullable().optional(),
   moduleReliability: triStateAnswerSchema.nullable().optional(),
   distributorReliability: triStateAnswerSchema.nullable().optional(),
@@ -157,6 +161,7 @@ export type CompetitorResult = {
   investment: number | null;
   companyScore: ScoreSummary;
   technicalScore: ScoreSummary;
+  financialScore: ScoreSummary;
   totalScore: ScoreSummary;
   pricePerPoint: number | null;
   riskFlags: string[];

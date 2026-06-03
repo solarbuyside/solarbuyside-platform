@@ -3,6 +3,8 @@ import type {
   CompanyEvaluation,
   ComparisonInput,
   CompetitorProposal,
+  FinancialEvaluation,
+  ScoreCategory,
   ScoreEntry,
   TechnicalEvaluation,
   TriStateAnswer,
@@ -80,6 +82,8 @@ function scoreCompany(key: string, c: CompanyEvaluation): number | null {
     case "company.installed_systems": {
       if (!c.installedSystemsRange || c.installedSystemsRange === "unknown") return null;
       const map: Record<string, number> = {
+        gt_1000: 10,
+        gt_500: 10,
         gt_100: 10,
         "50_100": 7,
         "10_49": 4,
@@ -90,9 +94,8 @@ function scoreCompany(key: string, c: CompanyEvaluation): number | null {
     case "company.own_installation_team": {
       if (!c.ownInstallationTeam || c.ownInstallationTeam === "unknown") return null;
       const map: Record<string, number> = {
-        yes: 10,
-        outsourced_known: 5,
-        no: 1,
+        own: 10,
+        outsourced: 5,
       };
       return map[c.ownInstallationTeam] ?? null;
     }
@@ -215,17 +218,72 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
       return yesNoScore(t.moduleReliability);
     case "technical.distributor_reliability":
       return yesNoScore(t.distributorReliability);
-    // Brand/model and reputation criteria need a tier/reputation classification
-    // that the interview does not capture as a number — keep manual.
+    // Reclame Aqui (slide 12): a nota 0-10 digitada pelo comprador É a pontuação.
+    case "technical.reputation_distributor":
+      return clampScore(t.distributorScore);
+    case "technical.reputation_module_maker":
+      return clampScore(t.moduleMakerScore);
+    case "technical.reputation_inverter_maker":
+      return clampScore(t.inverterMakerScore);
+    // Brand/model criteria need a tier classification the interview does not
+    // capture as a number — keep manual.
     case "technical.module_brand":
     case "technical.module_model":
     case "technical.inverter_brand":
     case "technical.inverter_model":
     case "technical.inverter_power_kw":
-    case "technical.reputation_distributor":
-    case "technical.reputation_module_maker":
-    case "technical.reputation_inverter_maker":
       return null;
+    default:
+      return null;
+  }
+}
+
+/** Garante que a nota informada fique entre 0 e 10 (ou null se ausente). */
+function clampScore(value: number | null | undefined): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return Math.min(10, Math.max(0, value));
+}
+
+// --- Financial criteria (Viabilidade) ---------------------------------------
+// RUBRIC PROVISÓRIO (slide 19) — ver nota em score-definitions.ts. Precisa de
+// validação do Francis / alinhamento com a planilha antes de produção.
+
+function scoreFinancial(key: string, f: FinancialEvaluation): number | null {
+  switch (key) {
+    case "financial.simple_payback": {
+      if (f.simplePaybackMonths == null) return null;
+      const m = f.simplePaybackMonths;
+      if (m <= 48) return 10;
+      if (m <= 72) return 7;
+      if (m <= 96) return 4;
+      return 1;
+    }
+    case "financial.annual_return": {
+      if (f.annualReturnPct == null) return null;
+      return band(f.annualReturnPct, [
+        { min: 20, score: 10 },
+        { min: 15, score: 7 },
+        { min: 10, score: 4 },
+        { min: -Infinity, score: 1 },
+      ]);
+    }
+    case "financial.roi": {
+      if (f.roiMultiplier == null) return null;
+      return band(f.roiMultiplier, [
+        { min: 5, score: 10 },
+        { min: 4, score: 7 },
+        { min: 3, score: 4 },
+        { min: -Infinity, score: 1 },
+      ]);
+    }
+    case "financial.viability_confidence": {
+      const v = f.viabilityConfidence;
+      if (!v) return null;
+      if (v === "high") return 10;
+      if (v === "medium") return 6;
+      if (v === "low") return 3;
+      return 5; // "unknown"
+    }
     default:
       return null;
   }
@@ -233,7 +291,7 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
 
 export type AutoScore = {
   criterionKey: string;
-  category: "company" | "technical";
+  category: ScoreCategory;
   score: number | null;
   /** False when this criterion is left to manual judgement. */
   auto: boolean;
@@ -250,9 +308,6 @@ const MANUAL_KEYS = new Set<string>([
   "technical.inverter_brand",
   "technical.inverter_model",
   "technical.inverter_power_kw",
-  "technical.reputation_distributor",
-  "technical.reputation_module_maker",
-  "technical.reputation_inverter_maker",
 ]);
 
 /**
@@ -261,10 +316,14 @@ const MANUAL_KEYS = new Set<string>([
  */
 export function autoScoreFor(
   criterionKey: string,
-  category: "company" | "technical",
-  competitor: Pick<CompetitorProposal, "company" | "technical">,
+  category: ScoreCategory,
+  competitor: Pick<CompetitorProposal, "company" | "technical"> &
+    Partial<Pick<CompetitorProposal, "financial">>,
 ): number | null {
   if (category === "company") return scoreCompany(criterionKey, competitor.company);
+  if (category === "financial") {
+    return competitor.financial ? scoreFinancial(criterionKey, competitor.financial) : null;
+  }
   return scoreTechnical(criterionKey, competitor.technical);
 }
 

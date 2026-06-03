@@ -7,6 +7,7 @@ import {
 import {
   companyScoreDefinitions,
   technicalScoreDefinitions,
+  financialScoreDefinitions,
 } from "./score-definitions";
 import type {
   CompanyEvaluation,
@@ -92,7 +93,15 @@ function buildRows(
 }
 
 // Campos do formulário que NÃO têm linha de pontuação (apenas informativos).
-const INFORMATIONAL_PROPS = new Set<string>(["moduleCount", "inverterCount"]);
+// Os nomes do Reclame Aqui (slide 12) são informativos; a NOTA correspondente
+// é que pontua, casando com os critérios reputation_* na sequência.
+const INFORMATIONAL_PROPS = new Set<string>([
+  "moduleCount",
+  "inverterCount",
+  "distributorName",
+  "moduleMakerName",
+  "inverterMakerName",
+]);
 
 export const companyComparisonRows = buildRows(companyFormFields, companyScoreDefinitions);
 export const technicalComparisonRows = buildRows(technicalFormFields, technicalScoreDefinitions);
@@ -106,6 +115,34 @@ export const financialComparisonRows = financialFormFields.map((field) => ({
   kind: field.kind,
 }));
 
+// Slide 19: a Viabilidade passa a ser pontuada (1 a 10). Mapeamento explícito
+// dos campos do formulário financeiro para os critérios de pontuação. Campos
+// fora deste mapa são informativos (scoreKey null) e não entram na nota.
+const FINANCIAL_PROP_TO_SCORE: Record<string, string> = {
+  simplePaybackMonths: "financial.simple_payback",
+  annualReturnPct: "financial.annual_return",
+  roiMultiplier: "financial.roi",
+  viabilityConfidence: "financial.viability_confidence",
+};
+
+export const financialScoreRows: ComparisonRow[] = financialFormFields.map((field) => {
+  const prop = fieldProp(field.key);
+  const scoreKey = FINANCIAL_PROP_TO_SCORE[prop] ?? null;
+  const def = scoreKey
+    ? financialScoreDefinitions.find((d) => d.key === scoreKey)
+    : undefined;
+  return {
+    fieldKey: field.key,
+    prop,
+    label: field.label,
+    section: field.section,
+    kind: field.kind,
+    scoreKey: def?.key ?? null,
+    rubric: def?.rubric ?? null,
+    defaultEnabled: def?.defaultEnabled ?? true,
+  };
+});
+
 // --- Formatação das respostas para exibição na tabela ----------------------
 
 const TRI_STATE_LABEL: Record<string, string> = { yes: "Sim", no: "Não", unknown: "Não sei" };
@@ -114,7 +151,10 @@ const CHOICE_LABEL: Record<string, string> = {
   "10_49": "10 a 49",
   "50_100": "50 a 100",
   gt_100: "+ de 100",
-  outsourced_known: "Terceirizado conhecido",
+  gt_500: "+ de 500",
+  gt_1000: "+ de 1.000",
+  own: "Equipe própria",
+  outsourced: "Equipe terceirizada",
   high: "Alta",
   medium: "Média",
   low: "Baixa",

@@ -11,8 +11,8 @@ const PHASES: Array<{
   icon: React.ComponentType<{ className?: string }>;
   segment: string;
 }> = [
-  { id: "entrevista", label: "Entrevista", hint: "Coletar dados dos fornecedores", icon: ClipboardList, segment: "preencher" },
-  { id: "comparativo", label: "Comparativo", hint: "Notas e ranking lado a lado", icon: BarChart3, segment: "comparativo" },
+  { id: "entrevista", label: "Preenchimento", hint: "Coletar dados dos fornecedores", icon: ClipboardList, segment: "preencher" },
+  { id: "comparativo", label: "Comparativo", hint: "Pontuação lado a lado", icon: BarChart3, segment: "comparativo" },
   { id: "finalistas", label: "Finalistas", hint: "Decisão final entre os dois", icon: Trophy, segment: "finalistas" },
 ];
 

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ShieldCheck,
   Cpu,
@@ -21,14 +22,14 @@ import {
 import {
   companyComparisonRows,
   technicalComparisonRows,
-  financialComparisonRows,
+  financialScoreRows,
   formatAnswer,
   answerFor,
   type ComparisonRow,
 } from "@/domain/comparisons/comparison-rows";
 import { calculateComparisonResult } from "@/domain/comparisons/scoring";
 import { applyAutoScores, autoScoreFor } from "@/domain/comparisons/auto-scoring";
-import type { ComparisonInput, CompetitorProposal } from "@/domain/comparisons/types";
+import type { ComparisonInput, CompetitorProposal, ScoreCategory } from "@/domain/comparisons/types";
 import { cn } from "@/lib/utils";
 import { ScoreCell } from "./score-cell";
 import {
@@ -42,17 +43,31 @@ import {
 type TabId = "company" | "technical" | "financial" | "overview";
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "company", label: "Avaliação Empresas", icon: ShieldCheck },
-  { id: "technical", label: "Avaliação Tecnológica", icon: Cpu },
-  { id: "financial", label: "Viabilidade Financeira", icon: Wallet },
+  { id: "company", label: "Pontuação Empresas", icon: ShieldCheck },
+  { id: "technical", label: "Pontuação Tecnológica", icon: Cpu },
+  { id: "financial", label: "Pontuação Viabilidade Financeira", icon: Wallet },
   { id: "overview", label: "Pontuação Geral", icon: Trophy },
 ];
 
+// Botão "Ir para Pontuação X" conforme a aba ativa (slides 17/18/20).
+const NEXT_TAB: Record<Exclude<TabId, "overview">, { id: TabId; label: string }> = {
+  company: { id: "technical", label: "Ir para Pontuação Tecnológica" },
+  technical: { id: "financial", label: "Ir para Pontuação Viabilidade" },
+  financial: { id: "overview", label: "Ir para Pontuação Geral" },
+};
+
 const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
 
+const TAB_IDS: TabId[] = ["company", "technical", "financial", "overview"];
+
 export function ComparativoView({ comparison: initial }: { comparison: ComparisonInput }) {
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const initialTab: TabId = TAB_IDS.includes(requestedTab as TabId)
+    ? (requestedTab as TabId)
+    : "company";
   const [comparison, setComparison] = React.useState<ComparisonInput>(initial);
-  const [tab, setTab] = React.useState<TabId>("company");
+  const [tab, setTab] = React.useState<TabId>(initialTab);
   const [saving, setSaving] = React.useState(false);
   const [applyingAuto, setApplyingAuto] = React.useState(false);
 
@@ -84,7 +99,7 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
   function handleScore(
     competitorId: string,
     key: string,
-    category: "company" | "technical",
+    category: ScoreCategory,
     next: number | null,
   ) {
     setComparison((prev) => {
@@ -183,8 +198,8 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
           </div>
           <p className="max-w-md text-[11px] leading-snug text-slate-400">
             {isAuto
-              ? "O sistema calcula as notas a partir dos dados da entrevista (✨). Você pode ajustar qualquer nota manualmente."
-              : "Você define todas as notas manualmente. As sugestões aparecem como placeholder, sem contar no ranking."}
+              ? "As notas são geradas automaticamente a partir dos dados fornecidos por você. Você poderá revisar e alterar qualquer nota a qualquer momento."
+              : "Com base nos dados que você informou, caberá a você realizar a atribuição manual das notas para cada critério avaliado."}
           </p>
         </div>
 
@@ -262,7 +277,36 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
         />
       )}
 
-      {tab === "financial" && <FinancialTable comparison={comparison} />}
+      {tab === "financial" && (
+        <div className="space-y-5">
+          {/* Cuidado: números de viabilidade são facilmente manipuláveis (texto fiel à planilha). */}
+          <div className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-4">
+            <p className="mb-1.5 flex items-center gap-2 text-sm font-bold text-amber-700">
+              <AlertTriangle className="h-4 w-4" />
+              Atenção ao pontuar a viabilidade econômico-financeira
+            </p>
+            <p className="text-[13px] leading-relaxed text-slate-700">
+              Os valores apresentados pelas empresas variam muito e podem ser manipulados —
+              índice de reajuste da energia, fator de simultaneidade e previsões de geração{" "}
+              <strong>exageradas</strong> reduzem artificialmente o prazo de retorno. Pontue com
+              critério: quanto maiores esses índices, menor o payback, podendo levar a um resultado
+              enganador.
+            </p>
+          </div>
+          <ScoreTable
+            rows={financialScoreRows}
+            category="financial"
+            comparison={comparison}
+            autoMode={isAuto}
+            getAnswer={(c, prop) => answerFor(c.financial, prop)}
+            manualScore={manualScore}
+            isEnabled={isEnabled}
+            onScore={handleScore}
+            onToggle={handleToggle}
+            gradeOf={(id) => result.competitors.find((x) => x.competitorId === id)?.financialScore}
+          />
+        </div>
+      )}
 
       {tab === "overview" && (
         <OverviewTable comparison={comparison} result={result} onToggleFinalist={handleFinalist} />
@@ -274,15 +318,25 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
           href={`/avaliacoes/${comparison.id}/preencher`}
           className="text-xs font-semibold text-slate-400 transition-colors hover:text-slate-600"
         >
-          ← Voltar à entrevista
+          ← Voltar ao preenchimento
         </Link>
-        <Link
-          href={`/avaliacoes/${comparison.id}/finalistas`}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all hover:-translate-y-[1px] hover:bg-primary/95 active:scale-[0.98]"
-        >
-          Definir finalistas
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {tab === "overview" ? (
+          <Link
+            href={`/avaliacoes/${comparison.id}/finalistas`}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all hover:-translate-y-[1px] hover:bg-primary/95 active:scale-[0.98]"
+          >
+            Definir finalistas
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        ) : (
+          <button
+            onClick={() => setTab(NEXT_TAB[tab].id)}
+            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all hover:-translate-y-[1px] hover:bg-primary/95 active:scale-[0.98]"
+          >
+            {NEXT_TAB[tab].label}
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </div>
   );
@@ -307,13 +361,13 @@ function ScoreTable({
   gradeOf,
 }: {
   rows: ComparisonRow[];
-  category: "company" | "technical";
+  category: ScoreCategory;
   comparison: ComparisonInput;
   autoMode: boolean;
   getAnswer: (c: CompetitorProposal, prop: string) => unknown;
   manualScore: (competitorId: string, key: string) => number | null;
   isEnabled: (key: string, fallback: boolean) => boolean;
-  onScore: (competitorId: string, key: string, category: "company" | "technical", next: number | null) => void;
+  onScore: (competitorId: string, key: string, category: ScoreCategory, next: number | null) => void;
   onToggle: (key: string, fallbackEnabled: boolean) => void;
   gradeOf: (competitorId: string) => Grade;
 }) {
@@ -456,97 +510,6 @@ function ToggleAvaliar({ enabled, onToggle }: { enabled: boolean; onToggle: () =
 }
 
 // ---------------------------------------------------------------------------
-// Viabilidade Financeira (informativo, sem nota) + mensagem
-// ---------------------------------------------------------------------------
-
-function FinancialTable({ comparison }: { comparison: ComparisonInput }) {
-  const { competitors } = comparison;
-  const sections = React.useMemo(() => {
-    const map = new Map<string, typeof financialComparisonRows>();
-    for (const r of financialComparisonRows) {
-      const list = map.get(r.section) ?? [];
-      list.push(r);
-      map.set(r.section, list);
-    }
-    return Array.from(map.entries());
-  }, []);
-
-  return (
-    <div className="space-y-5">
-      <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-[#09143c] text-white">
-              <th className="sticky left-0 z-10 min-w-[260px] bg-[#09143c] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                Item
-              </th>
-              {competitors.map((c) => (
-                <th key={c.id} className="min-w-[150px] border-l border-white/10 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider">
-                  {c.companyName}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sections.map(([section, rows]) => (
-              <React.Fragment key={section}>
-                <tr>
-                  <td colSpan={competitors.length + 1} className="bg-slate-100 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                    {section}
-                  </td>
-                </tr>
-                {rows.map((row, idx) => (
-                  <tr key={row.fieldKey} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/60"}>
-                    <td className="sticky left-0 z-10 bg-inherit border-r border-slate-100 px-4 py-2.5 font-medium text-slate-700">
-                      {row.label}
-                    </td>
-                    {competitors.map((c) => (
-                      <td key={c.id} className="border-l border-slate-100 px-3 py-2.5 text-center text-slate-700">
-                        {formatAnswer(answerFor(c.financial, row.prop), row.kind)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mensagem de alerta — texto fiel à planilha */}
-      <div className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-5">
-        <p className="mb-3 flex items-center gap-2 text-sm font-bold text-amber-700">
-          <AlertTriangle className="h-4 w-4" />
-          Observações sobre o quadro de viabilidade econômico-financeira
-        </p>
-        <div className="space-y-3 text-[13px] leading-relaxed text-slate-700">
-          <p>
-            Você notou que não atribuímos pontuação para a análise de viabilidade econômico-financeira.
-            Isso acontece porque muitas vezes os valores apresentados pelas empresas variam muito e podem
-            não ser confiáveis.
-          </p>
-          <p>
-            É crucial entender que análises como essa, focadas em sistemas fotovoltaicos, podem ser
-            facilmente manipuladas. Isso ocorre quando variáveis importantes como o índice de reajuste da
-            energia, o fator de simultaneidade e as previsões de geração <strong>EXAGERADAS</strong> levam
-            a valores artificiais — prejudicando a qualidade da análise e fazendo com que você tome
-            decisões erradas.
-          </p>
-          <p className="font-semibold text-amber-800">
-            De forma geral: maiores os índices de reajuste da energia, de simultaneidade e de geração,
-            menor o prazo de retorno — podendo levar a resultado enganador!
-          </p>
-          <p>
-            Este quadro tem como objetivo permitir uma análise comparativa entre os valores apresentados,
-            possibilitando que você tire conclusões informadas.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Pontuação Geral
 // ---------------------------------------------------------------------------
 
@@ -602,6 +565,12 @@ function OverviewTable({
               </OverviewRow>
               <OverviewRow label="Nota sobre 10" competitors={competitors} muted>
                 {(id) => `${byId(id)?.technicalScore.grade10 ?? 0}/10`}
+              </OverviewRow>
+              <OverviewRow label="Viabilidade (pontos)" competitors={competitors}>
+                {(id) => byId(id)?.financialScore.points ?? 0}
+              </OverviewRow>
+              <OverviewRow label="Nota sobre 10" competitors={competitors} muted>
+                {(id) => `${byId(id)?.financialScore.grade10 ?? 0}/10`}
               </OverviewRow>
               <OverviewRow label="Total (pontos)" competitors={competitors} strong>
                 {(id) => byId(id)?.totalScore.points ?? 0}

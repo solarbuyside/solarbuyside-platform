@@ -15,7 +15,6 @@ import {
   X,
   Check,
   AlertTriangle,
-  FileDown,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -151,15 +150,7 @@ export function AvaliacoesList({ items }: { items: ComparisonListItem[] }) {
                     </p>
                   )}
                 </div>
-                <div className="mt-auto flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3">
-                  <a
-                    href={`/avaliacoes/${c.id}/export`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-800"
-                    title="Baixar planilha (.xlsx) com os dados desta avaliação"
-                  >
-                    <FileDown className="h-3.5 w-3.5" />
-                    Excel
-                  </a>
+                <div className="mt-auto flex items-center justify-end border-t border-slate-100 bg-slate-50/50 px-5 py-3">
                   <div className="flex items-center gap-3">
                     <Link
                       href={`/avaliacoes/${c.id}/preencher`}

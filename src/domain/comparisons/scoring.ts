@@ -64,15 +64,15 @@ export function summarizeCategoryScore(
   };
 }
 
-function totalScore(companyScore: ScoreSummary, technicalScore: ScoreSummary): ScoreSummary {
-  const points = companyScore.points + technicalScore.points;
-  const maxPoints = companyScore.maxPoints + technicalScore.maxPoints;
+function totalScore(...summaries: ScoreSummary[]): ScoreSummary {
+  const points = summaries.reduce((sum, s) => sum + s.points, 0);
+  const maxPoints = summaries.reduce((sum, s) => sum + s.maxPoints, 0);
 
   return {
     points: round2(points),
     maxPoints: round2(maxPoints),
     grade10: maxPoints > 0 ? round2((points / maxPoints) * 10) : 0,
-    enabledCriteria: companyScore.enabledCriteria + technicalScore.enabledCriteria,
+    enabledCriteria: summaries.reduce((sum, s) => sum + s.enabledCriteria, 0),
   };
 }
 
@@ -182,7 +182,8 @@ export function calculateComparisonResult(comparison: ComparisonInput): Comparis
   const baseResults = comparison.competitors.map((competitor) => {
     const companyScore = summarizeCategoryScore(comparison, competitor.id, "company");
     const technicalScore = summarizeCategoryScore(comparison, competitor.id, "technical");
-    const combinedScore = totalScore(companyScore, technicalScore);
+    const financialScore = summarizeCategoryScore(comparison, competitor.id, "financial");
+    const combinedScore = totalScore(companyScore, technicalScore, financialScore);
     const investment = competitor.financial.totalInvestment ?? null;
 
     return {
@@ -193,6 +194,7 @@ export function calculateComparisonResult(comparison: ComparisonInput): Comparis
       investment,
       companyScore,
       technicalScore,
+      financialScore,
       totalScore: combinedScore,
       pricePerPoint:
         investment !== null && combinedScore.points > 0 ? round2(investment / combinedScore.points) : null,

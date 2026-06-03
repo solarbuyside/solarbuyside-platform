@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import { autoScoreFor, isManualCriterion } from "../auto-scoring";
-import type { CompanyEvaluation, TechnicalEvaluation } from "../types";
+import type { CompanyEvaluation, FinancialEvaluation, TechnicalEvaluation } from "../types";
 
 const year = new Date().getFullYear();
 
 function competitor(
   company: CompanyEvaluation = {},
   technical: TechnicalEvaluation = {},
+  financial: FinancialEvaluation = {},
 ) {
-  return { company, technical };
+  return { company, technical, financial };
 }
 
 describe("auto-scoring — company", () => {
@@ -58,10 +59,46 @@ describe("auto-scoring — technical", () => {
     expect(autoScoreFor("technical.inverter_oversizing", "technical", competitor({}, { inverterOversizingRatio: 1.6 }))).toBe(4);
   });
 
-  it("leaves brand/reputation criteria manual (null)", () => {
+  it("leaves brand criteria manual (null)", () => {
     expect(autoScoreFor("technical.module_brand", "technical", competitor({}, { moduleBrand: "Tier 1" }))).toBeNull();
     expect(isManualCriterion("technical.module_brand")).toBe(true);
     expect(isManualCriterion("company.seller_trust")).toBe(true);
     expect(isManualCriterion("company.crea_registration")).toBe(false);
+  });
+
+  it("scores Reclame Aqui reputation from the typed note (slide 12)", () => {
+    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, { distributorScore: 6.8 }))).toBe(6.8);
+    expect(autoScoreFor("technical.reputation_module_maker", "technical", competitor({}, { moduleMakerScore: 9 }))).toBe(9);
+    expect(autoScoreFor("technical.reputation_inverter_maker", "technical", competitor({}, { inverterMakerScore: 12 }))).toBe(10);
+    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, {}))).toBeNull();
+    // A reputação deixou de ser manual — a nota digitada já é a pontuação.
+    expect(isManualCriterion("technical.reputation_distributor")).toBe(false);
+  });
+});
+
+describe("auto-scoring — financial (viabilidade, rubric provisório slide 19)", () => {
+  it("scores simple payback by month thresholds", () => {
+    expect(autoScoreFor("financial.simple_payback", "financial", competitor({}, {}, { simplePaybackMonths: 40 }))).toBe(10);
+    expect(autoScoreFor("financial.simple_payback", "financial", competitor({}, {}, { simplePaybackMonths: 72 }))).toBe(7);
+    expect(autoScoreFor("financial.simple_payback", "financial", competitor({}, {}, { simplePaybackMonths: 96 }))).toBe(4);
+    expect(autoScoreFor("financial.simple_payback", "financial", competitor({}, {}, { simplePaybackMonths: 120 }))).toBe(1);
+  });
+
+  it("scores annual return and ROI by band", () => {
+    expect(autoScoreFor("financial.annual_return", "financial", competitor({}, {}, { annualReturnPct: 20 }))).toBe(10);
+    expect(autoScoreFor("financial.annual_return", "financial", competitor({}, {}, { annualReturnPct: 5 }))).toBe(1);
+    expect(autoScoreFor("financial.roi", "financial", competitor({}, {}, { roiMultiplier: 5 }))).toBe(10);
+    expect(autoScoreFor("financial.roi", "financial", competitor({}, {}, { roiMultiplier: 2 }))).toBe(1);
+  });
+
+  it("scores viability confidence with unknown in the middle", () => {
+    expect(autoScoreFor("financial.viability_confidence", "financial", competitor({}, {}, { viabilityConfidence: "high" }))).toBe(10);
+    expect(autoScoreFor("financial.viability_confidence", "financial", competitor({}, {}, { viabilityConfidence: "medium" }))).toBe(6);
+    expect(autoScoreFor("financial.viability_confidence", "financial", competitor({}, {}, { viabilityConfidence: "low" }))).toBe(3);
+    expect(autoScoreFor("financial.viability_confidence", "financial", competitor({}, {}, { viabilityConfidence: "unknown" }))).toBe(5);
+  });
+
+  it("returns null when financial data is missing", () => {
+    expect(autoScoreFor("financial.simple_payback", "financial", competitor({}, {}, {}))).toBeNull();
   });
 });

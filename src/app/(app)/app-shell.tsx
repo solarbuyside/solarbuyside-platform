@@ -9,7 +9,6 @@ import {
   FileSpreadsheet,
   History,
   Lightbulb,
-  GraduationCap,
   ShieldCheck,
   Menu,
   X,
@@ -52,10 +51,9 @@ export type NotificationItem = {
 const BASE_ITEMS: SidebarItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
-  { name: "Curadoria", href: "/curadoria", icon: ShieldCheck },
-  { name: "Curso", href: "/curso", icon: GraduationCap },
+  // Curadoria e Curso ocultos da navegação por enquanto (rotas mantidas, não apagadas).
   { name: "Histórico", href: "/historico", icon: History },
-  { name: "Dicas & Guias", href: "/dicas", icon: Lightbulb },
+  { name: "Guias", href: "/dicas", icon: Lightbulb },
 ];
 
 function initials(name: string | null, email: string | null) {
@@ -112,7 +110,7 @@ export function AppShell({
             <div>
               <h1 className="font-bold text-white text-lg tracking-tight leading-none">Solar Buy-Side</h1>
               <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest mt-1 block">
-                SaaS Platform
+                Plataforma SaaS
               </span>
             </div>
           )}
@@ -274,13 +272,13 @@ function breadcrumbFor(pathname: string): string[] {
     dashboard: "Dashboard",
     avaliacoes: "Avaliações",
     nova: "Nova",
-    preencher: "Entrevista",
+    preencher: "Preenchimento",
     comparativo: "Comparativo",
     finalistas: "Finalistas",
     curso: "Curso",
     curadoria: "Curadoria",
     historico: "Histórico",
-    dicas: "Dicas & Guias",
+    dicas: "Guias",
     configuracoes: "Configurações",
     admin: "Admin",
   };

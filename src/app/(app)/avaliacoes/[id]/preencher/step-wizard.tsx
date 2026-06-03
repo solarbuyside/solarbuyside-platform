@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { Select } from "@/components/ui/select";
 import {
   companyFormFields,
   technicalFormFields,
@@ -64,7 +65,7 @@ const SECTIONS: Array<{
     id: "financial",
     short: "Financeiro",
     title: "Viabilidade financeira",
-    subtitle: "Investimento, pagamentos e retorno — usados como comparativo, não na nota.",
+    subtitle: "Economia, investimento, prazo de retorno e inflação como comparativo.",
     icon: Wallet,
   },
 ];
@@ -286,7 +287,7 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
             href={`/avaliacoes/${comparison.id}/comparativo`}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-primary/95 hover:shadow-[0_4px_15px_rgba(249,115,22,0.25)] active:scale-[0.98]"
           >
-            Ver comparativo
+            Próxima Seção: Pontuação Empresa
             <ArrowRight className="h-4 w-4" />
           </Link>
         ) : (
@@ -294,7 +295,7 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
             onClick={() => setSectionIndex((i) => Math.min(SECTIONS.length - 1, i + 1))}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all duration-200 hover:-translate-y-[1px] hover:bg-primary/95 hover:shadow-[0_4px_15px_rgba(249,115,22,0.25)] active:scale-[0.98]"
           >
-            Próxima seção
+            Próxima Seção: {SECTIONS[sectionIndex + 1].title}
             <ArrowRight className="h-4 w-4" />
           </button>
         )}
@@ -419,13 +420,14 @@ const CHOICE_OPTIONS: Record<string, { value: string; label: string }[]> = {
     { value: "10_49", label: "10 a 49" },
     { value: "50_100", label: "50 a 100" },
     { value: "gt_100", label: "Mais de 100" },
+    { value: "gt_500", label: "Mais de 500" },
+    { value: "gt_1000", label: "Mais de 1.000" },
     { value: "unknown", label: "Não sei" },
   ],
   "company.ownInstallationTeam": [
     { value: "", label: "—" },
-    { value: "yes", label: "Equipe própria" },
-    { value: "no", label: "Não" },
-    { value: "outsourced_known", label: "Terceirizado conhecido" },
+    { value: "own", label: "Equipe própria" },
+    { value: "outsourced", label: "Equipe terceirizada" },
     { value: "unknown", label: "Não sei" },
   ],
   "financial.viabilityConfidence": [
@@ -437,10 +439,34 @@ const CHOICE_OPTIONS: Record<string, { value: string; label: string }[]> = {
   ],
 };
 
+// Campos que usam escala discreta de 1 a 10 (dropdown), conforme slide 8.
+const SCALE_1_10_FIELDS = new Set(["company.sellerTrustScore"]);
+const SCALE_1_10_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "—" },
+  ...Array.from({ length: 10 }, (_, i) => ({
+    value: String(i + 1),
+    label: String(i + 1),
+  })),
+];
+
+// Campos de NOME do Reclame Aqui (slide 12): input de texto + botão "Buscar".
+const RECLAME_AQUI_NAME_FIELDS = new Set([
+  "technical.distributorName",
+  "technical.moduleMakerName",
+  "technical.inverterMakerName",
+]);
+
+// Campos de NOTA do Reclame Aqui: a busca usa o nome do campo irmão.
+const RECLAME_AQUI_SCORE_TO_NAME: Record<string, string> = {
+  "technical.distributorScore": "distributorName",
+  "technical.moduleMakerScore": "moduleMakerName",
+  "technical.inverterMakerScore": "inverterMakerName",
+};
+
+// Todos os campos do Reclame Aqui ocupam a linha inteira no grid.
 const RECLAME_AQUI_FIELDS = new Set([
-  "technical.distributorReputation",
-  "technical.moduleMakerReputation",
-  "technical.inverterMakerReputation",
+  ...RECLAME_AQUI_NAME_FIELDS,
+  ...Object.keys(RECLAME_AQUI_SCORE_TO_NAME),
 ]);
 
 export function InterviewForm({
@@ -478,15 +504,36 @@ export function InterviewForm({
             {section}
           </h4>
           <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-            {sectionFields.map((field) => (
-              <FieldRow
-                key={field.key}
-                field={field}
-                competitorName={competitor.companyName}
-                value={getValue(fieldProp(field.key))}
-                onCommit={(value) => onChange(fieldProp(field.key), value)}
-              />
-            ))}
+            {sectionFields.map((field) => {
+              // Sobrecarga do inversor: campo calculado automaticamente (slide 11).
+              // Armazena a razão (kWp / kW) e exibe a sobrecarga em % = (razão - 1) * 100.
+              if (field.key === "technical.inverterOversizingRatio") {
+                const systemKwp = Number(getValue("systemPowerKwp"));
+                const inverterKw = Number(getValue("inverterPowerKw"));
+                return (
+                  <OverloadField
+                    key={field.key}
+                    field={field}
+                    systemKwp={Number.isFinite(systemKwp) ? systemKwp : null}
+                    inverterKw={Number.isFinite(inverterKw) ? inverterKw : null}
+                    storedRatio={getValue(fieldProp(field.key))}
+                    onCommit={(value) => onChange(fieldProp(field.key), value)}
+                  />
+                );
+              }
+              // Reclame Aqui: cada campo ocupa a linha inteira (slide 12).
+              const fullWidth = RECLAME_AQUI_FIELDS.has(field.key);
+              return (
+                <div key={field.key} className={fullWidth ? "md:col-span-2" : undefined}>
+                  <FieldRow
+                    field={field}
+                    competitorName={competitor.companyName}
+                    value={getValue(fieldProp(field.key))}
+                    onCommit={(value) => onChange(fieldProp(field.key), value)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </section>
       ))}
@@ -508,46 +555,39 @@ export function FieldRow({
   const [localError, setLocalError] = React.useState<string | null>(null);
   const inputClass =
     "h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/15";
-  const selectClass = cn(
-    inputClass,
-    "cursor-pointer appearance-none bg-no-repeat pr-10",
-    "[background-position:right_0.85rem_center] [background-size:1.1em]",
-    "bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22/%3E%3C/svg%3E')]",
-  );
 
   let control: React.ReactNode;
 
   if (field.kind === "tri_state") {
     control = (
-      <select
+      <Select
         value={(value as string) ?? ""}
-        onChange={(e) => onCommit(e.target.value === "" ? null : e.target.value)}
-        className={selectClass}
-      >
-        {TRI_STATE_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+        options={TRI_STATE_OPTIONS}
+        onValueChange={(v) => onCommit(v === "" ? null : v)}
+        ariaLabel={field.label}
+      />
     );
   } else if (field.kind === "choice") {
     const options = CHOICE_OPTIONS[field.key] ?? TRI_STATE_OPTIONS;
     control = (
-      <select
+      <Select
         value={(value as string) ?? ""}
-        onChange={(e) => onCommit(e.target.value === "" ? null : e.target.value)}
-        className={selectClass}
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+        options={options}
+        onValueChange={(v) => onCommit(v === "" ? null : v)}
+        ariaLabel={field.label}
+      />
+    );
+  } else if (field.kind === "score" && SCALE_1_10_FIELDS.has(field.key)) {
+    control = (
+      <Select
+        value={value == null ? "" : String(value)}
+        options={SCALE_1_10_OPTIONS}
+        onValueChange={(v) => onCommit(v === "" ? null : Number(v))}
+        ariaLabel={field.label}
+      />
     );
   } else if (field.kind === "text") {
-    const isReclameAqui = RECLAME_AQUI_FIELDS.has(field.key);
+    const isReclameAquiName = RECLAME_AQUI_NAME_FIELDS.has(field.key);
     control = (
       <div className="flex gap-2">
         <input
@@ -555,9 +595,9 @@ export function FieldRow({
           defaultValue={(value as string) ?? ""}
           onBlur={(e) => onCommit(e.target.value.trim() === "" ? null : e.target.value.trim())}
           className={inputClass}
-          placeholder={isReclameAqui ? "Reputação / nota" : ""}
+          placeholder={isReclameAquiName ? "Nome do fornecedor (ex.: Aldo Solar)" : ""}
         />
-        {isReclameAqui && (
+        {isReclameAquiName && (
           <a
             href={`https://www.reclameaqui.com.br/busca/?q=${encodeURIComponent(
               (value as string) || competitorName,
@@ -568,9 +608,34 @@ export function FieldRow({
             title="Buscar no Reclame Aqui"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Buscar
+            Buscar no Reclame Aqui
           </a>
         )}
+      </div>
+    );
+  } else if (field.key === "company.reclameAquiScore") {
+    // Nota média do Reclame Aqui (decimal) + atalho de busca pela empresa avaliada.
+    control = (
+      <div className="flex gap-2">
+        <NumberInput
+          field={field}
+          value={value}
+          prefix={null}
+          suffix={null}
+          inputClass={inputClass}
+          onCommit={onCommit}
+          onError={setLocalError}
+        />
+        <a
+          href={`https://www.reclameaqui.com.br/busca/?q=${encodeURIComponent(competitorName)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-all hover:border-primary/50 hover:text-primary"
+          title="Buscar no Reclame Aqui"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Buscar
+        </a>
       </div>
     );
   } else {
@@ -598,8 +663,71 @@ export function FieldRow({
   );
 }
 
+/**
+ * Campo de sobrecarga do inversor calculado automaticamente (slide 11).
+ * - Razão = Potência do sistema (kWp) / Potência do inversor (kW).
+ * - Armazena a razão (ex.: 1,28) para a pontuação automática.
+ * - Exibe a sobrecarga em % = (razão - 1) * 100 (ex.: 1,28 → 28%).
+ */
+function OverloadField({
+  field,
+  systemKwp,
+  inverterKw,
+  storedRatio,
+  onCommit,
+}: {
+  field: EvaluationFieldDefinition;
+  systemKwp: number | null;
+  inverterKw: number | null;
+  storedRatio: unknown;
+  onCommit: (value: unknown) => void;
+}) {
+  const ratio =
+    systemKwp != null && inverterKw != null && inverterKw > 0
+      ? systemKwp / inverterKw
+      : null;
+
+  // Mantém o valor armazenado (razão) em sincronia com o cálculo.
+  React.useEffect(() => {
+    const current = typeof storedRatio === "number" ? storedRatio : null;
+    const next = ratio != null ? Math.round(ratio * 1000) / 1000 : null;
+    if (current !== next) {
+      onCommit(next);
+    }
+    // onCommit é estável o suficiente para o ciclo do formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ratio, storedRatio]);
+
+  const overloadPct = ratio != null ? Math.round((ratio - 1) * 100) : null;
+
+  return (
+    <label className="grid gap-1.5">
+      <span className="text-sm font-medium text-slate-700">{field.label}</span>
+      <div className="flex h-11 w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-800 shadow-sm">
+        <span className={overloadPct == null ? "text-slate-400" : "font-semibold"}>
+          {overloadPct == null ? "—" : `${overloadPct}%`}
+        </span>
+        <span className="text-[11px] text-slate-400">
+          {ratio == null
+            ? "Preencha potência do sistema e do inversor"
+            : `${systemKwp} / ${inverterKw} = ${(Math.round(ratio * 100) / 100)
+                .toString()
+                .replace(".", ",")}`}
+        </span>
+      </div>
+    </label>
+  );
+}
+
 const currentYear = new Date().getFullYear();
-const YEAR_FIELD = /year/i;
+// Apenas estes campos são ANO DE CALENDÁRIO (validação de ano se aplica).
+// Os demais campos com "year" na key são durações (garantias em anos) ou
+// valores monetários (economias) — não podem ter a regra de "ano válido".
+const CALENDAR_YEAR_FIELDS = new Set([
+  "company.solarSinceYear",
+  "company.companyFoundedYear",
+  "company.engineerGraduationYear",
+]);
 
 function NumberInput({
   field,
@@ -618,7 +746,7 @@ function NumberInput({
   onCommit: (value: unknown) => void;
   onError: (msg: string | null) => void;
 }) {
-  const isYear = YEAR_FIELD.test(field.key);
+  const isYear = CALENDAR_YEAR_FIELDS.has(field.key);
   const [invalid, setInvalid] = React.useState(false);
 
   function validate(num: number): string | null {

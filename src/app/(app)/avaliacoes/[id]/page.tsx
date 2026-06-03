@@ -5,8 +5,7 @@ import {
   ArrowRight, 
   ArrowLeft, 
   Calendar, 
-  User, 
-  FileSpreadsheet, 
+  User,
   Sliders,
   ChevronRight,
   TrendingUp,
@@ -240,22 +239,6 @@ export default async function AvaliacaoPage({ params }: AvaliacaoPageProps) {
 
             </CardContent>
           </Card>
-
-          {/* Dica da Planilha */}
-          <div className="bg-gradient-to-r from-orange-500/5 to-amber-500/5 border border-primary/10 rounded-xl p-5 shadow-sm space-y-3 relative overflow-hidden">
-            <div className="absolute right-0 bottom-0 translate-x-4 translate-y-4 opacity-5">
-              <FileSpreadsheet className="h-28 w-28 text-primary" />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Badge variant="orange" className="text-[10px]">XLSX COMPATÍVEL</Badge>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Exportador</span>
-            </div>
-            <h4 className="text-sm font-bold text-slate-800">Pronto para Exportação</h4>
-            <p className="text-xs text-slate-600 leading-normal">
-              Ao finalizar a parametrização dos fornecedores, você poderá gerar um relatório em formato Excel `.xlsx` idêntico à planilha de referência do projeto.
-            </p>
-          </div>
 
         </div>
 

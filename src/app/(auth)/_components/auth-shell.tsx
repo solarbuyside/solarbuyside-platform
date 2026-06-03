@@ -5,7 +5,7 @@ import { ShieldCheck, ListChecks, Trophy } from "lucide-react";
 const HIGHLIGHTS = [
   {
     icon: ShieldCheck,
-    title: "Empresa e tecnologia no centro",
+    title: "Empresa, Tecnologia e Finança no Centro",
     text: "Pontue cada fornecedor por critérios objetivos, não só pelo preço.",
   },
   {
@@ -59,7 +59,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
             <div>
               <p className="text-base font-bold leading-none tracking-tight">Solar Buy-Side</p>
               <span className="mt-1 block text-[10px] font-medium uppercase tracking-[0.2em] text-slate-400">
-                SaaS Platform
+                Plataforma SaaS
               </span>
             </div>
           </div>
@@ -67,7 +67,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           {/* Headline */}
           <div className="relative max-w-md">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              Compre energia solar com critério
+              Compre energia solar com segurança
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight">
               Compare propostas solares e decida com confiança.

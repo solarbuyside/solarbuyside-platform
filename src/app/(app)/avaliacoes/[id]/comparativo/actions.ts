@@ -9,6 +9,7 @@ import {
   saveScoringMode,
   applyAutoScoresToAll,
 } from "@/lib/comparisons/repository";
+import type { ScoreCategory } from "@/domain/comparisons/types";
 
 function revalidate(comparisonId: string) {
   revalidatePath(`/avaliacoes/${comparisonId}/comparativo`);
@@ -21,7 +22,7 @@ export async function setScoreAction(
   comparisonId: string,
   competitorId: string,
   criterionKey: string,
-  category: "company" | "technical",
+  category: ScoreCategory,
   score: number | null,
 ) {
   const normalized =
