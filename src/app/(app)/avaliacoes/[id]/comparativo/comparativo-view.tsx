@@ -32,6 +32,7 @@ import { applyAutoScores, autoScoreFor } from "@/domain/comparisons/auto-scoring
 import type { ComparisonInput, CompetitorProposal, ScoreCategory } from "@/domain/comparisons/types";
 import { cn } from "@/lib/utils";
 import { ScoreCell } from "./score-cell";
+import { RotateHint } from "./rotate-hint";
 import {
   setScoreAction,
   toggleCriterionAction,
@@ -171,6 +172,9 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
 
   return (
     <div className="space-y-5">
+      {/* Aviso (mobile retrato): girar o celular para ver a tabela larga. */}
+      <RotateHint />
+
       {/* Barra de modo de pontuação */}
       <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
