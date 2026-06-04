@@ -197,8 +197,10 @@ export function AppShell({
         </div>
       </aside>
 
-      {/* Mobile top bar — enxuto: logo + busca + sino + perfil */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 glass-panel-sidebar border-b border-border/30 flex items-center justify-between px-4 z-30">
+      {/* Mobile top bar — enxuto: logo + busca + sino + perfil.
+          NÃO usar .glass-panel-sidebar aqui (ela força position:relative e
+          quebra o fixed, empurrando o conteúdo). */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#050d24] border-b border-white/10 flex items-center justify-between px-4 z-30">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Image
             src="/LOGOSOLARBUYSIDE3.png"
@@ -235,7 +237,7 @@ export function AppShell({
       <MobileTabBar pathname={pathname} isAdmin={user.isAdmin} />
 
       {/* Content */}
-      <div className="flex h-screen flex-1 flex-col pt-14 pb-16 md:pt-0 md:pb-0 min-w-0">
+      <div className="flex h-full w-full min-w-0 flex-1 flex-col pt-14 pb-16 md:pt-0 md:pb-0">
 
         <header className="h-20 glass-panel-header sticky top-0 z-10 hidden md:flex items-center gap-4 px-6 md:px-8">
           {/* Left: toggle + breadcrumb */}
