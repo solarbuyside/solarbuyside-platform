@@ -13,7 +13,7 @@ import {
 import { Users, FileSpreadsheet, CheckCircle2, Building2, History, BarChart3 } from "lucide-react";
 
 import type { AdminOverview } from "@/lib/admin/overview";
-import { cn } from "@/lib/utils";
+import { cn, formatDateBR, formatDateTimeBR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   TableContainer,
@@ -217,7 +217,7 @@ function UsersTable({ overview }: { overview: AdminOverview }) {
                 <TableCell className="text-center text-slate-700">{u.comparisonCount}</TableCell>
                 <TableCell className="text-center text-slate-700">{u.completedCount}</TableCell>
                 <TableCell className="text-xs text-slate-500">
-                  {new Date(u.createdAt).toLocaleDateString("pt-BR")}
+                  {formatDateBR(u.createdAt)}
                 </TableCell>
               </TableRow>
             ))
@@ -262,7 +262,7 @@ function ComparisonsTable({ overview }: { overview: AdminOverview }) {
                   <TableCell className="text-center text-slate-700">{c.competitorCount}</TableCell>
                   <TableCell className="text-center text-slate-700">{c.finalistCount}</TableCell>
                   <TableCell className="text-xs text-slate-500">
-                    {new Date(c.updatedAt).toLocaleDateString("pt-BR")}
+                    {formatDateBR(c.updatedAt)}
                   </TableCell>
                 </TableRow>
               );
@@ -300,7 +300,7 @@ function EventsTable({ overview }: { overview: AdminOverview }) {
                 <TableCell className="text-slate-600">{e.comparisonTitle ?? "—"}</TableCell>
                 <TableCell className="text-slate-600">{e.ownerEmail ?? "—"}</TableCell>
                 <TableCell className="text-xs text-slate-500">
-                  {new Date(e.createdAt).toLocaleString("pt-BR")}
+                  {formatDateTimeBR(e.createdAt)}
                 </TableCell>
               </TableRow>
             ))

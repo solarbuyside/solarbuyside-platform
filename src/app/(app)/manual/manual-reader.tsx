@@ -180,6 +180,9 @@ export function ManualReader({
       const fs = Boolean(document.fullscreenElement);
       setIsFullscreen(fs);
       if (!fs) setDrawerOpen(false); // sai da tela cheia → fecha o drawer
+      // A largura disponível muda ao entrar/sair da tela cheia — refaz o
+      // ajuste de zoom para a página caber na nova largura.
+      didFitRef.current = false;
     }
     document.addEventListener("fullscreenchange", onFs);
     return () => document.removeEventListener("fullscreenchange", onFs);
@@ -251,7 +254,15 @@ export function ManualReader({
           "pdfjs-dist/build/pdf.worker.min.mjs",
           import.meta.url,
         ).toString();
-        const loaded = await pdfjs.getDocument({ url: pdfUrl }).promise;
+        // disableAutoFetch + range requests: o pdf.js busca só os bytes da
+        // página atual em vez de baixar os 61MB inteiros — abre muito mais
+        // rápido. rangeChunkSize maior reduz o nº de requisições.
+        const loaded = await pdfjs.getDocument({
+          url: pdfUrl,
+          disableAutoFetch: true,
+          disableStream: false,
+          rangeChunkSize: 262144,
+        }).promise;
         if (!cancelled) setDoc(loaded as unknown as PdfDoc);
       } catch (err) {
         if (!cancelled) setLoadError(err instanceof Error ? err.message : "Falha ao abrir o manual.");
@@ -277,12 +288,14 @@ export function ManualReader({
         if (!didFitRef.current) {
           didFitRef.current = true;
           const container = document.getElementById("manual-canvas-scroll");
-          const avail = (container?.clientWidth ?? 0) - 40; // menos o padding (p-5)
+          // Na tela cheia usamos menos margem (a página fica um pouco maior).
+          const margin = document.fullscreenElement ? 12 : 40;
+          const avail = (container?.clientWidth ?? 0) - margin;
           const base = pdfPage.getViewport({ scale: 1 });
           if (avail > 0 && base.width > 0) {
             const fit = avail / base.width;
-            // Limita entre 0.5 e 1.4 para não ficar minúsculo nem gigante.
-            const fitScale = Math.max(0.5, Math.min(1.4, Math.round(fit * 100) / 100));
+            // Limita entre 0.5 e 1.6 para não ficar minúsculo nem gigante.
+            const fitScale = Math.max(0.5, Math.min(1.6, Math.round(fit * 100) / 100));
             if (Math.abs(fitScale - scale) > 0.01) {
               setScale(fitScale);
               setRendering(false);
@@ -706,7 +719,9 @@ function FloatingArrow({
       disabled={disabled}
       title={side === "left" ? "Página anterior" : "Próxima página"}
       className={cn(
-        "fixed top-1/2 z-20 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-xl backdrop-blur transition-all hover:scale-105 hover:bg-white hover:text-primary active:scale-95 disabled:pointer-events-none disabled:opacity-0",
+        // Escondida no mobile (só Anterior/Próxima na barra inferior); aparece
+        // a partir de md (desktop em tela cheia).
+        "fixed top-1/2 z-20 hidden h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-xl backdrop-blur transition-all hover:scale-105 hover:bg-white hover:text-primary active:scale-95 disabled:pointer-events-none disabled:opacity-0 md:flex",
         side === "left" ? "left-6" : "right-6",
       )}
     >

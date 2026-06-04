@@ -10,6 +10,14 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Plataforma Solar Buy-Side",
   description: "SaaS de comparação de fornecedores e propostas solares",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

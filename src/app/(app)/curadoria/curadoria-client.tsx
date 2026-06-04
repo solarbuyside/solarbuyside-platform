@@ -16,7 +16,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateBR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { deleteContractReviewAction } from "./actions";
 
@@ -110,7 +110,7 @@ export function CuradoriaClient({ initialReviews }: { initialReviews: SavedRevie
                 <h3 className="mt-3 text-base font-bold leading-tight text-slate-900">{r.title}</h3>
                 <p className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-400">
                   <Clock className="h-3 w-3" />
-                  {new Date(r.createdAt).toLocaleDateString("pt-BR")}
+                  {formatDateBR(r.createdAt)}
                 </p>
                 <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                   <Badge variant={v.badge} className="text-[10px]">

@@ -17,7 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateBR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { deleteComparisonAction, renameComparisonAction } from "./list-actions";
 
@@ -108,7 +108,7 @@ export function AvaliacoesList({ items }: { items: ComparisonListItem[] }) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((c) => {
             const status = STATUS[c.status] ?? { label: c.status, variant: "secondary" as const };
-            const updated = new Date(c.updatedAt).toLocaleDateString("pt-BR");
+            const updated = formatDateBR(c.updatedAt);
             return (
               <div
                 key={c.id}

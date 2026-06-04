@@ -302,7 +302,7 @@ export function AppShell({
 const TAB_ITEMS = [
   { name: "Início", href: "/dashboard", icon: LayoutDashboard },
   { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
-  { name: "Manual", href: "/manual", icon: BookOpen, highlight: true },
+  { name: "Manual", href: "/manual", icon: BookOpen },
   { name: "Histórico", href: "/historico", icon: History },
 ];
 
@@ -325,13 +325,7 @@ function MobileTabBar({ pathname, isAdmin }: { pathname: string; isAdmin: boolea
             <span
               className={cn(
                 "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
-                item.highlight
-                  ? isActive
-                    ? "bg-primary text-white shadow-[0_4px_12px_rgba(249,115,22,0.4)]"
-                    : "bg-primary/15 text-primary"
-                  : isActive
-                    ? "text-primary"
-                    : "text-slate-400",
+                isActive ? "text-primary" : "text-slate-400",
               )}
             >
               <Icon className="h-5 w-5" />

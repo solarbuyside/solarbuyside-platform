@@ -14,3 +14,17 @@ export function formatCurrencyBRL(value: number | null | undefined) {
     maximumFractionDigits: 0,
   }).format(value);
 }
+
+// Timezone fixo (BRT) para a formatação de datas dar o MESMO resultado no
+// servidor (Vercel = UTC) e no cliente — evita erro de hidratação (React #418).
+const BR_TZ = "America/Sao_Paulo";
+
+/** Data curta (dd/mm/aaaa) com timezone fixo. */
+export function formatDateBR(iso: string | number | Date) {
+  return new Date(iso).toLocaleDateString("pt-BR", { timeZone: BR_TZ });
+}
+
+/** Data + hora com timezone fixo. */
+export function formatDateTimeBR(iso: string | number | Date) {
+  return new Date(iso).toLocaleString("pt-BR", { timeZone: BR_TZ });
+}
