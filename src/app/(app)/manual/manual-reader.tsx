@@ -124,6 +124,9 @@ export function ManualReader({
   const [page, setPage] = React.useState(initialPage);
   const [scale, setScale] = React.useState(1.3);
   const [rendering, setRendering] = React.useState(false);
+  // Só ajustamos a escala ao tamanho da tela uma vez (não sobrescreve o zoom
+  // manual do usuário depois).
+  const didFitRef = React.useRef(false);
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const renderTaskRef = React.useRef<{ cancel: () => void } | null>(null);
@@ -268,6 +271,26 @@ export function ManualReader({
       try {
         const pdfPage = await doc.getPage(page);
         if (cancelled) return;
+
+        // Na primeira renderização, ajusta a escala para a página caber na
+        // largura do visualizador (essencial no mobile, onde 130% estoura).
+        if (!didFitRef.current) {
+          didFitRef.current = true;
+          const container = document.getElementById("manual-canvas-scroll");
+          const avail = (container?.clientWidth ?? 0) - 40; // menos o padding (p-5)
+          const base = pdfPage.getViewport({ scale: 1 });
+          if (avail > 0 && base.width > 0) {
+            const fit = avail / base.width;
+            // Limita entre 0.5 e 1.4 para não ficar minúsculo nem gigante.
+            const fitScale = Math.max(0.5, Math.min(1.4, Math.round(fit * 100) / 100));
+            if (Math.abs(fitScale - scale) > 0.01) {
+              setScale(fitScale);
+              setRendering(false);
+              return; // re-renderiza com a nova escala
+            }
+          }
+        }
+
         const viewport = pdfPage.getViewport({ scale });
         const canvas = canvasRef.current;
         if (!canvas) return;
