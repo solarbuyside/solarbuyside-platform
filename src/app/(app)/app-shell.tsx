@@ -10,8 +10,6 @@ import {
   History,
   ShieldCheck,
   BookOpen,
-  Menu,
-  X,
   Bell,
   Search,
   ChevronDown,
@@ -84,7 +82,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
   const [collapsed, setCollapsed] = React.useState(false);
 
   // Admin lives in the header (not the sidebar) — see header actions below.
@@ -199,9 +197,9 @@ export function AppShell({
         </div>
       </aside>
 
-      {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 glass-panel-sidebar border-b border-border/30 flex items-center justify-between px-4 z-30">
-        <div className="flex items-center gap-2">
+      {/* Mobile top bar — enxuto: logo + busca + sino + perfil */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 glass-panel-sidebar border-b border-border/30 flex items-center justify-between px-4 z-30">
+        <Link href="/dashboard" className="flex items-center gap-2">
           <Image
             src="/LOGOSOLARBUYSIDE3.png"
             alt="Solar Buy-Side"
@@ -209,79 +207,35 @@ export function AppShell({
             height={24}
             className="h-6 w-6 object-contain"
           />
-          <span className="font-bold text-white text-base">Solar Buy-Side</span>
+          <span className="font-bold text-white text-[15px]">Solar Buy-Side</span>
+        </Link>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setMobileSearchOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
+            title="Buscar"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+          <NotificationsBell notifications={notifications} />
+          <UserMenu user={user} displayName={displayName} />
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
       </div>
 
-      {mobileOpen && (
-        <div onClick={() => setMobileOpen(false)} className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-20" />
+      {/* Busca fullscreen mobile */}
+      {mobileSearchOpen && (
+        <MobileSearch
+          items={searchItems}
+          manualChapters={manualChapters}
+          onClose={() => setMobileSearchOpen(false)}
+        />
       )}
 
-      <aside
-        className={cn(
-          "md:hidden fixed top-16 bottom-0 left-0 w-64 bg-[#050d24] border-r border-border/40 z-25 transition-transform duration-300 ease-in-out",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <nav className="py-6 px-4 space-y-1.5 h-full flex flex-col justify-between">
-          <div className="space-y-1.5">
-            <Link
-              href="/manual"
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "group relative mb-3 flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200",
-                pathname.startsWith("/manual")
-                  ? "border-primary/40 bg-primary/10"
-                  : "border-white/10 bg-white/[0.03] hover:border-primary/30 hover:bg-white/[0.05]",
-              )}
-            >
-              <span
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                  pathname.startsWith("/manual") ? "bg-primary text-white" : "bg-primary/15 text-primary",
-                )}
-              >
-                <BookOpen className="h-4 w-4" />
-              </span>
-              <span className="flex flex-col">
-                <span className="text-[13px] font-bold leading-tight text-white">Manual Solar Buy-Side</span>
-                <span className="text-[10px] font-medium text-slate-400">Guia de compra completo</span>
-              </span>
-            </Link>
-            {menuItems.map((item) => {
-              const isActive =
-                pathname.startsWith(item.href) || (pathname === "/" && item.href === "/dashboard");
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 h-11 rounded-lg text-sm font-medium transition-all duration-200 relative",
-                    isActive ? "text-white bg-white/[0.03]" : "text-slate-400 hover:text-white hover:bg-white/[0.015]",
-                  )}
-                >
-                  {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-md bg-primary shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
-                  )}
-                  <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-slate-400")} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-      </aside>
+      {/* Bottom tab bar (estilo app) */}
+      <MobileTabBar pathname={pathname} isAdmin={user.isAdmin} />
 
       {/* Content */}
-      <div className="flex h-screen flex-1 flex-col pt-16 md:pt-0 min-w-0">
+      <div className="flex h-screen flex-1 flex-col pt-14 pb-16 md:pt-0 md:pb-0 min-w-0">
 
         <header className="h-20 glass-panel-header sticky top-0 z-10 hidden md:flex items-center gap-4 px-6 md:px-8">
           {/* Left: toggle + breadcrumb */}
@@ -335,8 +289,166 @@ export function AppShell({
 
         {/* Scrollable content area — sidebar stays full-height alongside */}
         <main className="flex-1 overflow-y-auto">
-          <div className="w-full max-w-[1600px] p-6 md:px-10 md:py-8">{children}</div>
+          <div className="w-full max-w-[1600px] px-4 py-5 md:px-10 md:py-8">{children}</div>
         </main>
+      </div>
+    </div>
+  );
+}
+
+// Bottom tab bar (mobile) — navegação principal estilo app.
+const TAB_ITEMS = [
+  { name: "Início", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
+  { name: "Manual", href: "/manual", icon: BookOpen, highlight: true },
+  { name: "Histórico", href: "/historico", icon: History },
+];
+
+function MobileTabBar({ pathname, isAdmin }: { pathname: string; isAdmin: boolean }) {
+  void isAdmin;
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-30 flex h-16 items-stretch border-t border-white/10 bg-[#050d24]/98 backdrop-blur-md md:hidden">
+      {TAB_ITEMS.map((item) => {
+        const isActive =
+          pathname === item.href ||
+          (item.href !== "/dashboard" && pathname.startsWith(item.href)) ||
+          (item.href === "/dashboard" && (pathname === "/" || pathname.startsWith("/dashboard")));
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="relative flex flex-1 flex-col items-center justify-center gap-1"
+          >
+            <span
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
+                item.highlight
+                  ? isActive
+                    ? "bg-primary text-white shadow-[0_4px_12px_rgba(249,115,22,0.4)]"
+                    : "bg-primary/15 text-primary"
+                  : isActive
+                    ? "text-primary"
+                    : "text-slate-400",
+              )}
+            >
+              <Icon className="h-5 w-5" />
+            </span>
+            <span
+              className={cn(
+                "text-[10px] font-semibold leading-none",
+                isActive ? "text-white" : "text-slate-500",
+              )}
+            >
+              {item.name}
+            </span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+// Busca em tela cheia (mobile) — avaliações + capítulos do manual.
+function MobileSearch({
+  items,
+  manualChapters,
+  onClose,
+}: {
+  items: SearchItem[];
+  manualChapters: ManualChapterItem[];
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [query, setQuery] = React.useState("");
+
+  const { evals, chapters } = React.useMemo(() => {
+    const q = normalizeSearch(query.trim());
+    if (!q) return { evals: [], chapters: [] };
+    return {
+      evals: items
+        .filter(
+          (item) =>
+            normalizeSearch(item.title).includes(q) ||
+            item.competitors.some((c) => normalizeSearch(c).includes(q)),
+        )
+        .slice(0, 8),
+      chapters: manualChapters.filter((ch) => normalizeSearch(ch.title).includes(q)).slice(0, 10),
+    };
+  }, [query, items, manualChapters]);
+
+  function goEval(id: string) {
+    onClose();
+    router.push(`/avaliacoes/${id}/comparativo`);
+  }
+  function goChapter(page: number) {
+    onClose();
+    router.push(`/manual?page=${page}`);
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-white md:hidden">
+      <div className="flex items-center gap-2 border-b border-slate-100 px-3 py-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar avaliações ou capítulos…"
+            className="h-11 w-full rounded-xl bg-slate-100 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+        <button onClick={onClose} className="px-2 text-sm font-semibold text-slate-500">
+          Cancelar
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-2">
+        {query.trim() && evals.length === 0 && chapters.length === 0 && (
+          <p className="px-3 py-6 text-center text-sm text-slate-400">Nada encontrado.</p>
+        )}
+        {evals.length > 0 && (
+          <>
+            <p className="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Avaliações
+            </p>
+            {evals.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => goEval(item.id)}
+                className="flex w-full items-start gap-2.5 rounded-lg px-3 py-3 text-left active:bg-slate-50"
+              >
+                <FileSpreadsheet className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-semibold text-slate-800">{item.title}</span>
+                  {item.competitors.length > 0 && (
+                    <span className="truncate text-[11px] text-slate-400">{item.competitors.join(" · ")}</span>
+                  )}
+                </span>
+              </button>
+            ))}
+          </>
+        )}
+        {chapters.length > 0 && (
+          <>
+            <p className="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Manual Solar Buy-Side
+            </p>
+            {chapters.map((ch, i) => (
+              <button
+                key={`${ch.page}-${i}`}
+                onClick={() => goChapter(ch.page)}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-3 text-left active:bg-primary/5"
+              >
+                <BookOpen className="h-4 w-4 shrink-0 text-primary" />
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">{ch.title}</span>
+                <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                  p. {ch.page}
+                </span>
+              </button>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
