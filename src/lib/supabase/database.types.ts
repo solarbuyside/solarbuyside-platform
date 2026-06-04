@@ -10,6 +10,7 @@ export type Database = {
           full_name: string | null;
           company_name: string | null;
           phone: string | null;
+          onboarded_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -19,6 +20,7 @@ export type Database = {
           full_name?: string | null;
           company_name?: string | null;
           phone?: string | null;
+          onboarded_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

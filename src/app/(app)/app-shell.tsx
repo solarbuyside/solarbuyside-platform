@@ -19,9 +19,11 @@ import {
   LogOut,
   FileText,
   ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/app/(auth)/actions";
+import { OPEN_ONBOARDING_EVENT } from "./onboarding-modal";
 
 type SidebarItem = {
   name: string;
@@ -730,6 +732,16 @@ function UserMenu({
               <Settings className="h-4 w-4 text-slate-400" />
               Configurações
             </Link>
+            <button
+              onClick={() => {
+                setOpen(false);
+                window.dispatchEvent(new Event(OPEN_ONBOARDING_EVENT));
+              }}
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <Sparkles className="h-4 w-4 text-slate-400" />
+              Ver tour de boas-vindas
+            </button>
             {user.isAdmin && (
               <Link
                 href="/admin"

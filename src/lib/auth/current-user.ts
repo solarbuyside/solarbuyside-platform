@@ -34,6 +34,26 @@ export type ProfileDetails = {
 };
 
 /** Reads the editable profile row for the current user. */
+/**
+ * True quando o usuário ainda NÃO concluiu o onboarding (primeiro acesso).
+ * Se não houver linha de perfil ainda, tratamos como primeiro acesso.
+ */
+export async function needsOnboarding(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  if (!userId) return false;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("onboarded_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) return false; // não bloqueia o app se a query falhar
+  return !data?.onboarded_at;
+}
+
 export async function getProfileDetails(): Promise<ProfileDetails | null> {
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();

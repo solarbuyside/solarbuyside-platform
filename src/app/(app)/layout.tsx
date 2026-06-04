@@ -1,7 +1,8 @@
-import { getCurrentUser } from "@/lib/auth/current-user";
+import { getCurrentUser, needsOnboarding } from "@/lib/auth/current-user";
 import { listComparisonSummaries, listRecentEvents } from "@/lib/comparisons/repository";
 import { loadManualChapters } from "@/lib/manual/manual-index";
 import { AppShell, type SearchItem, type NotificationItem, type ManualChapterItem } from "./app-shell";
+import { OnboardingModal } from "./onboarding-modal";
 
 const EVENT_LABELS: Record<string, { title: string; description: string }> = {
   "comparison.created": {
@@ -28,7 +29,7 @@ function relativeTime(iso: string) {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const user = await getCurrentUser();
+  const [user, showOnboarding] = await Promise.all([getCurrentUser(), needsOnboarding()]);
 
   let searchItems: SearchItem[] = [];
   let notifications: NotificationItem[] = [];
@@ -73,6 +74,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       notifications={notifications}
     >
       {children}
+      <OnboardingModal autoOpen={showOnboarding} />
     </AppShell>
   );
 }

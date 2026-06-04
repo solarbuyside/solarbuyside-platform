@@ -17,6 +17,8 @@ create table if not exists public.profiles (
   email text,
   full_name text,
   company_name text,
+  phone text,
+  onboarded_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
