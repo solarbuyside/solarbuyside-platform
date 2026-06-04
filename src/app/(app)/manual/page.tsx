@@ -37,5 +37,9 @@ export default async function ManualPage({
       ? requested
       : 1;
 
-  return <ManualReader index={index} pdfUrl={pdfUrl} initialPage={initialPage} />;
+  // O leitor só precisa de outline + numPages + pdf. NÃO enviamos `pages` (o
+  // texto de 161 páginas, ~240KB) ao cliente — a busca é feita no header.
+  const slimIndex = { pdf: index.pdf, numPages: index.numPages, outline: index.outline, pages: [] };
+
+  return <ManualReader index={slimIndex} pdfUrl={pdfUrl} initialPage={initialPage} />;
 }

@@ -219,8 +219,8 @@ export function AppShell({
           >
             <Search className="h-5 w-5" />
           </button>
-          <NotificationsBell notifications={notifications} />
-          <UserMenu user={user} displayName={displayName} />
+          <NotificationsBell notifications={notifications} variant="dark" />
+          <UserMenu user={user} displayName={displayName} variant="dark" />
         </div>
       </div>
 
@@ -612,7 +612,13 @@ function GlobalSearch({
   );
 }
 
-function NotificationsBell({ notifications }: { notifications: NotificationItem[] }) {
+function NotificationsBell({
+  notifications,
+  variant = "light",
+}: {
+  notifications: NotificationItem[];
+  variant?: "light" | "dark";
+}) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
   const hasUnread = notifications.length > 0;
@@ -629,9 +635,15 @@ function NotificationsBell({ notifications }: { notifications: NotificationItem[
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+        title="Notificações"
+        className={cn(
+          "relative flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+          variant === "dark"
+            ? "text-slate-300 hover:bg-white/5 hover:text-white"
+            : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+        )}
       >
-        <Bell className="h-4 w-4" />
+        <Bell className={variant === "dark" ? "h-5 w-5" : "h-4 w-4"} />
         {hasUnread && (
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
         )}
@@ -669,7 +681,15 @@ function NotificationsBell({ notifications }: { notifications: NotificationItem[
   );
 }
 
-function UserMenu({ user, displayName }: { user: AppShellUser; displayName: string }) {
+function UserMenu({
+  user,
+  displayName,
+  variant = "light",
+}: {
+  user: AppShellUser;
+  displayName: string;
+  variant?: "light" | "dark";
+}) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -685,7 +705,12 @@ function UserMenu({ user, displayName }: { user: AppShellUser; displayName: stri
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-2 py-1.5 transition-colors hover:bg-slate-50"
+        className={cn(
+          "flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors",
+          variant === "dark"
+            ? "hover:bg-white/5"
+            : "border border-slate-200 bg-white hover:bg-slate-50",
+        )}
       >
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-[11px] font-bold text-white">
           {initials(user.fullName, user.email)}
