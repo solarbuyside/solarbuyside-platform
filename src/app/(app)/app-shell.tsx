@@ -638,7 +638,7 @@ function NotificationsBell({ notifications }: { notifications: NotificationItem[
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in zoom-in-95">
+        <div className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in zoom-in-95 sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-80">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <p className="text-sm font-bold text-slate-800">Notificações</p>
             {hasUnread && (
@@ -697,7 +697,7 @@ function UserMenu({ user, displayName }: { user: AppShellUser; displayName: stri
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in zoom-in-95">
+        <div className="fixed inset-x-3 top-16 z-50 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg animate-in fade-in zoom-in-95 sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-56">
           <div className="border-b border-slate-100 px-4 py-3">
             <p className="truncate text-sm font-semibold text-slate-800">{displayName}</p>
             {user.email && <p className="truncate text-xs text-slate-400">{user.email}</p>}

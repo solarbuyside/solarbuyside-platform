@@ -369,7 +369,7 @@ export function ManualReader({
               >
                 <ZoomOut className="h-4.5 w-4.5" />
               </button>
-              <span className="w-12 text-center text-xs font-semibold text-slate-500">
+              <span className="hidden w-12 text-center text-xs font-semibold text-slate-500 sm:block">
                 {Math.round(scale * 100)}%
               </span>
               <button
@@ -395,11 +395,11 @@ export function ManualReader({
                       dismissReadingHint();
                       toggleFullscreen();
                     }}
-                    className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+                    className="inline-flex h-9 w-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary sm:w-auto sm:px-3"
                     title="Abrir em tela cheia para uma leitura imersiva"
                   >
                     <Maximize2 className="h-4 w-4" />
-                    Modo leitura
+                    <span className="hidden sm:inline">Modo leitura</span>
                   </button>
 
                   {/* Balãozinho de dica — sutil, com seta e botão de fechar. */}
@@ -650,7 +650,7 @@ function PageInput({
 }) {
   return (
     <div className="flex items-center gap-1.5 text-sm text-slate-600">
-      <span className="text-xs font-medium text-slate-400">Ir para</span>
+      <span className="hidden text-xs font-medium text-slate-400 sm:inline">Ir para</span>
       <input
         key={page}
         defaultValue={page}
@@ -661,9 +661,9 @@ function PageInput({
             if (Number.isFinite(v)) onGo(v);
           }
         }}
-        className="h-9 w-14 rounded-lg border border-slate-200 text-center text-sm font-semibold outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+        className="h-9 w-12 rounded-lg border border-slate-200 text-center text-sm font-semibold outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 sm:w-14"
       />
-      <span className="text-slate-400">/ {numPages}</span>
+      <span className="text-xs text-slate-400 sm:text-sm">/ {numPages}</span>
     </div>
   );
 }
