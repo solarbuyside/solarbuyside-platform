@@ -48,8 +48,28 @@ export default async function CadastroPage({ searchParams }: CadastroPageProps) 
           minLength={8}
           required
         />
+        <PasswordField
+          label="Repetir senha"
+          name="confirmPassword"
+          autoComplete="new-password"
+          placeholder="Repita a senha"
+          minLength={8}
+          required
+        />
 
         <SubmitButton pendingLabel="Criando conta…">Criar conta</SubmitButton>
+
+        <p className="text-center text-[11px] leading-relaxed text-slate-400">
+          Ao criar sua conta, você concorda com nossos{" "}
+          <Link href="/legal/termos" className="font-semibold text-primary hover:underline">
+            Termos de Uso
+          </Link>{" "}
+          e{" "}
+          <Link href="/legal/privacidade" className="font-semibold text-primary hover:underline">
+            Política de Privacidade
+          </Link>
+          .
+        </p>
       </form>
 
       <div className="mt-8 flex items-center gap-3">

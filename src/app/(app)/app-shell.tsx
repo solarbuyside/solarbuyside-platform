@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   FileSpreadsheet,
   History,
-  Lightbulb,
   ShieldCheck,
   BookOpen,
   Menu,
@@ -20,6 +19,8 @@ import {
   PanelLeftOpen,
   Settings,
   LogOut,
+  FileText,
+  ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/app/(auth)/actions";
@@ -57,9 +58,9 @@ export type NotificationItem = {
 const BASE_ITEMS: SidebarItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Avaliações", href: "/avaliacoes", icon: FileSpreadsheet },
-  // Curadoria e Curso ocultos da navegação por enquanto (rotas mantidas, não apagadas).
+  // Curadoria, Curso e Guias ocultos da navegação (rotas mantidas, não apagadas).
+  // Guias deixou de ser necessário com o Manual.
   { name: "Histórico", href: "/historico", icon: History },
-  { name: "Guias", href: "/dicas", icon: Lightbulb },
 ];
 
 function initials(name: string | null, email: string | null) {
@@ -606,6 +607,38 @@ function UserMenu({ user, displayName }: { user: AppShellUser; displayName: stri
                 Painel Admin
               </Link>
             )}
+
+            {/* Documentos legais */}
+            <div className="my-1 border-t border-slate-100" />
+            <p className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Legal
+            </p>
+            <Link
+              href="/legal/termos"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <FileText className="h-4 w-4 text-slate-400" />
+              Termos de Uso
+            </Link>
+            <Link
+              href="/legal/privacidade"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <ShieldCheck className="h-4 w-4 text-slate-400" />
+              Política de Privacidade
+            </Link>
+            <Link
+              href="/legal/medidas-antipirataria"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <ShieldAlert className="h-4 w-4 text-slate-400" />
+              Medidas Antipirataria
+            </Link>
+
+            <div className="my-1 border-t border-slate-100" />
             <form action={signOutAction}>
               <button
                 type="submit"

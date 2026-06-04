@@ -22,6 +22,19 @@ export const ACCESS_VALIDITY_MONTHS = 6;
 /** Janela de direito de arrependimento (reembolso bloqueia o acesso). */
 export const REFUND_WINDOW_DAYS = 7;
 
+/**
+ * Identidade e textos dos e-mails transacionais (Brevo) — print 04.06.
+ * TODO(brevo): usar no template de confirmação quando a integração existir.
+ * O remetente deve aparecer como "Solar Buy-Side" (não "me"/contato@…) e o
+ * assunto/corpo em português.
+ */
+export const EMAIL_SENDER_NAME = "Solar Buy-Side";
+export const EMAIL_SENDER_ADDRESS = "contato@buyside.com.br";
+export const EMAIL_CONFIRM_SUBJECT =
+  "Bem-vindo à Plataforma Solar Buy-Side: confirme seu endereço de e-mail";
+export const EMAIL_CONFIRM_INTRO =
+  "Bem-vindo à Plataforma Solar Buy-Side! Confirme seu endereço de e-mail clicando no link abaixo para concluir o cadastro.";
+
 /** Calcula a data de expiração do acesso (validade de 6 meses). */
 export function computeAccessExpiry(purchasedAt: Date): Date {
   const expiry = new Date(purchasedAt);

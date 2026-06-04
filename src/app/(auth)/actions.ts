@@ -52,9 +52,14 @@ export async function signUpAction(formData: FormData) {
   const fullName = stringValue(formData, "fullName");
   const email = stringValue(formData, "email");
   const password = stringValue(formData, "password");
+  const confirmPassword = stringValue(formData, "confirmPassword");
 
   if (!email || password.length < 8) {
-    redirectWith("/cadastro", "error", "Use um e-mail valido e senha com pelo menos 8 caracteres.");
+    redirectWith("/cadastro", "error", "Use um e-mail válido e senha com pelo menos 8 caracteres.");
+  }
+
+  if (password !== confirmPassword) {
+    redirectWith("/cadastro", "error", "As senhas não conferem.");
   }
 
   const supabase = await createClient();

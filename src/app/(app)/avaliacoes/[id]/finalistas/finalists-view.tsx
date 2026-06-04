@@ -6,7 +6,6 @@ import {
   Trophy,
   Medal,
   Check,
-  Sparkles,
   ArrowLeft,
   Crown,
 } from "lucide-react";
@@ -205,13 +204,6 @@ function FinalistCard({
         </span>
       </div>
 
-      {primary && (
-        <div className="relative mt-5 flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2.5 text-xs font-medium text-slate-600">
-          <Sparkles className="h-3.5 w-3.5 shrink-0 text-primary" />
-          Melhor pontuação no conjunto de empresa e tecnologia. Lembre-se: menor preço nem sempre é a
-          melhor decisão.
-        </div>
-      )}
     </div>
   );
 }

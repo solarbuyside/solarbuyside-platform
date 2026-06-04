@@ -44,8 +44,9 @@ yarn-error.log*
 next-env.d.ts
 Contrato_Solar_TESTE.pdf
 
-# ajustes: versiona só o plano; ignora os binários do PowerPoint e temporários
+# ajustes: versiona só os planos (.md); ignora binários e temporários
 ajustes/*.pptx
+ajustes/*.docx
 ajustes/~$*
 ajustes/extracted/
 ajustes/xlsx/
