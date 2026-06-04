@@ -366,7 +366,7 @@ function SupplierPanel({
             Avaliando agora · clique para trocar
           </p>
         </div>
-        <div className="p-2">
+        <div className="max-h-52 overflow-y-auto p-2 lg:max-h-none">
           {competitors.map((c, i) => {
             const isActive = c.id === activeId;
             const ratio = competitorProgress(c);

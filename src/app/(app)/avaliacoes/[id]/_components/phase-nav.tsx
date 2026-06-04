@@ -41,7 +41,7 @@ export function PhaseNav({
           <span>/</span>
           <span className="text-slate-600">{title}</span>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">{title}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">{title}</h2>
       </div>
 
       <nav className="flex gap-2 overflow-x-auto">

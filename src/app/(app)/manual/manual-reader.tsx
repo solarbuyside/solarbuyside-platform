@@ -309,7 +309,7 @@ export function ManualReader({
   }, [page, goTo]);
 
   return (
-    <div className="flex h-[calc(100vh-9rem)] flex-col">
+    <div className="flex h-[calc(100vh-10.5rem)] flex-col md:h-[calc(100vh-9rem)]">
       <div className="flex min-h-0 flex-1 gap-5">
         {/* Painel do índice — seções agrupadas e recolhíveis */}
         <aside className="hidden w-[310px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:flex">
@@ -342,23 +342,23 @@ export function ManualReader({
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-2">
-              {/* Botão de índice — só na tela cheia (no modo compacto o painel
-                  lateral fixo já mostra o índice). */}
-              {isFullscreen && (
-                <button
-                  onClick={() => setDrawerOpen((o) => !o)}
-                  className={cn(
-                    "inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-colors",
-                    drawerOpen
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
-                  )}
-                  title="Mostrar índice"
-                >
-                  <ListTree className="h-4 w-4" />
-                  Índice
-                </button>
-              )}
+              {/* Botão de índice — aparece no mobile (painel lateral some) e na
+                  tela cheia. Some no desktop normal, onde o painel fixo já mostra
+                  o índice. */}
+              <button
+                onClick={() => setDrawerOpen((o) => !o)}
+                className={cn(
+                  "inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition-colors sm:px-3",
+                  drawerOpen
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
+                  !isFullscreen && "lg:hidden",
+                )}
+                title="Mostrar índice"
+              >
+                <ListTree className="h-4 w-4" />
+                <span className="hidden sm:inline">Índice</span>
+              </button>
               <PageInput page={page} numPages={index.numPages} onGo={goTo} />
             </div>
             <div className="flex items-center gap-1">

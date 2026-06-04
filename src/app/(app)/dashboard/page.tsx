@@ -42,9 +42,9 @@ export default async function DashboardPage() {
   const greeting = overview.firstName ? `Olá, ${overview.firstName}!` : "Olá!";
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-5 md:space-y-8 animate-in fade-in duration-300">
       {/* Hero / invitation */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#020719] via-[#061233] to-[#0a1e4d] p-8 text-white md:p-10">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#020719] via-[#061233] to-[#0a1e4d] p-6 text-white md:p-10">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.15]"
           style={{
@@ -58,15 +58,15 @@ export default async function DashboardPage() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
 
         <div className="relative max-w-2xl">
-          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{greeting}</h1>
-          <p className="mt-3 text-base leading-relaxed text-slate-300">
+          <h1 className="text-2xl font-bold tracking-tight md:text-4xl">{greeting}</h1>
+          <p className="mt-2.5 text-[15px] leading-relaxed text-slate-300 md:mt-3 md:text-base">
             Aqui você tem tudo para comprar seu sistema solar com segurança: aprenda no{" "}
             <strong className="font-semibold text-white">Manual</strong> e compare propostas nas{" "}
             <strong className="font-semibold text-white">Avaliações</strong>.
           </p>
 
           {overview.totals.total > 0 && (
-            <div className="mt-7 flex flex-wrap gap-6 text-sm">
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm md:mt-7">
               <Stat label="Avaliações" value={overview.totals.total} />
               <Stat label="Rascunhos" value={overview.totals.drafts} />
               <Stat label="Concluídas" value={overview.totals.completed} />
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
 
       {/* Empty state for brand-new users */}
       {overview.totals.total === 0 ? (
-        <section className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center">
+        <section className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center md:p-10">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Sparkles className="h-6 w-6" />
           </div>

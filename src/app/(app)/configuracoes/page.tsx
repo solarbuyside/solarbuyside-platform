@@ -10,9 +10,9 @@ export default async function ConfiguracoesPage() {
   const profile = await getProfileDetails();
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="border-b border-slate-200 pb-6">
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Configurações</h2>
+    <div className="space-y-5 md:space-y-8 animate-in fade-in duration-300">
+      <div className="border-b border-slate-200 pb-5 md:pb-6">
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">Configurações</h2>
         <p className="mt-1 text-sm text-slate-500">Edite seus dados de perfil e gerencie sua conta.</p>
       </div>
 
