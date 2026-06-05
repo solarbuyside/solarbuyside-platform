@@ -137,12 +137,12 @@ export const companyScoreDefinitions = [
     key: "company.reclame_aqui",
     category: "company",
     section: "Avaliacao do vendedor",
-    label: "Reclame Aqui: nota média dos últimos 12 meses",
+    label: "Reclame Aqui: indicador de reputação dos últimos 12 meses",
     defaultEnabled: true,
     maxScore: 10,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 23,
-    rubric: "Campo comparativo da planilha. Pode ser pontuado manualmente.",
+    rubric: "Categoria de reputação (RA 1000…sem reputação) convertida em nota.",
   },
 ] satisfies ScoreDefinition[];
 

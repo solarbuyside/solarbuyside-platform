@@ -132,8 +132,8 @@ function scoreCompany(key: string, c: CompanyEvaluation): number | null {
       // Subjective: use buyer's direct 0-10 input as-is.
       return c.sellerTrustScore ?? null;
     case "company.reclame_aqui":
-      // Manual Reclame Aqui note (0-10) entered by the buyer.
-      return c.reclameAquiScore ?? null;
+      // Categoria de reputação do Reclame Aqui convertida em nota 0-10.
+      return reputationToScore(c.reclameAquiScore);
     default:
       return null;
   }
@@ -285,7 +285,6 @@ export type AutoScore = {
 
 const MANUAL_KEYS = new Set<string>([
   "company.seller_trust",
-  "company.reclame_aqui",
   "technical.system_power_kwp",
   "technical.annual_generation",
   "technical.module_brand",

@@ -72,7 +72,7 @@ create table if not exists public.company_evaluations (
   support_deadline_days numeric,
   delivered_technical_docs text check (delivered_technical_docs in ('yes', 'no', 'unknown')),
   seller_trust_score numeric check (seller_trust_score between 0 and 10),
-  reclame_aqui_score numeric check (reclame_aqui_score between 0 and 10),
+  reclame_aqui_score text check (reclame_aqui_score in ('ra_1000','otimo','bom','regular','ruim','nao_recomendado','suspensa','em_analise','sem_reputacao')),
   raw_payload jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

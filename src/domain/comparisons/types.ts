@@ -33,7 +33,8 @@ export const companyEvaluationSchema = z.object({
   supportDeadlineDays: z.number().min(0).nullable().optional(),
   deliveredTechnicalDocs: triStateAnswerSchema.nullable().optional(),
   sellerTrustScore: z.number().min(0).max(10).nullable().optional(),
-  reclameAquiScore: z.number().min(0).max(10).nullable().optional(),
+  // Reclame Aqui da empresa: categoria de reputação (não mais nota 0-10).
+  reclameAquiScore: reputationRatingSchema.nullable().optional(),
 });
 
 export const technicalEvaluationSchema = z.object({

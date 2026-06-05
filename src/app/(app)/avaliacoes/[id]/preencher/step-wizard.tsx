@@ -605,7 +605,31 @@ export function FieldRow({
 
   let control: React.ReactNode;
 
-  if (field.kind === "tri_state") {
+  if (field.key === "company.reclameAquiScore") {
+    // Indicador de reputação do Reclame Aqui (categoria) + atalho de busca.
+    control = (
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <Select
+            value={(value as string) ?? ""}
+            options={[{ value: "", label: "—" }, ...REPUTATION_OPTIONS]}
+            onValueChange={(v) => onCommit(v === "" ? null : v)}
+            ariaLabel={field.label}
+          />
+        </div>
+        <a
+          href={`https://www.reclameaqui.com.br/busca/?q=${encodeURIComponent(competitorName)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-all hover:border-primary/50 hover:text-primary"
+          title="Buscar no Reclame Aqui"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Buscar
+        </a>
+      </div>
+    );
+  } else if (field.kind === "tri_state") {
     control = (
       <Select
         value={(value as string) ?? ""}
@@ -658,31 +682,6 @@ export function FieldRow({
             Buscar no Reclame Aqui
           </a>
         )}
-      </div>
-    );
-  } else if (field.key === "company.reclameAquiScore") {
-    // Nota média do Reclame Aqui (decimal) + atalho de busca pela empresa avaliada.
-    control = (
-      <div className="flex gap-2">
-        <NumberInput
-          field={field}
-          value={value}
-          prefix={null}
-          suffix={null}
-          inputClass={inputClass}
-          onCommit={onCommit}
-          onError={setLocalError}
-        />
-        <a
-          href={`https://www.reclameaqui.com.br/busca/?q=${encodeURIComponent(competitorName)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-all hover:border-primary/50 hover:text-primary"
-          title="Buscar no Reclame Aqui"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Buscar
-        </a>
       </div>
     );
   } else {

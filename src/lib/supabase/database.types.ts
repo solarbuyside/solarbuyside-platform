@@ -104,7 +104,7 @@ export type Database = {
           support_deadline_days: number | null;
           delivered_technical_docs: "yes" | "no" | "unknown" | null;
           seller_trust_score: number | null;
-          reclame_aqui_score: number | null;
+          reclame_aqui_score: string | null;
           raw_payload: Json;
           created_at: string;
           updated_at: string;
@@ -125,7 +125,7 @@ export type Database = {
           support_deadline_days?: number | null;
           delivered_technical_docs?: "yes" | "no" | "unknown" | null;
           seller_trust_score?: number | null;
-          reclame_aqui_score?: number | null;
+          reclame_aqui_score?: string | null;
           raw_payload?: Json;
           created_at?: string;
           updated_at?: string;

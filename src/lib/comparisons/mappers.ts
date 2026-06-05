@@ -34,7 +34,7 @@ export function companyRowToDomain(row: CompanyRow): CompanyEvaluation {
     supportDeadlineDays: row.support_deadline_days,
     deliveredTechnicalDocs: row.delivered_technical_docs,
     sellerTrustScore: row.seller_trust_score,
-    reclameAquiScore: row.reclame_aqui_score,
+    reclameAquiScore: row.reclame_aqui_score as ReputationRating | null,
   };
 }
 

@@ -139,8 +139,8 @@ export const companyFormFields = [
   },
   {
     key: "company.reclameAquiScore",
-    label: "Reclame Aqui: nota média dos últimos 12 meses",
-    kind: "score",
+    label: "Reclame Aqui: indicador de reputação dos últimos 12 meses",
+    kind: "choice",
     sourceSheet: "Form. Empresa",
     sourceRow: 27,
     section: "Avaliação do vendedor e da empresa pelo comprador",
