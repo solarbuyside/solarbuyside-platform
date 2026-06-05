@@ -68,7 +68,7 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
                 {block.text}
               </h2>
             ) : (
-              <p key={i} className="text-[15px] leading-relaxed text-slate-700">
+              <p key={i} className="text-justify text-[15px] leading-relaxed text-slate-700">
                 {block.text}
               </p>
             ),

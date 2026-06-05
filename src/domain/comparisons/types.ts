@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { reputationRatingSchema } from "./reputation";
+
 export const comparisonStatusSchema = z.enum(["draft", "ready_for_review", "completed"]);
 export const scoringModeSchema = z.enum(["auto", "manual"]);
 export type ScoringMode = z.infer<typeof scoringModeSchema>;
@@ -35,6 +37,8 @@ export const companyEvaluationSchema = z.object({
 });
 
 export const technicalEvaluationSchema = z.object({
+  // Consumo anual de energia que o sistema precisa compensar (kWh/ano).
+  annualConsumptionKwh: z.number().min(0).nullable().optional(),
   systemPowerKwp: z.number().min(0).nullable().optional(),
   monthlyGenerationKwh: z.number().min(0).nullable().optional(),
   annualGenerationKwh: z.number().min(0).nullable().optional(),
@@ -53,13 +57,13 @@ export const technicalEvaluationSchema = z.object({
   inverterDefectWarrantyYears: z.number().min(0).nullable().optional(),
   inverterCount: z.number().int().min(0).nullable().optional(),
   inverterOversizingRatio: z.number().min(0).nullable().optional(),
-  // Reclame Aqui (slide 12): nome do fornecedor + nota (0-10) separados.
+  // Reclame Aqui (slide 12): nome do fornecedor + categoria de reputação.
   distributorName: z.string().nullable().optional(),
-  distributorScore: z.number().min(0).max(10).nullable().optional(),
+  distributorScore: reputationRatingSchema.nullable().optional(),
   moduleMakerName: z.string().nullable().optional(),
-  moduleMakerScore: z.number().min(0).max(10).nullable().optional(),
+  moduleMakerScore: reputationRatingSchema.nullable().optional(),
   inverterMakerName: z.string().nullable().optional(),
-  inverterMakerScore: z.number().min(0).max(10).nullable().optional(),
+  inverterMakerScore: reputationRatingSchema.nullable().optional(),
   inverterReliability: triStateAnswerSchema.nullable().optional(),
   moduleReliability: triStateAnswerSchema.nullable().optional(),
   distributorReliability: triStateAnswerSchema.nullable().optional(),

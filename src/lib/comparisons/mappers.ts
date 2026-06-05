@@ -4,6 +4,7 @@ import type {
   FinancialEvaluation,
   TechnicalEvaluation,
 } from "@/domain/comparisons/types";
+import type { ReputationRating } from "@/domain/comparisons/reputation";
 
 type CompanyRow = Database["public"]["Tables"]["company_evaluations"]["Row"];
 type TechnicalRow = Database["public"]["Tables"]["technical_evaluations"]["Row"];
@@ -57,6 +58,7 @@ export function companyDomainToUpdate(value: CompanyEvaluation): CompanyUpdate {
 
 export function technicalRowToDomain(row: TechnicalRow): TechnicalEvaluation {
   return {
+    annualConsumptionKwh: row.annual_consumption_kwh,
     systemPowerKwp: row.system_power_kwp,
     monthlyGenerationKwh: row.monthly_generation_kwh,
     annualGenerationKwh: row.annual_generation_kwh,
@@ -76,11 +78,11 @@ export function technicalRowToDomain(row: TechnicalRow): TechnicalEvaluation {
     inverterCount: row.inverter_count,
     inverterOversizingRatio: row.inverter_oversizing_ratio,
     distributorName: row.distributor_name,
-    distributorScore: row.distributor_score,
+    distributorScore: row.distributor_score as ReputationRating | null,
     moduleMakerName: row.module_maker_name,
-    moduleMakerScore: row.module_maker_score,
+    moduleMakerScore: row.module_maker_score as ReputationRating | null,
     inverterMakerName: row.inverter_maker_name,
-    inverterMakerScore: row.inverter_maker_score,
+    inverterMakerScore: row.inverter_maker_score as ReputationRating | null,
     inverterReliability: row.inverter_reliability,
     moduleReliability: row.module_reliability,
     distributorReliability: row.distributor_reliability,
@@ -89,6 +91,7 @@ export function technicalRowToDomain(row: TechnicalRow): TechnicalEvaluation {
 
 export function technicalDomainToUpdate(value: TechnicalEvaluation): TechnicalUpdate {
   return {
+    annual_consumption_kwh: value.annualConsumptionKwh ?? null,
     system_power_kwp: value.systemPowerKwp ?? null,
     monthly_generation_kwh: value.monthlyGenerationKwh ?? null,
     annual_generation_kwh: value.annualGenerationKwh ?? null,

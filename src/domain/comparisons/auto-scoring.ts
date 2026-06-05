@@ -1,3 +1,4 @@
+import { reputationToScore } from "./reputation";
 import { scoreDefinitions } from "./score-definitions";
 import type {
   CompanyEvaluation,
@@ -146,7 +147,6 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
       // Proportional to need — without the target consumption we cannot judge;
       // leave for manual scoring.
       return null;
-    case "technical.monthly_generation":
     case "technical.annual_generation":
       // Coverage of consumption requires the consumption baseline; manual.
       return null;
@@ -156,14 +156,6 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
       if (w >= 550) return 10;
       if (w >= 450) return 7;
       if (w >= 350) return 4;
-      return 1;
-    }
-    case "technical.module_weight_kg": {
-      if (t.moduleWeightKg == null) return null;
-      const kg = t.moduleWeightKg;
-      if (kg <= 25) return 10;
-      if (kg <= 30) return 7;
-      if (kg <= 35) return 4;
       return 1;
     }
     case "technical.module_efficiency_pct": {
@@ -218,13 +210,13 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
       return yesNoScore(t.moduleReliability);
     case "technical.distributor_reliability":
       return yesNoScore(t.distributorReliability);
-    // Reclame Aqui (slide 12): a nota 0-10 digitada pelo comprador É a pontuação.
+    // Reclame Aqui (slide 12): a categoria de reputação vira nota 0-10.
     case "technical.reputation_distributor":
-      return clampScore(t.distributorScore);
+      return reputationToScore(t.distributorScore);
     case "technical.reputation_module_maker":
-      return clampScore(t.moduleMakerScore);
+      return reputationToScore(t.moduleMakerScore);
     case "technical.reputation_inverter_maker":
-      return clampScore(t.inverterMakerScore);
+      return reputationToScore(t.inverterMakerScore);
     // Brand/model criteria need a tier classification the interview does not
     // capture as a number — keep manual.
     case "technical.module_brand":
@@ -236,12 +228,6 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
     default:
       return null;
   }
-}
-
-/** Garante que a nota informada fique entre 0 e 10 (ou null se ausente). */
-function clampScore(value: number | null | undefined): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  return Math.min(10, Math.max(0, value));
 }
 
 // --- Financial criteria (Viabilidade) ---------------------------------------
@@ -301,7 +287,6 @@ const MANUAL_KEYS = new Set<string>([
   "company.seller_trust",
   "company.reclame_aqui",
   "technical.system_power_kwp",
-  "technical.monthly_generation",
   "technical.annual_generation",
   "technical.module_brand",
   "technical.module_model",

@@ -149,20 +149,20 @@ export const companyFormFields = [
 
 export const technicalFormFields = [
   {
+    key: "technical.annualConsumptionKwh",
+    label: "Consumo anual a compensar (kWh/ano)",
+    kind: "number",
+    sourceSheet: "Form. Tecnologico",
+    sourceRow: 9,
+    section: "Consumo de energia",
+  },
+  {
     key: "technical.systemPowerKwp",
     label: "Potência do sistema (kWp)",
     kind: "number",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 11,
     section: "Sistema solar fotovoltaico",
-  },
-  {
-    key: "technical.monthlyGenerationKwh",
-    label: "Geração mensal média (kWh)",
-    kind: "number",
-    sourceSheet: "Form. Tecnologico",
-    sourceRow: 13,
-    section: "Estimativa de geração de energia",
   },
   {
     key: "technical.annualGenerationKwh",
@@ -194,14 +194,6 @@ export const technicalFormFields = [
     kind: "number",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 18,
-    section: "Módulo fotovoltaico",
-  },
-  {
-    key: "technical.moduleWeightKg",
-    label: "Peso (kg)",
-    kind: "number",
-    sourceSheet: "Form. Tecnologico",
-    sourceRow: 19,
     section: "Módulo fotovoltaico",
   },
   {
@@ -302,8 +294,8 @@ export const technicalFormFields = [
   },
   {
     key: "technical.distributorScore",
-    label: "Nota da distribuidora (0 a 10)",
-    kind: "number",
+    label: "Indicadores de reputação",
+    kind: "choice",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 34,
     section: "Reclame Aqui",
@@ -318,15 +310,15 @@ export const technicalFormFields = [
   },
   {
     key: "technical.moduleMakerScore",
-    label: "Nota do fabricante de módulo (0 a 10)",
-    kind: "number",
+    label: "Indicadores de reputação",
+    kind: "choice",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 35,
     section: "Reclame Aqui",
   },
   {
     key: "technical.inverterMakerName",
-    label: "Reclame Aqui - fabricante de inversor de corrente",
+    label: "Fabricante de inversor de corrente (String, Microinversor ou Híbrido)",
     kind: "text",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 36,
@@ -334,8 +326,8 @@ export const technicalFormFields = [
   },
   {
     key: "technical.inverterMakerScore",
-    label: "Nota do fabricante de inversor (0 a 10)",
-    kind: "number",
+    label: "Indicadores de reputação",
+    kind: "choice",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 36,
     section: "Reclame Aqui",
@@ -449,7 +441,7 @@ export const financialFormFields = [
   },
   {
     key: "financial.annualReturnPct",
-    label: "Rentabilidade do capital em 1 ano (%)",
+    label: "Rentabilidade do capital por mês (%)",
     kind: "percentage",
     sourceSheet: "Form. Financeiro",
     sourceRow: 24,

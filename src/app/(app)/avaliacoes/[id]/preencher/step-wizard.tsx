@@ -29,6 +29,7 @@ import type {
   FinancialEvaluation,
   TechnicalEvaluation,
 } from "@/domain/comparisons/types";
+import { REPUTATION_OPTIONS } from "@/domain/comparisons/reputation";
 import { cn } from "@/lib/utils";
 import {
   saveCompanyEvaluationAction,
@@ -457,6 +458,10 @@ const CHOICE_OPTIONS: Record<string, { value: string; label: string }[]> = {
     { value: "low", label: "Baixa" },
     { value: "unknown", label: "Não sei" },
   ],
+  // Reputação (Reclame Aqui): categorias qualitativas (slide 12).
+  "technical.distributorScore": [{ value: "", label: "—" }, ...REPUTATION_OPTIONS],
+  "technical.moduleMakerScore": [{ value: "", label: "—" }, ...REPUTATION_OPTIONS],
+  "technical.inverterMakerScore": [{ value: "", label: "—" }, ...REPUTATION_OPTIONS],
 };
 
 // Campos que usam escala discreta de 1 a 10 (dropdown), conforme slide 8.
@@ -475,6 +480,13 @@ const RECLAME_AQUI_NAME_FIELDS = new Set([
   "technical.moduleMakerName",
   "technical.inverterMakerName",
 ]);
+
+// Placeholder específico de cada campo de nome do Reclame Aqui.
+const RECLAME_AQUI_NAME_PLACEHOLDER: Record<string, string> = {
+  "technical.distributorName": "Marca comercial completa da distribuidora",
+  "technical.moduleMakerName": "Marca comercial completa da fabricante de módulo",
+  "technical.inverterMakerName": "Marca comercial completa do fabricante de inversor",
+};
 
 // Campos de NOTA do Reclame Aqui: a busca usa o nome do campo irmão.
 const RECLAME_AQUI_SCORE_TO_NAME: Record<string, string> = {
@@ -537,6 +549,21 @@ export function InterviewForm({
                     systemKwp={Number.isFinite(systemKwp) ? systemKwp : null}
                     inverterKw={Number.isFinite(inverterKw) ? inverterKw : null}
                     storedRatio={getValue(fieldProp(field.key))}
+                    onCommit={(value) => onChange(fieldProp(field.key), value)}
+                  />
+                );
+              }
+              // ROI: calculado automaticamente = economia acumulada 25 anos / valor de venda.
+              if (field.key === "financial.roiMultiplier") {
+                const savings = Number(getValue("accumulatedSavings25Years"));
+                const investment = Number(getValue("totalInvestment"));
+                return (
+                  <RoiField
+                    key={field.key}
+                    field={field}
+                    savings={Number.isFinite(savings) ? savings : null}
+                    investment={Number.isFinite(investment) ? investment : null}
+                    storedRoi={getValue(fieldProp(field.key))}
                     onCommit={(value) => onChange(fieldProp(field.key), value)}
                   />
                 );
@@ -615,7 +642,7 @@ export function FieldRow({
           defaultValue={(value as string) ?? ""}
           onBlur={(e) => onCommit(e.target.value.trim() === "" ? null : e.target.value.trim())}
           className={inputClass}
-          placeholder={isReclameAquiName ? "Nome do fornecedor (ex.: Aldo Solar)" : ""}
+          placeholder={isReclameAquiName ? RECLAME_AQUI_NAME_PLACEHOLDER[field.key] ?? "" : ""}
         />
         {isReclameAquiName && (
           <a
@@ -733,6 +760,58 @@ function OverloadField({
             : `${systemKwp} / ${inverterKw} = ${(Math.round(ratio * 100) / 100)
                 .toString()
                 .replace(".", ",")}`}
+        </span>
+      </div>
+    </label>
+  );
+}
+
+/**
+ * ROI (multiplicação por X vezes) calculado automaticamente.
+ * Fórmula: economia acumulada em 25 anos / valor de venda do sistema.
+ * Ex.: 369.162,43 / 17.690 = 20,86 (vezes).
+ */
+function RoiField({
+  field,
+  savings,
+  investment,
+  storedRoi,
+  onCommit,
+}: {
+  field: EvaluationFieldDefinition;
+  savings: number | null;
+  investment: number | null;
+  storedRoi: unknown;
+  onCommit: (value: unknown) => void;
+}) {
+  const roi =
+    savings != null && investment != null && investment > 0 ? savings / investment : null;
+
+  // Mantém o valor armazenado em sincronia com o cálculo.
+  React.useEffect(() => {
+    const current = typeof storedRoi === "number" ? storedRoi : null;
+    const next = roi != null ? Math.round(roi * 100) / 100 : null;
+    if (current !== next) {
+      onCommit(next);
+    }
+    // onCommit é estável o suficiente para o ciclo do formulário.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roi, storedRoi]);
+
+  const fmt = (n: number) =>
+    n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  return (
+    <label className="grid gap-1.5">
+      <span className="text-sm font-medium text-slate-700">{field.label}</span>
+      <div className="flex h-11 w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-800 shadow-sm">
+        <span className={roi == null ? "text-slate-400" : "font-semibold"}>
+          {roi == null ? "—" : `${fmt(Math.round(roi * 100) / 100)}x`}
+        </span>
+        <span className="text-[11px] text-slate-400">
+          {roi == null
+            ? "Preencha economia acumulada (25 anos) e valor de venda"
+            : `${fmt(savings as number)} / ${fmt(investment as number)}`}
         </span>
       </div>
     </label>

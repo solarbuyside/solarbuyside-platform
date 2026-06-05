@@ -21,7 +21,6 @@ import {
 import { cn } from "@/lib/utils";
 import { createComparisonDraftAction } from "../actions";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 const PRESET_PLACEHOLDERS = [
   "Ex: Soli Solar",
@@ -512,7 +511,7 @@ export function NovaForm({ savedCompanies }: { savedCompanies: SavedCompanyOptio
                   Objetivo Principal
                 </span>
                 <p>
-                  O assistente cria uma estrutura de rascunho. Posteriormente, você poderá preencher os detalhes técnicos, garantindo uma comparação baseada em dados reais e na planilha padrão de referência do Solar Buy-Side.
+                  O assistente serve apenas para criar uma estrutura inicial ou um modelo de comparação. Depois, você deverá inserir os dados técnicos reais das propostas para que a análise seja feita corretamente, utilizando as informações da planilha padrão do Solar Buy-Side.
                 </p>
               </div>
 
@@ -532,7 +531,7 @@ export function NovaForm({ savedCompanies }: { savedCompanies: SavedCompanyOptio
                   Como a pontuação é calculada?
                 </span>
                 <p>
-                  A plataforma pontua cada fornecedor baseado em critérios técnicos (garantias, equipamentos, potência) e na reputação comercial. Conforme as regras, o cálculo é feito em TypeScript puro isolado.
+                  A plataforma atribui uma pontuação a cada fornecedor com base em critérios técnicos e comerciais, como confiabilidade da empresa de solar, garantias, qualidade dos equipamentos, viabilidade econômico-financeira do investimento e reputação dos fabricantes e distribuidores. O cálculo é realizado automaticamente pelo sistema, seguindo regras objetivas e padronizadas, garantindo imparcialidade e consistência na avaliação.
                 </p>
               </div>
 
@@ -542,22 +541,6 @@ export function NovaForm({ savedCompanies }: { savedCompanies: SavedCompanyOptio
               </div>
             </CardContent>
           </Card>
-
-          {/* Dica do Especialista Widget */}
-          <div className="bg-gradient-to-r from-orange-500/5 to-amber-500/5 border border-primary/10 rounded-xl p-5 shadow-sm space-y-3 relative overflow-hidden">
-            <div className="absolute right-0 bottom-0 translate-x-4 translate-y-4 opacity-5">
-              <Zap className="h-28 w-28 text-primary" />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Badge variant="orange" className="text-[10px]">RECOMENDADO</Badge>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Dica do sistema</span>
-            </div>
-            <h4 className="text-sm font-bold text-slate-800">Agrupe propostas com prazos similares</h4>
-            <p className="text-xs text-slate-600 leading-normal">
-              Para obter uma matriz de viabilidade financeira coerente, tente cadastrar fornecedores cujos orçamentos possuam validades próximas.
-            </p>
-          </div>
 
         </div>
 

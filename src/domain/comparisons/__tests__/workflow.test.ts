@@ -40,18 +40,19 @@ describe("comparison workflow", () => {
 
   it("keeps field and scoring counts aligned with the source spreadsheet", () => {
     expect(companyFormFields).toHaveLength(13);
-    // Slide 12: cada item do Reclame Aqui virou nome + nota (24 -> 27 campos).
-    expect(technicalFormFields).toHaveLength(27);
+    // +1 consumo anual, -1 geração mensal, -1 peso do módulo (27 -> 26 campos).
+    expect(technicalFormFields).toHaveLength(26);
     expect(financialFormFields).toHaveLength(15);
 
     expect(companyScoreDefinitions).toHaveLength(13);
-    expect(technicalScoreDefinitions).toHaveLength(22);
+    // -1 geração mensal, -1 peso do módulo (22 -> 20 critérios).
+    expect(technicalScoreDefinitions).toHaveLength(20);
     // Slide 19: 4 critérios de viabilidade passam a pontuar (rubric provisório).
     // Slide 12: os 3 critérios de reputação do Reclame Aqui passam a contar.
     expect(comparisonWorkflowSummary.enabledCompanyCriteriaCount).toBe(13);
-    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(22);
+    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(20);
     expect(comparisonWorkflowSummary.enabledFinancialCriteriaCount).toBe(4);
-    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(39);
+    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(37);
     expect(comparisonWorkflowSummary.financialAffectsScore).toBe(true);
   });
 

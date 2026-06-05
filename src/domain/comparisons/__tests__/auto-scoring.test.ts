@@ -66,12 +66,15 @@ describe("auto-scoring — technical", () => {
     expect(isManualCriterion("company.crea_registration")).toBe(false);
   });
 
-  it("scores Reclame Aqui reputation from the typed note (slide 12)", () => {
-    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, { distributorScore: 6.8 }))).toBe(6.8);
-    expect(autoScoreFor("technical.reputation_module_maker", "technical", competitor({}, { moduleMakerScore: 9 }))).toBe(9);
-    expect(autoScoreFor("technical.reputation_inverter_maker", "technical", competitor({}, { inverterMakerScore: 12 }))).toBe(10);
+  it("scores Reclame Aqui reputation from the chosen category (slide 12)", () => {
+    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, { distributorScore: "bom" }))).toBe(7);
+    expect(autoScoreFor("technical.reputation_module_maker", "technical", competitor({}, { moduleMakerScore: "otimo" }))).toBe(9);
+    expect(autoScoreFor("technical.reputation_inverter_maker", "technical", competitor({}, { inverterMakerScore: "ra_1000" }))).toBe(10);
+    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, { distributorScore: "nao_recomendado" }))).toBe(1);
+    // "Em análise" e "Sem reputação definida" não pontuam.
+    expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, { distributorScore: "em_analise" }))).toBeNull();
     expect(autoScoreFor("technical.reputation_distributor", "technical", competitor({}, {}))).toBeNull();
-    // A reputação deixou de ser manual — a nota digitada já é a pontuação.
+    // A reputação deixou de ser manual — a categoria escolhida já é a pontuação.
     expect(isManualCriterion("technical.reputation_distributor")).toBe(false);
   });
 });

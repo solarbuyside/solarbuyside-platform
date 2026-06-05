@@ -138,6 +138,7 @@ export type Database = {
           id: string;
           comparison_id: string;
           competitor_id: string;
+          annual_consumption_kwh: number | null;
           system_power_kwp: number | null;
           monthly_generation_kwh: number | null;
           annual_generation_kwh: number | null;
@@ -157,11 +158,11 @@ export type Database = {
           inverter_count: number | null;
           inverter_oversizing_ratio: number | null;
           distributor_name: string | null;
-          distributor_score: number | null;
+          distributor_score: string | null;
           module_maker_name: string | null;
-          module_maker_score: number | null;
+          module_maker_score: string | null;
           inverter_maker_name: string | null;
-          inverter_maker_score: number | null;
+          inverter_maker_score: string | null;
           inverter_reliability: "yes" | "no" | "unknown" | null;
           module_reliability: "yes" | "no" | "unknown" | null;
           distributor_reliability: "yes" | "no" | "unknown" | null;
@@ -173,6 +174,7 @@ export type Database = {
           id?: string;
           comparison_id: string;
           competitor_id: string;
+          annual_consumption_kwh?: number | null;
           system_power_kwp?: number | null;
           monthly_generation_kwh?: number | null;
           annual_generation_kwh?: number | null;
@@ -192,11 +194,11 @@ export type Database = {
           inverter_count?: number | null;
           inverter_oversizing_ratio?: number | null;
           distributor_name?: string | null;
-          distributor_score?: number | null;
+          distributor_score?: string | null;
           module_maker_name?: string | null;
-          module_maker_score?: number | null;
+          module_maker_score?: string | null;
           inverter_maker_name?: string | null;
-          inverter_maker_score?: number | null;
+          inverter_maker_score?: string | null;
           inverter_reliability?: "yes" | "no" | "unknown" | null;
           module_reliability?: "yes" | "no" | "unknown" | null;
           distributor_reliability?: "yes" | "no" | "unknown" | null;

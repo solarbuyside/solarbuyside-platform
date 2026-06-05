@@ -9,6 +9,7 @@ import {
   technicalScoreDefinitions,
   financialScoreDefinitions,
 } from "./score-definitions";
+import { REPUTATION_LABEL } from "./reputation";
 import type {
   CompanyEvaluation,
   TechnicalEvaluation,
@@ -96,6 +97,7 @@ function buildRows(
 // Os nomes do Reclame Aqui (slide 12) são informativos; a NOTA correspondente
 // é que pontua, casando com os critérios reputation_* na sequência.
 const INFORMATIONAL_PROPS = new Set<string>([
+  "annualConsumptionKwh",
   "moduleCount",
   "inverterCount",
   "distributorName",
@@ -158,6 +160,8 @@ const CHOICE_LABEL: Record<string, string> = {
   high: "Alta",
   medium: "Média",
   low: "Baixa",
+  // Categorias de reputação (Reclame Aqui).
+  ...REPUTATION_LABEL,
 };
 
 const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
