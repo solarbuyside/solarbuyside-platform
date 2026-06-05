@@ -694,6 +694,7 @@ export function FieldRow({
         value={value}
         prefix={prefix}
         suffix={suffix}
+        placeholder={FIELD_PLACEHOLDER[field.key]}
         inputClass={inputClass}
         onCommit={onCommit}
         onError={setLocalError}
@@ -818,6 +819,11 @@ function RoiField({
   );
 }
 
+// Placeholder de exemplo por campo numérico.
+const FIELD_PLACEHOLDER: Record<string, string> = {
+  "technical.annualConsumptionKwh": "ex: 750 kWh",
+};
+
 const currentYear = new Date().getFullYear();
 // Apenas estes campos são ANO DE CALENDÁRIO (validação de ano se aplica).
 // Os demais campos com "year" na key são durações (garantias em anos) ou
@@ -833,6 +839,7 @@ function NumberInput({
   value,
   prefix,
   suffix,
+  placeholder,
   inputClass,
   onCommit,
   onError,
@@ -841,6 +848,7 @@ function NumberInput({
   value: unknown;
   prefix: string | null;
   suffix: string | null;
+  placeholder?: string;
   inputClass: string;
   onCommit: (value: unknown) => void;
   onError: (msg: string | null) => void;
@@ -869,6 +877,7 @@ function NumberInput({
         step={isYear ? 1 : "any"}
         max={isYear ? currentYear : undefined}
         min={isYear ? 1900 : 0}
+        placeholder={placeholder}
         defaultValue={typeof value === "number" ? String(value) : ""}
         onChange={() => {
           if (invalid) {
