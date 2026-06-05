@@ -10,10 +10,11 @@
 Itens **1–11** (ajustes da comparação técnica/reputação/textos) → **FEITOS e no `main`**:
 - commit `0e40119` (itens 2–11) + `4f0e9d0` (placeholder "ex: 750 kWh" do consumo).
 
-⚠️ **PENDENTE DO USUÁRIO:** aplicar a **migration `0011`** no Supabase (consumo + reputação numeric→text).
-Sem ela, salvar a Proposta Técnica quebra em produção. SQL em
-`supabase/migrations/0011_technical_consumption_and_reputation.sql` → rodar no
-Supabase SQL Editor. (Ver §6 sobre por que o agente não aplica sozinho.)
+⚠️ **PENDENTE DO USUÁRIO:** aplicar as migrations **`0011`** e **`0012`** no Supabase.
+Sem elas, salvar a comparação quebra em produção. Rodar no Supabase SQL Editor:
+- `0011_technical_consumption_and_reputation.sql` (consumo + reputação dos 3 campos técnicos).
+- `0012_company_reclame_aqui_reputation.sql` (Reclame Aqui da empresa numeric→text).
+(Ver §6 sobre por que o agente não aplica sozinho.)
 
 Itens **12 (Brevo) + 13 (Greenn)** → **decisões fechadas, build NÃO começado.** Este doc.
 
