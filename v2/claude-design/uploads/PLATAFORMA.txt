@@ -1,0 +1,664 @@
+================================================================================
+                   SOLAR BUY-SIDE — VISÃO GERAL DA PLATAFORMA
+================================================================================
+
+OBJETIVO DA PLATAFORMA
+----------------------
+A Solar Buy-Side é uma landing page de venda direta do "Manual Solar Buy-Side",
+um produto digital (PDF/e-book interativo) voltado para profissionais de venda
+do setor de energia solar fotovoltaica (Sell-Side). A proposta central é ensinar
+o vendedor a pensar como o comprador (Buy-Side) — entender critérios técnicos,
+gatilhos de decisão e dores reais do cliente — para sair da disputa por preço e
+passar a "vender decisões", não concessões.
+
+A plataforma converte o visitante de duas formas principais:
+  1) Compra direta do Manual + bônus, via checkout externo (Greenn / greenn.com.br).
+  2) Captação de leads pela newsletter e pelo lead magnet (teaser gratuito em PDF
+     do "Código do Vendedor Consultivo"), que pede nome, sobrenome, e-mail e
+     celular antes de liberar o material.
+
+================================================================================
+PARCERIA / DONOS DO PRODUTO
+================================================================================
+
+O produto é tocado por DOIS parceiros, apresentados como autores e referências
+técnicas — um do lado da compra e outro do lado da venda — para legitimar a
+abordagem "dual" do método:
+
+• FRANCIS POLONI
+  Tag: Especialista Visão Buy-Side (Comprador)
+  Experiência: +7 anos
+  Bio: Atua desde 2018 no setor de integração fotovoltaica e consultoria,
+  onde assessorou tanto no lado do comprador (Buy-Side) quanto no lado do
+  vendedor (Sell-Side), ajudando na tomada de decisões inteligentes e seguras.
+
+• OVÍDIO COLLESI
+  Tag: Especialista Visão Sell-Side (Vendedor)
+  Experiência: +5 anos
+  Bio: Com vasta experiência em venda e pós-venda no setor de energia solar
+  fotovoltaica desde 2020, teve passagens por marketplaces, distribuidores,
+  integração solar e certificadora, trazendo uma visão completa do lado do
+  vendedor e do suporte técnico.
+
+Empresa por trás:
+  Razão social: Buy-Side Soluções Inova Simples
+  Nome comercial: Buy-Side Soluções
+  CNPJ: 55.463.06/0001-80
+  Endereço: Torre Norte — Av. Bento Munhoz da Rocha Neto, 632,
+           19º Andar, Salas 1905 a 1908 — Zona 7, Maringá - PR, 87030-010
+  E-mail: contato@buyside.com.br
+  Domínio: solarbuyside.com.br
+
+================================================================================
+CORES DA MARCA
+================================================================================
+
+Paleta institucional (sem amarrar a seções):
+
+  Laranja (cor primária da marca, usada como destaque/CTA):
+    #F97316 (orange-600) — laranja principal
+    #FF7A1A (orange-500) — variação
+    #EA580C — hover/pressionado
+    #FF8C3A — hover claro
+
+  Azul-marinho / fundos escuros institucionais:
+    #020617 — preto-azulado (fundo principal escuro)
+    #0B1224 (navy-950)
+    #0F172A (navy-900)
+    #141F38 (navy-800)
+    #1E293B (navy-700)
+    #001529 — usado no rodapé
+    #0B1120 — variação escura
+    #0F1C36 / #122242 — gradiente de cartões escuros
+    #010413 — fundo profundo de seção de oferta
+
+  Cinza / neutros (texto e superfícies claras):
+    #E2E8F0 (slate-200)
+    #CBD5F5 (slate-300)
+    #64748B (slate-500)
+    #475569 (slate-600)
+    #1D1D1F — texto preto principal
+    #6E6E73 / #86868B — cinzas de apoio
+    #F5F5F7 / #FBFBFD — fundos claros
+    #FFFFFF — branco
+
+  Cores de status / acentos secundárias:
+    #22C55E (green-500) e #16A34A — sucesso
+    #25D366 — verde do WhatsApp
+    #0EA5E9 (teal-500)
+    #60A5FA / #3B82F6 — azuis de destaque (gradiente "cms-gradient-blue")
+    #8B5CF6 (purple-500)
+
+  Tipografia da marca:
+    Display: Sora
+    Texto corrido: Manrope
+
+================================================================================
+PÁGINAS DA PLATAFORMA
+================================================================================
+
+A plataforma tem as seguintes rotas:
+
+  /                          Landing page principal (venda do Manual)
+  /admin                     Painel administrativo (CMS interno: login + abas
+                             para editar textos, imagens, links de WhatsApp e
+                             link de compra)
+  /politica-de-privacidade   Política de Privacidade
+  /termos-de-uso             Termos de Uso
+  /medidas-antipiratarias    Medidas Antipirataria
+
+A landing page é uma página longa, composta pelos blocos abaixo (na ordem em
+que aparecem no fluxo): Cabeçalho fixo, CTA flutuante, Hero, Panorama 2026,
+Vídeo, Para Quem é, Manual Estratégico, Depoimento Rodrigo, Story Bridge,
+Código do Vendedor, Oferta (1ª chamada de preço), Buyer Wave + depoimentos
+de compradores, Autoridade (os dois sócios), Oferta Final (2ª chamada de
+preço), Lead Magnet (teaser gratuito), Newsletter, FAQ, Contato e Rodapé.
+
+================================================================================
+SEÇÃO DE CONVERSÃO — CHECKOUT GREENN
+================================================================================
+
+A LP tem duas seções idênticas de Oferta/Pricing (uma no meio, outra mais ao
+final) que disparam um clique para um link externo de checkout configurado
+no CMS como `purchaseLink`. Esse link aponta para a plataforma GREENN
+(greenn.com.br), que processa pagamento, regras de reembolso e atendimento
+do cliente. Termos legais explícitos no site:
+
+  "As condições para efetivação do reembolso pautam-se nas Regras Gerais
+  estabelecidas pela plataforma GREENN. Para informações adicionais e
+  consulta integral às diretrizes aplicáveis, o Comprador poderá acessar:
+  https://greenn.com.br/termos-de-compra-greenn/"
+
+  "Canal de Reclamações: O Comprador pode solicitar cancelamento de sua
+  compra de maneira independente, através do link
+  www.reclamacao.greenn.com.br"
+
+Existe também um CTA flutuante persistente e um botão no header ("Garantir
+Acesso") apontando para a mesma âncora #oferta / mesmo link de compra.
+
+Garantia: 7 dias corridos para reembolso integral sem justificativa,
+conforme art. 49 do CDC. Estorno em até 7 dias úteis no mesmo meio de
+pagamento (cartão, PIX ou boleto).
+
+Meios de pagamento exibidos: Visa, Mastercard, PIX e Boleto. Selo de
+"Compra Segura" e selo de garantia de 7 dias.
+
+================================================================================
+CAPTAÇÃO DE LEADS — NEWSLETTER + EBOOK TEASER
+================================================================================
+
+Há duas captações independentes:
+
+1) NEWSLETTER
+   Formulário simples (apenas e-mail). Ao enviar, salva o lead no backend e
+   também dispara notificação por e-mail via FormSubmit para
+   contato@buyside.com.br. Lead também é integrado ao Brevo (lista de
+   newsletter) com e-mail de boas-vindas.
+
+   Texto da seção:
+     Título: "Fique por dentro das novidades"
+     Subtítulo: "Cadastre seu e-mail para receber lançamentos exclusivos,
+                 atualizações e conteúdos sobre o mercado solar."
+     Placeholder: "seu@email.com"
+     Botão: "Cadastrar"
+     Sucesso (botão): "Cadastrado!"
+     Sucesso (msg): "E-mail cadastrado com sucesso! Fique atento às novidades."
+     Privacidade: "🔒 Seus dados estão seguros conosco. Não compartilhamos
+                   com terceiros."
+
+2) LEAD MAGNET — TEASER DO "CÓDIGO DO VENDEDOR CONSULTIVO"
+   Botão "Baixar Teaser Gratuito" abre modal pedindo Nome, Sobrenome, E-mail
+   e Celular. Ao enviar, registra no backend, dispara FormSubmit e integra ao
+   Brevo (lista de ebook) com e-mail de boas-vindas/entrega.
+
+   Texto da seção:
+     Badge: "Conteúdo Exclusivo"
+     Título: "Ainda com dúvidas?"
+     Subtítulo: "Garanta agora seu teaser grátuito do Código do Vendedor
+                 Consultivo e comece a vender decisão, não preço!"
+     Features:
+       - "Veja o processo de compra pelos olhos do cliente"
+       - "Aprenda a conduzir o comprador até a decisão certa"
+       - "Blindagem contra o leilão reverso de preços"
+       - "Método exclusivo Buy-Side para o mercado solar brasileiro"
+     CTA: "Baixar Teaser Gratuito"
+     CTA subtext: "PDF Interativo • 5 páginas • Acesso imediato"
+     Modal título: "Baixe seu E-book"
+     Modal subtítulo: "Preencha seus dados para receber o E-book Manual
+                       Solar Buy-Side"
+     Sucesso título: "Perfeito!"
+     Sucesso msg: "Confira seu e-mail para baixar o E-book Manual Solar
+                   Buy-Side"
+
+================================================================================
+TODOS OS TEXTOS DA LANDING PAGE
+================================================================================
+
+HEADER FIXO
+-----------
+Logo: "Solar Buy-Side"
+Menu (desktop e mobile):
+  Panorama  |  Vídeo  |  Para Quem  |  Mentor  |  FAQ
+Botão direito: "Garantir Acesso"
+
+HERO (primeira dobra)
+---------------------
+Badge: "Inteligência de Mercado 2026"
+Título: "Transforme-se no Vendedor Ideal."
+Variação alternativa do título: "Saia da Disputa de Preço e Passe a Vender
+Decisões em Sistema Solar"
+Subtítulo (1ª linha): "Aprenda como o seu cliente pensa e fuja da guerra de
+preços com o"
+Subtítulo (2ª linha, destaque): "Manual Solar Buy-Side."
+Subtítulo alternativo: "O método Buy-Side ensina você a pensar como o
+cliente e conduzir decisões de compra, não disputas de preço."
+Bônus badge: "Bônus Exclusivo"
+Bônus título: "O Código do Vendedor Consultivo"
+Bônus subtítulo: "Para quem quer conduzir decisões, não concessões."
+Manual título: "Manual Solar Buy-Side"
+Manual subtítulo: "Construído a partir da observação real de como
+compradores decidem, na prática."
+CTA: "Entenda a Lógica"
+CTA subtext: "Acesso imediato ao Manual Solar Buy-Side."
+Scroll hint: "Entenda a lógica"
+
+PANORAMA 2026 (contexto)
+------------------------
+Badge: "Vision 2026"
+Título: "Panorama 2026"
+Subtítulo: "Pode parecer exagero, mas em breve cada vez mais compradores de
+sistema fotovoltaico estarão informados."
+Card 1: "Saberão analisar — Compararão propostas com precisão técnica
+superior à média do mercado."
+Card 2: "Analisarão fundo — Fornecedores e tecnologias passarão por um
+crivo muito mais rigoroso."
+Card 3: "Avaliarão risco — A confiabilidade da sua empresa será o fator
+decisivo antes de qualquer preço."
+Alerta título: "Quem não entender essa nova jornada vai perder vendas."
+Alerta subtítulo: "O cenário está evoluindo. Você está pronto?"
+Solução badge: "A Solução Definitiva"
+Solução título: "Ainda há tempo para reverter essa situação."
+Solução descrição: "O Manual de Compra Solar Buy-Side mapeia os novos
+gatilhos de decisão do cliente moderno, garantindo que você esteja do lado
+certo da venda."
+Checks: "Visão do Cliente" • "Gatilhos de Compra" • "Confiabilidade"
+CTA: "Garantir meu acesso agora"
+CTA subtext: "Download Imediato • PDF Interativo"
+
+SEÇÃO DE VÍDEO
+--------------
+Título: "Descubra o que o Manual ensina aos compradores e entenda as novas
+regras do jogo."
+Card 1 / Proteção — "Os 3 grandes RISCOS": Risco integrador (engenharia e
+suporte), técnico (equipamentos e garantias) e financeiro (payback e custo
+proprietário).
+Card 2 / Análise — "Comprador Informado": Como identificar promessas
+exageradas e indício de risco em propostas comerciais.
+Card 3 / Estratégia — "Jornada Planejada": As 4 fases da decisão de compra
+e os momentos exatos nos quais o vendedor perde a venda.
+Alerta badge: "Atenção Crítica"
+Alerta título: "Veja o porquê de muitos vendedores ficarem fora do jogo."
+Alerta subtítulo: "Não permita que isso aconteça com você."
+Vídeo badge: "Conteúdo Exclusivo"
+Vídeo título: "A Nova Realidade Solar"
+Duração: "03:54"
+Player: Wistia (media-id u0jf5yyoda)
+CTA: "Quero sair na frente e vender mais"
+
+PARA QUEM É (audiência)
+-----------------------
+Título: "Quem REALMENTE precisa desse conhecimento?"
+Subtítulo: "Veja para quem o Manual Solar Buy-Side é essencial:"
+
+Perfil 1 — ESTRUTURADOS — "Empresas de Integração Solar":
+  "Para vender valor, fugir da guerra dos preços e fechar mais projetos."
+  Bullets: "Vender valor" • "Fechar mais projetos"
+
+Perfil 2 — STARTUPS — "Empreendedores Iniciantes":
+  "Para construir um negócio sólido desde o primeiro passo na integração
+   solar."
+  Bullets: "Base sólida" • "Autoridade desde o dia 1"
+
+Perfil 3 — VENDAS — "Representantes Comerciais":
+  "Para aumentar sua taxa de conversão reduzindo sua taxa de desconto."
+  Bullets: "Menos desconto" • "Mais conversão"
+
+Fecho: "Não importa em qual ponto da cadeia você está, o Manual Solar
+Buy-Side não é apenas um guia, mas uma imersão completa na perspectiva do
+comprador."
+
+MANUAL ESTRATÉGICO
+------------------
+Badge: "A ferramenta estratégica"
+Título: "Manual Solar Buy-Side"
+Subtítulo: "A ferramenta estratégica que todo vendedor do setor solar
+precisa ter."
+CTA: "QUERO VENDER COM ESTRATÉGIA AVANÇADA"
+
+Descrição 1: "O Manual de Compra Solar Buy-Side é uma leitura essencial
+para profissionais do setor de vendas (Sell-Side) que desejam se destacar
+em um mercado ultracompetitivo."
+Descrição 2: "Ao proporcionar uma imersão na jornada de compra sob a ótica
+do comprador, este manual oferece uma compreensão estratégica dos
+critérios, motivações e desafios enfrentados pelo lado comprador
+(Buy-Side)."
+Descrição 3: "Ao dominar o conceito Buy-Side, vendedores estarão aptos a
+lapidar sua abordagem comercial, entregar valor real, distanciar-se da
+briga por preço e elevar sua credibilidade no relacionamento com os
+clientes."
+
+Bloco "O que o vendedor vai dominar":
+  - Dores reais do cliente: "Compreende o que realmente pesa na decisão,
+    não apenas o que ele diz na reunião."
+  - Postura consultiva: "Não dispute por preço, dispute por valor. Ajude o
+    cliente a decidir com segurança e fortaleça uma relação de longo prazo."
+  - Valor técnico e econômico: "Demonstra, de forma fundamentada, como o
+    valor técnico da solução se converte em benefício econômico."
+
+Bloco "Principais focos e habilidades":
+  - Apresentações persuasivas: "Estruture propostas objetivas e
+    transparentes que facilitam a decisão do cliente."
+  - Domine a Venda: "Conquiste autoridade e crie conexões reais para fechar
+    mais negócios."
+  - Menos desconto, mais margem: "Argumente com precisão e preserve sua
+    comissão sem perder vendas."
+
+DEPOIMENTO PRINCIPAL — RODRIGO (Integrador Solar / SP)
+------------------------------------------------------
+Título: "Em um mês fechei 5 sistemas novos"
+Subtítulo: "Os benefícios são claros, e a prática comprova."
+Intro: "Veja a experiência de Rodrigo, Integrador de São Paulo"
+Stat label: "Crescimento" | Stat valor: "+5 Sistemas" | Stat sub: "Fechados
+em 30 dias"
+Quote 1: "Eu sofria com a concorrência acirrada e a baixa conversão. O
+Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e
+isso mudou o jogo."
+Quote 2: "Em um mês, fechei 5 sistemas novos. O mais gratificante, porém,
+foi a conexão. Deixei de ser apenas um vendedor e me tornei um verdadeiro
+parceiro para meus clientes."
+CTA título: "Faça como ele"
+CTA texto: "Imersão no Manual de Compra Solar Buy-Side: pense como seu
+cliente e torne-se um Vendedor de Alta Performance!"
+CTA botão: "Quero fechar mais projetos solares"
+
+STORY BRIDGE (ponte de história)
+--------------------------------
+Título: "A história de Rodrigo é apenas um exemplo do poder deste manual."
+Subtítulo: "Ele é uma ponte entre o comprador bem informado e o vendedor
+preparado, impulsionando negociações justas e satisfatórias."
+Features:
+  - Conteúdo Técnico: "Mais de 130 páginas com conteúdo técnico e
+    estratégico."
+  - Consulta Rápida: "160 tópicos organizados para consulta rápida."
+  - Jornada de Compra: "Uma metodologia em 4 fases que orienta toda a
+    jornada de compra."
+  - Suporte Decisório: "Anexos técnicos que auxiliam na tomada de decisão."
+
+CÓDIGO DO VENDEDOR CONSULTIVO (bônus)
+-------------------------------------
+Badge: "Oferta Especial"
+Título: "O Segredo por trás dos resultados: O Código do Vendedor Consultivo"
+Subtítulo: "Para dominar o Manual Solar Buy-Side, Rodrigo utilizou o Código
+do Vendedor Consultivo como seu mapa estratégico. Foi esse guia que o
+ensinou a pensar como um comprador, aplicando a lógica inversa que é o
+verdadeiro segredo por trás de seus resultados excepcionais."
+Bônus título: "ATIVO ESTRATÉGICO DE ALTO IMPACTO"
+Bônus subtítulo: "O método de imersão no Manual Solar Buy-Side para quem
+não aceita mais perder vendas por preço."
+E-book título: "E-book: O Código do Vendedor Consultivo"
+E-book subtítulo: idem acima.
+
+Lista "O que você vai dominar":
+  - Índice de Confiabilidade: "Aprenda a medir e provar a segurança da sua
+    proposta de forma estruturada e profissional."
+  - Ajuste de Precisão com Checklist: "Refine seus materiais de vendas com
+    base no que compradores realmente avaliam (e o que eles descartam)."
+  - Estratégia Anti-Leilão: "Saiba exatamente como agir com clientes
+    focados apenas em preço e recupere sua margem de lucro."
+  - Postura Consultiva de Elite: "Prepare-se para fechar contratos com
+    clientes técnicos e criteriosos que costumam ignorar vendedores comuns."
+
+OFERTA / PRICING (aparece duas vezes na página)
+-----------------------------------------------
+Badge: "Pré-venda profissional por tempo limitado"
+Título (1ª ocorrência): "NÃO PERCA TEMPO NEM POSIÇÃO NO MERCADO."
+Subtítulo (1ª): "O mercado solar não perdoa quem fica para trás. Garanta o
+método que os grandes players usam para dominar o Buy-Side."
+Título (2ª ocorrência): "ATENÇÃO: O TEMPO ESTÁ CORRENDO E QUEM AGIR
+PRIMEIRO, VENDE MAIS."
+Subtítulo (2ª): "Em um mercado competitivo, sua vantagem é o conhecimento."
+
+Cabeçalho lista: "VEJA TUDO QUE VOCÊ RECEBE:"
+
+Card 1 — Tag "MANUAL PRINCIPAL":
+  Título: "Manual Solar Buy-Side"
+  Descrição: "Acesso vitalício à bíblia da estratégia solar — 130 páginas,
+  160 tópicos e o Método em 4 Fases para dominar a compra."
+
+Card 2 — Tag "DIFERENCIAL ESTRATÉGICO":
+  Título: "Código do Vendedor Consultivo (26 páginas)"
+  Descrição: "26 páginas para vender decisão (não preço) — postura
+  consultiva, anti-leilão e fechamento técnico."
+
+Card 3 — Tag "BÔNUS ESPECIAL" / selo "Bônus Especial":
+  Título: "Turbina sua Equipe de Venda"
+  Descrição: "Licença de Uso Coletiva: até 10 cópias por CNPJ. Distribua
+  para todo o time comercial com máxima economia."
+
+Cartão de preço:
+  Plano badge: "Plano de Acesso"
+  Plano título: "Oferta Especial"
+  Preço de: "De R$ 997,00 por apenas:"
+  Parcelado: "12x de R$ 92,23"
+  À vista: "Ou R$ 897,00 à vista no PIX"
+  Botão (1ª): "ACESSAR O MANUAL AGORA"
+  Botão (2ª, final): "DESBLOQUEAR CONTEÚDO COMPLETO"
+  Timer label: "Sua oferta expira em:"
+
+Benefícios sob o botão:
+  - "Liberação imediata no seu e-mail"
+  - "Checkout 100% criptografado"
+  - "Acesso Imediato"
+
+Features extras (tags + textos):
+  - VITALÍCIO — "Manual Solar Buy-Side": "Acesso imediato à bíblia da
+    estratégia solar."
+  - TÉCNICO — "130 Páginas + 160 Tópicos": "Conteúdo denso e interativo.
+    Sem enrolação."
+  - ESTRATÉGIA — "Método em 4 Fases": "A jornada de compra completa
+    decifrada."
+  - EXCLUSIVO — "Anexos Técnicos": "Documentação exclusiva para pronta
+    aplicação."
+
+Selos: Garantia 7 dias, Visa, Mastercard, PIX, Boleto, Compra Segura.
+
+BUYER WAVE (depoimentos de compradores)
+---------------------------------------
+Badge: "Guia do Comprador"
+Título: "Descubra o que o manual ensina aos compradores e entenda as novas
+regras do jogo"
+Subtítulo: "Compradores estão evoluindo. Veja o que eles estarão aprendendo
+em breve."
+
+Card 1 — "O que o comprador vai dominar?":
+  - Conceitos essenciais para uma compra técnica e segura
+  - Reconhecimento de marcas e distribuidores de alta confiança
+  - Critérios para selecionar empresas sérias e competentes
+
+Card 2 — "Principais focos e Habilidades":
+  - Analisar propostas com critérios técnicos e financeiros
+  - Avaliar reputação e suporte de pós-venda com precisão
+  - Tomar decisão com segurança e embasamento técnico
+
+Carrossel de depoimentos: "As vozes de quem aprendeu — Relatos de
+compradores informados e preparados"
+
+Depoimento 1 — Ricardo (Empresário, São Paulo / SP)
+  Review título: "Errar na escolha de um fornecedor pode gerar prejuízo
+  enorme."
+  Quote: "No mundo dos negócios, errar na escolha de um fornecedor pode
+  gerar um prejuízo enorme. O manual foi indispensável para evitar
+  armadilhas, ensinando-me a identificar empresas despreparadas e
+  equipamentos duvidosos. Aprendi a buscar parceiros que garantem suporte
+  técnico e manutenção contínua. Graças ao Solar Buy-Side, fechei negócio
+  com a melhor empresa: meu investimento de R$ 195 mil foi muito bem
+  aplicado."
+  Highlight: "Mais que um guia, o Manual é o seguro que todo empresário
+  precisa para investir com risco controlado."
+
+Depoimento 2 — Guilherme (Particular, Santana de Parnaíba / SP)
+  Review título: "Decisão segura em investimento complexo."
+  Quote: "Resido na região de São Paulo, em uma residência de grande porte,
+  com elevado consumo elétrico e exposta a apagões frequentes, que podem
+  durar horas ou dias. Para reduzir a fatura e garantir conforto energético,
+  optei pela instalação de um sistema solar híbrido com baterias. Para
+  embasar um investimento de alta complexidade técnica e valor, utilizei
+  com sucesso o Manual de Compra Solar Buy-Side, que orientou todo o
+  processo de avaliação e decisão."
+  Highlight: "Para quem busca segurança e ganho de tempo, recomendo com
+  total confiança."
+
+Depoimento 3 — Jorge Luiz (Empresário, Rio de Janeiro / RJ)
+  Review título: "O manual foi o divisor de águas."
+  Quote: "Viver no Rio é aquilo: você tem que estar sempre ligado pra não
+  cair em furada. Quando precisei cortar os custos fixos da minha
+  metalúrgica, confesso que travei, porque de energia solar eu não entendia
+  nada. O manual foi o divisor de águas; me deu o mapa da mina pra estudar
+  as propostas e descartar de cara quem estava só no gogó. Investi R$ 188
+  mil com total segurança e o alívio já chegou no bolso."
+  Highlight: "O Manual valeu demais! Recomendo mesmo!"
+
+Depoimento 4 — Rogério (Particular, Campinas / SP)
+  Review título: "O manual valeu cada página."
+  Quote: "Eu nunca tinha tido contato com energia solar e temia tomar a
+  decisão errada, mas o conteúdo claro e estruturado mudou tudo. As 4 fases
+  da jornada de compra foram essenciais e o índice interativo, com mais de
+  160 tópicos, sanou todas as minhas dúvidas instantaneamente. No fim,
+  escolhi a empresa certa e o sistema ideal pelo preço justo, conduzindo a
+  negociação com total autoridade e segurança."
+  Highlight: "Sem exagero: o Manual Solar Buy-Side valeu cada página."
+
+Depoimento 5 — Lucineide (Particular, Recife / PE)
+  Review título: "Esse Manual foi realmente um passo a passo arretado!"
+  Quote: "Morando sozinha, a variedade de empresas e tecnologias me deixava
+  insegura. O manual foi o guia fundamental: seguindo cada etapa, aprendi a
+  avaliar propostas e descartar o que era bom demais para ser verdade. Com
+  total convicção, instalei meu sistema de R$ 28 mil. O passo a passo foi
+  arretado! No final, fui até elogiada pelos vendedores; eles nunca tinham
+  encontrado uma mulher com tanto conhecimento técnico."
+  Highlight: "O Solar Buy-Side me deu a segurança para decidir sem
+  arrependimentos."
+
+Depoimento 6 — Edivaldo (Produtor Rural, Sinop / MT)
+  Review título: "O Manual me deu segurança para investir R$ 248 mil."
+  Quote: "Sou produtor rural em Sinop/MT e decidi instalar energia solar
+  devido ao alto consumo na irrigação e maquinários. Com a expansão da
+  lavoura, a conta de luz pesava muito. O Manual Solar Buy-Side foi
+  essencial nesse processo: me ensinou a comparar propostas tecnicamente e
+  evitar erros caros que eu nem conhecia. O conteúdo me deu a segurança
+  necessária para realizar um investimento de R$ 248 mil."
+  Highlight: "Realmente é uma ferramenta indispensável para quem busca
+  eficiência no campo e proteção do capital."
+
+CTA da seção: "ACESSAR GUIA ESTRATÉGICO AGORA"
+
+AUTORIDADE (os dois sócios) — já listada acima
+----------------------------------------------
+Badge: "Experiência Dual"
+Título: "Este conteúdo foi concebido por quem domina, as duas perspectivas
+da mesa de negociação — a do comprador e a do vendedor."
+
+NEWSLETTER  — ver bloco "Captação de Leads" acima.
+
+FAQ
+---
+Título: "Ficou com dúvidas?"
+Subtítulo: "Nossa equipe de especialistas está pronta para ajudar você a
+entender como o Manual Buy-Side pode transformar sua operação comercial."
+CTA: "Fale com a equipe Buy-Side" (abre WhatsApp com mensagem pré-pronta
+"Tenho dúvidas sobre o Manual Solar Buy-Side")
+Section title: "Perguntas Frequentes"
+
+Pergunta 1: "Como acessar meu produto?"
+Resposta: "Após a confirmação do pagamento, você receberá um e-mail
+automático com o acesso ao Manual Solar Buy-Side em até alguns minutos.
+Caso não localize o e-mail na caixa de entrada, verifique também as pastas
+de spam e promoções. Em caso de dúvida, fale diretamente com nossa equipe
+pelo WhatsApp."
+
+Pergunta 2: "Como funciona o prazo de garantia e a solicitação de
+devolução?"
+Resposta: "Você tem até 7 dias corridos após a confirmação do pagamento
+para solicitar o reembolso integral, sem necessidade de justificativa,
+conforme prevê o Código de Defesa do Consumidor (art. 49). Esse é o nosso
+compromisso de garantia incondicional: se o conteúdo não for o que você
+esperava, basta nos avisar dentro do prazo."
+
+Pergunta 3: "Política de devolução: como proceder para o reembolso?"
+Resposta: "Para solicitar o reembolso dentro do prazo de 7 dias, entre em
+contato com nossa equipe pelo WhatsApp informando o e-mail utilizado na
+compra e o motivo (opcional). O estorno é processado em até 7 dias úteis,
+na mesma forma de pagamento utilizada — cartão, PIX ou boleto."
+
+CONTATO
+-------
+Título: "DADOS E CONTATOS"
+Subtítulo: "Transparência e clareza para você entrar em contato com total
+confiança."
+Empresa: "Buy-Side Soluções"
+CNPJ: 55.463.06/0001-80
+Endereço:
+  "Torre Norte - Av. Bento Munhoz da Rocha Neto, 632"
+  "19º Andar, Salas 1905 a 1908 - Zona 7,"
+  "Maringá - PR, 87030-010"
+E-mail: contato@buyside.com.br
+
+CTA FLUTUANTE
+-------------
+Texto: "ACESSAR O MANUAL AGORA" (link para checkout Greenn)
+
+RODAPÉ
+------
+Logo "Solar Buy-Side"
+Links:
+  - Política de Privacidade  -> /politica-de-privacidade
+  - Termos de Uso            -> /termos-de-uso
+  - Medidas Antipiratarias   -> /medidas-antipiratarias
+
+================================================================================
+PÁGINAS LEGAIS
+================================================================================
+
+POLÍTICA DE PRIVACIDADE — Seções:
+  1. Definições
+  2. Uso de Dados Pessoais
+  3. Não fornecimento de Dados Pessoais
+  4. Dados coletados
+  5. Compartilhamento de Dados Pessoais com terceiros
+  6. Transferências internacionais de Dados
+  7. Forma de coleta automática de Dados Pessoais
+  8. Direitos do Usuário
+  9. Segurança dos Dados Pessoais
+  10. Links de hipertexto para outros sites e redes sociais
+  11. Atualizações desta Política de Privacidade
+  12. Pessoa responsável do tratamento dos Dados Pessoais
+
+Resumo: descreve como Buy-Side Soluções coleta, usa, armazena e compartilha
+dados pessoais dos usuários da landing page e dos formulários (newsletter e
+ebook), com referências às leis brasileiras de proteção de dados.
+
+TERMOS DE USO — Seções:
+  1. Usuário
+  2. Adesão em conjunto com a Política de Privacidade
+  3. Condições de acesso
+  4. Cookies
+  5. Propriedade Intelectual
+  6. Links para sites de terceiros
+  7. Prazos e alterações
+  8. Dados pessoais
+  9. Contato
+
+Resumo: regras de navegação e uso do website; aceite implícito na
+navegação; propriedade intelectual de Buy-Side Soluções Inova Simples;
+contato pelo e-mail contato@buyside.com.br.
+
+MEDIDAS ANTIPIRATARIA — Seções:
+  1. Cláusula de Propriedade e Confidencialidade
+  2. Uso Restrito
+  3. Consequências Legais e Medidas Antipirataria
+
+Resumo: o Manual e o Código do Vendedor Consultivo são licenciados para uso
+individual (ou coletivo por CNPJ no caso da licença coletiva), proibida a
+revenda, redistribuição ou reprodução não autorizada, com previsão de
+medidas civis e criminais em caso de pirataria, e referências às regras da
+GREENN para casos de cancelamento e reembolso (links
+greenn.com.br/termos-de-compra-greenn e www.reclamacao.greenn.com.br).
+
+================================================================================
+INTEGRAÇÕES
+================================================================================
+
+  - Greenn (greenn.com.br): checkout, pagamentos, reembolsos e canal de
+    reclamações do comprador.
+  - Brevo (ex-Sendinblue): listas de newsletter e ebook + e-mail
+    transacional de boas-vindas/entrega.
+  - FormSubmit: notificação por e-mail dos novos cadastros para
+    contato@buyside.com.br.
+  - Wistia: hospedagem e player do vídeo institucional (id u0jf5yyoda,
+    duração 03:54).
+  - WhatsApp: canal de suporte/atendimento (link configurado no CMS,
+    usado no botão do FAQ e em CTAs).
+  - Backend Node próprio (em solar-buy-side-v2.onrender.com em produção)
+    expondo /api/newsletter/subscribe, /api/ebook/lead, /api/content/*
+    para alimentar o CMS interno (/admin).
+
+================================================================================
+RESUMO DA PROPOSTA DE VALOR EM UMA LINHA
+================================================================================
+
+"Saia da disputa de preço e passe a vender decisões em sistema solar":
+um manual estratégico de 130 páginas e 160 tópicos, somado a um e-book
+bônus (Código do Vendedor Consultivo) e licença coletiva por CNPJ, vendido
+em pré-venda por 12x de R$ 92,23 (ou R$ 897 à vista no PIX), com garantia
+de 7 dias e checkout via Greenn, e captação contínua de leads pela
+newsletter e por um teaser gratuito em PDF.

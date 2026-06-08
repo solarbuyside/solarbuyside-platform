@@ -1,0 +1,36 @@
+{
+  "name": "solar-buyside-api",
+  "version": "1.0.0",
+  "description": "API Backend para Solar Buy-Side LP",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed:content": "node scripts/seed_content_sections.js",
+    "seed:content:defaults": "node scripts/seed_content_sections.js --with-defaults",
+    "seed:content:force": "node scripts/seed_content_sections.js --force --with-defaults",
+    "migrate:content:section-id": "node scripts/migrate_content_sections_section_id.js"
+  },
+  "keywords": [
+    "api",
+    "solar",
+    "buyside"
+  ],
+  "author": "Solar Buy-Side",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "body-parser": "^1.20.2",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "generatedAt": "2026-05-05T13:17:56.623Z",
+  "sectionCount": 18,
+  "sectionDiffs": [],
+  "assetChecks": [
+    {
+      "section": "manual-strategic",
+      "key": "manual",
+      "value": "/assets/manual.jpg.png",
+      "exists": true,
+      "localLength": 1170315,
+      "remoteLength": 1170315,
+      "hashesMatch": true,
+      "localHash": "FE6D7057FAEF10AC610DE36B9AC16BBCAE27810495655D8FE6649AFC0E0EE80D",
+      "remoteHash": "FE6D7057FAEF10AC610DE36B9AC16BBCAE27810495655D8FE6649AFC0E0EE80D",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "hero",
+      "key": "heroImage",
+      "value": "/assets/GED9CF_1_cleanup.PNG",
+      "exists": true,
+      "localLength": 913152,
+      "remoteLength": 913152,
+      "hashesMatch": true,
+      "localHash": "BFA6052FAB5EA2F670563E3A12FCE94A2D21E98A30917C3073115B7258D4C1E6",
+      "remoteHash": "BFA6052FAB5EA2F670563E3A12FCE94A2D21E98A30917C3073115B7258D4C1E6",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "seller-code",
+      "key": "book",
+      "value": "/assets/MOCKUP_3 (1).PNG",
+      "exists": true,
+      "localLength": 2002273,
+      "remoteLength": 2002273,
+      "hashesMatch": true,
+      "localHash": "8C39203227BCE5CCAFFEECB1009A3F6DEC4655A4CF176FFFB8D7B7C529DB5932",
+      "remoteHash": "8C39203227BCE5CCAFFEECB1009A3F6DEC4655A4CF176FFFB8D7B7C529DB5932",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "seller-code",
+      "key": "bookImage",
+      "value": "/assets/MOCKUP_3 (1).PNG",
+      "exists": true,
+      "localLength": 2002273,
+      "remoteLength": 2002273,
+      "hashesMatch": true,
+      "localHash": "8C39203227BCE5CCAFFEECB1009A3F6DEC4655A4CF176FFFB8D7B7C529DB5932",
+      "remoteHash": "8C39203227BCE5CCAFFEECB1009A3F6DEC4655A4CF176FFFB8D7B7C529DB5932",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "pix",
+      "value": "/assets/Pix.png",
+      "exists": true,
+      "localLength": 60751,
+      "remoteLength": 60751,
+      "hashesMatch": true,
+      "localHash": "B1646293C3D832EA7F95ED6898084A3E79AC88CC0A20CC3D78FB928FED88AD81",
+      "remoteHash": "B1646293C3D832EA7F95ED6898084A3E79AC88CC0A20CC3D78FB928FED88AD81",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "visa",
+      "value": "/assets/Visa.png",
+      "exists": true,
+      "localLength": 133686,
+      "remoteLength": 133686,
+      "hashesMatch": true,
+      "localHash": "FBEE7DABB55D5BD05E86CE595095BBBA18B77CF4D62B0D4761E8B327FEB793A8",
+      "remoteHash": "FBEE7DABB55D5BD05E86CE595095BBBA18B77CF4D62B0D4761E8B327FEB793A8",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "boleto",
+      "value": "/assets/Boleto.png",
+      "exists": true,
+      "localLength": 12964,
+      "remoteLength": 12964,
+      "hashesMatch": true,
+      "localHash": "25CC7A9D25ED7E353328E825C7974D1A15EA0266CCD18D93D14D71E4909D5C30",
+      "remoteHash": "25CC7A9D25ED7E353328E825C7974D1A15EA0266CCD18D93D14D71E4909D5C30",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "guarantee",
+      "value": "/assets/Garantia.png",
+      "exists": true,
+      "localLength": 104497,
+      "remoteLength": 104497,
+      "hashesMatch": true,
+      "localHash": "BD97E56F234146B9908047D44EDC0D06D65BD69568E0FDFB8A216BFD1CDFF4AB",
+      "remoteHash": "BD97E56F234146B9908047D44EDC0D06D65BD69568E0FDFB8A216BFD1CDFF4AB",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "mastercard",
+      "value": "/assets/Mastercard.png",
+      "exists": true,
+      "localLength": 61629,
+      "remoteLength": 61629,
+      "hashesMatch": true,
+      "localHash": "AEE320A17EF66873297529EB720924EF653022D1193FA81DA92E6951AFAFA77A",
+      "remoteHash": "AEE320A17EF66873297529EB720924EF653022D1193FA81DA92E6951AFAFA77A",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "pricing",
+      "key": "securePurchase",
+      "value": "/assets/Compra segura.png",
+      "exists": true,
+      "localLength": 93428,
+      "remoteLength": 93428,
+      "hashesMatch": true,
+      "localHash": "5A2DE152B46BC54847D1883C2F493F83DBAD410BBA9B6CB1F81CBC7213A01B9C",
+      "remoteHash": "5A2DE152B46BC54847D1883C2F493F83DBAD410BBA9B6CB1F81CBC7213A01B9C",
+      "remoteStatus": "200"
+    },
+    {
+      "section": "lead-magnet",
+      "key": "ebook",
+      "value": "data-uri",
+      "status": "embedded-in-cms"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Emails</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #F97316;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #F97316;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #FF8C3A;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Emails - Solar Buy-Side</h1>
+
+    <div class="form-group">
+        <h2>Teste Newsletter</h2>
+        <form id="newsletterForm">
+            <input type="email" id="newsletter-email" value="gab.feelix@gmail.com" placeholder="Email" required>
+            <button type="submit">Enviar Teste Newsletter</button>
+        </form>
+        <p id="newsletter-result"></p>
+    </div>
+
+    <div class="form-group">
+        <h2>Teste E-book Download</h2>
+        <form id="ebookForm">
+            <input type="text" id="nome" value="Gabriel" placeholder="Nome" required>
+            <input type="text" id="sobrenome" value="Felix" placeholder="Sobrenome" required>
+            <input type="email" id="email" value="gab.feelix@gmail.com" placeholder="Email" required>
+            <input type="tel" id="celular" value="(11) 99999-9999" placeholder="Celular" required>
+            <button type="submit">Enviar Teste E-book</button>
+        </form>
+        <p id="ebook-result"></p>
+    </div>
+
+    <script>
+        // Teste Newsletter
+        document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newsletter-email').value;
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('_subject', '🔔 Novo Cadastro Newsletter - Solar Buy-Side');
+            formData.append('_template', 'box');
+            formData.append('_captcha', 'false');
+            formData.append('_next', window.location.href);
+
+            try {
+                await fetch('https://formsubmit.co/gab.feelix@gmail.com', {
+                    method: 'POST',
+                    body: formData
+                });
+                document.getElementById('newsletter-result').innerHTML = '<span class="success">✓ Email de teste enviado!</span>';
+            } catch (error) {
+                document.getElementById('newsletter-result').innerHTML = '<span style="color:red">✗ Erro ao enviar</span>';
+            }
+        });
+
+        // Teste E-book
+        document.getElementById('ebookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('sobrenome', document.getElementById('sobrenome').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('celular', document.getElementById('celular').value);
+            formData.append('_subject', '📚 Novo Download E-book - Solar Buy-Side (TESTE)');
+            formData.append('_template', 'box');
+            formData.append('_captcha', 'false');
+            formData.append('_next', window.location.href);
+
+            try {
+                await fetch('https://formsubmit.co/gab.feelix@gmail.com', {
+                    method: 'POST',
+                    body: formData
+                });
+                document.getElementById('ebook-result').innerHTML = '<span class="success">✓ Email de teste enviado!</span>';
+            } catch (error) {
+                document.getElementById('ebook-result').innerHTML = '<span style="color:red">✗ Erro ao enviar</span>';
+            }
+        });
+    </script>
+</body>
+</html>

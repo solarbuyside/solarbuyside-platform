@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESTE - Verificação do Localhost</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #F97316; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button {
+            background: #F97316;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover { background: #EA580C; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .info {
+            background: #E0F2FE;
+            padding: 15px;
+            border-left: 4px solid #0284C7;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🔍 TESTE DE VERIFICAÇÃO</h1>
+        <p>Este arquivo testa se o servidor de desenvolvimento está funcionando corretamente.</p>
+
+        <div class="info">
+            <strong>📍 URL CORRETA:</strong><br>
+            <a href="http://localhost:5173" target="_blank">http://localhost:5173</a>
+        </div>
+
+        <button onclick="testarServidor()">🚀 TESTAR SERVIDOR LOCALHOST:5173</button>
+        <button onclick="abrirLocalhost()">🌐 ABRIR LOCALHOST:5173</button>
+
+        <div id="result"></div>
+    </div>
+
+    <div class="box">
+        <h2>✅ Checklist:</h2>
+        <ol>
+            <li>Você está acessando <code>http://localhost:5173</code>? (NÃO file:///)  </li>
+            <li>Deu hard refresh? (Ctrl + Shift + R)</li>
+            <li>Tentou limpar Application Storage no DevTools (F12)?</li>
+            <li>Tentou em aba anônima?</li>
+        </ol>
+    </div>
+
+    <div class="box">
+        <h2>⚙️ Como limpar TUDO:</h2>
+        <ol>
+            <li>Pressione <strong>F12</strong> para abrir DevTools</li>
+            <li>Vá em <strong>Application</strong> (ou Aplicativo)</li>
+            <li>Clique em <strong>Clear site data</strong></li>
+            <li>Clique em <strong>Clear</strong></li>
+            <li>Feche e abra o navegador novamente</li>
+            <li>Acesse: <a href="http://localhost:5173">http://localhost:5173</a></li>
+        </ol>
+    </div>
+
+    <script>
+        async function testarServidor() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Testando...</p>';
+
+            try {
+                const response = await fetch('http://localhost:5173');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #D1FAE5; color: #065F46; padding: 15px; border-radius: 5px;">
+                            <strong class="success">✅ SUCESSO!</strong><br>
+                            Servidor está rodando em <strong>localhost:5173</strong><br>
+                            Status: ${response.status}<br>
+                            <br>
+                            <strong>Clique no botão abaixo para abrir o site:</strong>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Resposta não OK');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #FEE2E2; color: #991B1B; padding: 15px; border-radius: 5px;">
+                        <strong class="error">❌ ERRO!</strong><br>
+                        Servidor NÃO está respondendo!<br>
+                        Erro: ${error.message}<br>
+                        <br>
+                        <strong>Verifique se o servidor está rodando</strong>
+                    </div>
+                `;
+            }
+        }
+
+        function abrirLocalhost() {
+            window.open('http://localhost:5173', '_blank');
+        }
+
+        // Testa automaticamente ao carregar
+        window.onload = () => {
+            setTimeout(testarServidor, 500);
+        };
+    </script>
+</body>
+</html>

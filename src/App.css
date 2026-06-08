@@ -1,0 +1,53 @@
+﻿.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes cardFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.card-float {
+  animation: cardFloat 6s ease-in-out infinite;
+}
+
+@keyframes typewriter {
+  from {
+    max-width: 0;
+  }
+  to {
+    max-width: 100%;
+  }
+}
+
+.typing-animation-solar {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 0.4s steps(5) forwards;
+}
+
+.typing-animation-buyside {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 0.5s steps(8) 0.4s forwards;
+  max-width: 0;
+}
+
+/* Compensar header fixo no scroll */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+div[id] {
+  scroll-margin-top: 80px;
+}
