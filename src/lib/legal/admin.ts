@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sanitizeRichText } from "@/lib/legal/rich";
 
 /** CRUD dos documentos legais no banco (scope: landing | platform). Server-only. */
 
@@ -53,9 +54,10 @@ export async function saveLegalDocBlocks(
   blocks: LegalBlockDb[],
 ): Promise<void> {
   const admin = createAdminClient();
+  const clean = blocks.map((b) => ({ type: b.type, text: sanitizeRichText(b.text) }));
   const { error } = await admin
     .from("legal_docs")
-    .update({ title, blocks, updated_at: new Date().toISOString() })
+    .update({ title, blocks: clean, updated_at: new Date().toISOString() })
     .eq("scope", scope)
     .eq("slug", slug);
   if (error) throw new Error(error.message);

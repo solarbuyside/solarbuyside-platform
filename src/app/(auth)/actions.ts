@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { isAdminEmail } from "@/lib/env";
-import { issueLoginCode, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
+import { issueLoginCode, make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -107,10 +107,25 @@ export async function updatePasswordAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password });
+  const { data: updated, error } = await supabase.auth.updateUser({ password });
 
   if (error) {
     redirectWith("/update-password", "error", "Nao foi possivel atualizar a senha.");
+  }
+
+  // Quem chega aqui veio do link de recuperação/acesso enviado ao próprio
+  // e-mail — ou seja, já provou posse do e-mail. Satisfaz o 2FA desta sessão
+  // (evita o /verificar redundante logo após o reset / 1º acesso da Greenn).
+  const userId = updated?.user?.id;
+  if (userId) {
+    const cookieStore = await cookies();
+    cookieStore.set(TWO_FA_COOKIE, make2faToken(userId), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 12, // 12h
+    });
   }
 
   revalidatePath("/", "layout");

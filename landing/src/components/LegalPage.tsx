@@ -9,6 +9,20 @@ type LegalSection = {
 
 type Block = { type: 'heading' | 'p'; text: string }
 
+// Só <strong>/<em> sobrevivem (espelha src/lib/legal/rich.ts da plataforma).
+function sanitizeRich(input: string): string {
+  if (!input) return ''
+  return input.replace(/<\/?[a-zA-Z][^>]*>/g, (tag) => {
+    const m = tag.match(/^<\/?\s*([a-zA-Z]+)/)
+    const name = m ? m[1].toLowerCase() : ''
+    const isClose = tag.startsWith('</')
+    if (name === 'strong' || name === 'b') return isClose ? '</strong>' : '<strong>'
+    if (name === 'em' || name === 'i') return isClose ? '</em>' : '<em>'
+    if (name === 'br') return ' '
+    return ''
+  })
+}
+
 type LegalPageProps = {
   title: string
   sections: LegalSection[]
@@ -54,13 +68,17 @@ export const LegalPage: React.FC<LegalPageProps> = ({ title, sections, slug }) =
           <div className="mt-10 space-y-4">
             {blocks.map((b, i) =>
               b.type === 'heading' ? (
-                <h2 key={i} className="pt-4 text-2xl md:text-3xl font-bold text-white">
-                  {b.text}
-                </h2>
+                <h2
+                  key={i}
+                  className="pt-4 text-2xl md:text-3xl font-bold text-white"
+                  dangerouslySetInnerHTML={{ __html: sanitizeRich(b.text) }}
+                />
               ) : (
-                <p key={i} className="text-slate-300 leading-relaxed text-base md:text-lg text-justify">
-                  {b.text}
-                </p>
+                <p
+                  key={i}
+                  className="text-slate-300 leading-relaxed text-base md:text-lg text-justify [&_strong]:font-semibold [&_strong]:text-white"
+                  dangerouslySetInnerHTML={{ __html: sanitizeRich(b.text) }}
+                />
               ),
             )}
           </div>

@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { LEGAL_DOCS, getLegalDoc } from "@/lib/legal/content";
 import { getLegalDocDb } from "@/lib/legal/admin";
+import { sanitizeRichText } from "@/lib/legal/rich";
 
 // Conteúdo vem do banco (editável no /admin); reflete edições sem deploy.
 export const dynamic = "force-dynamic";
@@ -74,13 +75,17 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
         <div className="mt-8 space-y-4">
           {found.blocks.map((block, i) =>
             block.type === "heading" ? (
-              <h2 key={i} className="pt-4 text-lg font-bold text-slate-900">
-                {block.text}
-              </h2>
+              <h2
+                key={i}
+                className="pt-4 text-lg font-bold text-slate-900"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(block.text) }}
+              />
             ) : (
-              <p key={i} className="text-justify text-[15px] leading-relaxed text-slate-700">
-                {block.text}
-              </p>
+              <p
+                key={i}
+                className="text-justify text-[15px] leading-relaxed text-slate-700 [&_strong]:font-semibold [&_strong]:text-slate-900"
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(block.text) }}
+              />
             ),
           )}
         </div>

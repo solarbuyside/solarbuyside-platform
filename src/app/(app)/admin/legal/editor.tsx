@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Loader2, CircleAlert, Save, Plus, Trash2, ChevronUp, ChevronDown, Heading, Pilcrow } from "lucide-react";
+import { Check, Loader2, CircleAlert, Save, Plus, Trash2, ChevronUp, ChevronDown, Heading, Pilcrow, Bold } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LegalDocDb, LegalBlockDb } from "@/lib/legal/admin";
@@ -120,15 +120,15 @@ export function LegalEditor({ docs }: { docs: LegalDocDb[] }) {
                     <IconBtn onClick={() => removeBlock(i)} icon={Trash2} danger />
                   </div>
                 </div>
-                <textarea
-                  value={b.text}
-                  onChange={(e) => updateBlock(i, { text: e.target.value })}
-                  rows={b.type === "heading" ? 1 : 3}
-                  className={cn(
-                    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15",
-                    b.type === "heading" ? "font-bold text-slate-900" : "text-slate-700",
-                  )}
-                />
+                {b.type === "heading" ? (
+                  <input
+                    value={b.text}
+                    onChange={(e) => updateBlock(i, { text: e.target.value })}
+                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  />
+                ) : (
+                  <RichEditor key={`${selected}-${i}`} value={b.text} onChange={(html) => updateBlock(i, { text: html })} />
+                )}
               </div>
             ))}
             <div className="flex gap-2">
@@ -142,6 +142,54 @@ export function LegalEditor({ docs }: { docs: LegalDocDb[] }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Editor de texto com negrito (WYSIWYG). Grava o HTML (só <strong> sobrevive). */
+function RichEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  // Sincroniza o DOM quando o valor muda por fora (troca de doc, mover bloco),
+  // mas nunca enquanto o campo está focado — evita o cursor "pular" ao digitar.
+  React.useEffect(() => {
+    const el = ref.current;
+    if (el && document.activeElement !== el && el.innerHTML !== value) el.innerHTML = value;
+  }, [value]);
+
+  const emit = () => {
+    if (ref.current) onChange(ref.current.innerHTML);
+  };
+  const toggleBold = () => {
+    ref.current?.focus();
+    document.execCommand("bold");
+    emit();
+  };
+
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center gap-2">
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            toggleBold();
+          }}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+          title="Negrito (selecione o texto e clique)"
+        >
+          <Bold className="h-3.5 w-3.5" />
+        </button>
+        <span className="text-[11px] text-slate-400">Selecione o texto e clique B para deixar em negrito.</span>
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={emit}
+        onBlur={emit}
+        className="min-h-[88px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-700 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15 [&_strong]:font-semibold [&_strong]:text-slate-900"
+      />
     </div>
   );
 }
