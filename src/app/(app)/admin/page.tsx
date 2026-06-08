@@ -30,14 +30,14 @@ export default async function AdminPage() {
         <div className="mt-4 flex flex-wrap gap-2.5">
           <Link
             href="/admin/landing"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 text-sm font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98]"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition-all hover:border-primary/40 hover:text-primary active:scale-[0.98]"
           >
             <FileText className="h-4 w-4" />
             Conteúdo da Landing
           </Link>
           <Link
             href="/admin/leads"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 text-sm font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98]"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition-all hover:border-primary/40 hover:text-primary active:scale-[0.98]"
           >
             <Users className="h-4 w-4" />
             Leads

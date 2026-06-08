@@ -1,14 +1,65 @@
 "use client";
 
 import * as React from "react";
-import { Check, Loader2, CircleAlert, Save, Image as ImageIcon, Type, Link2, MessageCircle } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  CircleAlert,
+  Save,
+  Image as ImageIcon,
+  Type,
+  Link2,
+  MessageCircle,
+  Pencil,
+  Eye,
+  RotateCw,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LandingSection, LandingGlobals } from "@/lib/landing/content-admin";
 import { saveLandingSectionAction, saveLandingGlobalAction } from "./actions";
 
+const LP_URL = "https://solarbuyside.com.br";
+
+// Ordem em que as seções aparecem na landing page.
+const LP_ORDER = [
+  "hero",
+  "context",
+  "video",
+  "audience",
+  "manual-strategic",
+  "testimonials",
+  "story-bridge",
+  "seller-code",
+  "pricing",
+  "buyer-wave",
+  "authority",
+  "lead-magnet",
+  "faq",
+  "newsletter",
+  "contact",
+  "terms-of-use",
+  "privacy-policy",
+  "antipiracy",
+];
+
+// section_id -> âncora (id) na landing, para o scroll do preview.
+const SECTION_ANCHOR: Record<string, string> = {
+  context: "contexto",
+  video: "video-section",
+  audience: "audiencia",
+  testimonials: "depoimentos",
+  pricing: "oferta",
+};
+
+function orderOf(id: string) {
+  const i = LP_ORDER.indexOf(id);
+  return i === -1 ? 999 : i;
+}
+
 type SaveState = "idle" | "saving" | "saved" | "error";
 type Draft = { texts: Record<string, string>; images: Record<string, string> };
+type Mode = "edit" | "preview";
 
 const GLOBAL_FIELDS: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "purchaseLink", label: "Link da venda (checkout Greenn)", icon: Link2 },
@@ -18,21 +69,40 @@ const GLOBAL_FIELDS: { key: string; label: string; icon: React.ComponentType<{ c
 ];
 
 export function LandingEditor({
-  sections,
+  sections: rawSections,
   globals,
 }: {
   sections: LandingSection[];
   globals: LandingGlobals;
 }) {
+  const sections = React.useMemo(
+    () => [...rawSections].sort((a, b) => orderOf(a.sectionId) - orderOf(b.sectionId)),
+    [rawSections],
+  );
+
   const [drafts, setDrafts] = React.useState<Record<string, Draft>>(() =>
     Object.fromEntries(sections.map((s) => [s.sectionId, { texts: { ...s.texts }, images: { ...s.images } }])),
   );
   const [selectedId, setSelectedId] = React.useState(sections[0]?.sectionId ?? "");
+  const [mode, setMode] = React.useState<Mode>("edit");
+  const [iframeKey, setIframeKey] = React.useState(0);
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
   const selected = sections.find((s) => s.sectionId === selectedId);
   const draft = drafts[selectedId] ?? { texts: {}, images: {} };
 
   const [state, setState] = React.useState<SaveState>("idle");
   const [pending, start] = React.useTransition();
+
+  // No preview, ao trocar de seção, manda o iframe rolar até a âncora.
+  React.useEffect(() => {
+    if (mode !== "preview") return;
+    const hash = SECTION_ANCHOR[selectedId] ?? selectedId;
+    const id = window.setTimeout(() => {
+      iframeRef.current?.contentWindow?.postMessage({ type: "scrollToSection", hash }, "*");
+    }, 400);
+    return () => window.clearTimeout(id);
+  }, [mode, selectedId, iframeKey]);
 
   function setText(k: string, v: string) {
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
@@ -58,7 +128,7 @@ export function LandingEditor({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      {/* ESQUERDA — globais + lista de seções */}
+      {/* ESQUERDA — globais + lista de seções (ordem da LP) */}
       <div className="space-y-4 lg:col-span-1">
         <GlobalsCard globals={globals} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -79,7 +149,7 @@ export function LandingEditor({
                   )}
                 >
                   <span className="truncate">{s.name || s.sectionId}</span>
-                  <span className={cn("ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold", count ? "bg-slate-100 text-slate-500" : "bg-slate-100 text-slate-300")}>
+                  <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
                     {count}
                   </span>
                 </button>
@@ -89,61 +159,119 @@ export function LandingEditor({
         </div>
       </div>
 
-      {/* DIREITA — edição da seção selecionada */}
+      {/* DIREITA — editor / preview */}
       <div className="lg:col-span-2">
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <div>
-              <h3 className="text-lg font-bold text-slate-900">{selected?.name || selectedId}</h3>
+          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+            <div className="min-w-0">
+              <h3 className="truncate text-lg font-bold text-slate-900">{selected?.name || selectedId}</h3>
               <span className="font-mono text-[11px] text-slate-400">{selectedId}</span>
             </div>
-            <SaveButton state={pending ? "saving" : state} onClick={saveSection} />
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                <ToggleBtn active={mode === "edit"} onClick={() => setMode("edit")} icon={Pencil} label="Editar" />
+                <ToggleBtn active={mode === "preview"} onClick={() => setMode("preview")} icon={Eye} label="Preview" />
+              </div>
+              {mode === "preview" ? (
+                <button
+                  onClick={() => setIframeKey((k) => k + 1)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition-all hover:border-primary/40 hover:text-primary"
+                  title="Recarregar preview (para ver alterações salvas)"
+                >
+                  <RotateCw className="h-3.5 w-3.5" />
+                  Recarregar
+                </button>
+              ) : (
+                <SaveButton state={pending ? "saving" : state} onClick={saveSection} />
+              )}
+            </div>
           </div>
-          <div className="space-y-6 p-6">
-            {textKeys.length === 0 && imageKeys.length === 0 && (
-              <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
-                Sem campos editáveis nesta seção (o texto é fixo no código da landing).
+
+          {mode === "preview" ? (
+            <div className="p-3">
+              <iframe
+                key={iframeKey}
+                ref={iframeRef}
+                src={LP_URL}
+                title="Preview da landing"
+                className="h-[70vh] w-full rounded-lg border border-slate-200"
+              />
+              <p className="px-2 pt-2 text-[11px] text-slate-400">
+                Após salvar, clique em “Recarregar” para ver as alterações na preview.
               </p>
-            )}
-            {textKeys.length > 0 && (
-              <div className="space-y-4">
-                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <Type className="h-3.5 w-3.5" /> Textos
+            </div>
+          ) : (
+            <div className="space-y-6 p-6">
+              {textKeys.length === 0 && imageKeys.length === 0 && (
+                <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
+                  Sem campos editáveis nesta seção (o texto é fixo no código da landing).
                 </p>
-                {textKeys.map((k) => (
-                  <label key={k} className="grid gap-1.5">
-                    <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
-                    <textarea
-                      value={draft.texts[k] ?? ""}
-                      onChange={(e) => setText(k, e.target.value)}
-                      rows={(draft.texts[k]?.length ?? 0) > 90 ? 3 : 1}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
-                    />
-                  </label>
-                ))}
-              </div>
-            )}
-            {imageKeys.length > 0 && (
-              <div className="space-y-4">
-                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <ImageIcon className="h-3.5 w-3.5" /> Imagens (URL)
-                </p>
-                {imageKeys.map((k) => (
-                  <label key={k} className="grid gap-1.5">
-                    <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
-                    <input
-                      value={draft.images[k] ?? ""}
-                      onChange={(e) => setImage(k, e.target.value)}
-                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
-                    />
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+              )}
+              {textKeys.length > 0 && (
+                <div className="space-y-4">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <Type className="h-3.5 w-3.5" /> Textos
+                  </p>
+                  {textKeys.map((k) => (
+                    <label key={k} className="grid gap-1.5">
+                      <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
+                      <textarea
+                        value={draft.texts[k] ?? ""}
+                        onChange={(e) => setText(k, e.target.value)}
+                        rows={(draft.texts[k]?.length ?? 0) > 90 ? 3 : 1}
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
+                      />
+                    </label>
+                  ))}
+                </div>
+              )}
+              {imageKeys.length > 0 && (
+                <div className="space-y-4">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <ImageIcon className="h-3.5 w-3.5" /> Imagens (URL)
+                  </p>
+                  {imageKeys.map((k) => (
+                    <label key={k} className="grid gap-1.5">
+                      <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
+                      <input
+                        value={draft.images[k] ?? ""}
+                        onChange={(e) => setImage(k, e.target.value)}
+                        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
+                      />
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+function ToggleBtn({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
+        active ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700",
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {label}
+    </button>
   );
 }
 
