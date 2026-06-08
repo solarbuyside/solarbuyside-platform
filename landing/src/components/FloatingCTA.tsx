@@ -6,7 +6,7 @@ import { trackBuyClick } from '../utils/analytics'
 const BLOCKING_SELECTORS = ['#oferta', '#oferta-final', '#faq', '#contact', 'footer']
 
 export const FloatingCTA: React.FC = () => {
-  const { getSection, globalSettings } = useContent()
+  const { getSection } = useContent()
   const section = getSection('pricing')
   const [isVisible, setIsVisible] = useState(false)
 
@@ -48,10 +48,15 @@ export const FloatingCTA: React.FC = () => {
 
   return (
     <a
-      href={globalSettings.purchaseLink || '#oferta'}
-      target={globalSettings.purchaseLink ? '_blank' : undefined}
-      rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
-      onClick={trackBuyClick}
+      href="#oferta"
+      onClick={(e) => {
+        trackBuyClick()
+        const target = document.getElementById('oferta')
+        if (target) {
+          e.preventDefault()
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }}
       className={`fixed bottom-6 right-6 z-40 hidden max-w-[320px] items-center gap-4 rounded-2xl border border-slate-700/80 bg-slate-950/95 px-4 py-3 text-slate-50 shadow-2xl shadow-slate-950/35 backdrop-blur-xl transition-all duration-300 md:flex ${
         isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-6 opacity-0'
       }`}
