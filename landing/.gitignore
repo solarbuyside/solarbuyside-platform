@@ -1,0 +1,83 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Environment variables - NEVER commit these
+.env
+.env.*
+!.env.example
+.env.local
+.env.production
+.env.development
+*.local
+secrets.*
+.my.cnf
+admin_passwords.*
+
+# Temporary editor backup files
+*.tmp.*
+backend/.local/
+
+# Claude CLI local files
+.claude/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+*:Zone.Identifier
+
+# Office / reference docs (não versionar)
+*.docx
+*.doc
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+*.pdf
+!public/assets/*.pdf
+!public_html/assets/*.pdf
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+*.tmp
+*.bak
+*~
+
+# Deployment
+backup_before_deploy_*/
+deploy-logs/
+
+# Build artifacts
+# hostgator-dist/ - comentado para permitir versionamento do build de produção

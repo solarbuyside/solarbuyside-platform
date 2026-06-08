@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Solar Buy-Side · Vender decisões, não preço</title>
+<meta name="description" content="Manual Solar Buy-Side: o método para vendedores de energia solar sairem da disputa por preço e passarem a vender decisões." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --orange-500:#FF7A1A;
+    --orange-600:#F97316;
+    --orange-700:#EA580C;
+    --orange-50: #FFF4EC;
+    --orange-100:#FFE3CE;
+
+    --navy-950:#0B1224;
+    --navy-900:#0F172A;
+    --navy-800:#141F38;
+    --navy-700:#1E293B;
+    --navy-600:#334155;
+
+    --ink:#0B1224;
+    --ink-soft:#1E293B;
+    --muted:#475569;
+    --muted-2:#64748B;
+
+    --bg:#FBFBFD;
+    --bg-alt:#F5F5F7;
+    --line:rgba(15,23,42,.08);
+    --line-strong:rgba(15,23,42,.14);
+    --card:#FFFFFF;
+
+    --shadow-sm: 0 1px 2px rgba(11,18,36,.04), 0 1px 3px rgba(11,18,36,.06);
+    --shadow-md: 0 8px 24px -8px rgba(11,18,36,.10), 0 4px 10px -4px rgba(11,18,36,.06);
+    --shadow-lg: 0 30px 60px -20px rgba(11,18,36,.22), 0 12px 24px -12px rgba(11,18,36,.10);
+    --shadow-orange: 0 18px 40px -12px rgba(249,115,22,.45), 0 6px 14px -6px rgba(249,115,22,.30);
+
+    --radius-sm:10px;
+    --radius:16px;
+    --radius-lg:22px;
+    --radius-xl:28px;
+
+    --container: 1200px;
+    --header-h: 72px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Manrope', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-size:16px;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none}
+  ::selection{background:var(--orange-100);color:var(--navy-900)}
+
+  h1,h2,h3,h4{font-family:'Sora', system-ui, sans-serif; color:var(--navy-950); line-height:1.08; letter-spacing:-0.02em; margin:0; text-wrap:balance}
+  h1{font-weight:700; font-size:clamp(2.4rem, 5vw + .5rem, 4.4rem);}
+  h2{font-weight:700; font-size:clamp(1.9rem, 2.6vw + .4rem, 3rem);}
+  h3{font-weight:600; font-size:clamp(1.25rem, 1vw + .9rem, 1.6rem);}
+  h4{font-weight:600; font-size:1.05rem;}
+  p{margin:0; text-wrap:pretty}
+
+  .container{max-width:var(--container); margin:0 auto; padding:0 24px}
+
+  /* ============ UTIL ============ */
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'Sora', sans-serif;
+    font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--orange-700);
+    padding:6px 12px; border-radius:999px;
+    background:var(--orange-50);
+    border:1px solid var(--orange-100);
+  }
+  .eyebrow.on-dark{
+    color:#FFD7B0;
+    background:rgba(249,115,22,.10);
+    border-color:rgba(249,115,22,.30);
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:999px;background:var(--orange-600); box-shadow:0 0 0 4px rgba(249,115,22,.18)}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    font-family:'Sora', sans-serif; font-weight:600; font-size:.98rem;
+    padding:14px 22px; border-radius:999px;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--orange-600); color:#fff; box-shadow:var(--shadow-orange)}
+  .btn-primary:hover{background:var(--orange-700); transform:translateY(-1px)}
+  .btn-primary.lg{padding:18px 30px; font-size:1.05rem}
+  .btn-ghost{color:var(--ink); background:transparent; border:1px solid var(--line-strong)}
+  .btn-ghost:hover{background:#fff; border-color:var(--navy-900); transform:translateY(-1px)}
+  .btn-dark{background:var(--navy-950); color:#fff}
+  .btn-dark:hover{background:#000; transform:translateY(-1px)}
+  .btn .ico{width:18px; height:18px; transition:transform .2s ease}
+  .btn:hover .ico{transform:translateX(3px)}
+
+  /* ============ HEADER ============ */
+  header.site{
+    position:fixed; inset:0 0 auto 0; z-index:60;
+    height:var(--header-h);
+    backdrop-filter:saturate(160%) blur(12px);
+    -webkit-backdrop-filter:saturate(160%) blur(12px);
+    background:rgba(251,251,253,.72);
+    border-bottom:1px solid transparent;
+    transition:border-color .25s ease, background .25s ease;
+  }
+  header.site.scrolled{
+    background:rgba(251,251,253,.88);
+    border-bottom-color:var(--line);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    height:100%;
+  }
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Sora', sans-serif; font-weight:700; color:var(--navy-950); font-size:1.04rem; letter-spacing:-.01em}
+  .logo .mark{
+    width:34px; height:34px; border-radius:10px;
+    background:linear-gradient(135deg, var(--orange-500), var(--orange-700));
+    display:grid; place-items:center; color:#fff;
+    box-shadow:0 8px 20px -8px rgba(249,115,22,.55);
+    position:relative; overflow:hidden;
+  }
+  .logo .mark::before{
+    content:""; position:absolute; inset:-6px;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 50%);
+  }
+  .logo .mark svg{position:relative; z-index:1}
+  .nav-links{display:flex; align-items:center; gap:28px}
+  .nav-links a{font-size:.92rem; color:var(--ink-soft); font-weight:500}
+  .nav-links a:hover{color:var(--orange-700)}
+  .nav-cta{display:flex; align-items:center; gap:10px}
+  .menu-btn{display:none; width:40px; height:40px; border-radius:10px; border:1px solid var(--line-strong); place-items:center}
+  .menu-btn svg{width:20px;height:20px}
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;
+    padding: calc(var(--header-h) + 56px) 0 80px;
+    overflow:hidden;
+    isolation:isolate;
+  }
+  .hero::before{
+    content:""; position:absolute; inset:0; z-index:-2;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,138,38,.18), transparent 60%),
+      radial-gradient(50% 40% at 90% 0%, rgba(255,179,108,.20), transparent 70%),
+      linear-gradient(180deg, #FFFBF6 0%, #FBFBFD 70%);
+  }
+  .hero::after{
+    /* subtle ray pattern */
+    content:""; position:absolute; right:-200px; top:-200px; z-index:-1;
+    width:800px; height:800px; border-radius:50%;
+    background:conic-gradient(from 200deg at 50% 50%, rgba(249,115,22,.0) 0deg, rgba(249,115,22,.08) 25deg, transparent 50deg, rgba(249,115,22,.06) 90deg, transparent 130deg, rgba(249,115,22,.08) 170deg, transparent 210deg);
+    filter:blur(20px); opacity:.7; pointer-events:none;
+  }
+  .hero-grid{
+    display:grid; grid-template-columns: 1.05fr .95fr; gap:64px; align-items:center;
+  }
+  .hero h1 .accent{
+    background:linear-gradient(180deg, var(--orange-500), var(--orange-700));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    display:inline-block;
+  }
+  .hero p.lede{
+    margin-top:22px; font-size:1.13rem; color:var(--muted); max-width:560px;
+  }
+  .hero p.lede strong{color:var(--navy-950); font-weight:700}
+  .hero-cta-row{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:32px;
+  }
+  .hero-meta{
+    display:flex; align-items:center; gap:14px;
+    margin-top:36px; padding-top:28px; border-top:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .hero-meta .avatars{display:flex}
+  .hero-meta .avatars span{
+    width:34px; height:34px; border-radius:999px; border:2px solid var(--bg);
+    margin-left:-8px;
+    background:linear-gradient(135deg, var(--orange-500), var(--orange-700));
+    color:#fff; display:grid; place-items:center; font-size:.72rem; font-weight:700;
+  }
+  .hero-meta .avatars span:nth-child(2){background:linear-gradient(135deg, #1E293B, #0B1224)}
+  .hero-meta .avatars span:nth-child(3){background:linear-gradient(135deg, #FFB370, #F97316)}
+  .hero-meta .avatars span:nth-child(4){background:linear-gradient(135deg, #475569, #1E293B)}
+  .hero-meta .avatars span:first-child{margin-left:0}
+  .hero-meta .meta-text{font-size:.85rem; color:var(--muted-2)}
+  .hero-meta .meta-text strong{color:var(--navy-950); font-weight:700; display:block; font-family:'Sora', sans-serif}
+
+  /* Manual mockup */
+  .manual-stage{
+    position:relative; height:560px;
+    perspective: 1600px;
+    display:grid; place-items:center;
+  }
+  .manual{
+    position:relative;
+    width:320px; height:440px;
+    transform-style: preserve-3d;
+    transform: rotateY(-20deg) rotateX(6deg) rotate(-2deg);
+    animation: floaty 6s ease-in-out infinite;
+  }
+  @keyframes floaty {
+    0%,100%{transform: rotateY(-20deg) rotateX(6deg) rotate(-2deg) translateY(0)}
+    50%   {transform: rotateY(-22deg) rotateX(6deg) rotate(-2deg) translateY(-10px)}
+  }
+  .manual .cover{
+    position:absolute; inset:0; border-radius:14px 4px 4px 14px;
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgba(255,138,38,.18), transparent 50%),
+      linear-gradient(155deg, #122242 0%, #0B1224 80%);
+    box-shadow:
+      var(--shadow-lg),
+      inset 0 0 0 1px rgba(255,255,255,.05),
+      inset 1px 0 0 rgba(255,255,255,.06);
+    padding:30px 28px;
+    color:#fff;
+    display:flex; flex-direction:column; justify-content:space-between;
+    overflow:hidden;
+  }
+  .manual .cover::before{
+    /* sun ring */
+    content:""; position:absolute; right:-90px; top:-90px;
+    width:260px; height:260px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,138,38,.35), rgba(249,115,22,0) 60%);
+    filter:blur(2px);
+  }
+  .manual .cover::after{
+    /* halftone */
+    content:""; position:absolute; inset:0; opacity:.22; mix-blend-mode:soft-light;
+    background-image:radial-gradient(rgba(255,255,255,.5) 1px, transparent 1.4px);
+    background-size:8px 8px;
+  }
+  .manual .spine{
+    position:absolute; left:-1px; top:0; bottom:0; width:14px;
+    background:linear-gradient(90deg, #060B1A, #0B1224 60%, rgba(255,255,255,.08));
+    border-radius:14px 0 0 14px;
+    transform: translateZ(-1px);
+  }
+  .manual .pages{
+    position:absolute; top:6px; bottom:6px; right:-6px; width:14px;
+    background:repeating-linear-gradient(180deg, #fff 0 2px, #E2E8F0 2px 3px);
+    border-radius:0 4px 4px 0;
+    transform: rotateY(8deg) translateZ(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,.18);
+  }
+  .manual .badge-top{
+    position:relative; z-index:2; display:inline-flex; align-items:center; gap:8px;
+    font-family:'Sora', sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    color:#FFD7B0; align-self:flex-start;
+    padding:6px 10px; border-radius:999px;
+    background:rgba(249,115,22,.14); border:1px solid rgba(249,115,22,.35);
+  }
+  .manual .title-block{position:relative; z-index:2}
+  .manual .title-block .small{
+    font-family:'Sora', sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(255,255,255,.55); margin-bottom:14px;
+  }
+  .manual .title-block h3{
+    font-family:'Sora', sans-serif; color:#fff; font-size:2.2rem; line-height:1; font-weight:700;
+    letter-spacing:-.02em;
+  }
+  .manual .title-block .ed{
+    margin-top:18px; display:flex; gap:8px;
+  }
+  .manual .title-block .ed span{
+    font-family:'Sora', sans-serif; font-size:.68rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+    color:rgba(255,255,255,.78);
+    padding:5px 9px; border-radius:6px;
+    border:1px solid rgba(255,255,255,.18);
+  }
+  .manual .seal{
+    position:relative; z-index:2; align-self:flex-end;
+    display:flex; align-items:center; gap:10px;
+    color:rgba(255,255,255,.75); font-size:.75rem;
+  }
+  .manual .seal .ring{
+    width:46px; height:46px; border-radius:50%;
+    background:conic-gradient(var(--orange-500), var(--orange-700), var(--orange-500));
+    display:grid; place-items:center; color:#fff; font-family:'Sora', sans-serif; font-weight:700; font-size:.78rem;
+  }
+  .manual .seal .ring i{
+    width:36px;height:36px;border-radius:50%; background:#0B1224; display:grid; place-items:center;
+  }
+  .manual .glare{
+    position:absolute; inset:0; border-radius:14px 4px 4px 14px;
+    background:linear-gradient(110deg, transparent 30%, rgba(255,255,255,.10) 45%, transparent 60%);
+    pointer-events:none;
+  }
+
+  /* Floating bonus card next to manual */
+  .floater{
+    position:absolute; z-index:5;
+    background:#fff; border-radius:18px; padding:14px 16px;
+    box-shadow:var(--shadow-lg);
+    display:flex; align-items:center; gap:12px;
+    border:1px solid var(--line);
+  }
+  .floater.bonus{
+    right: -6px; top: 22%;
+    transform:translateZ(0);
+    animation: floaty2 7s ease-in-out infinite;
+  }
+  @keyframes floaty2 {
+    0%,100%{transform:translateY(0) rotate(2deg)}
+    50%{transform:translateY(-8px) rotate(2deg)}
+  }
+  .floater .icon{
+    width:42px; height:42px; border-radius:12px;
+    background:linear-gradient(135deg, var(--orange-500), var(--orange-700)); color:#fff;
+    display:grid; place-items:center; box-shadow:0 8px 14px -6px rgba(249,115,22,.5);
+  }
+  .floater .text strong{display:block; font-family:'Sora', sans-serif; font-size:.85rem; color:var(--navy-950)}
+  .floater .text span{font-size:.75rem; color:var(--muted-2)}
+
+  .floater.stats{
+    left:-12px; bottom:30px;
+    animation: floaty3 8s ease-in-out infinite;
+  }
+  @keyframes floaty3 {
+    0%,100%{transform:translateY(0) rotate(-2deg)}
+    50%{transform:translateY(-6px) rotate(-2deg)}
+  }
+  .floater.stats .icon{background:#0B1224}
+  .floater.stats .text strong{font-size:1.1rem}
+
+  /* ============ TRUST STRIP ============ */
+  .trust{
+    margin-top:40px; padding:18px 24px; border-radius:18px;
+    background:#fff; border:1px solid var(--line);
+    box-shadow:var(--shadow-sm);
+    display:grid; grid-template-columns: auto 1fr; gap:24px; align-items:center;
+  }
+  .trust .label{font-size:.78rem; color:var(--muted-2); font-style:italic; max-width:160px}
+  .trust .logos{display:flex; align-items:center; gap:36px; flex-wrap:wrap; opacity:.85}
+  .trust .logo-pill{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'Sora', sans-serif; font-weight:600; color:var(--navy-700); font-size:.86rem;
+  }
+  .trust .logo-pill .glyph{
+    width:28px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg, #E2E8F0, #FFFFFF);
+    border:1px solid var(--line); color:var(--navy-700); font-weight:700; font-size:.85rem;
+  }
+
+  /* ============ SECTIONS BASE ============ */
+  section{padding:96px 0; position:relative}
+  section .section-head{max-width:760px; margin:0 auto 56px; text-align:center}
+  section .section-head p{margin-top:18px; color:var(--muted); font-size:1.08rem}
+  section .section-head .eyebrow{margin-bottom:18px}
+
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:28px; box-shadow:var(--shadow-sm);
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card:hover{transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--line-strong)}
+  .check{
+    width:22px; height:22px; border-radius:50%; background:var(--orange-50); color:var(--orange-700);
+    display:inline-grid; place-items:center; flex:none; margin-top:2px;
+  }
+  .check svg{width:13px; height:13px}
+
+  /* ============ PANORAMA 2026 ============ */
+  .panorama{background:linear-gradient(180deg, #FBFBFD 0%, #F5F5F7 100%); padding-bottom:120px}
+  .panorama .cards{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;
+  }
+  .pcard{
+    position:relative; padding:32px 28px 28px;
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    transition:all .25s ease;
+    overflow:hidden;
+  }
+  .pcard:hover{transform:translateY(-4px); box-shadow:var(--shadow-md)}
+  .pcard .num{
+    position:absolute; top:24px; right:24px;
+    font-family:'Sora', sans-serif; font-weight:700; font-size:3.2rem;
+    color:var(--orange-600); opacity:.16; line-height:1;
+  }
+  .pcard .ico-wrap{
+    width:48px; height:48px; border-radius:14px;
+    background:linear-gradient(135deg, var(--orange-50), #fff);
+    border:1px solid var(--orange-100);
+    display:grid; place-items:center; color:var(--orange-700);
+    margin-bottom:18px;
+  }
+  .pcard h3{font-size:1.2rem; margin-bottom:8px}
+  .pcard p{color:var(--muted); font-size:.97rem}
+
+  .alert-banner{
+    margin-top:48px;
+    background:linear-gradient(135deg, #0F172A, #0B1224);
+    color:#fff;
+    border-radius:var(--radius-xl);
+    padding:48px 56px;
+    display:grid; grid-template-columns: 1.4fr 1fr; gap:48px; align-items:center;
+    position:relative; overflow:hidden;
+  }
+  .alert-banner::before{
+    content:""; position:absolute; right:-60px; top:-80px; width:340px; height:340px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(249,115,22,.30), transparent 60%);
+  }
+  .alert-banner h3{color:#fff; font-size:1.7rem; margin-bottom:10px}
+  .alert-banner p{color:rgba(255,255,255,.7)}
+  .alert-banner .right{
+    position:relative; z-index:1;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    backdrop-filter:blur(8px);
+    border-radius:var(--radius-lg); padding:24px;
+  }
+  .alert-banner .right h4{color:#fff; font-size:1.05rem; margin-bottom:14px}
+  .alert-banner .right ul{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px}
+  .alert-banner .right li{display:flex; gap:10px; align-items:center; color:rgba(255,255,255,.85); font-size:.95rem}
+  .alert-banner .right li .check{background:rgba(249,115,22,.20); color:#FFD7B0}
+
+  /* ============ PARA QUEM / MANUAL ============ */
+  .audience .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  .acard{
+    padding:32px 28px; background:#fff; border-radius:var(--radius-lg); border:1px solid var(--line);
+    box-shadow:var(--shadow-sm); transition:all .25s ease;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .acard:hover{transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--orange-100)}
+  .acard .tag{
+    align-self:flex-start;
+    font-family:'Sora', sans-serif; font-size:.68rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--orange-700); padding:5px 10px; border-radius:6px;
+    background:var(--orange-50); border:1px solid var(--orange-100);
+  }
+  .acard h3{font-size:1.25rem}
+  .acard p{color:var(--muted)}
+  .acard .bullets{display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; padding-top:8px}
+  .acard .bullets span{
+    font-size:.82rem; padding:5px 10px; border-radius:999px;
+    background:var(--bg-alt); color:var(--navy-700); font-weight:500;
+  }
+
+  /* Manual split */
+  .manual-section{padding-top:120px}
+  .manual-grid{
+    display:grid; grid-template-columns: 1.05fr 1fr; gap:72px; align-items:center;
+  }
+  .manual-grid h2{margin-bottom:18px}
+  .manual-grid .lede{color:var(--muted); font-size:1.05rem; margin-bottom:28px}
+  .feature-list{display:flex; flex-direction:column; gap:18px; margin-bottom:36px}
+  .feature-list .item{
+    display:grid; grid-template-columns: auto 1fr; gap:14px; align-items:flex-start;
+    padding-bottom:18px; border-bottom:1px dashed var(--line);
+  }
+  .feature-list .item:last-child{border-bottom:0; padding-bottom:0}
+  .feature-list .item h4{margin-bottom:4px; font-size:1.02rem}
+  .feature-list .item p{color:var(--muted); font-size:.95rem}
+
+  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px}
+  .stat{
+    padding:18px; border-radius:var(--radius); background:#fff; border:1px solid var(--line);
+  }
+  .stat .n{font-family:'Sora', sans-serif; font-weight:700; font-size:1.7rem; color:var(--navy-950); line-height:1}
+  .stat .n span{color:var(--orange-600)}
+  .stat .l{margin-top:6px; font-size:.85rem; color:var(--muted-2)}
+
+  /* manual visual right */
+  .manual-visual{
+    position:relative;
+    background:
+      radial-gradient(80% 60% at 80% 10%, rgba(255,138,38,.15), transparent 60%),
+      linear-gradient(160deg, #122242, #0B1224 80%);
+    border-radius:var(--radius-xl);
+    padding:48px 32px;
+    min-height:520px;
+    display:grid; place-items:center;
+    overflow:hidden;
+  }
+  .manual-visual::after{
+    content:""; position:absolute; inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.4) 1px, transparent 1.2px);
+    background-size:18px 18px;
+    opacity:.06;
+  }
+  .manual-visual .ribbon{
+    position:absolute; left:0; right:0; top:32px;
+    text-align:center; font-family:'Sora', sans-serif; font-weight:600;
+    color:rgba(255,255,255,.45); font-size:.75rem; letter-spacing:.3em; text-transform:uppercase;
+  }
+  .manual-visual .ribbon::before, .manual-visual .ribbon::after{
+    content:""; display:inline-block; width:40px; height:1px; background:rgba(255,255,255,.2); vertical-align:middle; margin:0 12px;
+  }
+  .manual-visual .topics{
+    position:absolute; bottom:24px; left:24px; right:24px;
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+  }
+  .manual-visual .topics span{
+    font-family:'Sora', sans-serif; font-size:.66rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase;
+    color:rgba(255,255,255,.55); text-align:center;
+    padding:8px 6px; border-radius:8px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  }
+  /* reuse manual mockup */
+  .manual-visual .manual{transform: rotateY(-15deg) rotateX(5deg); animation:floaty 6s ease-in-out infinite}
+
+  /* ============ RODRIGO STORY ============ */
+  .story{
+    background:linear-gradient(160deg, #0B1224 0%, #0F1C36 100%);
+    color:#fff;
+    position:relative; overflow:hidden;
+  }
+  .story::before{
+    content:""; position:absolute; left:-100px; top:-150px; width:480px; height:480px; border-radius:50%;
+    background:radial-gradient(circle, rgba(249,115,22,.25), transparent 60%);
+  }
+  .story::after{
+    content:""; position:absolute; right:-150px; bottom:-150px; width:520px; height:520px; border-radius:50%;
+    background:radial-gradient(circle, rgba(96,165,250,.15), transparent 60%);
+  }
+  .story .container{position:relative; z-index:1}
+  .story h2, .story h3, .story h4{color:#fff}
+  .story .grid{
+    display:grid; grid-template-columns: 1fr 1.1fr; gap:64px; align-items:center;
+  }
+  .story-card{
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    backdrop-filter:blur(10px);
+    border-radius:var(--radius-xl);
+    padding:36px; position:relative;
+  }
+  .story-card .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:5px 12px; border-radius:999px;
+    background:rgba(249,115,22,.18); color:#FFD7B0;
+    font-family:'Sora', sans-serif; font-size:.74rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    border:1px solid rgba(249,115,22,.30);
+    margin-bottom:18px;
+  }
+  .avatar-lg{
+    width:90px; height:90px; border-radius:50%;
+    background:linear-gradient(135deg, #FFB370, #EA580C);
+    display:grid; place-items:center; color:#fff; font-family:'Sora', sans-serif; font-weight:700; font-size:1.8rem;
+    margin-bottom:18px;
+    box-shadow:0 12px 30px -10px rgba(249,115,22,.6);
+    position:relative;
+  }
+  .avatar-lg::after{
+    content:""; position:absolute; right:-2px; bottom:-2px;
+    width:24px; height:24px; border-radius:50%; background:#22C55E; border:3px solid #0B1224;
+  }
+  .story-card .name{font-family:'Sora', sans-serif; font-weight:600; font-size:1.1rem; color:#fff}
+  .story-card .role{color:rgba(255,255,255,.6); font-size:.9rem; margin-bottom:24px}
+  .story-card .quote{font-size:1.1rem; color:rgba(255,255,255,.92); line-height:1.55}
+  .story-card .quote::before{
+    content:"“"; font-family:'Sora', sans-serif; font-size:4rem; line-height:0;
+    color:var(--orange-600); display:inline-block; margin-right:8px; vertical-align:-.35em;
+  }
+  .story-card .quote.second{margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,.10)}
+  .story-card .quote.second::before{display:none}
+
+  .stat-pop{
+    position:absolute; right:-24px; top:-24px;
+    background:#fff; color:var(--navy-950);
+    padding:18px 22px; border-radius:18px; box-shadow:var(--shadow-lg);
+    text-align:center;
+  }
+  .stat-pop .label{font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted-2); font-family:'Sora', sans-serif; font-weight:600}
+  .stat-pop .num{font-family:'Sora', sans-serif; font-weight:700; font-size:2rem; color:var(--orange-600); line-height:1; margin:6px 0 4px}
+  .stat-pop .sub{font-size:.78rem; color:var(--muted)}
+
+  .story h2 .accent{color:var(--orange-500)}
+  .story .lede{color:rgba(255,255,255,.78); font-size:1.1rem; margin:22px 0 30px; max-width:520px}
+  .bridge-feats{display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-bottom:34px}
+  .bridge-feats .f{display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
+  .bridge-feats .f .ico{width:36px; height:36px; border-radius:10px; background:rgba(249,115,22,.18); color:#FFD7B0; display:grid; place-items:center; flex:none}
+  .bridge-feats .f h4{font-size:.92rem; color:#fff; margin-bottom:2px}
+  .bridge-feats .f p{font-size:.82rem; color:rgba(255,255,255,.62)}
+
+  /* ============ BONUS RIBBON ============ */
+  .bonus-band{padding-top:120px; padding-bottom:120px}
+  .bonus-card{
+    background:#fff;
+    border-radius:var(--radius-xl);
+    padding:0;
+    overflow:hidden;
+    display:grid; grid-template-columns: .9fr 1.1fr;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow-lg);
+  }
+  .bonus-card .left{
+    background:
+      radial-gradient(60% 70% at 80% 20%, rgba(255,138,38,.25), transparent 60%),
+      linear-gradient(160deg, var(--orange-600), var(--orange-700) 70%, #B53D08);
+    color:#fff;
+    padding:48px;
+    position:relative;
+    display:flex; flex-direction:column; justify-content:space-between;
+    min-height:480px;
+  }
+  .bonus-card .left::after{
+    content:""; position:absolute; inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.4) 1px, transparent 1.2px);
+    background-size:14px 14px; opacity:.15;
+  }
+  .bonus-card .left > *{position:relative; z-index:1}
+  .bonus-card .left .badge{
+    align-self:flex-start;
+    padding:7px 14px; border-radius:999px;
+    font-family:'Sora', sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.30);
+    color:#fff;
+  }
+  .bonus-card .left h3{color:#fff; font-size:2.2rem; line-height:1.05; margin:32px 0 16px}
+  .bonus-card .left p{color:rgba(255,255,255,.86); font-size:1rem}
+  .bonus-card .left .ebook-mock{
+    margin-top:32px;
+    background:rgba(0,0,0,.18); border:1px solid rgba(255,255,255,.18);
+    padding:18px; border-radius:14px;
+    display:flex; gap:14px; align-items:center;
+  }
+  .bonus-card .left .ebook-mock .icn{
+    width:48px; height:48px; border-radius:12px;
+    background:rgba(255,255,255,.18); display:grid; place-items:center;
+  }
+  .bonus-card .left .ebook-mock strong{font-family:'Sora', sans-serif; display:block; font-size:1rem}
+  .bonus-card .left .ebook-mock span{font-size:.85rem; color:rgba(255,255,255,.75)}
+  .bonus-card .right{padding:48px}
+  .bonus-card .right h4{font-family:'Sora', sans-serif; font-weight:600; font-size:.78rem; letter-spacing:.16em; text-transform:uppercase; color:var(--orange-700); margin-bottom:22px}
+  .bonus-card .right .title{font-family:'Sora', sans-serif; font-weight:700; font-size:1.6rem; color:var(--navy-950); line-height:1.15; margin-bottom:26px}
+  .bonus-list{display:flex; flex-direction:column; gap:16px}
+  .bonus-list .row{display:grid; grid-template-columns: auto 1fr; gap:14px; align-items:flex-start}
+  .bonus-list .row h5{font-family:'Sora', sans-serif; font-weight:600; font-size:1rem; color:var(--navy-950); margin-bottom:3px}
+  .bonus-list .row p{color:var(--muted); font-size:.92rem}
+
+  /* ============ OFERTA / PRICING ============ */
+  .pricing{
+    background:linear-gradient(180deg, #010413 0%, #0B1224 100%);
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+  .pricing::before{
+    content:""; position:absolute; left:50%; top:0; transform:translateX(-50%);
+    width:800px; height:800px; border-radius:50%;
+    background:radial-gradient(circle, rgba(249,115,22,.18), transparent 60%);
+  }
+  .pricing .container{position:relative; z-index:1}
+  .pricing h2{color:#fff}
+  .pricing .section-head p{color:rgba(255,255,255,.7)}
+
+  .price-grid{
+    display:grid; grid-template-columns: 1.05fr .95fr; gap:48px; align-items:center;
+  }
+  .includes{display:flex; flex-direction:column; gap:14px}
+  .include-card{
+    padding:22px 24px; border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    display:grid; grid-template-columns: auto 1fr auto; gap:18px; align-items:center;
+    transition:all .25s ease;
+  }
+  .include-card:hover{background:rgba(255,255,255,.06); border-color:rgba(249,115,22,.30)}
+  .include-card .ico{width:48px; height:48px; border-radius:12px; background:rgba(249,115,22,.18); color:#FFD7B0; display:grid; place-items:center}
+  .include-card .tag{font-family:'Sora', sans-serif; font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:#FFD7B0; padding:4px 10px; border-radius:6px; background:rgba(249,115,22,.18); font-weight:600; display:inline-block; margin-bottom:8px}
+  .include-card h4{color:#fff; font-size:1.04rem; margin-bottom:4px}
+  .include-card p{font-size:.88rem; color:rgba(255,255,255,.65)}
+  .include-card .pill-bonus{
+    background:linear-gradient(135deg, var(--orange-500), var(--orange-700));
+    color:#fff; padding:6px 12px; border-radius:999px;
+    font-family:'Sora', sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+  }
+
+  .price-card{
+    background:#fff; color:var(--navy-950);
+    border-radius:24px; padding:40px;
+    box-shadow:var(--shadow-lg);
+    position:relative;
+  }
+  .price-card .toggle{
+    display:inline-flex; padding:5px; border-radius:999px; background:var(--bg-alt); border:1px solid var(--line);
+    margin-bottom:24px;
+  }
+  .price-card .toggle button{
+    padding:8px 18px; border-radius:999px; font-family:'Sora', sans-serif; font-weight:600; font-size:.86rem;
+    color:var(--muted-2); transition:all .2s ease;
+  }
+  .price-card .toggle button.active{background:var(--navy-950); color:#fff}
+  .price-card .from{font-size:.92rem; color:var(--muted-2); margin-bottom:4px}
+  .price-card .from s{color:var(--muted-2); margin-right:6px}
+  .price-card .price{
+    display:flex; align-items:flex-end; gap:6px; line-height:1;
+  }
+  .price-card .price .x{font-family:'Sora', sans-serif; font-weight:600; font-size:1.4rem; color:var(--muted-2)}
+  .price-card .price .num{
+    font-family:'Sora', sans-serif; font-weight:700; font-size:4rem;
+    background:linear-gradient(180deg, var(--navy-950), var(--navy-700));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .price-card .price .per{font-family:'Sora', sans-serif; font-size:1.1rem; color:var(--muted-2); margin-bottom:6px; font-weight:500}
+  .price-card .pix{font-size:.9rem; color:var(--muted); margin-top:8px}
+  .price-card .pix b{color:var(--navy-950)}
+  .price-card .pclist{margin:24px 0; display:flex; flex-direction:column; gap:12px}
+  .price-card .pclist li{display:flex; gap:10px; align-items:flex-start; font-size:.95rem; color:var(--ink-soft)}
+  .price-card .pclist li .check{background:var(--orange-50); color:var(--orange-700)}
+  .price-card .cta-block .btn{width:100%; padding:18px}
+  .price-card .meta{margin-top:18px; display:flex; flex-direction:column; gap:8px; font-size:.85rem; color:var(--muted)}
+  .price-card .meta div{display:flex; gap:8px; align-items:center}
+  .price-card .meta svg{width:16px; height:16px; color:var(--orange-600)}
+  .price-card .paybar{
+    margin-top:22px; padding-top:18px; border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:space-between;
+  }
+  .price-card .paybar .pays{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .pay-chip{
+    padding:5px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:'Sora', sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.1em;
+    color:var(--navy-700); background:#fff;
+  }
+  .price-card .guarantee{
+    display:inline-flex; align-items:center; gap:8px;
+    color:#16A34A; font-weight:600; font-size:.82rem;
+  }
+
+  .timer-row{
+    margin-top:32px;
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10);
+    border-radius:18px; padding:18px 22px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  }
+  .timer-row .label{font-size:.85rem; color:rgba(255,255,255,.7)}
+  .timer-row .time{display:flex; gap:10px}
+  .timer-row .time .box{
+    min-width:54px; padding:8px 10px; border-radius:10px;
+    background:rgba(249,115,22,.12); border:1px solid rgba(249,115,22,.30);
+    text-align:center;
+  }
+  .timer-row .time .box .n{font-family:'Sora', sans-serif; font-weight:700; font-size:1.2rem; color:#fff; line-height:1}
+  .timer-row .time .box .l{font-size:.62rem; color:#FFD7B0; letter-spacing:.16em; text-transform:uppercase; margin-top:3px}
+
+  /* ============ DEPOIMENTOS ============ */
+  .testimonials .grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
+  }
+  .tcard{
+    background:#fff; border-radius:var(--radius-lg); border:1px solid var(--line);
+    padding:28px; display:flex; flex-direction:column; gap:14px;
+    box-shadow:var(--shadow-sm); transition:all .25s ease; position:relative;
+  }
+  .tcard:hover{transform:translateY(-3px); box-shadow:var(--shadow-md)}
+  .tcard .stars{color:var(--orange-600); display:flex; gap:2px}
+  .tcard .stars svg{width:14px;height:14px}
+  .tcard h4{font-size:1.02rem; color:var(--navy-950)}
+  .tcard p{color:var(--muted); font-size:.92rem; flex:1}
+  .tcard .highlight{font-family:'Sora', sans-serif; font-weight:600; color:var(--orange-700); font-size:.9rem; padding-top:14px; border-top:1px dashed var(--line); margin-top:auto}
+  .tcard .author{display:flex; gap:12px; align-items:center; padding-top:14px; border-top:1px solid var(--line)}
+  .tcard .author .av{width:38px;height:38px;border-radius:50%; background:linear-gradient(135deg,#FFB370,#EA580C); display:grid; place-items:center; color:#fff; font-family:'Sora', sans-serif; font-weight:700; font-size:.82rem}
+  .tcard .author .av.b2{background:linear-gradient(135deg,#1E293B,#0B1224)}
+  .tcard .author .av.b3{background:linear-gradient(135deg,#475569,#1E293B)}
+  .tcard .author .av.b4{background:linear-gradient(135deg,#FF8C3A,#F97316)}
+  .tcard .author .av.b5{background:linear-gradient(135deg,#0F172A,#334155)}
+  .tcard .author .av.b6{background:linear-gradient(135deg,#FFB370,#B53D08)}
+  .tcard .author strong{display:block; font-family:'Sora', sans-serif; font-size:.92rem; color:var(--navy-950)}
+  .tcard .author span{font-size:.78rem; color:var(--muted-2)}
+
+  /* ============ AUTORES ============ */
+  .authors{background:#F5F5F7}
+  .author-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:24px}
+  .author-card{
+    background:#fff; border-radius:var(--radius-xl); padding:0;
+    overflow:hidden; border:1px solid var(--line); box-shadow:var(--shadow-sm);
+    transition:all .25s ease; display:grid; grid-template-rows: auto 1fr;
+  }
+  .author-card:hover{transform:translateY(-4px); box-shadow:var(--shadow-md)}
+  .author-card .top{
+    padding:32px 32px 0; position:relative;
+    display:flex; gap:20px; align-items:center;
+  }
+  .author-card .portrait{
+    width:96px; height:96px; border-radius:24px;
+    background:linear-gradient(135deg, #122242, #0B1224); flex:none;
+    display:grid; place-items:center; color:#fff; font-family:'Sora', sans-serif; font-weight:700; font-size:1.8rem;
+    position:relative; overflow:hidden;
+  }
+  .author-card .portrait::before{
+    content:""; position:absolute; inset:-30%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,138,38,.4), transparent 60%);
+  }
+  .author-card .portrait span{position:relative; z-index:1}
+  .author-card.b .portrait{background:linear-gradient(135deg, var(--orange-600), var(--orange-700))}
+  .author-card.b .portrait::before{background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.3), transparent 60%)}
+  .author-card .meta-tag{
+    font-family:'Sora', sans-serif; font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--orange-700); padding:5px 10px; border-radius:6px; background:var(--orange-50);
+    border:1px solid var(--orange-100); display:inline-block; margin-bottom:8px;
+  }
+  .author-card h3{font-size:1.4rem; margin-bottom:2px}
+  .author-card .role{font-size:.88rem; color:var(--muted-2)}
+  .author-card .bio{padding:24px 32px 32px; color:var(--muted); font-size:.96rem; border-top:1px dashed var(--line); margin-top:24px}
+  .author-card .pills{display:flex; gap:8px; padding:0 32px 32px}
+  .author-card .pills span{font-size:.78rem; color:var(--navy-700); padding:5px 10px; border-radius:999px; background:var(--bg-alt)}
+
+  /* ============ FAQ ============ */
+  .faq-wrap{display:grid; grid-template-columns: 1fr 1.4fr; gap:64px; align-items:flex-start}
+  .faq-side h2{margin-bottom:18px}
+  .faq-side p{color:var(--muted); margin-bottom:26px}
+  .faq-list{display:flex; flex-direction:column; gap:12px}
+  .faq-item{
+    background:#fff; border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; transition:all .25s ease;
+  }
+  .faq-item[open]{border-color:var(--orange-100); box-shadow:var(--shadow-sm)}
+  .faq-item summary{
+    list-style:none; cursor:pointer; padding:22px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:18px;
+    font-family:'Sora', sans-serif; font-weight:600; font-size:1.02rem; color:var(--navy-950);
+  }
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item .plus{
+    width:32px; height:32px; border-radius:50%; background:var(--bg-alt); color:var(--navy-950);
+    display:grid; place-items:center; flex:none; transition:all .25s ease;
+  }
+  .faq-item[open] .plus{background:var(--orange-600); color:#fff; transform:rotate(45deg)}
+  .faq-item .body{padding:0 24px 22px; color:var(--muted); font-size:.96rem}
+
+  /* ============ FOOTER ============ */
+  footer.site{
+    background:#001529; color:rgba(255,255,255,.7); padding:64px 0 32px;
+  }
+  footer.site h4{color:#fff; font-size:.92rem; margin-bottom:16px; font-family:'Sora', sans-serif; font-weight:600; letter-spacing:.04em}
+  footer.site a{color:rgba(255,255,255,.7); font-size:.9rem; transition:color .2s ease}
+  footer.site a:hover{color:var(--orange-500)}
+  footer.site .top{display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap:48px; padding-bottom:48px; border-bottom:1px solid rgba(255,255,255,.08)}
+  footer.site .top .logo{color:#fff}
+  footer.site .top p.descr{margin-top:14px; font-size:.9rem; color:rgba(255,255,255,.6); max-width:340px}
+  footer.site .col{display:flex; flex-direction:column; gap:10px}
+  footer.site .bottom{
+    padding-top:24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    font-size:.82rem; color:rgba(255,255,255,.5);
+  }
+  footer.site .bottom .legal{display:flex; gap:18px; flex-wrap:wrap}
+
+  /* ============ FLOATING CTA ============ */
+  .floating-cta{
+    position:fixed; right:24px; bottom:24px; z-index:55;
+    transform:translateY(120%); transition:transform .35s cubic-bezier(.2,.7,.2,1);
+  }
+  .floating-cta.show{transform:translateY(0)}
+  .floating-cta .btn{box-shadow:var(--shadow-orange), 0 18px 40px -12px rgba(0,0,0,.22)}
+
+  /* ============ ANIMATIONS ============ */
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1; transform:none}
+  .reveal.d1{transition-delay:.08s}
+  .reveal.d2{transition-delay:.16s}
+  .reveal.d3{transition-delay:.24s}
+  .reveal.d4{transition-delay:.32s}
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1; transform:none; transition:none}
+    .manual, .floater.bonus, .floater.stats{animation:none}
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1024px){
+    .hero-grid, .manual-grid, .price-grid, .story .grid, .faq-wrap, .bonus-card{grid-template-columns:1fr; gap:48px}
+    .alert-banner{grid-template-columns:1fr; padding:32px}
+    .panorama .cards, .audience .cards, .testimonials .grid, .author-grid, .bridge-feats{grid-template-columns:1fr 1fr}
+    .manual-stage{height:480px}
+    .stat-pop{position:relative; right:auto; top:auto; display:inline-block; margin-bottom:24px}
+    footer.site .top{grid-template-columns:1fr 1fr}
+    .nav-links{display:none}
+    .menu-btn{display:grid}
+    section{padding:72px 0}
+    .manual-section, .bonus-band{padding-top:80px; padding-bottom:80px}
+    .bonus-card .left, .bonus-card .right{padding:36px}
+    .bonus-card .left{min-height:auto}
+  }
+  @media (max-width: 640px){
+    section{padding:64px 0}
+    .container{padding:0 20px}
+    section .section-head{margin-bottom:40px}
+    .panorama .cards, .audience .cards, .testimonials .grid, .author-grid, .bridge-feats{grid-template-columns:1fr}
+    .hero{padding-top: calc(var(--header-h) + 32px); padding-bottom:48px}
+    .hero-meta{flex-direction:column; align-items:flex-start}
+    .trust{grid-template-columns:1fr}
+    .trust .logos{justify-content:flex-start}
+    .stat-row{grid-template-columns:1fr 1fr}
+    .manual-stage{height:420px}
+    .manual{width:260px; height:360px}
+    .manual .title-block h3{font-size:1.7rem}
+    .price-card{padding:28px 22px}
+    .price-card .price .num{font-size:3rem}
+    .alert-banner{padding:24px}
+    .alert-banner h3{font-size:1.35rem}
+    .pcard, .acard, .tcard{padding:22px}
+    .author-card .top{flex-direction:column; align-items:flex-start; gap:14px; padding:24px 24px 0}
+    .author-card .bio, .author-card .pills{padding-left:24px; padding-right:24px}
+    .bonus-card .left, .bonus-card .right{padding:28px}
+    .bonus-card .left h3{font-size:1.7rem}
+    .nav-cta .btn{padding:11px 16px; font-size:.85rem}
+    .timer-row{flex-direction:column; align-items:flex-start}
+    h1{font-size:2.2rem}
+    .floating-cta{right:16px; bottom:16px}
+    .floating-cta .btn{padding:14px 18px; font-size:.9rem}
+  }
+
+  /* mobile menu */
+  .mobile-menu{
+    position:fixed; inset:var(--header-h) 0 0 0; z-index:50;
+    background:rgba(251,251,253,.98); backdrop-filter:blur(14px);
+    padding:32px 24px;
+    transform:translateY(-100%); transition:transform .35s cubic-bezier(.2,.7,.2,1);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .mobile-menu.open{transform:translateY(0)}
+  .mobile-menu a{
+    padding:16px 8px; font-family:'Sora', sans-serif; font-weight:500; font-size:1.15rem;
+    color:var(--navy-950); border-bottom:1px solid var(--line);
+  }
+  .mobile-menu .btn{margin-top:18px}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site" id="siteHeader">
+  <div class="container nav">
+    <a href="#" class="logo" aria-label="Solar Buy-Side">
+      <span class="mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="4" fill="#fff"/>
+          <g stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/>
+            <path d="M4.6 4.6l2.1 2.1"/><path d="M17.3 17.3l2.1 2.1"/>
+            <path d="M4.6 19.4l2.1-2.1"/><path d="M17.3 6.7l2.1-2.1"/>
+          </g>
+        </svg>
+      </span>
+      Solar Buy-Side
+    </a>
+    <nav class="nav-links" aria-label="Principal">
+      <a href="#panorama">Panorama</a>
+      <a href="#manual">Manual</a>
+      <a href="#para-quem">Para quem</a>
+      <a href="#autores">Autores</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="menu-btn" aria-label="Abrir menu" id="menuBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <a href="#oferta" class="btn btn-primary">Garantir Acesso
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="mobile-menu" id="mobileMenu" aria-label="Mobile">
+  <a href="#panorama">Panorama</a>
+  <a href="#manual">Manual</a>
+  <a href="#para-quem">Para quem</a>
+  <a href="#autores">Autores</a>
+  <a href="#faq">FAQ</a>
+  <a href="#oferta" class="btn btn-primary">Garantir Acesso</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow reveal"><span class="dot"></span> Inteligência de Mercado 2026</span>
+        <h1 class="reveal d1" style="margin-top:20px">
+          Saia da disputa de preço.<br/>
+          Passe a vender <span class="accent">decisões</span>.
+        </h1>
+        <p class="lede reveal d2">
+          O <strong>Manual Solar Buy-Side</strong> ensina você a pensar como o comprador — entender critérios técnicos, gatilhos de decisão e dores reais — para conduzir vendas em vez de disputar concessões.
+        </p>
+        <div class="hero-cta-row reveal d3">
+          <a href="#oferta" class="btn btn-primary lg">
+            Entenda a Lógica
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+          <a href="#video" class="btn btn-ghost">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Ver demonstração
+          </a>
+        </div>
+        <div class="hero-meta reveal d4">
+          <div class="avatars" aria-hidden="true">
+            <span>RC</span><span>GM</span><span>LJ</span><span>+1k</span>
+          </div>
+          <div class="meta-text">
+            <strong>Confiado por profissionais do setor solar</strong>
+            Integradores, consultores e equipes comerciais
+          </div>
+        </div>
+      </div>
+
+      <div class="manual-stage reveal d2">
+        <div class="manual" id="heroManual">
+          <div class="spine"></div>
+          <div class="pages"></div>
+          <div class="cover">
+            <span class="badge-top"><span style="width:6px;height:6px;border-radius:50%;background:#FF8C3A"></span> Edição Pré-venda 2026</span>
+            <div class="title-block">
+              <div class="small">Manual Estratégico</div>
+              <h3>Solar<br/>Buy-Side</h3>
+              <div class="ed">
+                <span>130 PG</span><span>160 Tópicos</span>
+              </div>
+            </div>
+            <div class="seal">
+              <div class="ring"><i>SBS</i></div>
+              <div>
+                <div style="font-family:'Sora';font-weight:600;color:#fff;font-size:.78rem">Método 4 Fases</div>
+                <div>Buy-Side · Sell-Side</div>
+              </div>
+            </div>
+            <div class="glare"></div>
+          </div>
+        </div>
+
+        <div class="floater bonus">
+          <div class="icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 7v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V7z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div class="text">
+            <strong>+ Bônus exclusivo</strong>
+            <span>Código do Vendedor Consultivo</span>
+          </div>
+        </div>
+
+        <div class="floater stats">
+          <div class="icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 4 4 5-5"/></svg>
+          </div>
+          <div class="text">
+            <strong>+5 sistemas</strong>
+            <span>fechados em 30 dias · Rodrigo, SP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust reveal">
+      <div class="label">Cobrindo toda a cadeia comercial solar</div>
+      <div class="logos">
+        <div class="logo-pill"><span class="glyph">IN</span> Integradoras</div>
+        <div class="logo-pill"><span class="glyph">DS</span> Distribuidores</div>
+        <div class="logo-pill"><span class="glyph">VC</span> Vendedores</div>
+        <div class="logo-pill"><span class="glyph">CT</span> Consultores</div>
+        <div class="logo-pill"><span class="glyph">PV</span> Pós-venda</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PANORAMA 2026 ===== -->
+<section id="panorama" class="panorama">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Vision 2026</span>
+      <h2 class="reveal d1">O comprador de 2026 não vai mais cair em proposta de planilha.</h2>
+      <p class="reveal d2">Pode parecer exagero, mas em breve cada vez mais compradores de sistema fotovoltaico estarão informados — e farão perguntas que o vendedor médio não saberá responder.</p>
+    </div>
+
+    <div class="cards">
+      <div class="pcard reveal">
+        <div class="num">01</div>
+        <div class="ico-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/></svg>
+        </div>
+        <h3>Saberão analisar</h3>
+        <p>Compararão propostas com precisão técnica superior à média do mercado — e identificarão promessas exageradas em segundos.</p>
+      </div>
+      <div class="pcard reveal d1">
+        <div class="num">02</div>
+        <div class="ico-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <h3>Analisarão fundo</h3>
+        <p>Fornecedores e tecnologias passarão por um crivo muito mais rigoroso. Marca, distribuidor e garantia entrarão no mesmo radar.</p>
+      </div>
+      <div class="pcard reveal d2">
+        <div class="num">03</div>
+        <div class="ico-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Avaliarão risco</h3>
+        <p>A confiabilidade da sua empresa será o fator decisivo antes de qualquer preço. Suporte, payback real e contratos pesarão mais que desconto.</p>
+      </div>
+    </div>
+
+    <div class="alert-banner reveal">
+      <div>
+        <span class="eyebrow on-dark"><span class="dot"></span> Atenção crítica</span>
+        <h3 style="margin-top:16px">Quem não entender essa nova jornada vai perder vendas.</h3>
+        <p style="font-size:1.04rem">O cenário está evoluindo. <strong style="color:#fff">Você está pronto?</strong> Ainda há tempo para reverter essa situação — e estar do lado certo da venda.</p>
+      </div>
+      <div class="right">
+        <h4>O que o Manual mapeia para você</h4>
+        <ul>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Visão completa do cliente</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Gatilhos de compra reais</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Critérios de confiabilidade</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Anti-leilão reverso de preços</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARA QUEM ===== -->
+<section id="para-quem" class="audience">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Para quem é</span>
+      <h2 class="reveal d1">Quem realmente precisa desse conhecimento.</h2>
+      <p class="reveal d2">Veja para quem o Manual Solar Buy-Side é essencial — independente do seu papel na cadeia.</p>
+    </div>
+
+    <div class="cards">
+      <div class="acard reveal">
+        <span class="tag">Estruturados</span>
+        <h3>Empresas de Integração Solar</h3>
+        <p>Para vender valor, fugir da guerra dos preços e fechar mais projetos com margens preservadas.</p>
+        <div class="bullets">
+          <span>Vender valor</span><span>Mais projetos fechados</span>
+        </div>
+      </div>
+      <div class="acard reveal d1">
+        <span class="tag">Startups</span>
+        <h3>Empreendedores Iniciantes</h3>
+        <p>Para construir um negócio sólido desde o primeiro passo na integração solar — autoridade desde o dia 1.</p>
+        <div class="bullets">
+          <span>Base sólida</span><span>Autoridade desde o dia 1</span>
+        </div>
+      </div>
+      <div class="acard reveal d2">
+        <span class="tag">Vendas</span>
+        <h3>Representantes Comerciais</h3>
+        <p>Para aumentar sua taxa de conversão reduzindo sua taxa de desconto — defenda sua comissão sem perder o negócio.</p>
+        <div class="bullets">
+          <span>Menos desconto</span><span>Mais conversão</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal" style="margin-top:48px; text-align:center; color:var(--muted-2); font-size:.98rem; max-width:760px; margin-left:auto; margin-right:auto">
+      Não importa em qual ponto da cadeia você está. O Manual Solar Buy-Side não é apenas um guia — é uma imersão completa na perspectiva do comprador.
+    </p>
+  </div>
+</section>
+
+<!-- ===== MANUAL ESTRATÉGICO ===== -->
+<section id="manual" class="manual-section">
+  <div class="container">
+    <div class="manual-grid">
+      <div>
+        <span class="eyebrow reveal"><span class="dot"></span> A ferramenta estratégica</span>
+        <h2 class="reveal d1" style="margin-top:18px">A leitura essencial de quem quer se destacar em um mercado ultracompetitivo.</h2>
+        <p class="lede reveal d2">
+          O Manual de Compra Solar Buy-Side proporciona uma imersão na jornada de compra sob a ótica do comprador — oferecendo compreensão estratégica dos critérios, motivações e desafios do lado comprador.
+        </p>
+
+        <div class="feature-list reveal d3" style="margin-top:32px">
+          <div class="item">
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <div>
+              <h4>Dores reais do cliente</h4>
+              <p>Compreenda o que realmente pesa na decisão — não apenas o que o cliente diz na reunião.</p>
+            </div>
+          </div>
+          <div class="item">
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <div>
+              <h4>Postura consultiva</h4>
+              <p>Não dispute por preço, dispute por valor. Ajude o cliente a decidir com segurança e fortaleça uma relação de longo prazo.</p>
+            </div>
+          </div>
+          <div class="item">
+            <span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+            <div>
+              <h4>Valor técnico convertido em econômico</h4>
+              <p>Demonstre, de forma fundamentada, como o valor técnico da solução se converte em benefício econômico para o cliente.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-row reveal d4">
+          <div class="stat"><div class="n">130<span>+</span></div><div class="l">páginas de conteúdo denso</div></div>
+          <div class="stat"><div class="n">160<span>+</span></div><div class="l">tópicos organizados</div></div>
+          <div class="stat"><div class="n">4 <span>fases</span></div><div class="l">do método decifradas</div></div>
+        </div>
+      </div>
+
+      <div class="manual-visual reveal d2">
+        <div class="ribbon">Sumário Estratégico</div>
+        <div class="manual">
+          <div class="spine"></div>
+          <div class="pages"></div>
+          <div class="cover">
+            <span class="badge-top"><span style="width:6px;height:6px;border-radius:50%;background:#FF8C3A"></span> 130 páginas · 160 tópicos</span>
+            <div class="title-block">
+              <div class="small">Método 4 Fases</div>
+              <h3>Solar<br/>Buy-Side</h3>
+              <div class="ed">
+                <span>Buy-Side</span><span>Sell-Side</span>
+              </div>
+            </div>
+            <div class="seal">
+              <div class="ring"><i>SBS</i></div>
+              <div>
+                <div style="font-family:'Sora';font-weight:600;color:#fff;font-size:.78rem">Estratégico</div>
+                <div>Anexos Técnicos</div>
+              </div>
+            </div>
+            <div class="glare"></div>
+          </div>
+        </div>
+        <div class="topics">
+          <span>Fase 1 · Pesquisa</span>
+          <span>Fase 2 · Análise</span>
+          <span>Fase 3 · Decisão</span>
+          <span>Fase 4 · Pós-venda</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HISTÓRIA RODRIGO ===== -->
+<section class="story">
+  <div class="container">
+    <div class="grid">
+      <div>
+        <span class="eyebrow on-dark reveal"><span class="dot"></span> Resultado real</span>
+        <h2 class="reveal d1" style="margin-top:18px">"Em um mês, fechei <span class="accent">5 sistemas novos.</span>"</h2>
+        <p class="lede reveal d2">A história de Rodrigo é apenas um exemplo do poder deste manual. Ele é a ponte entre o comprador bem informado e o vendedor preparado — impulsionando negociações justas e satisfatórias.</p>
+
+        <div class="bridge-feats reveal d3">
+          <div class="f">
+            <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div><h4>+130 páginas</h4><p>Conteúdo técnico e estratégico denso.</p></div>
+          </div>
+          <div class="f">
+            <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+            <div><h4>160 tópicos</h4><p>Organizados para consulta rápida.</p></div>
+          </div>
+          <div class="f">
+            <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
+            <div><h4>Método 4 fases</h4><p>Orienta toda a jornada de compra.</p></div>
+          </div>
+          <div class="f">
+            <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+            <div><h4>Anexos técnicos</h4><p>Documentação pronta para aplicar.</p></div>
+          </div>
+        </div>
+
+        <a href="#oferta" class="btn btn-primary lg reveal d4">
+          Quero fechar mais projetos solares
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <div class="story-card reveal d2">
+        <div class="stat-pop">
+          <div class="label">Crescimento</div>
+          <div class="num">+5</div>
+          <div class="sub">sistemas em 30 dias</div>
+        </div>
+        <span class="pill"><span style="width:6px;height:6px;border-radius:50%;background:#FF8C3A"></span> Integrador Solar · São Paulo</span>
+        <div class="avatar-lg"><span>R</span></div>
+        <div class="name">Rodrigo</div>
+        <div class="role">Integrador Solar · SP</div>
+        <p class="quote">Eu sofria com a concorrência acirrada e a baixa conversão. O Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e isso mudou o jogo.</p>
+        <p class="quote second">Em um mês, fechei 5 sistemas novos. O mais gratificante foi a conexão: deixei de ser apenas um vendedor e me tornei um verdadeiro parceiro para meus clientes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BÔNUS ===== -->
+<section class="bonus-band">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Oferta especial</span>
+      <h2 class="reveal d1">O segredo por trás dos resultados: <em style="font-style:normal;color:var(--orange-700)">O Código do Vendedor Consultivo</em>.</h2>
+      <p class="reveal d2">Para dominar o Manual Solar Buy-Side, Rodrigo utilizou o Código do Vendedor Consultivo como seu mapa estratégico. Foi esse guia que o ensinou a aplicar a lógica inversa — o verdadeiro segredo por trás dos resultados.</p>
+    </div>
+
+    <div class="bonus-card reveal">
+      <div class="left">
+        <span class="badge">Ativo estratégico · Bônus incluso</span>
+        <h3>O Código do Vendedor Consultivo</h3>
+        <p>Para quem não aceita mais perder vendas por preço. Um método de imersão direto, sem enrolação, para conduzir decisões — não concessões.</p>
+        <div class="ebook-mock">
+          <div class="icn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div>
+            <strong>E-book: Código do Vendedor Consultivo</strong>
+            <span>26 páginas · Acesso imediato após a compra</span>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <h4>O que você vai dominar</h4>
+        <div class="title">Quatro alavancas para fechar com clientes técnicos e criteriosos.</div>
+        <div class="bonus-list">
+          <div class="row">
+            <span class="check" style="background:var(--orange-50); color:var(--orange-700); width:28px; height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></span>
+            <div>
+              <h5>Índice de Confiabilidade</h5>
+              <p>Aprenda a medir e provar a segurança da sua proposta de forma estruturada.</p>
+            </div>
+          </div>
+          <div class="row">
+            <span class="check" style="background:var(--orange-50); color:var(--orange-700); width:28px; height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+            <div>
+              <h5>Ajuste de precisão com checklist</h5>
+              <p>Refine seus materiais com base no que compradores realmente avaliam (e o que descartam).</p>
+            </div>
+          </div>
+          <div class="row">
+            <span class="check" style="background:var(--orange-50); color:var(--orange-700); width:28px; height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></span>
+            <div>
+              <h5>Estratégia anti-leilão</h5>
+              <p>Saiba exatamente como agir com clientes focados em preço — e recupere sua margem.</p>
+            </div>
+          </div>
+          <div class="row">
+            <span class="check" style="background:var(--orange-50); color:var(--orange-700); width:28px; height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <div>
+              <h5>Postura consultiva de elite</h5>
+              <p>Prepare-se para fechar contratos com clientes técnicos que costumam ignorar vendedores comuns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OFERTA / PRICING ===== -->
+<section id="oferta" class="pricing">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow on-dark reveal"><span class="dot"></span> Pré-venda profissional · Por tempo limitado</span>
+      <h2 class="reveal d1" style="margin-top:16px">O tempo está correndo. Quem agir primeiro, vende mais.</h2>
+      <p class="reveal d2">Em um mercado competitivo, sua vantagem é o conhecimento. Garanta o método que os grandes players usam para dominar o Buy-Side.</p>
+    </div>
+
+    <div class="price-grid">
+      <div class="includes reveal">
+        <div class="include-card">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <div>
+            <span class="tag">Manual Principal</span>
+            <h4>Manual Solar Buy-Side</h4>
+            <p>Acesso vitalício à bíblia da estratégia solar — 130 páginas, 160 tópicos e o Método em 4 Fases.</p>
+          </div>
+          <div></div>
+        </div>
+        <div class="include-card">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+          <div>
+            <span class="tag">Diferencial</span>
+            <h4>Código do Vendedor Consultivo</h4>
+            <p>26 páginas para vender decisão (não preço) — postura consultiva, anti-leilão e fechamento técnico.</p>
+          </div>
+          <div></div>
+        </div>
+        <div class="include-card">
+          <div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div>
+            <span class="tag">Bônus</span>
+            <h4>Turbine sua equipe</h4>
+            <p>Licença de uso coletiva — até 10 cópias por CNPJ para distribuir ao time comercial.</p>
+          </div>
+          <div class="pill-bonus">Bônus</div>
+        </div>
+
+        <div class="timer-row" id="timerRow">
+          <div class="label">Sua oferta expira em:</div>
+          <div class="time" id="timer">
+            <div class="box"><div class="n" data-t="d">02</div><div class="l">Dias</div></div>
+            <div class="box"><div class="n" data-t="h">14</div><div class="l">Hrs</div></div>
+            <div class="box"><div class="n" data-t="m">37</div><div class="l">Min</div></div>
+            <div class="box"><div class="n" data-t="s">29</div><div class="l">Seg</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-card reveal d2">
+        <div class="toggle" role="tablist" aria-label="Forma de pagamento">
+          <button class="active" data-mode="parcel" role="tab" aria-selected="true">Parcelado</button>
+          <button data-mode="cash" role="tab">À vista (PIX)</button>
+        </div>
+
+        <div class="from"><s>De R$ 997,00</s> por apenas</div>
+        <div class="price">
+          <span class="x" id="px">12x</span>
+          <span class="num" id="pnum">R$ 92,23</span>
+        </div>
+        <div class="pix" id="pix">Ou <b>R$ 897,00</b> à vista no PIX</div>
+
+        <ul class="pclist">
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg></span> Acesso imediato após pagamento</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg></span> Manual + Bônus + Licença CNPJ até 10 cópias</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg></span> Garantia incondicional de 7 dias</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg></span> Checkout 100% criptografado · GREENN</li>
+        </ul>
+
+        <div class="cta-block">
+          <a href="#" class="btn btn-primary lg" id="ctaBuy">
+            Acessar o Manual agora
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+        </div>
+
+        <div class="paybar">
+          <div class="pays">
+            <span class="pay-chip">VISA</span>
+            <span class="pay-chip">MASTER</span>
+            <span class="pay-chip">PIX</span>
+            <span class="pay-chip">BOLETO</span>
+          </div>
+          <div class="guarantee">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4z"/></svg>
+            Garantia 7 dias
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DEPOIMENTOS COMPRADORES ===== -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Guia do comprador</span>
+      <h2 class="reveal d1">As vozes de quem aprendeu — relatos de compradores informados.</h2>
+      <p class="reveal d2">Veja o que compradores estão aprendendo. Quanto mais cedo você dominar essa mesma lógica, mais cedo deixa de competir por preço.</p>
+    </div>
+
+    <div class="grid">
+      <article class="tcard reveal">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"Errar na escolha de um fornecedor pode gerar prejuízo enorme."</h4>
+        <p>O manual foi indispensável para evitar armadilhas, ensinando-me a identificar empresas despreparadas e equipamentos duvidosos. Fechei negócio com a melhor empresa: meu investimento de R$ 195 mil foi muito bem aplicado.</p>
+        <div class="highlight">"O Manual é o seguro que todo empresário precisa para investir com risco controlado."</div>
+        <div class="author"><div class="av">R</div><div><strong>Ricardo</strong><span>Empresário · São Paulo / SP</span></div></div>
+      </article>
+
+      <article class="tcard reveal d1">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"Decisão segura em investimento complexo."</h4>
+        <p>Optei pela instalação de um sistema solar híbrido com baterias. Para embasar um investimento de alta complexidade técnica e valor, utilizei com sucesso o Manual de Compra Solar Buy-Side, que orientou todo o processo.</p>
+        <div class="highlight">"Para quem busca segurança e ganho de tempo, recomendo com total confiança."</div>
+        <div class="author"><div class="av b2">G</div><div><strong>Guilherme</strong><span>Particular · Santana de Parnaíba / SP</span></div></div>
+      </article>
+
+      <article class="tcard reveal d2">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"O manual foi o divisor de águas."</h4>
+        <p>Quando precisei cortar custos fixos da minha metalúrgica, travei — de energia solar eu não entendia nada. O manual me deu o mapa para estudar as propostas e descartar quem estava só no gogó. Investi R$ 188 mil com total segurança.</p>
+        <div class="highlight">"Valeu demais! Recomendo mesmo!"</div>
+        <div class="author"><div class="av b3">J</div><div><strong>Jorge Luiz</strong><span>Empresário · Rio de Janeiro / RJ</span></div></div>
+      </article>
+
+      <article class="tcard reveal">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"O manual valeu cada página."</h4>
+        <p>Nunca tinha tido contato com energia solar e temia tomar a decisão errada. O conteúdo claro e estruturado mudou tudo. As 4 fases foram essenciais e o índice interativo, com mais de 160 tópicos, sanou todas as dúvidas.</p>
+        <div class="highlight">"Sem exagero: valeu cada página."</div>
+        <div class="author"><div class="av b4">R</div><div><strong>Rogério</strong><span>Particular · Campinas / SP</span></div></div>
+      </article>
+
+      <article class="tcard reveal d1">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"Esse manual foi realmente um passo a passo arretado!"</h4>
+        <p>Morando sozinha, a variedade de empresas e tecnologias me deixava insegura. O manual foi fundamental: aprendi a avaliar propostas e descartar o que era bom demais para ser verdade. Instalei meu sistema de R$ 28 mil com total convicção.</p>
+        <div class="highlight">"Me deu a segurança para decidir sem arrependimentos."</div>
+        <div class="author"><div class="av b5">L</div><div><strong>Lucineide</strong><span>Particular · Recife / PE</span></div></div>
+      </article>
+
+      <article class="tcard reveal d2">
+        <div class="stars" aria-label="5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8 7.2 14.5 1.5 9.6 9 9z"/></svg>
+        </div>
+        <h4>"O Manual me deu segurança para investir R$ 248 mil."</h4>
+        <p>Sou produtor rural em Sinop/MT. Com a expansão da lavoura, a conta de luz pesava muito. O Manual Solar Buy-Side me ensinou a comparar propostas tecnicamente e evitar erros caros que eu nem conhecia.</p>
+        <div class="highlight">"Ferramenta indispensável para quem busca eficiência no campo."</div>
+        <div class="author"><div class="av b6">E</div><div><strong>Edivaldo</strong><span>Produtor rural · Sinop / MT</span></div></div>
+      </article>
+    </div>
+
+    <div style="text-align:center; margin-top:48px" class="reveal">
+      <a href="#oferta" class="btn btn-dark lg">
+        Acessar guia estratégico agora
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== AUTORES ===== -->
+<section id="autores" class="authors">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow reveal"><span class="dot"></span> Experiência dual</span>
+      <h2 class="reveal d1">Concebido por quem domina as duas perspectivas da mesa.</h2>
+      <p class="reveal d2">Este conteúdo foi construído por dois especialistas que atuam dos dois lados da negociação — um pelo comprador, outro pelo vendedor.</p>
+    </div>
+
+    <div class="author-grid">
+      <div class="author-card reveal">
+        <div class="top">
+          <div class="portrait"><span>FP</span></div>
+          <div>
+            <span class="meta-tag">Buy-Side · Comprador</span>
+            <h3>Francis Poloni</h3>
+            <div class="role">Especialista Visão Buy-Side · +7 anos</div>
+          </div>
+        </div>
+        <p class="bio">Atua desde 2018 no setor de integração fotovoltaica e consultoria, onde assessorou tanto no lado do comprador quanto do vendedor — ajudando na tomada de decisões inteligentes e seguras.</p>
+        <div class="pills">
+          <span>Integração FV</span><span>Consultoria</span><span>Buy-Side</span>
+        </div>
+      </div>
+      <div class="author-card b reveal d1">
+        <div class="top">
+          <div class="portrait"><span>OC</span></div>
+          <div>
+            <span class="meta-tag">Sell-Side · Vendedor</span>
+            <h3>Ovídio Collesi</h3>
+            <div class="role">Especialista Visão Sell-Side · +5 anos</div>
+          </div>
+        </div>
+        <p class="bio">Vasta experiência em venda e pós-venda no setor de energia solar fotovoltaica desde 2020. Passagens por marketplaces, distribuidores, integração solar e certificadora — visão completa do lado do vendedor.</p>
+        <div class="pills">
+          <span>Marketplaces</span><span>Distribuidores</span><span>Pós-venda</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-wrap">
+      <div class="faq-side">
+        <span class="eyebrow reveal"><span class="dot"></span> Ficou com dúvidas?</span>
+        <h2 class="reveal d1" style="margin-top:18px">Perguntas frequentes.</h2>
+        <p class="reveal d2">Nossa equipe está pronta para ajudar você a entender como o Manual Buy-Side pode transformar sua operação comercial.</p>
+        <a href="#" class="btn btn-dark reveal d3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.4A11.9 11.9 0 0 0 12 0C5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12 0-3.2-1.3-6.2-3.5-8.4zM12 22c-1.8 0-3.6-.5-5.2-1.4l-.4-.2-3.7 1 1-3.6-.2-.4A10 10 0 1 1 22 12c0 5.5-4.5 10-10 10z"/></svg>
+          Fale com a equipe Buy-Side
+        </a>
+      </div>
+
+      <div class="faq-list">
+        <details class="faq-item reveal" open>
+          <summary>Como acessar meu produto após a compra?<span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></summary>
+          <div class="body">Após a confirmação do pagamento, você recebe um e-mail automático com o acesso ao Manual Solar Buy-Side em alguns minutos. Caso não localize, verifique também spam e promoções. Em caso de dúvida, fale com nossa equipe pelo WhatsApp.</div>
+        </details>
+        <details class="faq-item reveal d1">
+          <summary>Como funciona a garantia e o prazo de devolução?<span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></summary>
+          <div class="body">Você tem até 7 dias corridos após a confirmação do pagamento para solicitar reembolso integral, sem necessidade de justificativa, conforme art. 49 do CDC. Garantia incondicional: se o conteúdo não for o que esperava, basta avisar dentro do prazo.</div>
+        </details>
+        <details class="faq-item reveal d2">
+          <summary>Política de devolução: como proceder para o reembolso?<span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></summary>
+          <div class="body">Para solicitar o reembolso dentro dos 7 dias, entre em contato pelo WhatsApp informando o e-mail utilizado na compra e o motivo (opcional). O estorno é processado em até 7 dias úteis, na mesma forma de pagamento utilizada — cartão, PIX ou boleto.</div>
+        </details>
+        <details class="faq-item reveal d2">
+          <summary>O Manual serve para iniciantes e profissionais experientes?<span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></summary>
+          <div class="body">Sim. Para iniciantes, é uma base sólida que constrói autoridade desde o primeiro projeto. Para experientes, decifra padrões do comprador moderno e oferece um arsenal anti-desconto pronto para aplicar com sua carteira atual.</div>
+        </details>
+        <details class="faq-item reveal d3">
+          <summary>A licença coletiva por CNPJ funciona como?<span class="plus"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span></summary>
+          <div class="body">Com a licença coletiva inclusa, você pode distribuir até 10 cópias do Manual para profissionais da mesma empresa (CNPJ). Ideal para integradoras que querem nivelar o discurso comercial do time inteiro com máxima economia.</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site">
+  <div class="container">
+    <div class="top">
+      <div>
+        <a href="#" class="logo">
+          <span class="mark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="4" fill="#fff"/>
+              <g stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/><path d="M4.6 4.6l2.1 2.1"/><path d="M17.3 17.3l2.1 2.1"/><path d="M4.6 19.4l2.1-2.1"/><path d="M17.3 6.7l2.1-2.1"/></g>
+            </svg>
+          </span>
+          Solar Buy-Side
+        </a>
+        <p class="descr">Buy-Side Soluções · CNPJ 55.463.06/0001-80<br/>
+        Torre Norte — Av. Bento Munhoz da Rocha Neto, 632, 19º Andar, Salas 1905 a 1908 — Zona 7, Maringá / PR, 87030-010</p>
+      </div>
+      <div class="col">
+        <h4>Navegação</h4>
+        <a href="#panorama">Panorama 2026</a>
+        <a href="#manual">Manual</a>
+        <a href="#para-quem">Para quem</a>
+        <a href="#autores">Autores</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="col">
+        <h4>Legal</h4>
+        <a href="/politica-de-privacidade">Política de Privacidade</a>
+        <a href="/termos-de-uso">Termos de Uso</a>
+        <a href="/medidas-antipiratarias">Medidas Antipirataria</a>
+      </div>
+      <div class="col">
+        <h4>Contato</h4>
+        <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a>
+        <a href="#">WhatsApp · Atendimento</a>
+        <a href="https://greenn.com.br" target="_blank" rel="noopener">Checkout · GREENN</a>
+      </div>
+    </div>
+    <div class="bottom">
+      <div>© 2026 Buy-Side Soluções. Todos os direitos reservados.</div>
+      <div class="legal">
+        <span>Pagamentos via Greenn</span>
+        <span>·</span>
+        <span>Compra segura</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== Floating CTA ===== -->
+<div class="floating-cta" id="floatingCta">
+  <a href="#oferta" class="btn btn-primary">
+    Acessar Manual
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+  </a>
+</div>
+
+<script>
+  // Header shadow on scroll
+  const header = document.getElementById('siteHeader');
+  const floating = document.getElementById('floatingCta');
+  const onScroll = () => {
+    const y = window.scrollY;
+    header.classList.toggle('scrolled', y > 12);
+    floating.classList.toggle('show', y > 800);
+  };
+  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // Mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
+  }, {threshold: 0.12, rootMargin: '0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Pricing toggle
+  const px = document.getElementById('px');
+  const pnum = document.getElementById('pnum');
+  const pix = document.getElementById('pix');
+  document.querySelectorAll('.price-card .toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.price-card .toggle button').forEach(b => {
+        b.classList.remove('active'); b.setAttribute('aria-selected','false');
+      });
+      btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+      const cash = btn.dataset.mode === 'cash';
+      px.textContent = cash ? '' : '12x';
+      px.style.display = cash ? 'none' : 'inline';
+      pnum.textContent = cash ? 'R$ 897,00' : 'R$ 92,23';
+      pix.innerHTML = cash
+        ? 'Ou <b>12x de R$ 92,23</b> no cartão'
+        : 'Ou <b>R$ 897,00</b> à vista no PIX';
+    });
+  });
+
+  // Countdown timer (cosmético — visual urgency)
+  (function(){
+    const end = Date.now() + (2*24*3600 + 14*3600 + 37*60 + 29) * 1000;
+    const d = document.querySelector('[data-t="d"]');
+    const h = document.querySelector('[data-t="h"]');
+    const m = document.querySelector('[data-t="m"]');
+    const s = document.querySelector('[data-t="s"]');
+    function pad(n){ return String(Math.max(0,n)).padStart(2,'0'); }
+    function tick(){
+      const diff = Math.max(0, Math.floor((end - Date.now())/1000));
+      const dd = Math.floor(diff/86400);
+      const hh = Math.floor((diff%86400)/3600);
+      const mm = Math.floor((diff%3600)/60);
+      const ss = diff%60;
+      d.textContent = pad(dd); h.textContent = pad(hh); m.textContent = pad(mm); s.textContent = pad(ss);
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+</script>
+</body>
+</html>

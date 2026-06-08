@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Medidas Antipirataria · Solar Buy-Side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --orange:#F26A1F; --orange-strong:#D9551A;
+    --ink:#0E1530; --ink-2:#1F2845; --ink-soft:#3C4763; --muted:#5E6B85;
+    --bg:#FFFFFF; --bg-soft:#F7F8FB; --line:rgba(14,21,48,.08);
+    --header-h:76px;
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:'Inter', system-ui, sans-serif; color:var(--ink); background:#fff; font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased}
+  a{color:var(--orange-strong); text-decoration:underline; text-underline-offset:2px}
+  a:hover{color:var(--orange)}
+  h1,h2,h3{font-family:'Plus Jakarta Sans', sans-serif; color:var(--ink); letter-spacing:-.02em; line-height:1.15; margin:0}
+  h1{font-size:clamp(2rem, 2vw + 1rem, 2.8rem); font-weight:800; letter-spacing:-.03em}
+  h2{font-size:1.3rem; font-weight:700; margin-top:48px; margin-bottom:14px}
+  h3{font-size:1.05rem; font-weight:600; margin-top:24px; margin-bottom:8px}
+  p{margin:0 0 14px}
+  ul, ol{margin:0 0 14px; padding-left:22px} li{margin-bottom:8px}
+  .container{max-width:840px; margin:0 auto; padding:0 28px}
+
+  header.site{
+    position:sticky; top:0; z-index:60; height:var(--header-h);
+    background:rgba(255,255,255,.92); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; height:100%; max-width:1200px; margin:0 auto; padding:0 28px}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; color:var(--ink); font-size:1.02rem; text-decoration:none}
+  .logo .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #FF8A3D, var(--orange) 50%, var(--orange-strong)); display:grid; place-items:center; color:#fff; box-shadow:0 6px 14px -4px rgba(242,106,31,.45); position:relative; overflow:hidden}
+  .logo .mark::before{content:""; position:absolute; inset:-6px; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 55%)}
+  .back-link{display:inline-flex; align-items:center; gap:6px; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.92rem; color:var(--ink-soft); text-decoration:none}
+  .back-link:hover{color:var(--ink)}
+  .back-link svg{width:16px; height:16px}
+
+  .hero-mini{padding:80px 0 32px; background:linear-gradient(180deg, #F7FBFF, #fff)}
+  .crumbs{font-family:'Plus Jakarta Sans', sans-serif; font-size:.84rem; color:var(--muted); margin-bottom:16px}
+  .crumbs a{color:var(--muted); text-decoration:none}
+  .crumbs a:hover{color:var(--ink)}
+  .updated{font-family:'Plus Jakarta Sans', sans-serif; font-size:.84rem; color:var(--muted); margin-top:14px; display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#fff; border:1px solid var(--line); border-radius:999px}
+  .updated svg{width:14px; height:14px; color:var(--orange)}
+
+  .content{padding:48px 0 96px}
+  .content p, .content li{color:var(--ink-soft)}
+  .content strong{color:var(--ink); font-weight:700}
+  .content .toc{
+    background:var(--bg-soft); border:1px solid var(--line);
+    border-radius:16px; padding:20px 24px; margin-bottom:48px;
+  }
+  .content .toc h3{margin:0 0 10px; font-size:.84rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .content .toc ol{margin:0; padding-left:20px}
+  .content .toc a{color:var(--ink-2); text-decoration:none}
+  .content .toc a:hover{color:var(--orange-strong); text-decoration:underline}
+
+  .contact-card{
+    margin-top:64px; padding:28px;
+    background:linear-gradient(180deg, #FFF6EB, #FFE9D2);
+    border-radius:18px;
+  }
+  .contact-card h3{margin-top:0; color:var(--ink)}
+  .contact-card p{color:var(--ink-2); margin-bottom:6px}
+
+  footer.site{background:#08122C; color:rgba(255,255,255,.6); padding:48px 0 28px; margin-top:48px}
+  footer.site .row{max-width:1200px; margin:0 auto; padding:0 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; font-size:.86rem}
+  footer.site a{color:rgba(255,255,255,.7); text-decoration:none; margin-right:18px}
+  footer.site a:hover{color:var(--orange)}
+
+  @media (max-width: 640px){
+    .container{padding:0 20px}
+    .nav{padding:0 20px}
+    .hero-mini{padding:48px 0 24px}
+    .content{padding:32px 0 64px}
+    h1{font-size:1.7rem}
+    .contact-card{padding:22px}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav">
+    <a class="logo" href="/">
+      <span class="mark" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3.5" fill="#fff"/>
+          <g stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 3v2.5"/><path d="M12 18.5V21"/><path d="M3 12h2.5"/><path d="M18.5 12H21"/>
+            <path d="M5.6 5.6l1.8 1.8"/><path d="M16.6 16.6l1.8 1.8"/>
+            <path d="M5.6 18.4l1.8-1.8"/><path d="M16.6 7.4l1.8-1.8"/>
+          </g>
+        </svg>
+      </span>
+      Solar Buy-Side
+    </a>
+    <a class="back-link" href="Landing Page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      Voltar para o site
+    </a>
+  </div>
+</header>
+
+<section class="hero-mini">
+  <div class="container">
+    <div class="crumbs"><a href="Landing Page.html">In&iacute;cio</a> &nbsp;&middot;&nbsp; Medidas Antipirataria</div>
+    <h1>Medidas Antipirataria</h1>
+    <div class="updated">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="10"/></svg>
+      Atualizado em 19 de maio de 2026
+    </div>
+  </div>
+</section>
+
+<main class="content">
+  <div class="container">
+
+    <div class="toc">
+      <h3>Conte&uacute;do</h3>
+      <ol>
+        <li><a href="#s1">Propriedade e confidencialidade</a></li>
+        <li><a href="#s2">Uso restrito</a></li>
+        <li><a href="#s3">Consequ&ecirc;ncias legais</a></li>
+      </ol>
+    </div>
+
+    <p>O Manual Solar Buy-Side e o e-book C&oacute;digo do Vendedor Consultivo s&atilde;o produtos digitais protegidos pela legisla&ccedil;&atilde;o brasileira de direitos autorais. Este documento descreve as condi&ccedil;&otilde;es de uso e as medidas adotadas pela Buy-Side Solu&ccedil;&otilde;es Inova Simples contra reprodu&ccedil;&atilde;o n&atilde;o autorizada.</p>
+
+    <h2 id="s1">1. Cl&aacute;usula de propriedade e confidencialidade</h2>
+    <p>Todo o material disponibilizado ao Comprador, incluindo textos, ilustra&ccedil;&otilde;es, esquemas, anexos t&eacute;cnicos, marca, identidade visual e metodologia em quatro fases, &eacute; de propriedade exclusiva da Buy-Side Solu&ccedil;&otilde;es Inova Simples (CNPJ 55.463.060/0001-80), protegido pela Lei 9.610/1998 (Lei de Direitos Autorais) e demais legisla&ccedil;&atilde;o aplic&aacute;vel.</p>
+    <p>O Comprador reconhece o car&aacute;ter confidencial dos materiais e compromete-se a n&atilde;o divulg&aacute;-los a terceiros n&atilde;o autorizados.</p>
+
+    <h2 id="s2">2. Uso restrito</h2>
+    <p>A aquisi&ccedil;&atilde;o do Manual concede ao Comprador uma licen&ccedil;a de uso pessoal e intransfer&iacute;vel, ou, no caso da licen&ccedil;a coletiva, uma licen&ccedil;a de uso por CNPJ limitada a at&eacute; 10 (dez) c&oacute;pias para profissionais da mesma empresa.</p>
+    <p>&Eacute; expressamente proibido:</p>
+    <ul>
+      <li>Revender, sublicenciar ou ceder o material a terceiros.</li>
+      <li>Distribuir, publicar ou compartilhar o conte&uacute;do em redes sociais, grupos de mensagem, sites de download ou qualquer canal aberto.</li>
+      <li>Reproduzir, total ou parcialmente, o conte&uacute;do em outros produtos, cursos, treinamentos ou materiais comerciais.</li>
+      <li>Remover, alterar ou ocultar marcas d&apos;&aacute;gua, logotipos, cr&eacute;ditos ou avisos de direitos autorais.</li>
+      <li>Realizar engenharia reversa, modifica&ccedil;&atilde;o ou cria&ccedil;&atilde;o de obras derivadas n&atilde;o autorizadas.</li>
+    </ul>
+
+    <h2 id="s3">3. Consequ&ecirc;ncias legais e medidas antipirataria</h2>
+    <p>A viola&ccedil;&atilde;o destas regras sujeita o infrator &agrave;s seguintes medidas, sem preju&iacute;zo de outras cab&iacute;veis:</p>
+    <ul>
+      <li><strong>Civis:</strong> obriga&ccedil;&atilde;o de indeniza&ccedil;&atilde;o por danos materiais e morais decorrentes do uso indevido.</li>
+      <li><strong>Criminais:</strong> aplica&ccedil;&atilde;o do art. 184 do C&oacute;digo Penal (viola&ccedil;&atilde;o de direitos autorais), com pena de deten&ccedil;&atilde;o de 3 meses a 1 ano e/ou multa, e penas maiores nas formas qualificadas.</li>
+      <li><strong>Imediatas:</strong> bloqueio do acesso ao produto, encerramento do contrato e notifica&ccedil;&atilde;o &agrave;s plataformas onde o conte&uacute;do indevidamente distribu&iacute;do for identificado.</li>
+    </ul>
+    <p>Em rela&ccedil;&atilde;o ao processo de cancelamento e reembolso, observam-se as regras da plataforma de checkout Greenn, conforme <a href="https://greenn.com.br/termos-de-compra-greenn/" target="_blank" rel="noopener">termos de compra da Greenn</a>, sendo o canal de reclama&ccedil;&otilde;es do comprador o endere&ccedil;o <a href="https://www.reclamacao.greenn.com.br" target="_blank" rel="noopener">www.reclamacao.greenn.com.br</a>.</p>
+    <p>Para denunciar uso indevido ou pedir esclarecimentos, escreva para <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a>.</p>
+
+    <div class="contact-card">
+      <h3>D&uacute;vidas sobre este documento?</h3>
+      <p>Buy-Side Solu&ccedil;&otilde;es Inova Simples &middot; CNPJ 55.463.060/0001-80</p>
+      <p>Torre Norte, Av. Bento Munhoz da Rocha Neto, 632, 19&ordm; Andar, Salas 1905 a 1908, Zona 7, Maring&aacute; / PR, 87030-010</p>
+      <p>E-mail: <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a></p>
+    </div>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="row">
+    <div>&copy; 2026 Buy-Side Solu&ccedil;&otilde;es. Todos os direitos reservados.</div>
+    <div>
+      <a href="politica-de-privacidade.html">Pol&iacute;tica de Privacidade</a>
+      <a href="termos-de-uso.html">Termos de Uso</a>
+      <a href="medidas-antipiratarias.html">Medidas Antipirataria</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

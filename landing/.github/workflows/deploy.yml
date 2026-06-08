@@ -1,0 +1,54 @@
+name: Deploy to HostGator
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build + Deploy dist via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+        env:
+          npm_config_production: false
+          npm_config_optional: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Ensure dist exists
+        run: |
+          test -f dist/index.html
+          test -d dist/assets
+
+      - name: FTP Deploy (dist only)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTGATOR_HOST }}
+          username: ${{ secrets.HOSTGATOR_USER }}
+          password: ${{ secrets.HOSTGATOR_PASSWORD }}
+          server-dir: ${{ secrets.HOSTGATOR_DIR }}
+          local-dir: dist/
+          protocol: ftp
+          port: 21
+          timeout: 300000
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/.env*
+            **/*.map

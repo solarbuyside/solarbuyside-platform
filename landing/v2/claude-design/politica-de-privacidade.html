@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Política de Privacidade · Solar Buy-Side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --orange:#F26A1F; --orange-strong:#D9551A;
+    --ink:#0E1530; --ink-2:#1F2845; --ink-soft:#3C4763; --muted:#5E6B85;
+    --bg:#FFFFFF; --bg-soft:#F7F8FB; --line:rgba(14,21,48,.08);
+    --header-h:76px;
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{font-family:'Inter', system-ui, sans-serif; color:var(--ink); background:#fff; font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased}
+  a{color:var(--orange-strong); text-decoration:underline; text-underline-offset:2px}
+  a:hover{color:var(--orange)}
+  h1,h2,h3{font-family:'Plus Jakarta Sans', sans-serif; color:var(--ink); letter-spacing:-.02em; line-height:1.15; margin:0}
+  h1{font-size:clamp(2rem, 2vw + 1rem, 2.8rem); font-weight:800; letter-spacing:-.03em}
+  h2{font-size:1.3rem; font-weight:700; margin-top:48px; margin-bottom:14px}
+  h3{font-size:1.05rem; font-weight:600; margin-top:24px; margin-bottom:8px}
+  p{margin:0 0 14px}
+  ul, ol{margin:0 0 14px; padding-left:22px} li{margin-bottom:8px}
+  .container{max-width:840px; margin:0 auto; padding:0 28px}
+
+  header.site{
+    position:sticky; top:0; z-index:60; height:var(--header-h);
+    background:rgba(255,255,255,.92); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; height:100%; max-width:1200px; margin:0 auto; padding:0 28px}
+  .logo{display:flex; align-items:center; gap:10px; font-family:'Plus Jakarta Sans', sans-serif; font-weight:700; color:var(--ink); font-size:1.02rem; text-decoration:none}
+  .logo .mark{width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg, #FF8A3D, var(--orange) 50%, var(--orange-strong)); display:grid; place-items:center; color:#fff; box-shadow:0 6px 14px -4px rgba(242,106,31,.45); position:relative; overflow:hidden}
+  .logo .mark::before{content:""; position:absolute; inset:-6px; background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 55%)}
+  .back-link{display:inline-flex; align-items:center; gap:6px; font-family:'Plus Jakarta Sans', sans-serif; font-weight:600; font-size:.92rem; color:var(--ink-soft); text-decoration:none}
+  .back-link:hover{color:var(--ink)}
+  .back-link svg{width:16px; height:16px}
+
+  .hero-mini{padding:80px 0 32px; background:linear-gradient(180deg, #F7FBFF, #fff)}
+  .crumbs{font-family:'Plus Jakarta Sans', sans-serif; font-size:.84rem; color:var(--muted); margin-bottom:16px}
+  .crumbs a{color:var(--muted); text-decoration:none}
+  .crumbs a:hover{color:var(--ink)}
+  .updated{font-family:'Plus Jakarta Sans', sans-serif; font-size:.84rem; color:var(--muted); margin-top:14px; display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#fff; border:1px solid var(--line); border-radius:999px}
+  .updated svg{width:14px; height:14px; color:var(--orange)}
+
+  .content{padding:48px 0 96px}
+  .content p, .content li{color:var(--ink-soft)}
+  .content strong{color:var(--ink); font-weight:700}
+  .content .toc{
+    background:var(--bg-soft); border:1px solid var(--line);
+    border-radius:16px; padding:20px 24px; margin-bottom:48px;
+  }
+  .content .toc h3{margin:0 0 10px; font-size:.84rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+  .content .toc ol{margin:0; padding-left:20px}
+  .content .toc a{color:var(--ink-2); text-decoration:none}
+  .content .toc a:hover{color:var(--orange-strong); text-decoration:underline}
+
+  .contact-card{
+    margin-top:64px; padding:28px;
+    background:linear-gradient(180deg, #FFF6EB, #FFE9D2);
+    border-radius:18px;
+  }
+  .contact-card h3{margin-top:0; color:var(--ink)}
+  .contact-card p{color:var(--ink-2); margin-bottom:6px}
+
+  footer.site{background:#08122C; color:rgba(255,255,255,.6); padding:48px 0 28px; margin-top:48px}
+  footer.site .row{max-width:1200px; margin:0 auto; padding:0 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; font-size:.86rem}
+  footer.site a{color:rgba(255,255,255,.7); text-decoration:none; margin-right:18px}
+  footer.site a:hover{color:var(--orange)}
+
+  @media (max-width: 640px){
+    .container{padding:0 20px}
+    .nav{padding:0 20px}
+    .hero-mini{padding:48px 0 24px}
+    .content{padding:32px 0 64px}
+    h1{font-size:1.7rem}
+    .contact-card{padding:22px}
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="nav">
+    <a class="logo" href="/">
+      <span class="mark" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3.5" fill="#fff"/>
+          <g stroke="#fff" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 3v2.5"/><path d="M12 18.5V21"/><path d="M3 12h2.5"/><path d="M18.5 12H21"/>
+            <path d="M5.6 5.6l1.8 1.8"/><path d="M16.6 16.6l1.8 1.8"/>
+            <path d="M5.6 18.4l1.8-1.8"/><path d="M16.6 7.4l1.8-1.8"/>
+          </g>
+        </svg>
+      </span>
+      Solar Buy-Side
+    </a>
+    <a class="back-link" href="Landing Page.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+      Voltar para o site
+    </a>
+  </div>
+</header>
+
+<section class="hero-mini">
+  <div class="container">
+    <div class="crumbs"><a href="Landing Page.html">In&iacute;cio</a> &nbsp;&middot;&nbsp; Política de Privacidade</div>
+    <h1>Política de Privacidade</h1>
+    <div class="updated">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="10"/></svg>
+      Atualizado em 19 de maio de 2026
+    </div>
+  </div>
+</section>
+
+<main class="content">
+  <div class="container">
+
+    <div class="toc">
+      <h3>Conte&uacute;do</h3>
+      <ol>
+        <li><a href="#s1">Defini&ccedil;&otilde;es</a></li>
+        <li><a href="#s2">Uso de dados pessoais</a></li>
+        <li><a href="#s3">N&atilde;o fornecimento de dados</a></li>
+        <li><a href="#s4">Dados coletados</a></li>
+        <li><a href="#s5">Compartilhamento com terceiros</a></li>
+        <li><a href="#s6">Transfer&ecirc;ncias internacionais</a></li>
+        <li><a href="#s7">Coleta autom&aacute;tica</a></li>
+        <li><a href="#s8">Direitos do usu&aacute;rio</a></li>
+        <li><a href="#s9">Seguran&ccedil;a dos dados</a></li>
+        <li><a href="#s10">Links externos</a></li>
+        <li><a href="#s11">Atualiza&ccedil;&otilde;es</a></li>
+        <li><a href="#s12">Respons&aacute;vel pelo tratamento</a></li>
+      </ol>
+    </div>
+
+    <p>A Buy-Side Solu&ccedil;&otilde;es Inova Simples, inscrita no CNPJ 55.463.060/0001-80, valoriza a privacidade dos visitantes e clientes da plataforma Solar Buy-Side. Esta Pol&iacute;tica explica como coletamos, usamos, armazenamos e compartilhamos dados pessoais em conformidade com a Lei Geral de Prote&ccedil;&atilde;o de Dados Pessoais (Lei 13.709/2018, LGPD).</p>
+
+    <h2 id="s1">1. Defini&ccedil;&otilde;es</h2>
+    <p>Para fins desta Pol&iacute;tica, consideram-se:</p>
+    <ul>
+      <li><strong>Dado pessoal:</strong> informa&ccedil;&atilde;o relacionada a pessoa natural identificada ou identific&aacute;vel.</li>
+      <li><strong>Titular:</strong> pessoa natural a quem se referem os dados pessoais.</li>
+      <li><strong>Tratamento:</strong> toda opera&ccedil;&atilde;o realizada com dados pessoais (coleta, uso, armazenamento, compartilhamento, exclus&atilde;o).</li>
+      <li><strong>Controlador:</strong> Buy-Side Solu&ccedil;&otilde;es, respons&aacute;vel pelas decis&otilde;es de tratamento dos dados.</li>
+      <li><strong>Operador:</strong> terceiros que tratam dados em nome do controlador (ex.: Greenn, Brevo).</li>
+    </ul>
+
+    <h2 id="s2">2. Uso de dados pessoais</h2>
+    <p>Tratamos dados pessoais para as seguintes finalidades:</p>
+    <ul>
+      <li>Processar a compra do Manual Solar Buy-Side e bonus relacionados, via plataforma Greenn.</li>
+      <li>Entregar o conte&uacute;do digital adquirido e gerenciar o acesso do cliente.</li>
+      <li>Enviar a newsletter Solar Buy-Side e o material teaser gratuito, mediante consentimento.</li>
+      <li>Responder solicita&ccedil;&otilde;es de atendimento, suporte e p&oacute;s-venda.</li>
+      <li>Cumprir obriga&ccedil;&otilde;es legais, fiscais e contratuais.</li>
+      <li>Prevenir fraudes e proteger a integridade da plataforma.</li>
+    </ul>
+
+    <h2 id="s3">3. N&atilde;o fornecimento de dados</h2>
+    <p>O fornecimento de dados pessoais &eacute; volunt&aacute;rio. Por&eacute;m, sem certas informa&ccedil;&otilde;es n&atilde;o &eacute; poss&iacute;vel concluir a compra, entregar o produto digital ou enviar comunica&ccedil;&otilde;es solicitadas. O n&atilde;o fornecimento implica na impossibilidade de uso de partes ou da totalidade dos servi&ccedil;os.</p>
+
+    <h2 id="s4">4. Dados coletados</h2>
+    <p>Coletamos as seguintes categorias de dados:</p>
+    <ul>
+      <li><strong>Cadastro:</strong> nome, sobrenome, e-mail, telefone celular.</li>
+      <li><strong>Pagamento:</strong> dados de cobran&ccedil;a e transa&ccedil;&atilde;o (tratados diretamente pela Greenn, conforme pol&iacute;tica pr&oacute;pria).</li>
+      <li><strong>Navega&ccedil;&atilde;o:</strong> endere&ccedil;o IP, dispositivo, navegador, p&aacute;ginas visitadas, tempo de perman&ecirc;ncia, refer&ecirc;ncia de origem.</li>
+      <li><strong>Cookies:</strong> identificadores de sess&atilde;o, prefer&ecirc;ncias e dados anal&iacute;ticos.</li>
+    </ul>
+
+    <h2 id="s5">5. Compartilhamento de dados com terceiros</h2>
+    <p>Compartilhamos dados pessoais apenas com operadores e parceiros estritamente necess&aacute;rios &agrave; presta&ccedil;&atilde;o do servi&ccedil;o:</p>
+    <ul>
+      <li><strong>Greenn (greenn.com.br):</strong> checkout, pagamento, reembolso e regras de transa&ccedil;&atilde;o.</li>
+      <li><strong>Brevo (ex-Sendinblue):</strong> hospedagem de listas de e-mail e disparo de comunica&ccedil;&otilde;es transacionais e de marketing.</li>
+      <li><strong>FormSubmit:</strong> notifica&ccedil;&atilde;o interna por e-mail de novos cadastros recebidos pelo site.</li>
+      <li><strong>Autoridades p&uacute;blicas:</strong> quando exigido por obriga&ccedil;&atilde;o legal, regulat&oacute;ria ou ordem judicial.</li>
+    </ul>
+    <p>N&atilde;o comercializamos dados pessoais com terceiros para fins publicit&aacute;rios.</p>
+
+    <h2 id="s6">6. Transfer&ecirc;ncias internacionais</h2>
+    <p>Alguns de nossos operadores (Greenn, Brevo, FormSubmit) podem armazenar dados em servidores localizados fora do Brasil. Nestes casos, exigimos que seja garantido n&iacute;vel de prote&ccedil;&atilde;o compat&iacute;vel com a LGPD, por meio de cl&aacute;usulas contratuais espec&iacute;ficas.</p>
+
+    <h2 id="s7">7. Coleta autom&aacute;tica</h2>
+    <p>Coletamos automaticamente dados de navega&ccedil;&atilde;o por meio de cookies e tecnologias similares. Os cookies essenciais s&atilde;o usados para o funcionamento da plataforma; os cookies anal&iacute;ticos, mediante consentimento, ajudam a entender como os visitantes utilizam o site.</p>
+
+    <h2 id="s8">8. Direitos do usu&aacute;rio</h2>
+    <p>O titular dos dados tem direito a, mediante solicita&ccedil;&atilde;o ao e-mail <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a>:</p>
+    <ul>
+      <li>Confirmar a exist&ecirc;ncia de tratamento dos seus dados.</li>
+      <li>Acessar os dados que mantemos sobre voc&ecirc;.</li>
+      <li>Corrigir dados incompletos, inexatos ou desatualizados.</li>
+      <li>Solicitar a anonimiza&ccedil;&atilde;o, bloqueio ou elimina&ccedil;&atilde;o de dados desnecess&aacute;rios.</li>
+      <li>Solicitar a portabilidade dos dados a outro fornecedor de servi&ccedil;o.</li>
+      <li>Revogar o consentimento concedido.</li>
+    </ul>
+
+    <h2 id="s9">9. Seguran&ccedil;a dos dados</h2>
+    <p>Adotamos medidas t&eacute;cnicas e organizacionais para proteger os dados pessoais contra acesso n&atilde;o autorizado, perda, altera&ccedil;&atilde;o ou destrui&ccedil;&atilde;o. Conex&otilde;es de pagamento s&atilde;o criptografadas (TLS) e segregadas no parceiro Greenn.</p>
+
+    <h2 id="s10">10. Links externos</h2>
+    <p>A plataforma pode conter links para sites de terceiros (ex.: Greenn, redes sociais). N&atilde;o nos responsabilizamos pelas pol&iacute;ticas de privacidade desses servi&ccedil;os; recomendamos a leitura dos respectivos termos.</p>
+
+    <h2 id="s11">11. Atualiza&ccedil;&otilde;es desta Pol&iacute;tica</h2>
+    <p>Esta Pol&iacute;tica pode ser revisada periodicamente. A data da &uacute;ltima atualiza&ccedil;&atilde;o consta no in&iacute;cio do documento. Recomendamos consulta peri&oacute;dica.</p>
+
+    <h2 id="s12">12. Respons&aacute;vel pelo tratamento de dados</h2>
+    <p>Controlador: Buy-Side Solu&ccedil;&otilde;es Inova Simples, CNPJ 55.463.060/0001-80. Para o exerc&iacute;cio dos seus direitos ou esclarecimentos, entre em contato pelo e-mail <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a>.</p>
+
+    <div class="contact-card">
+      <h3>D&uacute;vidas sobre este documento?</h3>
+      <p>Buy-Side Solu&ccedil;&otilde;es Inova Simples &middot; CNPJ 55.463.060/0001-80</p>
+      <p>Torre Norte, Av. Bento Munhoz da Rocha Neto, 632, 19&ordm; Andar, Salas 1905 a 1908, Zona 7, Maring&aacute; / PR, 87030-010</p>
+      <p>E-mail: <a href="mailto:contato@buyside.com.br">contato@buyside.com.br</a></p>
+    </div>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="row">
+    <div>&copy; 2026 Buy-Side Solu&ccedil;&otilde;es. Todos os direitos reservados.</div>
+    <div>
+      <a href="politica-de-privacidade.html">Pol&iacute;tica de Privacidade</a>
+      <a href="termos-de-uso.html">Termos de Uso</a>
+      <a href="medidas-antipiratarias.html">Medidas Antipirataria</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

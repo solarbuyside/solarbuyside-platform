@@ -1,0 +1,18 @@
+# Normaliza line-endings: armazena tudo como LF no repositório.
+# Evita falsos positivos de diff entre WSL/Linux e Windows.
+* text=auto eol=lf
+
+# Binários — nunca normalizar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.mp4 binary
+*.webm binary
+*.zip binary
