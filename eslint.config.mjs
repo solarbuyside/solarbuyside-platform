@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // App da landing é um projeto Vite separado (monorepo) — lint próprio.
+    "landing/**",
   ]),
 ]);
 
