@@ -13,6 +13,10 @@ import {
   Pencil,
   Eye,
   RotateCw,
+  Monitor,
+  Smartphone,
+  Maximize2,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -60,6 +64,7 @@ function orderOf(id: string) {
 type SaveState = "idle" | "saving" | "saved" | "error";
 type Draft = { texts: Record<string, string>; images: Record<string, string> };
 type Mode = "edit" | "preview";
+type Device = "default" | "mobile" | "desktop";
 
 const GLOBAL_FIELDS: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "purchaseLink", label: "Link da venda (checkout Greenn)", icon: Link2 },
@@ -85,8 +90,10 @@ export function LandingEditor({
   );
   const [selectedId, setSelectedId] = React.useState(sections[0]?.sectionId ?? "");
   const [mode, setMode] = React.useState<Mode>("edit");
+  const [device, setDevice] = React.useState<Device>("default");
   const [iframeKey, setIframeKey] = React.useState(0);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
+  const modalIframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const selected = sections.find((s) => s.sectionId === selectedId);
   const draft = drafts[selectedId] ?? { texts: {}, images: {} };
@@ -99,10 +106,12 @@ export function LandingEditor({
     if (mode !== "preview") return;
     const hash = SECTION_ANCHOR[selectedId] ?? selectedId;
     const id = window.setTimeout(() => {
-      iframeRef.current?.contentWindow?.postMessage({ type: "scrollToSection", hash }, "*");
+      const msg = { type: "scrollToSection", hash };
+      iframeRef.current?.contentWindow?.postMessage(msg, "*");
+      modalIframeRef.current?.contentWindow?.postMessage(msg, "*");
     }, 400);
     return () => window.clearTimeout(id);
-  }, [mode, selectedId, iframeKey]);
+  }, [mode, selectedId, iframeKey, device]);
 
   function setText(k: string, v: string) {
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
@@ -189,16 +198,58 @@ export function LandingEditor({
 
           {mode === "preview" ? (
             <div className="p-3">
-              <iframe
-                key={iframeKey}
-                ref={iframeRef}
-                src={LP_URL}
-                title="Preview da landing"
-                className="h-[70vh] w-full rounded-lg border border-slate-200"
-              />
+              {/* seletor de dispositivo */}
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                  <DeviceBtn active={device === "default"} onClick={() => setDevice("default")} icon={Monitor} label="Padrão" />
+                  <DeviceBtn active={device === "mobile"} onClick={() => setDevice("mobile")} icon={Smartphone} label="Celular" />
+                  <DeviceBtn active={device === "desktop"} onClick={() => setDevice("desktop")} icon={Maximize2} label="Desktop (tela cheia)" />
+                </div>
+              </div>
+              <div className={device === "mobile" ? "mx-auto w-[390px]" : "w-full"}>
+                <iframe
+                  key={`inline-${iframeKey}`}
+                  ref={iframeRef}
+                  src={LP_URL}
+                  title="Preview da landing"
+                  className={cn("rounded-lg border border-slate-200", device === "mobile" ? "h-[78vh] w-[390px]" : "h-[70vh] w-full")}
+                />
+              </div>
               <p className="px-2 pt-2 text-[11px] text-slate-400">
                 Após salvar, clique em “Recarregar” para ver as alterações na preview.
               </p>
+
+              {/* modal desktop (tela cheia) */}
+              {device === "desktop" && (
+                <div className="fixed inset-0 z-50 flex flex-col bg-slate-900/80 p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-sm font-bold text-white">Preview — Desktop</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIframeKey((k) => k + 1)}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white/10 px-3 text-xs font-bold text-white hover:bg-white/20"
+                      >
+                        <RotateCw className="h-3.5 w-3.5" />
+                        Recarregar
+                      </button>
+                      <button
+                        onClick={() => setDevice("default")}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-white px-3 text-xs font-bold text-slate-800 hover:bg-slate-100"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Fechar
+                      </button>
+                    </div>
+                  </div>
+                  <iframe
+                    key={`modal-${iframeKey}`}
+                    ref={modalIframeRef}
+                    src={LP_URL}
+                    title="Preview desktop"
+                    className="w-full flex-1 rounded-lg border border-white/20 bg-white"
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-6 p-6">
@@ -271,6 +322,32 @@ function ToggleBtn({
     >
       <Icon className="h-3.5 w-3.5" />
       {label}
+    </button>
+  );
+}
+
+function DeviceBtn({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
+        active ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700",
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      <span className="hidden sm:inline">{label}</span>
     </button>
   );
 }
