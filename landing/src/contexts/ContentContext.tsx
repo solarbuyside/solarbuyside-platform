@@ -276,7 +276,13 @@ const applyAliases = (sections: SectionContent[]): SectionContent[] => {
   return sections.map(applySectionAliases)
 }
 
-const mergeSections = (baseSections: SectionContent[], incomingRaw: unknown): SectionContent[] => {
+const mergeSections = (
+  baseSections: SectionContent[],
+  incomingRaw: unknown,
+  // override=true: o conteúdo recebido (Supabase) VENCE o ContentData.
+  // override=false (legado): ContentData vence, recebido só preenche faltas.
+  override = false,
+): SectionContent[] => {
   if (!Array.isArray(incomingRaw)) {
     return baseSections
   }
@@ -300,9 +306,13 @@ const mergeSections = (baseSections: SectionContent[], incomingRaw: unknown): Se
 
     return {
       ...baseSection,
-      name: baseSection.name || incoming.name,
-      texts: { ...incoming.texts, ...baseSection.texts },
-      images: { ...incoming.images, ...baseSection.images },
+      name: override ? incoming.name || baseSection.name : baseSection.name || incoming.name,
+      texts: override
+        ? { ...baseSection.texts, ...incoming.texts }
+        : { ...incoming.texts, ...baseSection.texts },
+      images: override
+        ? { ...baseSection.images, ...incoming.images }
+        : { ...incoming.images, ...baseSection.images },
     }
   })
 
@@ -436,12 +446,58 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
     }
 
-    // CMS fetch disabled — ContentData.ts is the sole source of truth.
-    // Backend serves stale content that overrides the deployed build, causing
-    // a ~3-second flash of correct copy before reverting. Re-enable by
-    // uncommenting `loadContent()` below when the CMS DB is resynced.
-    void loadContent
-    // loadContent()
+    // Fonte da verdade agora é o Supabase (tabelas landing_sections /
+    // landing_globals). O conteúdo do Supabase SOBRESCREVE o ContentData
+    // (que vira fallback). O CMS antigo (Render) foi aposentado.
+    const loadFromSupabase = async () => {
+      const url = import.meta.env.VITE_SUPABASE_URL
+      const anon = import.meta.env.VITE_SUPABASE_ANON_KEY
+      if (!url || !anon) return // sem env → mantém ContentData
+      const headers = { apikey: anon, Authorization: `Bearer ${anon}` }
+      try {
+        const [secRes, globRes] = await Promise.all([
+          fetch(`${url}/rest/v1/landing_sections?select=section_id,name,texts,images`, { headers }),
+          fetch(`${url}/rest/v1/landing_globals?select=key,value`, { headers }),
+        ])
+        if (secRes.ok) {
+          const rows = (await secRes.json()) as Array<{
+            section_id: string; name: string | null; texts: unknown; images: unknown
+          }>
+          if (Array.isArray(rows) && rows.length > 0) {
+            const incoming = rows.map((r) => ({
+              id: r.section_id,
+              name: r.name ?? '',
+              texts: isRecord(r.texts) ? (r.texts as Record<string, string>) : {},
+              images: isRecord(r.images) ? (r.images as Record<string, string>) : {},
+            }))
+            const merged = mergeSections(initialContent, incoming, true)
+            setContent(merged)
+            localStorage.setItem('cms-content', JSON.stringify(merged))
+            localStorage.setItem('cms-content-version', String(CONTENT_VERSION))
+          }
+        }
+        if (globRes.ok) {
+          const rows = (await globRes.json()) as Array<{ key: string; value: string | null }>
+          if (Array.isArray(rows)) {
+            const map: Record<string, string> = {}
+            for (const r of rows) if (r.value != null) map[r.key] = r.value
+            setGlobalAssets((prev) => ({
+              favicon: map.favicon ?? prev.favicon,
+              logo: map.logo ?? prev.logo,
+            }))
+            setGlobalSettings((prev) => ({
+              whatsappNumber: map.whatsappNumber ?? prev.whatsappNumber,
+              purchaseLink: map.purchaseLink ?? prev.purchaseLink,
+            }))
+          }
+        }
+      } catch (error) {
+        console.debug('Supabase content load falhou, usando ContentData:', error)
+      }
+    }
+
+    void loadContent // CMS Render aposentado (mantido só como referência)
+    void loadFromSupabase()
   }, [])
 
   const persistSection = async (section: SectionContent): Promise<boolean> => {
