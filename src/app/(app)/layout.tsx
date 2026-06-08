@@ -1,6 +1,10 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+
 import { getCurrentUser, needsOnboarding, getAccessGate } from "@/lib/auth/current-user";
 import { listComparisonSummaries, listRecentEvents } from "@/lib/comparisons/repository";
 import { loadManualChapters } from "@/lib/manual/manual-index";
+import { verify2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 import { AppShell, type SearchItem, type NotificationItem, type ManualChapterItem } from "./app-shell";
 import { OnboardingModal } from "./onboarding-modal";
 import { AccessBlocked } from "./_components/access-blocked";
@@ -35,7 +39,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const gate = await getAccessGate();
   if (!gate.allowed) return <AccessBlocked reason={gate.reason as "expired" | "blocked"} />;
 
-  const [user, showOnboarding] = await Promise.all([getCurrentUser(), needsOnboarding()]);
+  const user = await getCurrentUser();
+  // 2FA por e-mail: não-admin precisa ter verificado o código deste login.
+  if (user && !user.isAdmin) {
+    const cookieStore = await cookies();
+    if (!verify2faToken(user.id, cookieStore.get(TWO_FA_COOKIE)?.value)) {
+      redirect("/verificar");
+    }
+  }
+
+  const showOnboarding = await needsOnboarding();
 
   let searchItems: SearchItem[] = [];
   let notifications: NotificationItem[] = [];

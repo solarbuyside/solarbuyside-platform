@@ -110,6 +110,28 @@ export async function sendAccessEmail(opts: {
   });
 }
 
+/** E-mail com o código de verificação (2FA) do login. */
+export async function sendLoginCodeEmail(email: string, code: string): Promise<SendResult> {
+  const subject = "Seu código de acesso — Solar Buy-Side";
+  const htmlContent = `<!doctype html>
+<html lang="pt-BR">
+  <body style="margin:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+    <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
+      <h1 style="font-size:20px;margin:0 0 8px;">Código de acesso</h1>
+      <p style="font-size:15px;line-height:1.6;color:#334155;margin:0 0 12px;">
+        Use o código abaixo para concluir o login na Plataforma Solar Buy-Side:
+      </p>
+      <p style="text-align:center;font-size:34px;font-weight:bold;letter-spacing:6px;color:#f97316;margin:20px 0;">${escapeHtml(code)}</p>
+      <p style="font-size:13px;line-height:1.6;color:#64748b;margin:0;">
+        O código expira em 10 minutos. Se não foi você que tentou entrar, ignore este e-mail e troque sua senha.
+      </p>
+      <p style="font-size:12px;color:#94a3b8;margin:24px 0 0;">Equipe Solar Buy-Side</p>
+    </div>
+  </body>
+</html>`;
+  return sendTransactionalEmail({ to: [{ email }], subject, htmlContent });
+}
+
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,

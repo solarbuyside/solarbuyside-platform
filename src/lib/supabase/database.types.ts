@@ -107,6 +107,24 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["ebook_leads"]["Insert"]>;
         Relationships: [];
       };
+      login_2fa_codes: {
+        Row: {
+          user_id: string;
+          code_hash: string;
+          expires_at: string;
+          attempts: number;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          code_hash: string;
+          expires_at: string;
+          attempts?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["login_2fa_codes"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;

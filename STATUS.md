@@ -49,6 +49,11 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 - `/admin/landing` (na plataforma, admin-gated) edita textos por seção + globais (purchaseLink etc.).
 - Newsletter/Ebook em serverless (`landing/api/newsletter/subscribe.js`, `landing/api/ebook/lead.js`) → Supabase (`newsletter_subscribers`, `ebook_leads`) + Brevo (listas 3/4). Testado (200, grava no Supabase).
 
+### Acesso ao /admin + 2FA
+- O **/admin é na PLATAFORMA**: `plataforma.solarbuyside.com.br/admin` (NÃO em `solarbuyside.com.br/admin`, que é a landing/admin legado morto).
+- Admins: env `ADMIN_EMAILS` = gab.feelix@gmail.com, francis_poloni@yahoo.com.br, contato@buyside.com.br. Admin = bypassa acesso-gate E 2FA.
+- **2FA por e-mail no login** (anti-compartilhamento): a cada login com senha de NÃO-admin, gera código de 6 dígitos (tabela `login_2fa_codes`, migration 0016), envia via Brevo, e o app só libera após `/verificar`. Cookie `sb-2fa` (HMAC) por login; apagado a cada login/logout. Admins não passam pelo 2FA. Pós-reset de senha cai em `/verificar` (usar "reenviar código").
+
 ### Admin, métricas e e-mails
 - `/admin/landing` (edita conteúdo) e `/admin/leads` (newsletter/ebook, dados reais do Supabase). Links no Painel Admin + botão "Métricas da LP (Vercel)".
 - Vercel Web Analytics + Speed Insights: pacotes/componentes nos 2 apps; habilitados no painel.

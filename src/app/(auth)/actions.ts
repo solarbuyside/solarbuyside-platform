@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { isAdminEmail } from "@/lib/env";
+import { issueLoginCode, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -31,7 +33,7 @@ export async function signInAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     console.error("[signIn] supabase error:", error.status, error.code, error.message);
@@ -42,10 +44,27 @@ export async function signInAction(formData: FormData) {
     redirectWith("/login", "error", friendly);
   }
 
+  // Sempre exige nova verificação 2FA a cada login: apaga o cookie de verificação.
+  const cookieStore = await cookies();
+  cookieStore.delete(TWO_FA_COOKIE);
+
   // Refresh server-rendered routes so the freshly written session cookies are
   // picked up before navigating, avoiding the client "unexpected response" race.
   revalidatePath("/", "layout");
-  redirect(next);
+
+  // Admins não passam pelo 2FA por e-mail.
+  if (isAdminEmail(email) || !data.user) {
+    redirect(next);
+  }
+
+  // Não-admin: gera o código por e-mail e manda para a verificação.
+  try {
+    await issueLoginCode(data.user.id, email);
+  } catch (err) {
+    console.error("[signIn] 2FA issue error:", err);
+    // segue para /verificar mesmo assim — lá há a opção de reenviar.
+  }
+  redirect("/verificar");
 }
 
 export async function signUpAction() {
@@ -101,6 +120,8 @@ export async function updatePasswordAction(formData: FormData) {
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  const cookieStore = await cookies();
+  cookieStore.delete(TWO_FA_COOKIE);
   revalidatePath("/", "layout");
   redirect("/login");
 }
