@@ -11,7 +11,6 @@ import {
 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackEbookDownload } from '../utils/analytics'
-import { API_URL } from '../utils/api'
 
 export const LeadMagnetSection: React.FC = () => {
   const { getSection } = useContent()
@@ -174,7 +173,7 @@ export const LeadMagnetSection: React.FC = () => {
                       // closes the modal/tab before the backend responds
                       // (Render free tier can cold-start ~30-60s). Without it
                       // the browser cancels the request and the lead is lost.
-                      fetch(`${API_URL}/api/ebook/lead`, {
+                      fetch(`/api/ebook/lead`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Mail, CheckCircle2 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackNewsletterSubscribe } from '../utils/analytics'
-import { API_URL } from '../utils/api'
 
 export const NewsletterSection: React.FC = () => {
   const { getSection } = useContent()
@@ -26,7 +25,7 @@ export const NewsletterSection: React.FC = () => {
     // closes the tab or navigates away before the backend responds (Render
     // free tier can cold-start for ~30-60s). Without it the browser cancels
     // the in-flight request and the lead is silently lost.
-    fetch(`${API_URL}/api/newsletter/subscribe`, {
+    fetch(`/api/newsletter/subscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: submittedEmail }),
