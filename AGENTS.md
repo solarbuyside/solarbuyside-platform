@@ -6,6 +6,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Solar Buy-Side Platform
 
+> **Estado atual do projeto: leia `STATUS.md` na raiz** — diz o que está pronto,
+> o que falta, os acessos (Vercel/Supabase/Brevo/Greenn via API no `.env`) e a
+> estrutura monorepo (plataforma na raiz + `landing/`). Ver também `MONOREPO.md`.
+
 This repository is a SaaS for comparing solar vendors/proposals. The source spreadsheet in the repository root is the business reference, not the runtime storage model.
 
 Design source of truth:

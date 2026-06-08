@@ -1,3 +1,7 @@
+> ⚠️ **SUPERADO — veja `STATUS.md` na raiz.** Este handoff era o plano; o épico
+> Greenn+Brevo JÁ FOI IMPLEMENTADO e está no ar (webhook, provisão, email,
+> cadastro gated). O `STATUS.md` tem o estado atual real. Mantido por histórico.
+
 # HANDOFF — Épico Brevo (item 12) + Greenn (item 13)
 
 > Continuação noutro notebook. Este doc é o estado completo. Leia antes de codar.
