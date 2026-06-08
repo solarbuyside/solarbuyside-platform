@@ -56,7 +56,10 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 
 ### Admin, métricas e e-mails
 - `/admin/landing` — editor **master-detail** (globais + lista de seções à esquerda na **ordem da LP**, textos/imagens da seção à direita, + **toggle Preview** com iframe da LP que rola até a seção). Salva em `landing_sections`/`landing_globals`. Os textos hardcoded dos componentes foram **extraídos pro banco** e **podados** para apenas as chaves que os componentes vivos leem (sem campos mortos). Praticamente todas as seções são editáveis (exceto as 3 legais — termos/privacidade/antipirataria — que vivem em `landing/src/legal/legalContent.ts`).
-- `/admin/leads` (newsletter/ebook, dados reais do Supabase). Links no Painel Admin + botão "Métricas da LP (Vercel)".
+- `/admin/landing` tem aba **Depoimentos** (cards): editor add/editar/remover, gravado nas chaves `testimonial{i}*` do buyer-wave. Preview com **Padrão/Celular/Desktop**.
+- `/admin/leads` (newsletter/ebook, dados reais do Supabase).
+- **`/admin/vendas`**: vendas da Greenn (tabela `greenn_events`, migration 0017; o webhook loga todo evento). KPIs pagas/reembolsadas/chargeback/líquidas.
+- **`/admin` reorganizado** em 3 áreas: Vendas (Greenn) · Landing Page · Plataforma.
 - `solarbuyside.com.br/admin` **redireciona** para `plataforma.solarbuyside.com.br/admin` (admin único; o admin antigo da landing/Render foi aposentado).
 - Vercel Web Analytics + Speed Insights: pacotes/componentes nos 2 apps; habilitados no painel.
 - **E-mails 100% PT-BR**: Custom SMTP do Brevo no Supabase Auth (sender `contato@solarbuyside.com.br`, DKIM); todos os 13 templates do Auth traduzidos. Acesso pós-compra e teaser do ebook saem via API Brevo. Bloqueio de IP do Brevo está DESATIVADO (necessário p/ o SMTP do Supabase funcionar).
