@@ -24,18 +24,22 @@ import {
   LegalPage,
 } from './components'
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
-import { AdminLogin } from './components/admin/AdminLogin'
-import { AdminTabs } from './components/admin/AdminTabs'
-import { useAuth } from './contexts/AuthContext'
 import { trackPageView, observeSection } from './utils/analytics'
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
-  const { isAuthenticated } = useAuth()
 
-  // Admin routes
+  // O admin agora vive na plataforma (Next + Supabase, com 2FA). O /admin da
+  // landing redireciona para lá — o admin antigo (Render) foi aposentado.
   if (pathname === '/admin') {
-    return isAuthenticated ? <AdminTabs /> : <AdminLogin />
+    if (typeof window !== 'undefined') {
+      window.location.replace('https://plataforma.solarbuyside.com.br/admin')
+    }
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#020617] text-slate-300">
+        Redirecionando para o painel…
+      </div>
+    )
   }
 
   const legalPages = {
