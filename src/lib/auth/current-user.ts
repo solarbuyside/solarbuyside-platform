@@ -30,6 +30,29 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 export type AccessGate = { allowed: boolean; reason: "ok" | "expired" | "blocked" };
 
 /**
+ * Dias restantes de acesso do usuário logado (não-admin). Retorna null para
+ * admin, conta sem validade, ou não logado. Usado no aviso de expiração
+ * (banner de contagem regressiva nos últimos dias).
+ */
+export async function getAccessExpiry(): Promise<{ expiresAt: string; daysLeft: number } | null> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  const email = (claims?.claims?.email as string | undefined) ?? null;
+  if (!userId || isAdminEmail(email)) return null;
+
+  const { data } = await supabase
+    .from("profiles")
+    .select("access_expires_at")
+    .eq("id", userId)
+    .maybeSingle();
+  const exp = data?.access_expires_at;
+  if (!exp) return null;
+  const daysLeft = Math.ceil((new Date(exp).getTime() - Date.now()) / 86_400_000);
+  return { expiresAt: exp, daysLeft };
+}
+
+/**
  * Portão de acesso pago (épico GREENN). Bloqueia quando o acesso foi revogado
  * (blocked_at) ou expirou (access_expires_at no passado). Contas sem
  * access_expires_at (antigas/admin/manuais) e admins passam sempre.

@@ -1,13 +1,16 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getCurrentUser, needsOnboarding, getAccessGate } from "@/lib/auth/current-user";
+import { getCurrentUser, needsOnboarding, getAccessGate, getAccessExpiry } from "@/lib/auth/current-user";
 import { listComparisonSummaries, listRecentEvents } from "@/lib/comparisons/repository";
 import { loadManualChapters } from "@/lib/manual/manual-index";
 import { verify2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 import { AppShell, type SearchItem, type NotificationItem, type ManualChapterItem } from "./app-shell";
 import { OnboardingModal } from "./onboarding-modal";
 import { AccessBlocked } from "./_components/access-blocked";
+import { ExpiryBanner } from "./_components/expiry-banner";
+
+const EXPIRY_WARN_DAYS = 15;
 
 const EVENT_LABELS: Record<string, { title: string; description: string }> = {
   "comparison.created": {
@@ -49,6 +52,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   const showOnboarding = await needsOnboarding();
+  const expiry = await getAccessExpiry();
+  const showExpiryWarning = expiry !== null && expiry.daysLeft <= EXPIRY_WARN_DAYS;
 
   let searchItems: SearchItem[] = [];
   let notifications: NotificationItem[] = [];
@@ -92,6 +97,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       manualChapters={manualChapters}
       notifications={notifications}
     >
+      {showExpiryWarning && expiry ? (
+        <div className="mb-5">
+          <ExpiryBanner daysLeft={expiry.daysLeft} />
+        </div>
+      ) : null}
       {children}
       <OnboardingModal autoOpen={showOnboarding} />
     </AppShell>
