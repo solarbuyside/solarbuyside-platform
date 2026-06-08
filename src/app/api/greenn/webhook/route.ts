@@ -3,6 +3,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { cleanEnv } from "@/lib/env";
 import { provisionGreennAccess, revokeGreennAccess } from "@/lib/access/provisioning";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/lib/supabase/database.types";
 
 export const runtime = "nodejs";
 
@@ -93,6 +95,23 @@ export async function POST(req: NextRequest) {
   ]);
   const name = pick(body, ["client.name", "customer.name", "buyer.name", "sale.client.name", "name"]);
   const orderId = pick(body, ["sale.id", "saleId", "order_id", "id", "sale.code"]) ?? "";
+  const normalized = status.toLowerCase();
+  const eventName = pick(body, ["event"]) ?? null;
+
+  // Log do evento para métricas de vendas (best-effort, não bloqueia).
+  try {
+    await createAdminClient()
+      .from("greenn_events")
+      .insert({
+        order_id: orderId || null,
+        email: email ?? null,
+        status: normalized || null,
+        event: eventName,
+        raw: body as unknown as Json,
+      });
+  } catch (e) {
+    console.error("[greenn] log event falhou:", e instanceof Error ? e.message : e);
+  }
 
   if (!email) {
     console.error("[greenn] webhook sem email — payload:", JSON.stringify(body));
@@ -100,7 +119,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ignored: "no email" });
   }
 
-  const normalized = status.toLowerCase();
   try {
     if (normalized === "paid") {
       const res = await provisionGreennAccess({ email, orderId, fullName: name ?? null });

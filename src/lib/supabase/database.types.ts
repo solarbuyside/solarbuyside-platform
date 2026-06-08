@@ -125,6 +125,28 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["login_2fa_codes"]["Insert"]>;
         Relationships: [];
       };
+      greenn_events: {
+        Row: {
+          id: number;
+          order_id: string | null;
+          email: string | null;
+          status: string | null;
+          event: string | null;
+          raw: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          order_id?: string | null;
+          email?: string | null;
+          status?: string | null;
+          event?: string | null;
+          raw?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["greenn_events"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;

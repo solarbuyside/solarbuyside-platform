@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ShieldCheck, FileText, Users, BarChart3 } from "lucide-react";
+import { ShieldCheck, FileText, Users, BarChart3, ShoppingCart } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getAdminOverview } from "@/lib/admin/overview";
@@ -41,6 +41,13 @@ export default async function AdminPage() {
           >
             <Users className="h-4 w-4" />
             Leads
+          </Link>
+          <Link
+            href="/admin/vendas"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 transition-all hover:border-primary/40 hover:text-primary active:scale-[0.98]"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Vendas
           </Link>
           <a
             href="https://vercel.com/francis-solarbuyside/solarbuyside-landing/analytics"
