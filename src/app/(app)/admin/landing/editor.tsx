@@ -17,11 +17,15 @@ import {
   Smartphone,
   Maximize2,
   X,
+  Quote,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LandingSection, LandingGlobals } from "@/lib/landing/content-admin";
 import { saveLandingSectionAction, saveLandingGlobalAction } from "./actions";
+import { TestimonialsEditor } from "./testimonials-editor";
+
+const TESTIMONIALS_VIEW = "__testimonials__";
 
 const LP_URL = "https://solarbuyside.com.br";
 
@@ -84,6 +88,7 @@ export function LandingEditor({
     () => [...rawSections].sort((a, b) => orderOf(a.sectionId) - orderOf(b.sectionId)),
     [rawSections],
   );
+  const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
 
   const [drafts, setDrafts] = React.useState<Record<string, Draft>>(() =>
     Object.fromEntries(sections.map((s) => [s.sectionId, { texts: { ...s.texts }, images: { ...s.images } }])),
@@ -132,8 +137,10 @@ export function LandingEditor({
     });
   }
 
-  const textKeys = Object.keys(draft.texts);
-  const imageKeys = Object.keys(draft.images);
+  // No buyer-wave, os campos testimonial* são editados na aba "Depoimentos".
+  const hideTestimonial = selectedId === "buyer-wave";
+  const textKeys = Object.keys(draft.texts).filter((k) => !(hideTestimonial && /^testimonial\d+/.test(k)));
+  const imageKeys = Object.keys(draft.images).filter((k) => !(hideTestimonial && /^testimonial\d+/.test(k)));
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -145,6 +152,18 @@ export function LandingEditor({
             Seções ({sections.length})
           </div>
           <div className="max-h-[460px] overflow-y-auto p-2">
+            {buyerWave && (
+              <button
+                onClick={() => setSelectedId(TESTIMONIALS_VIEW)}
+                className={cn(
+                  "mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+                  selectedId === TESTIMONIALS_VIEW ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
+                )}
+              >
+                <Quote className="h-3.5 w-3.5 shrink-0" />
+                Depoimentos (cards)
+              </button>
+            )}
             {sections.map((s) => {
               const count = Object.keys(drafts[s.sectionId]?.texts ?? {}).length;
               const active = s.sectionId === selectedId;
@@ -168,8 +187,11 @@ export function LandingEditor({
         </div>
       </div>
 
-      {/* DIREITA — editor / preview */}
+      {/* DIREITA — editor / preview / depoimentos */}
       <div className="lg:col-span-2">
+        {selectedId === TESTIMONIALS_VIEW && buyerWave ? (
+          <TestimonialsEditor section={buyerWave} />
+        ) : (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
             <div className="min-w-0">
@@ -296,6 +318,7 @@ export function LandingEditor({
             </div>
           )}
         </div>
+        )}
       </div>
     </div>
   );
