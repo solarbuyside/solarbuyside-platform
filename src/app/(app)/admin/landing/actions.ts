@@ -1,7 +1,7 @@
 "use server";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { saveLandingSectionTexts, saveLandingGlobalValue } from "@/lib/landing/content-admin";
+import { saveLandingSection, saveLandingGlobalValue } from "@/lib/landing/content-admin";
 
 async function assertAdmin() {
   const user = await getCurrentUser();
@@ -11,9 +11,10 @@ async function assertAdmin() {
 export async function saveLandingSectionAction(
   sectionId: string,
   texts: Record<string, string>,
+  images: Record<string, string>,
 ) {
   await assertAdmin();
-  await saveLandingSectionTexts(sectionId, texts);
+  await saveLandingSection(sectionId, texts, images);
 }
 
 export async function saveLandingGlobalAction(key: string, value: string) {

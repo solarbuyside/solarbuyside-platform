@@ -47,14 +47,15 @@ export async function getLandingGlobals(): Promise<LandingGlobals> {
   return out;
 }
 
-export async function saveLandingSectionTexts(
+export async function saveLandingSection(
   sectionId: string,
   texts: Record<string, string>,
+  images: Record<string, string>,
 ): Promise<void> {
   const admin = createAdminClient();
   const { error } = await admin
     .from("landing_sections")
-    .update({ texts, updated_at: new Date().toISOString() })
+    .update({ texts, images, updated_at: new Date().toISOString() })
     .eq("section_id", sectionId);
   if (error) throw new Error(error.message);
 }
