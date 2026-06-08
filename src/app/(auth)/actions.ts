@@ -87,8 +87,10 @@ export async function resetPasswordAction(formData: FormData) {
   const headerStore = await headers();
   const origin = headerStore.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const supabase = await createClient();
+  // redirect_to aponta para a nossa rota de callback, que troca o token por
+  // sessão (server-side) antes de seguir para /update-password.
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/update-password`,
+    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/update-password")}`,
   });
 
   if (error) {

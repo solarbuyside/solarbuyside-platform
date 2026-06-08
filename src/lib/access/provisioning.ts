@@ -68,20 +68,25 @@ export async function provisionGreennAccess(input: ProvisionInput): Promise<Prov
     return { ok: false, created, error: `falha ao atualizar profile: ${updateErr.message}` };
   }
 
-  // 3. Gera o link seguro (NÃO envia e-mail) e dispara via Brevo.
+  // 3. Gera o link seguro (NÃO envia e-mail) e dispara via Brevo. Usamos o
+  // token_hash através da nossa rota /auth/confirm (estabelece a sessão
+  // server-side) em vez do action_link cru, que cairia no /update-password
+  // sem sessão.
   const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
     type: "recovery",
     email,
     options: { redirectTo: `${getAppUrl()}/update-password` },
   });
-  if (linkErr || !linkData?.properties?.action_link) {
-    return { ok: false, created, error: `falha ao gerar link: ${linkErr?.message ?? "sem action_link"}` };
+  const tokenHash = linkData?.properties?.hashed_token;
+  if (linkErr || !tokenHash) {
+    return { ok: false, created, error: `falha ao gerar link: ${linkErr?.message ?? "sem token_hash"}` };
   }
+  const actionLink = `${getAppUrl()}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=recovery&next=${encodeURIComponent("/update-password")}`;
 
   const mail = await sendAccessEmail({
     to: email,
     name: input.fullName ?? null,
-    actionLink: linkData.properties.action_link,
+    actionLink,
   });
   if (!mail.ok) {
     return { ok: false, created, error: `acesso provisionado, mas e-mail falhou: ${mail.error ?? mail.status}` };
