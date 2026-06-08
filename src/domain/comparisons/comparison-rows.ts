@@ -77,15 +77,19 @@ function buildRows(
         defaultEnabled: def.defaultEnabled,
       });
     } else {
+      // Linha informativa: sem critério canônico, mas o comprador ainda pode
+      // querer pontuar manualmente. Damos um scoreKey sintético (= fieldKey) e
+      // deixamos DESLIGADO por padrão — assim a matemática do ranking não muda
+      // até o usuário ligar a linha. O motor de pontuação soma os ad-hoc ligados.
       rows.push({
         fieldKey: field.key,
         prop,
         label: field.label,
         section: field.section,
         kind: field.kind,
-        scoreKey: null,
+        scoreKey: field.key,
         rubric: null,
-        defaultEnabled: true,
+        defaultEnabled: false,
       });
     }
   }
@@ -129,19 +133,22 @@ const FINANCIAL_PROP_TO_SCORE: Record<string, string> = {
 
 export const financialScoreRows: ComparisonRow[] = financialFormFields.map((field) => {
   const prop = fieldProp(field.key);
-  const scoreKey = FINANCIAL_PROP_TO_SCORE[prop] ?? null;
-  const def = scoreKey
-    ? financialScoreDefinitions.find((d) => d.key === scoreKey)
+  const realScoreKey = FINANCIAL_PROP_TO_SCORE[prop];
+  const def = realScoreKey
+    ? financialScoreDefinitions.find((d) => d.key === realScoreKey)
     : undefined;
+  // Campos sem critério canônico viram pontuáveis manualmente (scoreKey
+  // sintético = fieldKey), DESLIGADOS por padrão — não alteram o ranking até
+  // o usuário ligar a linha.
   return {
     fieldKey: field.key,
     prop,
     label: field.label,
     section: field.section,
     kind: field.kind,
-    scoreKey: def?.key ?? null,
+    scoreKey: def?.key ?? field.key,
     rubric: def?.rubric ?? null,
-    defaultEnabled: def?.defaultEnabled ?? true,
+    defaultEnabled: def?.defaultEnabled ?? false,
   };
 });
 

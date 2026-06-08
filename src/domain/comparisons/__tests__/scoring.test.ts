@@ -33,4 +33,24 @@ describe("comparison scoring", () => {
 
     expect(result.selectedFinalistIds).toEqual(sampleComparison.selectedFinalistIds);
   });
+
+  it("counts an ad-hoc manual criterion only when the buyer enables it", () => {
+    const renova = "22222222-2222-4222-8222-222222222222";
+    const base = calculateComparisonResult(sampleComparison).competitors.find(
+      (c) => c.competitorId === renova,
+    )!;
+    // Liga uma linha informativa (technical.moduleCount) e dá nota 8.
+    const withAdHoc = calculateComparisonResult({
+      ...sampleComparison,
+      scoreSettings: [{ criterionKey: "technical.moduleCount", enabled: true, weight: 1 }],
+      scoreEntries: [
+        ...sampleComparison.scoreEntries,
+        { competitorId: renova, criterionKey: "technical.moduleCount", score: 8 },
+      ],
+    }).competitors.find((c) => c.competitorId === renova)!;
+
+    expect(withAdHoc.technicalScore.enabledCriteria).toBe(base.technicalScore.enabledCriteria + 1);
+    expect(withAdHoc.technicalScore.maxPoints).toBe(base.technicalScore.maxPoints + 10);
+    expect(withAdHoc.technicalScore.points).toBe(base.technicalScore.points + 8);
+  });
 });

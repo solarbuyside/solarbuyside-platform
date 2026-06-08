@@ -40,27 +40,57 @@ function enabledDefinitions(
   });
 }
 
+const DEFINITION_KEYS = new Set(scoreDefinitions.map((d) => d.key));
+const CATEGORY_BY_PREFIX: Record<string, ScoreCategory> = {
+  company: "company",
+  technical: "technical",
+  financial: "financial",
+};
+
+/**
+ * Critérios AD-HOC: linhas informativas (sem definição canônica) que o comprador
+ * ligou manualmente para pontuar. Entram no total como maxScore 10 cada. Ficam
+ * fora por padrão (settings desligados), então não mudam o ranking até serem
+ * ligados explicitamente.
+ */
+function enabledAdHoc(category: ScoreCategory, settings: ScoreSetting[]) {
+  return settings.filter((s) => {
+    if (!s.enabled) return false;
+    if (DEFINITION_KEYS.has(s.criterionKey)) return false;
+    return CATEGORY_BY_PREFIX[s.criterionKey.split(".")[0]] === category;
+  });
+}
+
 export function summarizeCategoryScore(
   comparison: ComparisonInput,
   competitorId: string,
   category: ScoreCategory,
 ): ScoreSummary {
   const definitions = enabledDefinitions(category, comparison.scoreSettings);
-  const points = definitions.reduce((total, definition) => {
+  let points = definitions.reduce((total, definition) => {
     const entry = scoreFor(comparison.scoreEntries, competitorId, definition.key);
     const weight = settingFor(comparison.scoreSettings, definition.key)?.weight ?? 1;
     return total + normalizeScore(entry?.score) * weight;
   }, 0);
-  const maxPoints = definitions.reduce((total, definition) => {
+  let maxPoints = definitions.reduce((total, definition) => {
     const weight = settingFor(comparison.scoreSettings, definition.key)?.weight ?? 1;
     return total + definition.maxScore * weight;
   }, 0);
+
+  // Critérios ad-hoc ligados manualmente pelo comprador (maxScore 10 cada).
+  const adHoc = enabledAdHoc(category, comparison.scoreSettings);
+  for (const setting of adHoc) {
+    const weight = setting.weight ?? 1;
+    const entry = scoreFor(comparison.scoreEntries, competitorId, setting.criterionKey);
+    points += normalizeScore(entry?.score) * weight;
+    maxPoints += 10 * weight;
+  }
 
   return {
     points: round2(points),
     maxPoints: round2(maxPoints),
     grade10: maxPoints > 0 ? round2((points / maxPoints) * 10) : 0,
-    enabledCriteria: definitions.length,
+    enabledCriteria: definitions.length + adHoc.length,
   };
 }
 

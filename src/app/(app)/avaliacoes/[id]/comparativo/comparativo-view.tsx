@@ -424,7 +424,10 @@ function ScoreTable({
                 return (
                   <tr
                     key={row.fieldKey}
-                    className={cn(idx % 2 === 0 ? "bg-white" : "bg-slate-50/60", !enabled && "opacity-50")}
+                    // Não esmaecer a linha quando "Não": os valores precisam
+                    // continuar legíveis para comparação. O estado é indicado só
+                    // pelo toggle "Sim/Não" e pelo "—" na célula de nota.
+                    className={cn(idx % 2 === 0 ? "bg-white" : "bg-slate-50/60")}
                   >
                     <td className="sticky left-0 z-10 bg-inherit border-r border-slate-100 px-4 py-2.5">
                       <div className="font-medium text-slate-700">{row.label}</div>

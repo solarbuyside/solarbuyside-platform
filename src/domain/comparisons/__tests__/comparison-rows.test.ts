@@ -20,8 +20,10 @@ describe("comparison-rows — casamento pergunta×nota", () => {
 
   it("técnico: toda definição de score tem uma linha correspondente", () => {
     const keys = new Set(technicalComparisonRows.filter((r) => r.scoreKey).map((r) => r.scoreKey));
-    expect(keys.size).toBe(technicalScoreDefinitions.length);
+    // Toda definição canônica está presente (além de linhas informativas que
+    // viraram critérios sintéticos pontuáveis manualmente).
     for (const def of technicalScoreDefinitions) expect(keys.has(def.key)).toBe(true);
+    expect(keys.size).toBeGreaterThanOrEqual(technicalScoreDefinitions.length);
   });
 
   it("não há scoreKey duplicado entre as linhas", () => {
@@ -31,9 +33,10 @@ describe("comparison-rows — casamento pergunta×nota", () => {
     expect(all.length).toBe(new Set(all).size);
   });
 
-  it("campos informativos (contagens) não recebem nota", () => {
+  it("campos informativos viram critérios sintéticos desligados por padrão", () => {
     const moduleCount = technicalComparisonRows.find((r) => r.prop === "moduleCount");
-    expect(moduleCount?.scoreKey).toBeNull();
+    expect(moduleCount?.scoreKey).toBe("technical.moduleCount");
+    expect(moduleCount?.defaultEnabled).toBe(false);
   });
 
   it("financeiro é só informativo (sem scoreKey no tipo)", () => {
