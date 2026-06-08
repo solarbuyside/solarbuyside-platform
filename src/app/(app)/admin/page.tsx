@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ShieldCheck, FileText } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getAdminOverview } from "@/lib/admin/overview";
@@ -26,6 +27,13 @@ export default async function AdminPage() {
         <p className="mt-1 text-sm text-slate-500">
           KPIs, uso da plataforma e gestão de usuários, avaliações e atividade.
         </p>
+        <Link
+          href="/admin/landing"
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 text-sm font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98]"
+        >
+          <FileText className="h-4 w-4" />
+          Editar conteúdo da Landing
+        </Link>
       </div>
 
       <AdminDashboard overview={overview} />

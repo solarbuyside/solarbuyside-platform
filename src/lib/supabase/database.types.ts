@@ -35,6 +35,36 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
         Relationships: [];
       };
+      landing_sections: {
+        Row: {
+          section_id: string;
+          name: string | null;
+          texts: Json;
+          images: Json;
+          updated_at: string;
+        };
+        Insert: {
+          section_id: string;
+          name?: string | null;
+          texts?: Json;
+          images?: Json;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["landing_sections"]["Insert"]>;
+        Relationships: [];
+      };
+      landing_globals: {
+        Row: {
+          key: string;
+          value: string | null;
+        };
+        Insert: {
+          key: string;
+          value?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["landing_globals"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;
