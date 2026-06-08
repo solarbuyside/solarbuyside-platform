@@ -65,6 +65,48 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["landing_globals"]["Insert"]>;
         Relationships: [];
       };
+      newsletter_subscribers: {
+        Row: {
+          id: number;
+          email: string;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          email: string;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["newsletter_subscribers"]["Insert"]>;
+        Relationships: [];
+      };
+      ebook_leads: {
+        Row: {
+          id: number;
+          nome: string | null;
+          sobrenome: string | null;
+          email: string;
+          celular: string | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          nome?: string | null;
+          sobrenome?: string | null;
+          email: string;
+          celular?: string | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ebook_leads"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;
