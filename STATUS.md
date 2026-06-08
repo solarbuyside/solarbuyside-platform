@@ -49,6 +49,11 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 - `/admin/landing` (na plataforma, admin-gated) edita textos por seção + globais (purchaseLink etc.).
 - Newsletter/Ebook em serverless (`landing/api/newsletter/subscribe.js`, `landing/api/ebook/lead.js`) → Supabase (`newsletter_subscribers`, `ebook_leads`) + Brevo (listas 3/4). Testado (200, grava no Supabase).
 
+### Admin, métricas e e-mails
+- `/admin/landing` (edita conteúdo) e `/admin/leads` (newsletter/ebook, dados reais do Supabase). Links no Painel Admin + botão "Métricas da LP (Vercel)".
+- Vercel Web Analytics + Speed Insights: pacotes/componentes nos 2 apps; habilitados no painel.
+- **E-mails 100% PT-BR**: Custom SMTP do Brevo no Supabase Auth (sender `contato@solarbuyside.com.br`, DKIM); todos os 13 templates do Auth traduzidos. Acesso pós-compra e teaser do ebook saem via API Brevo. Bloqueio de IP do Brevo está DESATIVADO (necessário p/ o SMTP do Supabase funcionar).
+
 ### Migrations (todas aplicadas)
 0011 (consumo+reputação técnica), 0012 (reputação empresa), 0013 (profiles acesso), 0014 (landing_sections/globals), 0015 (leads). 0014/0015 aplicadas via Management API.
 
