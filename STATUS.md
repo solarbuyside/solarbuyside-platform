@@ -40,7 +40,8 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 ### Acesso pago (Greenn + Brevo)
 - `POST /api/greenn/webhook` (token nos 3 lugares, constant-time): `paid`→provisiona (cria user, 6 meses, link via Supabase `generateLink`, email via Brevo), `refunded`/`chargedback`→bloqueia. Webhook configurado na Greenn no produto (Conteúdos → Webhook).
 - Cadastro público FECHADO (`/cadastro` vira aviso). Conta nasce pela compra.
-- Enforcement em `(app)/layout.tsx` (admin e contas sem `access_expires_at` passam direto).
+- Enforcement em `(app)/layout.tsx` (admin e contas sem `access_expires_at` passam direto). Validade checada **a cada acesso** (sem cron): expirou → tela `AccessBlocked`; reembolso/chargeback → `blocked_at` → `AccessBlocked`.
+- **Banner de expiração** (`ExpiryBanner`): nos últimos **15 dias** aparece no topo da área logada com contagem regressiva (vermelho ≤3 dias) e botão "Renovar acesso" → e-mail pronto para `contato@solarbuyside.com.br` (renovação = nova compra). `getAccessExpiry()` calcula os dias.
 - Email de acesso: Brevo direto; Supabase só gera o link.
 
 ### Landing
@@ -74,7 +75,7 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 - **GitHub**: limpo e sincronizado (`origin/main` == HEAD).
 - **Vercel**: deploys automáticos no push; domínios verificados (apex, www, plataforma).
 - **Brevo**: sender `contato@solarbuyside.com.br` ativo; envio transacional OK.
-- **Greenn**: envs presentes; webhook testado (paid/refunded/401). Falta confirmar o mapeamento na 1ª compra real.
+- **Greenn**: webhook **provado ao vivo em produção 2026-06-08** ponta-a-ponta — `paid`→provisão (conta + validade 6 meses + e-mail de acesso entregue via Brevo), `refunded`→bloqueio (`blocked_at`). Mapeamento dos campos **confirmado pela doc oficial** (`client.email`, `client.name`, `sale.status`, `sale.id`) — bate com o handler. Greenn **não tem sandbox** nem cupom 100% (mín. R$10/produto); teste real barato = cupom deixando R$10 + Pix, depois reembolso. Conta de teste `gab.feelix1@gmail.com` ativa (a descartável de bloqueio foi removida).
 - **Supabase env (Vercel)**: nomes "fora do padrão" (`Project_URL_SUPABASE`, `ANON_PUBLIC_SUPABASE`, `SERVICE_ROLE_SUPABASE`…) — cobertos pelo fallback de `src/lib/env.ts`. Auth é 100% server-side (nenhum component usa o browser client), então não dependemos de `NEXT_PUBLIC_*` no cliente.
 - **Auth**: login + 2FA + reset de senha + 1º acesso revisados e corrigidos (ver acima).
 
@@ -84,7 +85,7 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 
 1. **Desligar o Render** (só o usuário, no painel Render, ou via Render API token). A LP não depende mais dele.
    - ⚠️ O admin ANTIGO embutido na landing (login + aba Leads em `landing/src/components/admin`, que batiam em `/api/auth/*` e `/api/admin/leads/*` no Render) vai parar. Substituto: `/admin/landing` (conteúdo) na plataforma; leads ficam no Supabase. TODO opcional: aba "Leads" no /admin da plataforma lendo `newsletter_subscribers`/`ebook_leads`.
-2. **Confirmar o payload real da Greenn**: o webhook foi testado com payload simulado (parsing defensivo cobre vários formatos). Na 1ª compra real, ler o log da função no Vercel (`/api/greenn/webhook`) e ajustar o mapeamento dos campos se necessário (email/status/orderId) em `src/app/api/greenn/webhook/route.ts`.
+2. ~~Confirmar o payload real da Greenn~~ **RESOLVIDO**: mapeamento confirmado pela doc oficial (`client.email`/`client.name`/`sale.status`/`sale.id`) e webhook provado ao vivo (provisão + e-mail + bloqueio). Greenn não tem sandbox; quando quiser validar uma compra de verdade, use cupom que deixe R$10 + Pix e depois reembolse.
 3. ~~Item 12 (email confirmação Supabase Auth)~~ **FEITO**: Custom SMTP (Brevo) ligado, templates PT, e o fluxo de reset/1º-acesso passa pelo `/auth/confirm`. (Validar na prática enviando um "esqueci minha senha" real.)
 4. **(Opcional) Promover para `apps/*`**: hoje platform na raiz + landing/. Com o token Vercel dá pra mover coordenando o Root Directory.
 
