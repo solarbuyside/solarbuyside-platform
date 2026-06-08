@@ -4,6 +4,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { LEGAL_DOCS, getLegalDoc } from "@/lib/legal/content";
+import { getLegalDocDb } from "@/lib/legal/admin";
+
+// Conteúdo vem do banco (editável no /admin); reflete edições sem deploy.
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return LEGAL_DOCS.map((d) => ({ doc: d.slug }));
@@ -17,7 +21,13 @@ export async function generateMetadata({ params }: { params: Promise<{ doc: stri
 
 export default async function LegalPage({ params }: { params: Promise<{ doc: string }> }) {
   const { doc } = await params;
-  const found = getLegalDoc(doc);
+  // Fonte da verdade: banco (scope=platform). Fallback ao conteúdo em código.
+  const db = await getLegalDocDb("platform", doc).catch(() => null);
+  const fallback = getLegalDoc(doc);
+  const found =
+    db && db.blocks.length > 0
+      ? { slug: doc, title: db.title ?? fallback?.title ?? "Documento", subtitle: db.subtitle ?? fallback?.subtitle ?? "", blocks: db.blocks }
+      : fallback;
   if (!found) notFound();
 
   return (

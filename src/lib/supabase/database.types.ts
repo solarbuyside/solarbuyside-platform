@@ -147,6 +147,26 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["greenn_events"]["Insert"]>;
         Relationships: [];
       };
+      legal_docs: {
+        Row: {
+          scope: string;
+          slug: string;
+          title: string | null;
+          subtitle: string | null;
+          blocks: Json;
+          updated_at: string;
+        };
+        Insert: {
+          scope: string;
+          slug: string;
+          title?: string | null;
+          subtitle?: string | null;
+          blocks?: Json;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["legal_docs"]["Insert"]>;
+        Relationships: [];
+      };
       comparisons: {
         Row: {
           id: string;

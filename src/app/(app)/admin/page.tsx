@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ShieldCheck, FileText, Users, BarChart3, ShoppingCart, ArrowRight, TrendingUp } from "lucide-react";
+import { ShieldCheck, FileText, Users, BarChart3, ShoppingCart, ArrowRight, TrendingUp, Scale } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getAdminOverview } from "@/lib/admin/overview";
@@ -64,6 +64,12 @@ export default async function AdminPage() {
             icon={BarChart3}
             title="Métricas da LP (Vercel)"
             desc="Tráfego e performance (Web Analytics + Speed Insights)."
+          />
+          <NavCard
+            href="/admin/legal"
+            icon={Scale}
+            title="Documentos legais"
+            desc="Termos, Privacidade e Antipirataria — da Landing e da Plataforma."
           />
         </div>
       </Section>
