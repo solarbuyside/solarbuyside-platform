@@ -12,7 +12,19 @@ import {
 } from "@/lib/auth/two-factor";
 
 function back(type: "error" | "message", value: string): never {
-  redirect(`/verificar?${type}=${encodeURIComponent(value)}`);
+  // Mantém sent=1 para o formulário seguir no estado "código enviado".
+  redirect(`/verificar?sent=1&${type}=${encodeURIComponent(value)}`);
+}
+
+/** Envia o código pela 1ª vez (botão explícito) e passa para o estado "enviado". */
+export async function sendCodeAction() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub as string | undefined;
+  const email = data?.claims?.email as string | undefined;
+  if (!userId || !email) redirect("/login");
+  await issueLoginCode(userId, email);
+  redirect("/verificar?sent=1");
 }
 
 export async function verifyCodeAction(formData: FormData) {
@@ -45,3 +57,4 @@ export async function resendCodeAction() {
   await issueLoginCode(userId, email);
   back("message", "Enviamos um novo código para o seu e-mail.");
 }
+

@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { isAdminEmail } from "@/lib/env";
-import { issueLoginCode, make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
+import { make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -57,13 +57,9 @@ export async function signInAction(formData: FormData) {
     redirect(next);
   }
 
-  // Não-admin: gera o código por e-mail e manda para a verificação.
-  try {
-    await issueLoginCode(data.user.id, email);
-  } catch (err) {
-    console.error("[signIn] 2FA issue error:", err);
-    // segue para /verificar mesmo assim — lá há a opção de reenviar.
-  }
+  // Não-admin: vai para a verificação. O código NÃO é enviado automaticamente
+  // — a tela /verificar tem um botão "Enviar código" (ação explícita, evita
+  // o caso de chegar na tela sem código). Ver sendCodeAction.
   redirect("/verificar");
 }
 

@@ -17,7 +17,7 @@ function maskEmail(email: string) {
 export default async function VerificarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; sent?: string }>;
 }) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -48,7 +48,7 @@ export default async function VerificarPage({
             {params.message}
           </div>
         )}
-        <VerifyForm email={maskEmail(email)} />
+        <VerifyForm email={maskEmail(email)} sent={params.sent === "1"} />
       </div>
     </main>
   );
