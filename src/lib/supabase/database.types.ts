@@ -11,6 +11,10 @@ export type Database = {
           company_name: string | null;
           phone: string | null;
           onboarded_at: string | null;
+          access_expires_at: string | null;
+          greenn_order_id: string | null;
+          blocked_at: string | null;
+          access_source: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -21,6 +25,10 @@ export type Database = {
           company_name?: string | null;
           phone?: string | null;
           onboarded_at?: string | null;
+          access_expires_at?: string | null;
+          greenn_order_id?: string | null;
+          blocked_at?: string | null;
+          access_source?: string | null;
           created_at?: string;
           updated_at?: string;
         };

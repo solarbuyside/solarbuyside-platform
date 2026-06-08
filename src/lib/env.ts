@@ -1,6 +1,6 @@
 const DEFAULT_SUPABASE_URL = "https://phuomgqgucrcljwddrmq.supabase.co";
 
-function cleanEnv(value: string | undefined) {
+export function cleanEnv(value: string | undefined) {
   const cleaned = value?.trim();
   return cleaned && cleaned.length > 0 ? cleaned : undefined;
 }

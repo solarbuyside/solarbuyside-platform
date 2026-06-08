@@ -27,6 +27,35 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   };
 }
 
+export type AccessGate = { allowed: boolean; reason: "ok" | "expired" | "blocked" };
+
+/**
+ * Portão de acesso pago (épico GREENN). Bloqueia quando o acesso foi revogado
+ * (blocked_at) ou expirou (access_expires_at no passado). Contas sem
+ * access_expires_at (antigas/admin/manuais) e admins passam sempre.
+ */
+export async function getAccessGate(): Promise<AccessGate> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  const email = (claims?.claims?.email as string | undefined) ?? null;
+  if (!userId) return { allowed: true, reason: "ok" }; // não logado → middleware trata
+  if (isAdminEmail(email)) return { allowed: true, reason: "ok" };
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("access_expires_at,blocked_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) return { allowed: true, reason: "ok" }; // não trava o app em falha de query
+  if (data.blocked_at) return { allowed: false, reason: "blocked" };
+  if (data.access_expires_at && new Date(data.access_expires_at).getTime() < Date.now()) {
+    return { allowed: false, reason: "expired" };
+  }
+  return { allowed: true, reason: "ok" };
+}
+
 export type ProfileDetails = {
   fullName: string | null;
   phone: string | null;

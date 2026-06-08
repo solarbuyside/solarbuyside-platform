@@ -48,44 +48,14 @@ export async function signInAction(formData: FormData) {
   redirect(next);
 }
 
-export async function signUpAction(formData: FormData) {
-  const fullName = stringValue(formData, "fullName");
-  const email = stringValue(formData, "email");
-  const password = stringValue(formData, "password");
-  const confirmPassword = stringValue(formData, "confirmPassword");
-
-  if (!email || password.length < 8) {
-    redirectWith("/cadastro", "error", "Use um e-mail válido e senha com pelo menos 8 caracteres.");
-  }
-
-  if (password !== confirmPassword) {
-    redirectWith("/cadastro", "error", "As senhas não conferem.");
-  }
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName || null,
-      },
-    },
-  });
-
-  if (error) {
-    redirectWith("/cadastro", "error", "Nao foi possivel criar sua conta.");
-  }
-
-  // When email confirmation is disabled, signUp already returns an active
-  // session — log the user straight into the dashboard. If confirmation is
-  // still required (no session), fall back to the "check your e-mail" flow.
-  if (data.session) {
-    revalidatePath("/", "layout");
-    redirect("/dashboard");
-  }
-
-  redirectWith("/login", "message", "Conta criada. Confira seu e-mail para ativar e entrar.");
+export async function signUpAction() {
+  // Cadastro público FECHADO (modelo gated GREENN): a conta nasce pela compra
+  // do Manual + Código, provisionada pelo webhook. Não há auto-cadastro.
+  redirectWith(
+    "/login",
+    "message",
+    "O acesso é liberado após a compra do Manual Solar Buy-Side. Use o e-mail da compra para entrar.",
+  );
 }
 
 export async function resetPasswordAction(formData: FormData) {

@@ -1,9 +1,7 @@
 import Link from "next/link";
+import { ShoppingBag } from "lucide-react";
 
-import { signUpAction } from "../actions";
 import { AuthShell, AuthAlert } from "../_components/auth-shell";
-import { TextField, PasswordField } from "../_components/auth-fields";
-import { SubmitButton } from "../_components/submit-button";
 
 type CadastroPageProps = {
   searchParams: Promise<{
@@ -18,68 +16,35 @@ export default async function CadastroPage({ searchParams }: CadastroPageProps) 
   return (
     <AuthShell>
       <div className="mb-7">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Crie sua conta</h2>
-        <p className="mt-1 text-sm text-slate-500">Comece a comparar propostas em minutos.</p>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Acesso pela compra</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          O acesso à plataforma é um bônus de quem adquire o Manual Solar Buy-Side.
+        </p>
       </div>
 
       <AuthAlert error={params.error} message={params.message} />
 
-      <form action={signUpAction} className="grid gap-4">
-        <TextField
-          label="Nome"
-          name="fullName"
-          type="text"
-          autoComplete="name"
-          placeholder="Seu nome completo"
-        />
-        <TextField
-          label="E-mail"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="voce@empresa.com"
-          required
-        />
-        <PasswordField
-          label="Senha"
-          name="password"
-          autoComplete="new-password"
-          placeholder="Mínimo de 8 caracteres"
-          minLength={8}
-          required
-        />
-        <PasswordField
-          label="Repetir senha"
-          name="confirmPassword"
-          autoComplete="new-password"
-          placeholder="Repita a senha"
-          minLength={8}
-          required
-        />
-
-        <SubmitButton pendingLabel="Criando conta…">Criar conta</SubmitButton>
-
-        <p className="text-center text-[11px] leading-relaxed text-slate-400">
-          Ao criar sua conta, você concorda com nossos{" "}
-          <Link href="/legal/termos" className="font-semibold text-primary hover:underline">
-            Termos de Uso
-          </Link>{" "}
-          e{" "}
-          <Link href="/legal/privacidade" className="font-semibold text-primary hover:underline">
-            Política de Privacidade
-          </Link>
-          .
+      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
+        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
+          <ShoppingBag className="h-5 w-5 text-primary" />
+        </div>
+        <p className="text-sm leading-relaxed text-slate-700">
+          Ao comprar o <strong>Manual de Compra Solar Buy-Side</strong>, seu acesso é liberado
+          automaticamente com o mesmo e-mail usado na compra. Você recebe um e-mail para criar a
+          senha e entrar.
         </p>
-      </form>
-
-      <div className="mt-8 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs font-medium text-slate-400">ou</span>
-        <div className="h-px flex-1 bg-slate-200" />
+        <a
+          href="https://solarbuyside.com.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/95 active:scale-[0.98]"
+        >
+          Quero adquirir o Manual
+        </a>
       </div>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Já tem uma conta?{" "}
+        Já tem acesso?{" "}
         <Link href="/login" className="font-bold text-primary hover:underline">
           Entrar
         </Link>

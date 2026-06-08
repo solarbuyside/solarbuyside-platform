@@ -1,8 +1,9 @@
-import { getCurrentUser, needsOnboarding } from "@/lib/auth/current-user";
+import { getCurrentUser, needsOnboarding, getAccessGate } from "@/lib/auth/current-user";
 import { listComparisonSummaries, listRecentEvents } from "@/lib/comparisons/repository";
 import { loadManualChapters } from "@/lib/manual/manual-index";
 import { AppShell, type SearchItem, type NotificationItem, type ManualChapterItem } from "./app-shell";
 import { OnboardingModal } from "./onboarding-modal";
+import { AccessBlocked } from "./_components/access-blocked";
 
 const EVENT_LABELS: Record<string, { title: string; description: string }> = {
   "comparison.created": {
@@ -29,6 +30,11 @@ function relativeTime(iso: string) {
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  // Portão de acesso pago: barra contas expiradas/bloqueadas (admin e contas
+  // sem validade passam direto).
+  const gate = await getAccessGate();
+  if (!gate.allowed) return <AccessBlocked reason={gate.reason as "expired" | "blocked"} />;
+
   const [user, showOnboarding] = await Promise.all([getCurrentUser(), needsOnboarding()]);
 
   let searchItems: SearchItem[] = [];
