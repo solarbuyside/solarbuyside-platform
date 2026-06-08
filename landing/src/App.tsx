@@ -45,14 +45,17 @@ function App() {
   const legalPages = {
     '/politica-de-privacidade': {
       title: 'Pol\u00EDtica de Privacidade',
+      slug: 'privacidade',
       sections: privacySections,
     },
     '/termos-de-uso': {
       title: 'Termos de Uso',
+      slug: 'termos',
       sections: termsSections,
     },
     '/medidas-antipiratarias': {
       title: 'Medidas Antipiratarias',
+      slug: 'antipirataria',
       sections: antipiracySections,
     },
   } as const
@@ -135,7 +138,7 @@ function App() {
   if (legalPage) {
     return (
       <div className="font-sans">
-        <LegalPage title={legalPage.title} sections={legalPage.sections} />
+        <LegalPage title={legalPage.title} sections={legalPage.sections} slug={legalPage.slug} />
         <Footer />
       </div>
     )

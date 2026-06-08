@@ -7,12 +7,33 @@ type LegalSection = {
   list?: React.ReactNode[]
 }
 
+type Block = { type: 'heading' | 'p'; text: string }
+
 type LegalPageProps = {
   title: string
   sections: LegalSection[]
+  /** slug em legal_docs (scope=landing). Quando há conteúdo no banco, ele vence. */
+  slug?: string
 }
 
-export const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
+export const LegalPage: React.FC<LegalPageProps> = ({ title, sections, slug }) => {
+  const [blocks, setBlocks] = React.useState<Block[] | null>(null)
+
+  React.useEffect(() => {
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const anon = import.meta.env.VITE_SUPABASE_ANON_KEY
+    if (!slug || !url || !anon) return
+    fetch(`${url}/rest/v1/legal_docs?scope=eq.landing&slug=eq.${slug}&select=blocks`, {
+      headers: { apikey: anon, Authorization: `Bearer ${anon}` },
+    })
+      .then((r) => r.json())
+      .then((rows) => {
+        const b = Array.isArray(rows) && rows[0]?.blocks
+        if (Array.isArray(b) && b.length > 0) setBlocks(b as Block[])
+      })
+      .catch(() => {})
+  }, [slug])
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0B1120] via-[#0A1730] to-[#020617] text-slate-200">
       <div className="max-w-5xl mx-auto px-6 py-20">
@@ -28,27 +49,45 @@ export const LegalPage: React.FC<LegalPageProps> = ({ title, sections }) => {
           {title}
         </h1>
 
-        <div className="mt-10 space-y-10">
-          {sections.map((section, index) => (
-            <section key={`${title}-${index}`} className="space-y-4">
-              {section.heading && (
-                <h2 className="text-2xl md:text-3xl font-bold text-white">{section.heading}</h2>
-              )}
-              {section.paragraphs.map((paragraph, pIndex) => (
-                <p key={`${title}-${index}-${pIndex}`} className="text-slate-300 leading-relaxed text-base md:text-lg text-justify">
-                  {paragraph}
+        {blocks ? (
+          // Conteúdo do banco (editável no /admin)
+          <div className="mt-10 space-y-4">
+            {blocks.map((b, i) =>
+              b.type === 'heading' ? (
+                <h2 key={i} className="pt-4 text-2xl md:text-3xl font-bold text-white">
+                  {b.text}
+                </h2>
+              ) : (
+                <p key={i} className="text-slate-300 leading-relaxed text-base md:text-lg text-justify">
+                  {b.text}
                 </p>
-              ))}
-              {section.list && (
-                <ul className="list-disc list-inside space-y-2 text-slate-300 text-base md:text-lg text-justify">
-                  {section.list.map((item, itemIndex) => (
-                    <li key={`${title}-${index}-list-${itemIndex}`}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ))}
-        </div>
+              ),
+            )}
+          </div>
+        ) : (
+          // Fallback: conteúdo em código
+          <div className="mt-10 space-y-10">
+            {sections.map((section, index) => (
+              <section key={`${title}-${index}`} className="space-y-4">
+                {section.heading && (
+                  <h2 className="text-2xl md:text-3xl font-bold text-white">{section.heading}</h2>
+                )}
+                {section.paragraphs.map((paragraph, pIndex) => (
+                  <p key={`${title}-${index}-${pIndex}`} className="text-slate-300 leading-relaxed text-base md:text-lg text-justify">
+                    {paragraph}
+                  </p>
+                ))}
+                {section.list && (
+                  <ul className="list-disc list-inside space-y-2 text-slate-300 text-base md:text-lg text-justify">
+                    {section.list.map((item, itemIndex) => (
+                      <li key={`${title}-${index}-list-${itemIndex}`}>{item}</li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   )
