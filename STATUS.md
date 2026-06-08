@@ -52,7 +52,9 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 ### Acesso ao /admin + 2FA
 - O **/admin é na PLATAFORMA**: `plataforma.solarbuyside.com.br/admin` (NÃO em `solarbuyside.com.br/admin`, que é a landing/admin legado morto).
 - Admins: env `ADMIN_EMAILS` = gab.feelix@gmail.com, francis_poloni@yahoo.com.br, contato@buyside.com.br. Admin = bypassa acesso-gate E 2FA.
-- **2FA por e-mail no login** (anti-compartilhamento): a cada login com senha de NÃO-admin, gera código de 6 dígitos (tabela `login_2fa_codes`, migration 0016), envia via Brevo, e o app só libera após `/verificar`. Cookie `sb-2fa` (HMAC) por login; apagado a cada login/logout. Admins não passam pelo 2FA. Pós-reset de senha cai em `/verificar` (usar "reenviar código").
+- **2FA por e-mail no login** (anti-compartilhamento): a cada login com senha de NÃO-admin, gera código de 6 dígitos (tabela `login_2fa_codes`, migration 0016), envia via Brevo, e o app só libera após `/verificar`. Cookie `sb-2fa` (HMAC) por login; apagado a cada login/logout. Admins não passam pelo 2FA. Reset de senha / 1º acesso Greenn **não** caem mais no `/verificar`: ao definir a senha (`updatePasswordAction`), o cookie 2FA é setado (o link do e-mail já provou posse).
+- **Callback de auth** `/auth/confirm` (route handler): troca `token_hash` (verifyOtp) ou `code` (PKCE) por sessão server-side e segue para `next`. Sem ele, o link do e-mail caía no `/update-password` sem sessão e o `updateUser()` falhava. O reset (`resetPasswordForEmail`) e o 1º acesso (`generateLink`) passam por essa rota.
+- **Config do Auth (via API)**: `site_url = https://plataforma.solarbuyside.com.br`; `uri_allow_list` libera os domínios de prod + localhost; template de recuperação usa `{{ .TokenHash }}` apontando para `/auth/confirm`; `NEXT_PUBLIC_APP_URL` (Vercel) = domínio de produção.
 
 ### Admin, métricas e e-mails
 - `/admin/landing` — editor **master-detail** (globais + lista de seções à esquerda na **ordem da LP**, textos/imagens da seção à direita, + **toggle Preview** com iframe da LP que rola até a seção). Salva em `landing_sections`/`landing_globals`. Os textos hardcoded dos componentes foram **extraídos pro banco** e **podados** para apenas as chaves que os componentes vivos leem (sem campos mortos). Praticamente todas as seções são editáveis (exceto as 3 legais — termos/privacidade/antipirataria — que vivem em `landing/src/legal/legalContent.ts`).
@@ -60,13 +62,21 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 - `/admin/leads` (newsletter/ebook, dados reais do Supabase).
 - **`/admin/vendas`**: vendas da Greenn (tabela `greenn_events`, migration 0017; o webhook loga todo evento). KPIs pagas/reembolsadas/chargeback/líquidas.
 - **`/admin` reorganizado** em 3 áreas: Vendas (Greenn) · Landing Page · Plataforma.
-- **`/admin/legal`**: editor de blocos (título/parágrafo) dos 6 documentos legais (Landing + Plataforma), tabela `legal_docs` (migration 0018). A plataforma (`/legal/[doc]`) e a landing (`LegalPage`) leem do banco com fallback ao código.
+- **`/admin/legal`**: editor de blocos (título/parágrafo) dos 6 documentos legais (Landing + Plataforma), tabela `legal_docs` (migration 0018). Parágrafos têm **negrito (WYSIWYG)** — `contentEditable` + botão B; grava HTML sanitizado para só `<strong>`/`<em>` (`src/lib/legal/rich.ts`, barreira anti-XSS). A plataforma (`/legal/[doc]`) e a landing (`LegalPage`) renderizam via `dangerouslySetInnerHTML` + sanitize, com fallback ao código. Os negritos originais da landing (`font-semibold`) foram re-extraídos e preservados. As 3 legais **não** aparecem mais no editor de CONTEÚDO da landing (são exclusivas do `/admin/legal`).
 - `solarbuyside.com.br/admin` **redireciona** para `plataforma.solarbuyside.com.br/admin` (admin único; o admin antigo da landing/Render foi aposentado).
 - Vercel Web Analytics + Speed Insights: pacotes/componentes nos 2 apps; habilitados no painel.
 - **E-mails 100% PT-BR**: Custom SMTP do Brevo no Supabase Auth (sender `contato@solarbuyside.com.br`, DKIM); todos os 13 templates do Auth traduzidos. Acesso pós-compra e teaser do ebook saem via API Brevo. Bloqueio de IP do Brevo está DESATIVADO (necessário p/ o SMTP do Supabase funcionar).
 
 ### Migrations (todas aplicadas)
-0011 (consumo+reputação técnica), 0012 (reputação empresa), 0013 (profiles acesso), 0014 (landing_sections/globals), 0015 (leads). 0014/0015 aplicadas via Management API.
+0011 (consumo+reputação técnica), 0012 (reputação empresa), 0013 (profiles acesso), 0014 (landing_sections/globals), 0015 (leads), 0016 (login_2fa_codes), 0017 (greenn_events), 0018 (legal_docs). 0014–0018 aplicadas via Management API.
+
+### Auditoria 2026-06-08 (integrações)
+- **GitHub**: limpo e sincronizado (`origin/main` == HEAD).
+- **Vercel**: deploys automáticos no push; domínios verificados (apex, www, plataforma).
+- **Brevo**: sender `contato@solarbuyside.com.br` ativo; envio transacional OK.
+- **Greenn**: envs presentes; webhook testado (paid/refunded/401). Falta confirmar o mapeamento na 1ª compra real.
+- **Supabase env (Vercel)**: nomes "fora do padrão" (`Project_URL_SUPABASE`, `ANON_PUBLIC_SUPABASE`, `SERVICE_ROLE_SUPABASE`…) — cobertos pelo fallback de `src/lib/env.ts`. Auth é 100% server-side (nenhum component usa o browser client), então não dependemos de `NEXT_PUBLIC_*` no cliente.
+- **Auth**: login + 2FA + reset de senha + 1º acesso revisados e corrigidos (ver acima).
 
 ---
 
@@ -75,7 +85,7 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 1. **Desligar o Render** (só o usuário, no painel Render, ou via Render API token). A LP não depende mais dele.
    - ⚠️ O admin ANTIGO embutido na landing (login + aba Leads em `landing/src/components/admin`, que batiam em `/api/auth/*` e `/api/admin/leads/*` no Render) vai parar. Substituto: `/admin/landing` (conteúdo) na plataforma; leads ficam no Supabase. TODO opcional: aba "Leads" no /admin da plataforma lendo `newsletter_subscribers`/`ebook_leads`.
 2. **Confirmar o payload real da Greenn**: o webhook foi testado com payload simulado (parsing defensivo cobre vários formatos). Na 1ª compra real, ler o log da função no Vercel (`/api/greenn/webhook`) e ajustar o mapeamento dos campos se necessário (email/status/orderId) em `src/app/api/greenn/webhook/route.ts`.
-3. **Item 12 (email confirmação Supabase Auth)**: com cadastro fechado, quase não ocorre. Opcional ligar Custom SMTP (Brevo) no Supabase para reset de senha.
+3. ~~Item 12 (email confirmação Supabase Auth)~~ **FEITO**: Custom SMTP (Brevo) ligado, templates PT, e o fluxo de reset/1º-acesso passa pelo `/auth/confirm`. (Validar na prática enviando um "esqueci minha senha" real.)
 4. **(Opcional) Promover para `apps/*`**: hoje platform na raiz + landing/. Com o token Vercel dá pra mover coordenando o Root Directory.
 
 ---
