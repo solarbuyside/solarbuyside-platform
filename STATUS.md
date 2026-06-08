@@ -60,6 +60,7 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
 - `/admin/leads` (newsletter/ebook, dados reais do Supabase).
 - **`/admin/vendas`**: vendas da Greenn (tabela `greenn_events`, migration 0017; o webhook loga todo evento). KPIs pagas/reembolsadas/chargeback/líquidas.
 - **`/admin` reorganizado** em 3 áreas: Vendas (Greenn) · Landing Page · Plataforma.
+- **`/admin/legal`**: editor de blocos (título/parágrafo) dos 6 documentos legais (Landing + Plataforma), tabela `legal_docs` (migration 0018). A plataforma (`/legal/[doc]`) e a landing (`LegalPage`) leem do banco com fallback ao código.
 - `solarbuyside.com.br/admin` **redireciona** para `plataforma.solarbuyside.com.br/admin` (admin único; o admin antigo da landing/Render foi aposentado).
 - Vercel Web Analytics + Speed Insights: pacotes/componentes nos 2 apps; habilitados no painel.
 - **E-mails 100% PT-BR**: Custom SMTP do Brevo no Supabase Auth (sender `contato@solarbuyside.com.br`, DKIM); todos os 13 templates do Auth traduzidos. Acesso pós-compra e teaser do ebook saem via API Brevo. Bloqueio de IP do Brevo está DESATIVADO (necessário p/ o SMTP do Supabase funcionar).
