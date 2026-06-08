@@ -331,6 +331,30 @@ export function ManualReader({
     };
   }, [doc, page, scale]);
 
+  // Prefetch inteligente: aquece a janela vizinha (2 atrás, 3 à frente) em
+  // segundo plano. Com disableAutoFetch, cada getPage baixa só os bytes daquela
+  // página; o pdf.js cacheia, então ao navegar para perto a renderização é
+  // instantânea — sem baixar o documento inteiro.
+  React.useEffect(() => {
+    if (!doc) return;
+    let cancelled = false;
+    const lo = Math.max(1, page - 2);
+    const hi = Math.min(index.numPages, page + 3);
+    (async () => {
+      for (let p = lo; p <= hi && !cancelled; p++) {
+        if (p === page) continue;
+        try {
+          await doc.getPage(p);
+        } catch {
+          /* ignora — só pré-aquecimento */
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [doc, page, index.numPages]);
+
   // Navegação por teclado (setas).
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {

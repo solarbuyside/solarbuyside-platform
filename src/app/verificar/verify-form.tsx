@@ -1,9 +1,12 @@
 "use client";
 
+import * as React from "react";
 import { useFormStatus } from "react-dom";
 import { ShieldCheck, Loader2, Mail } from "lucide-react";
 
 import { verifyCodeAction, resendCodeAction, sendCodeAction } from "./actions";
+
+const RESEND_COOLDOWN = 45;
 
 function PrimaryButton({ idleLabel, pendingLabel, icon }: { idleLabel: string; pendingLabel: string; icon?: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -15,6 +18,35 @@ function PrimaryButton({ idleLabel, pendingLabel, icon }: { idleLabel: string; p
     >
       {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
       {pending ? pendingLabel : idleLabel}
+    </button>
+  );
+}
+
+/** Reenviar com cooldown: ao chegar em ?sent=1 um código foi enviado, então
+ * inicia em 45s e desconta até liberar. Cada (re)envio recarrega a página e
+ * reinicia o contador. */
+function ResendButton() {
+  const [left, setLeft] = React.useState(RESEND_COOLDOWN);
+  const { pending } = useFormStatus();
+
+  React.useEffect(() => {
+    if (left <= 0) return;
+    const t = setInterval(() => setLeft((l) => (l <= 1 ? 0 : l - 1)), 1000);
+    return () => clearInterval(t);
+  }, [left]);
+
+  const blocked = left > 0 || pending;
+  return (
+    <button
+      type="submit"
+      disabled={blocked}
+      className="w-full text-center text-xs font-semibold text-slate-400 transition-colors enabled:cursor-pointer enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-70"
+    >
+      {pending
+        ? "Reenviando…"
+        : left > 0
+          ? `Reenviar código em ${left}s`
+          : "Não recebeu? Reenviar código"}
     </button>
   );
 }
@@ -50,12 +82,7 @@ export function VerifyForm({ email, sent }: { email: string; sent: boolean }) {
           </form>
 
           <form action={resendCodeAction} className="mt-3">
-            <button
-              type="submit"
-              className="w-full cursor-pointer text-center text-xs font-semibold text-slate-400 transition-colors hover:text-primary"
-            >
-              Não recebeu? Reenviar código
-            </button>
+            <ResendButton />
           </form>
         </>
       ) : (

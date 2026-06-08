@@ -288,6 +288,46 @@ export async function listRecentEvents(limit = 10): Promise<RecentEvent[]> {
   }));
 }
 
+export type ActivityItem = {
+  id: string;
+  eventType: string;
+  createdAt: string;
+  comparisonId: string;
+  comparisonTitle: string | null;
+  payload: Record<string, unknown>;
+};
+
+/** Histórico completo de atividades do usuário (auditoria). Dados reais. */
+export async function listActivityHistory(limit = 100): Promise<ActivityItem[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("comparison_events")
+    .select("id,event_type,comparison_id,payload,created_at,comparisons(title)")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return [];
+  type Row = {
+    id: string;
+    event_type: string;
+    comparison_id: string;
+    payload: unknown;
+    created_at: string;
+    comparisons: { title?: string | null } | { title?: string | null }[] | null;
+  };
+  return ((data ?? []) as unknown as Row[]).map((row) => {
+    const comp = Array.isArray(row.comparisons) ? row.comparisons[0] : row.comparisons;
+    return {
+      id: row.id,
+      eventType: row.event_type,
+      createdAt: row.created_at,
+      comparisonId: row.comparison_id,
+      comparisonTitle: comp?.title ?? null,
+      payload: (row.payload ?? {}) as Record<string, unknown>,
+    };
+  });
+}
+
 export async function getComparisonSummary(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
