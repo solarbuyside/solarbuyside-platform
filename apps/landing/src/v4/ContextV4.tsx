@@ -1,10 +1,8 @@
 import React from 'react'
-import { AlertCircle, CheckCircle2, Search, ShieldCheck, Zap } from 'lucide-react'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
-
-const CARD_ICONS = [Search, Zap, ShieldCheck]
 
 export const ContextV4: React.FC = () => {
   const { getSection } = useContent()
@@ -62,27 +60,23 @@ export const ContextV4: React.FC = () => {
 
         {/* As 3 previsões — lista-índice com hairlines */}
         <div className="mt-16">
-          {cards.map((item, idx) => {
-            const Icon = CARD_ICONS[idx]
-            return (
-              <Reveal key={item.title} delay={idx * 90}>
-                <div
-                  className={`group grid items-center gap-6 border-t border-white/[0.08] py-9 transition-colors duration-500 hover:bg-white/[0.015] md:grid-cols-[90px_1fr_1.1fr] ${
-                    idx === cards.length - 1 ? 'border-b' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="v4-mono text-xs text-slate-500">{String(idx + 1).padStart(2, '0')}</span>
-                    <Icon size={20} className="text-slate-500 transition-colors duration-500 group-hover:text-orange-400" />
-                  </div>
-                  <h3 className="font-['Sora'] text-2xl font-bold text-white transition-transform duration-500 group-hover:translate-x-2 md:text-3xl">
-                    {item.title}
-                  </h3>
-                  <p className="text-base leading-relaxed text-slate-400 md:text-lg">{item.desc}</p>
-                </div>
-              </Reveal>
-            )
-          })}
+          {cards.map((item, idx) => (
+            <Reveal key={item.title} delay={idx * 90}>
+              <div
+                className={`group grid items-center gap-6 border-t border-white/[0.08] py-9 transition-colors duration-500 hover:bg-white/[0.015] md:grid-cols-[90px_1fr_1.1fr] ${
+                  idx === cards.length - 1 ? 'border-b' : ''
+                }`}
+              >
+                <span className="v4-mono text-sm text-slate-500 transition-colors duration-500 group-hover:text-orange-400">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <h3 className="font-['Sora'] text-2xl font-bold text-white transition-transform duration-500 group-hover:translate-x-2 md:text-3xl">
+                  {item.title}
+                </h3>
+                <p className="text-base leading-relaxed text-slate-400 md:text-lg">{item.desc}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
 
         {/* Alerta — faixa entre hairlines */}

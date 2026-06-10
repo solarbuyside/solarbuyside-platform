@@ -1,5 +1,5 @@
 import React from 'react'
-import { BookOpen, FileCheck, LayoutGrid, Layers, Quote } from 'lucide-react'
+import { Quote } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, Reveal, Stamp } from './atoms'
 
@@ -117,22 +117,18 @@ export const StoryBridgeV4: React.FC = () => {
     {
       title: section?.texts.feature1Title || 'Conteúdo Técnico',
       desc: section?.texts.feature1Desc || 'Mais de 130 páginas com conteúdo técnico e estratégico.',
-      Icon: BookOpen,
     },
     {
       title: section?.texts.feature2Title || 'Consulta Rápida',
       desc: section?.texts.feature2Desc || '160 tópicos organizados para consulta rápida.',
-      Icon: LayoutGrid,
     },
     {
       title: section?.texts.feature3Title || 'Jornada de Compra',
       desc: section?.texts.feature3Desc || 'Uma metodologia em 4 fases que orienta toda a jornada de compra.',
-      Icon: Layers,
     },
     {
       title: section?.texts.feature4Title || 'Suporte Decisório',
       desc: section?.texts.feature4Desc || 'Anexos técnicos que auxiliam na tomada de decisão.',
-      Icon: FileCheck,
     },
   ]
 
@@ -172,15 +168,9 @@ export const StoryBridgeV4: React.FC = () => {
               {features.map((feature, idx) => (
                 <Reveal key={feature.title} delay={idx * 90}>
                   <div className="group h-full border-b border-r border-[#181410]/15 p-8 transition-colors duration-500 hover:bg-[#181410]">
-                    <div className="flex items-center justify-between">
-                      <span className="v4-mono text-xs text-[#181410]/40 transition-colors duration-500 group-hover:text-orange-400">
-                        {String(idx + 1).padStart(2, '0')}
-                      </span>
-                      <feature.Icon
-                        size={22}
-                        className="text-[#181410] transition-colors duration-500 group-hover:text-orange-400"
-                      />
-                    </div>
+                    <span className="v4-mono text-xs text-[#181410]/40 transition-colors duration-500 group-hover:text-orange-400">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
                     <h4 className="mt-5 text-lg font-bold leading-tight text-[#181410] transition-colors duration-500 group-hover:text-[#f2ece1]">
                       {feature.title}
                     </h4>
