@@ -30,7 +30,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: section?.texts.card1Title || section?.texts.feature1Title || 'Manual Solar Buy-Side',
       desc:
         section?.texts.card1Desc ||
-        'Acesso vitalício à bíblia da estratégia solar — 130 páginas, 160 tópicos e o Método em 4 Fases para dominar a compra.',
+        'Acesso vitalício: 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato.',
       image: section?.images.card1Image || section?.images.manualImage || '/assets/livro-de-frente.png',
       imageAlt: 'Capa do Manual Solar Buy-Side',
       variant: 'default',
@@ -41,7 +41,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       desc:
         section?.texts.card2Desc ||
         section?.texts.bonusSubtitle ||
-        '26 páginas para vender decisão (não preço) — postura consultiva, anti-leilão e fechamento técnico.',
+        '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.',
       image: section?.images.card2Image || section?.images.codeImage || '/assets/foto-o-codigo-do-vendedor.png',
       imageAlt: 'Capa do Código do Vendedor Consultivo',
       variant: 'default',
@@ -51,7 +51,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: section?.texts.card3Title || 'Turbina sua Equipe de Venda',
       desc:
         section?.texts.card3Desc ||
-        'Licença de Uso Coletiva: até 10 cópias por CNPJ. Distribua para todo o time comercial com máxima economia.',
+        'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.',
       image: section?.images.card3Image || '/assets/img-coletiva-frente.png',
       imageAlt: 'Licença de Uso Coletiva',
       variant: 'bonus',
@@ -80,7 +80,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           <Reveal>
             <div className="v4-mono inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-400">
               <Sparkles size={13} className="animate-pulse" />
-              {section?.texts.badge || 'Pré-venda profissional por tempo limitado'}
+              {section?.texts.badge || 'Condição de pré-venda • antes do lançamento oficial'}
             </div>
           </Reveal>
 
@@ -92,9 +92,9 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     ? section.texts.title
                     : isFirstSection
                       ? section?.texts.titleFirst?.trim() ||
-                        'NÃO PERCA TEMPO NEM <br/><span class="cms-gradient-blue">POSIÇÃO NO MERCADO.</span>'
+                        'O comprador já está estudando.<br/><span class="cms-gradient-blue">Chegue preparado primeiro.</span>'
                       : section?.texts.titleSecond?.trim() ||
-                        'ATENÇÃO: O TEMPO ESTÁ <span class="cms-gradient-blue">CORRENDO</span><br/>E QUEM AGIR PRIMEIRO, <span class="cms-gradient-blue">VENDE MAIS.</span>'
+                        'Você viu o método inteiro.<br/><span class="cms-gradient-blue">Agora é decisão.</span>'
                 }
               />
             </h2>
@@ -106,8 +106,9 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 ? section.texts.subtitle
                 : isFirstSection
                   ? section?.texts.subtitleFirst ||
-                    'O mercado solar não perdoa quem fica para trás. Garanta o método que os grandes players usam para dominar o Buy-Side.'
-                  : section?.texts.subtitleSecond || 'Em um mercado competitivo, sua vantagem é o conhecimento.'}
+                    'Manual + Código do Vendedor + Plataforma de Avaliação: o mesmo material que orienta compradores, agora do seu lado da mesa.'
+                  : section?.texts.subtitleSecond ||
+                    'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.'}
             </p>
           </Reveal>
         </div>
@@ -206,8 +207,8 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               >
                 <span className="relative z-10 leading-tight">
                   {id === 'oferta-final'
-                    ? section?.texts.finalCtaButton || 'DESBLOQUEAR CONTEÚDO COMPLETO'
-                    : section?.texts.ctaButton || 'ACESSAR O MANUAL AGORA'}
+                    ? section?.texts.finalCtaButton || 'Começar agora com garantia de 7 dias'
+                    : section?.texts.ctaButton || 'Garantir meu acesso agora'}
                 </span>
                 <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
               </a>

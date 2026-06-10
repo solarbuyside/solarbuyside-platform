@@ -45,7 +45,7 @@ const DEFAULT_TESTIMONIALS: BuyerTestimonial[] = [
       </>
     ),
     quote:
-      'Resido na região de São Paulo, em uma residência de grande porte, com elevado consumo elétrico e exposta a apagões frequentes, que podem durar horas ou dias. Para reduzir a fatura e garantir conforto energético, optei pela instalação de um sistema solar híbrido com baterias. Para embasar um investimento de alta complexidade técnica e valor, utilizei com sucesso o Manual de Compra Solar Buy-Side, que orientou todo o processo de avaliação e decisão.',
+      'Minha casa tem consumo alto e a região sofre com apagões que duram horas. Decidi por um sistema híbrido com baterias, um investimento de alta complexidade técnica, e usei o Manual para conduzir a avaliação das propostas e a decisão final. Investimento desse porte pede método, não intuição.',
     highlight: 'Para quem busca segurança e ganho de tempo, recomendo com total confiança.',
   },
   {
@@ -75,7 +75,7 @@ const DEFAULT_TESTIMONIALS: BuyerTestimonial[] = [
       </>
     ),
     quote:
-      'Eu nunca tinha tido contato com energia solar e temia tomar a decisão errada, mas o conteúdo claro e estruturado mudou tudo. As 4 fases da jornada de compra foram essenciais e o índice interativo, com mais de 160 tópicos, sanou todas as minhas dúvidas instantaneamente. No fim, escolhi a empresa certa e o sistema ideal pelo preço justo, conduzindo a negociação com total autoridade e segurança.',
+      'Eu nunca tinha tido contato com energia solar e temia errar. As 4 fases da jornada me deram a ordem certa das perguntas, e o índice com 160 tópicos resolvia cada dúvida na hora. Fechei com a empresa certa, pelo preço justo, sabendo exatamente o que estava assinando.',
     highlight: 'Sem exagero: o Manual Solar Buy-Side valeu cada página.',
   },
   {
@@ -91,7 +91,7 @@ const DEFAULT_TESTIMONIALS: BuyerTestimonial[] = [
       </>
     ),
     quote:
-      'Morando sozinha, a variedade de empresas e tecnologias me deixava insegura. O manual foi o guia fundamental: seguindo cada etapa, aprendi a avaliar propostas e descartar o que era bom demais para ser verdade. Com total convicção, instalei meu sistema de R$ 28 mil. O passo a passo foi "arretado"! No final, fui até elogiada pelos vendedores; eles nunca tinham encontrado uma mulher com tanto conhecimento técnico.',
+      'Morando sozinha, a quantidade de empresas e tecnologias me deixava insegura. Seguindo as etapas do manual, aprendi a avaliar propostas e a descartar o que era bom demais para ser verdade. Instalei meu sistema de R$ 28 mil sabendo exatamente o que estava comprando.',
     highlight: 'O Solar Buy-Side me deu a segurança para decidir sem arrependimentos.',
   },
   {
@@ -153,7 +153,7 @@ export const BuyerWaveV4: React.FC = () => {
                 value={
                   section?.texts.title?.trim()
                     ? section.texts.title
-                    : 'Descubra o que o manual ensina aos <span class="cms-orange">compradores</span> e entenda as <span class="cms-orange">novas regras</span> do jogo'
+                    : 'O outro lado da mesa <span class="cms-orange">já está estudando</span>. Veja o que os compradores aprendem no Manual.'
                 }
               />
             </h2>
@@ -172,7 +172,7 @@ export const BuyerWaveV4: React.FC = () => {
               <Award className="text-blue-500" size={22} />
             </div>
             <h3 className="mt-5 font-['Sora'] text-2xl font-bold tracking-tight text-white">
-              {section?.texts.card1Title || 'O que o comprador vai dominar?'}
+              {section?.texts.card1Title || 'O que o comprador está aprendendo'}
             </h3>
             <ul className="mt-3">
               {[
@@ -325,7 +325,7 @@ export const BuyerWaveV4: React.FC = () => {
 
           <Reveal delay={120} className="mt-12 text-center">
             <Cta size="lg" onClick={() => scrollToId('oferta')}>
-              {section?.texts.ctaButton || 'ACESSAR GUIA ESTRATÉGICO AGORA'}
+              {section?.texts.ctaButton || 'Quero esse conhecimento do meu lado'}
               <CtaArrow size={20} />
             </Cta>
           </Reveal>

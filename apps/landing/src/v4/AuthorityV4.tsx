@@ -126,9 +126,9 @@ export const AuthorityV4: React.FC = () => {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,3.8vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
-              {section?.texts.title || 'Este conteúdo foi concebido por quem domina, as duas perspectivas da'}{' '}
+              {section?.texts.title || 'Este conteúdo foi concebido por quem viveu'}{' '}
               <span className="v4-serif v4-grad-text">
-                {section?.texts.titleHighlight || 'mesa de negociação — a do comprador e a do vendedor.'}
+                {section?.texts.titleHighlight || 'os dois lados da mesa: o do comprador e o do vendedor.'}
               </span>
             </h2>
           </Reveal>

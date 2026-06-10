@@ -42,7 +42,7 @@ export const ContextV4: React.FC = () => {
             01
           </span>
           <Reveal>
-            <Kicker tone="dark">{section?.texts.badge || 'Vision 2026'}</Kicker>
+            <Kicker tone="dark">{section?.texts.badge || 'O que muda em 2026'}</Kicker>
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-5 font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">

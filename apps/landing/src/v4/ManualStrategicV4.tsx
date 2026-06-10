@@ -73,13 +73,13 @@ export const ManualStrategicV4: React.FC = () => {
               </p>
               <p>
                 {section?.texts.description3 ||
-                  'Ao dominar o conceito Buy-Side, vendedores estarão aptos a lapidar sua abordagem comercial, entregar valor real, distanciar-se da briga por preço e elevar sua credibilidade no relacionamento com os clientes.'}
+                  'Ao incorporar o conceito Buy-Side, vendedores lapidam sua abordagem comercial, entregam valor real, saem da briga por preço e elevam sua credibilidade no relacionamento com os clientes.'}
               </p>
             </Reveal>
 
             <Reveal delay={360} className="mt-10">
               <Cta size="lg" onClick={() => scrollToId('oferta')}>
-                {section?.texts.ctaButton || 'QUERO VENDER COM ESTRATÉGIA AVANÇADA'}
+                {section?.texts.ctaButton || 'Quero vender com estratégia'}
                 <CtaArrow size={20} />
               </Cta>
             </Reveal>
@@ -147,7 +147,7 @@ export const ManualStrategicV4: React.FC = () => {
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
               <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{section?.texts.sellSideHeader || 'O que o vendedor vai dominar'}</span>
+                <span className="v4-mono font-bold">{section?.texts.sellSideHeader || 'O que o vendedor desenvolve'}</span>
               </h3>
             </Reveal>
             <ul className="mt-2">
@@ -195,8 +195,8 @@ export const ManualStrategicV4: React.FC = () => {
               <FeatureItem
                 Icon={BarChart3}
                 delay={160}
-                title={section?.texts.focusCard2Title || 'Domine a Venda'}
-                desc={section?.texts.focusCard2Desc || 'Conquiste autoridade e crie conexões reais para fechar mais negócios.'}
+                title={section?.texts.focusCard2Title || 'Autoridade na mesa'}
+                desc={section?.texts.focusCard2Desc || 'Constrói autoridade e conexões reais, que fecham negócio sem desconto.'}
               />
               <FeatureItem
                 Icon={MinusCircle}

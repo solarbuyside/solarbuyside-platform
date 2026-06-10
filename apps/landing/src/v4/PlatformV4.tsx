@@ -99,7 +99,7 @@ export const PlatformV4: React.FC = () => {
   const title = section?.texts.title || 'Do Manual à decisão: a Plataforma de Avaliação de Propostas'
   const lead =
     section?.texts.lead ||
-    'Comprando o Manual, você também recebe acesso à plataforma onde aplica o método na prática — sem planilha manual, sem achismo.'
+    'Comprando o Manual, você também recebe acesso à plataforma onde aplica o método na prática, sem planilha manual e sem achismo.'
   const bullets = [
     section?.texts.bullet1 || 'Compare propostas de fornecedores lado a lado',
     section?.texts.bullet2 || 'Pontuação por reputação, tecnologia e viabilidade',

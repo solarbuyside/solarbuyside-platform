@@ -9,7 +9,7 @@ import { VideoV4 } from './VideoV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
-import { StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
+import { FounderNoteV4, StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
 import { SellerCodeV4 } from './SellerCodeV4'
 import { PricingV4 } from './PricingV4'
 import { BuyerWaveV4 } from './BuyerWaveV4'
@@ -28,6 +28,7 @@ const SECTION_IDS = [
   'plataforma',
   'depoimentos',
   'story-bridge',
+  'founder-note',
   'seller-code',
   'oferta',
   'buyer-wave',
@@ -103,6 +104,9 @@ export default function AppV4() {
       </div>
       <div id="story-bridge">
         <StoryBridgeV4 />
+      </div>
+      <div id="founder-note">
+        <FounderNoteV4 />
       </div>
       <div id="seller-code">
         <SellerCodeV4 />

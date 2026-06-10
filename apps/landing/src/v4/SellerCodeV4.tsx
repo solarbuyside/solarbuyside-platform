@@ -73,7 +73,7 @@ export const SellerCodeV4: React.FC = () => {
             <Reveal delay={90}>
               <p className="mt-6 border-l-2 border-[#181410]/20 pl-5 text-xl leading-relaxed text-[#4f463c]">
                 {section?.texts.subtitle ||
-                  'O sucesso do Rodrigo não foi por acaso. Além de aplicar o Manual Solar Buy-Side, ele dominou a estratégia que inverte o jogo: aprender a pensar como um comprador para dominar a venda.'}
+                  'O sucesso do Rodrigo não foi por acaso. Além de aplicar o Manual Solar Buy-Side, ele incorporou a estratégia que inverte o jogo: pensar como um comprador para conduzir a venda.'}
               </p>
             </Reveal>
 
@@ -112,7 +112,7 @@ export const SellerCodeV4: React.FC = () => {
             <Reveal delay={120} className="mt-12">
               <h4 className="border-b border-[#181410]/15 pb-3">
                 <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#4f463c]/70">
-                  {section?.texts.listTitle || section?.texts.listHeader || 'O que você vai dominar:'}
+                  {section?.texts.listTitle || section?.texts.listHeader || 'O que você leva do Código:'}
                 </span>
               </h4>
               <div onMouseLeave={() => setHoveredIndex(null)}>

@@ -220,7 +220,7 @@ export const FloatingCTAV4: React.FC = () => {
           Manual Solar Buy-Side
         </span>
         <span className="block text-sm font-extrabold leading-tight text-slate-50">
-          {section?.texts.ctaButton || 'ACESSAR O MANUAL AGORA'}
+          {section?.texts.ctaButton || 'Garantir meu acesso agora'}
         </span>
       </span>
     </a>
