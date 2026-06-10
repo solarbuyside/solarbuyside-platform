@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 19
+export const CONTENT_VERSION = 20
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -144,8 +144,8 @@ export const initialContent: SectionContent[] = [
             "titleHighlight": "O Código do Vendedor Consultivo"
         },
         "images": {
-            "book": "/assets/foto-o-codigo-do-vendedor.png",
-            "bookImage": "/assets/foto-o-codigo-do-vendedor.png"
+            "book": "/assets/mockup-codigo-vendedor.png",
+            "bookImage": "/assets/mockup-codigo-vendedor.png"
         }
     },
     {
