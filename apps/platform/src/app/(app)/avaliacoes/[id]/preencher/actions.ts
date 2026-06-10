@@ -8,6 +8,9 @@ import {
   technicalEvaluationSchema,
 } from "@/domain/comparisons/types";
 import {
+  addCompetitor,
+  removeCompetitor,
+  renameCompetitor,
   saveCompanyEvaluation,
   saveFinancialEvaluation,
   saveScoreEntry,
@@ -86,6 +89,32 @@ export async function saveSelectedFinalistsAction(comparisonId: string, finalist
   await saveSelectedFinalists(comparisonId, finalistIds);
   revalidatePath(`/avaliacoes/${comparisonId}/preencher`);
   revalidatePath(`/dashboard/${comparisonId}`);
+}
+
+/** Gestão de empresas numa avaliação já criada (acrescentar/renomear/remover). */
+export async function addCompetitorAction(comparisonId: string, companyName: string) {
+  const created = await addCompetitor(comparisonId, companyName);
+  revalidatePath(`/avaliacoes/${comparisonId}/preencher`);
+  revalidatePath(`/avaliacoes/${comparisonId}/comparativo`);
+  return created;
+}
+
+export async function renameCompetitorAction(
+  comparisonId: string,
+  competitorId: string,
+  newName: string,
+) {
+  const updated = await renameCompetitor(comparisonId, competitorId, newName);
+  revalidatePath(`/avaliacoes/${comparisonId}/preencher`);
+  revalidatePath(`/avaliacoes/${comparisonId}/comparativo`);
+  return updated;
+}
+
+export async function removeCompetitorAction(comparisonId: string, competitorId: string) {
+  const result = await removeCompetitor(comparisonId, competitorId);
+  revalidatePath(`/avaliacoes/${comparisonId}/preencher`);
+  revalidatePath(`/avaliacoes/${comparisonId}/comparativo`);
+  return result;
 }
 
 /** Generates (or reuses) a public share link for a competitor's interview. */

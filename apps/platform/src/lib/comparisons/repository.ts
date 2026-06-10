@@ -249,6 +249,142 @@ export async function createComparisonDraft(input: CreateComparisonDraftInput) {
   return comparison.id;
 }
 
+const MIN_COMPETITORS = 2;
+const MAX_COMPETITORS = 6;
+
+async function fetchComparisonCompetitors(
+  supabase: SupabaseServerClient,
+  comparisonId: string,
+): Promise<CompetitorRow[]> {
+  const { data, error } = await supabase
+    .from("competitors")
+    .select("id,company_name,position")
+    .eq("comparison_id", comparisonId)
+    .order("position", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as CompetitorRow[];
+}
+
+/** Acrescenta uma empresa a uma avaliação já criada (até o máximo de 6). Cria
+ *  a empresa e semeia as avaliações vazias + score_entries, como no rascunho. */
+export async function addCompetitor(comparisonId: string, companyNameRaw: string) {
+  const name = companyNameRaw.trim();
+  if (name.length < 1 || name.length > 120) {
+    throw new Error("Informe um nome de empresa válido.");
+  }
+  const { supabase } = await getAuthenticatedUserId();
+  const existing = await fetchComparisonCompetitors(supabase, comparisonId);
+  if (existing.length >= MAX_COMPETITORS) {
+    throw new Error(`Esta avaliação já tem o máximo de ${MAX_COMPETITORS} empresas.`);
+  }
+  const lower = name.toLocaleLowerCase("pt-BR");
+  if (existing.some((c) => c.company_name.toLocaleLowerCase("pt-BR") === lower)) {
+    throw new Error("Já existe uma empresa com esse nome nesta avaliação.");
+  }
+  // Primeiro slot de posição livre (unique comparison_id+position, faixa 1..6).
+  const used = new Set(existing.map((c) => c.position));
+  let position = 1;
+  while (used.has(position) && position < MAX_COMPETITORS) position += 1;
+
+  const { data: inserted, error: insErr } = await supabase
+    .from("competitors")
+    .insert({ comparison_id: comparisonId, position, company_name: name })
+    .select("id,company_name,position")
+    .single();
+  if (insErr || !inserted) {
+    throw new Error(insErr?.message ?? "Não foi possível adicionar a empresa.");
+  }
+
+  const competitorId = (inserted as CompetitorRow).id;
+  const seedResults = await Promise.all([
+    supabase.from("company_evaluations").insert({ comparison_id: comparisonId, competitor_id: competitorId }),
+    supabase.from("technical_evaluations").insert({ comparison_id: comparisonId, competitor_id: competitorId }),
+    supabase.from("financial_evaluations").insert({ comparison_id: comparisonId, competitor_id: competitorId }),
+    supabase.from("score_entries").insert(
+      scoreDefinitions.map((definition) => ({
+        comparison_id: comparisonId,
+        competitor_id: competitorId,
+        criterion_key: definition.key,
+        category: definition.category,
+        score: null,
+      })),
+    ),
+  ]);
+  const seedErr = seedResults.find((result) => result.error)?.error;
+  if (seedErr) {
+    // Rollback: remove a empresa recém-criada (cascade limpa o que entrou).
+    await supabase.from("competitors").delete().eq("id", competitorId).eq("comparison_id", comparisonId);
+    throw new Error(seedErr.message);
+  }
+
+  return {
+    id: competitorId,
+    companyName: (inserted as CompetitorRow).company_name,
+    position: (inserted as CompetitorRow).position,
+  };
+}
+
+/** Renomeia uma empresa de uma avaliação. Nome único (case-insensitive). */
+export async function renameCompetitor(
+  comparisonId: string,
+  competitorId: string,
+  newNameRaw: string,
+) {
+  const name = newNameRaw.trim();
+  if (name.length < 1 || name.length > 120) {
+    throw new Error("Informe um nome de empresa válido.");
+  }
+  const { supabase } = await getAuthenticatedUserId();
+  const existing = await fetchComparisonCompetitors(supabase, comparisonId);
+  const lower = name.toLocaleLowerCase("pt-BR");
+  if (existing.some((c) => c.id !== competitorId && c.company_name.toLocaleLowerCase("pt-BR") === lower)) {
+    throw new Error("Já existe outra empresa com esse nome nesta avaliação.");
+  }
+  const { error } = await supabase
+    .from("competitors")
+    .update({ company_name: name })
+    .eq("id", competitorId)
+    .eq("comparison_id", comparisonId);
+  if (error) throw new Error(error.message);
+  return { id: competitorId, companyName: name };
+}
+
+/** Remove uma empresa da avaliação (mínimo de 2). O cascade do banco apaga as
+ *  avaliações e notas; aqui também limpamos os arrays de finalistas. */
+export async function removeCompetitor(comparisonId: string, competitorId: string) {
+  const { supabase } = await getAuthenticatedUserId();
+  const existing = await fetchComparisonCompetitors(supabase, comparisonId);
+  if (existing.length <= MIN_COMPETITORS) {
+    throw new Error(`A avaliação precisa de pelo menos ${MIN_COMPETITORS} empresas.`);
+  }
+  if (!existing.some((c) => c.id === competitorId)) {
+    throw new Error("Empresa não encontrada nesta avaliação.");
+  }
+
+  // selected/recommended_finalist_ids são arrays sem FK — limpar manualmente.
+  const { data: comp } = await supabase
+    .from("comparisons")
+    .select("selected_finalist_ids,recommended_finalist_ids")
+    .eq("id", comparisonId)
+    .single();
+  if (comp) {
+    const sel = ((comp.selected_finalist_ids as string[]) ?? []).filter((id) => id !== competitorId);
+    const rec = ((comp.recommended_finalist_ids as string[]) ?? []).filter((id) => id !== competitorId);
+    await supabase
+      .from("comparisons")
+      .update({ selected_finalist_ids: sel, recommended_finalist_ids: rec })
+      .eq("id", comparisonId);
+  }
+
+  const { error } = await supabase
+    .from("competitors")
+    .delete()
+    .eq("id", competitorId)
+    .eq("comparison_id", comparisonId);
+  if (error) throw new Error(error.message);
+  return { removedId: competitorId };
+}
+
 export async function listComparisonSummaries() {
   const supabase = await createClient();
   const { data, error } = await supabase

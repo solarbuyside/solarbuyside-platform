@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Building2,
@@ -13,6 +14,10 @@ import {
   Info,
   ExternalLink,
   Users,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
 } from "lucide-react";
 
 import { Select } from "@/components/ui/select";
@@ -32,6 +37,9 @@ import type {
 import { REPUTATION_OPTIONS } from "@/domain/comparisons/reputation";
 import { cn } from "@/lib/utils";
 import {
+  addCompetitorAction,
+  removeCompetitorAction,
+  renameCompetitorAction,
   saveCompanyEvaluationAction,
   saveFinancialEvaluationAction,
   saveTechnicalEvaluationAction,
@@ -114,6 +122,7 @@ function competitorProgress(competitor: CompetitorProposal) {
 }
 
 export function StepWizard({ comparison: initial }: { comparison: ComparisonInput }) {
+  const router = useRouter();
   const [comparison, setComparison] = React.useState<ComparisonInput>(initial);
   const [sectionIndex, setSectionIndex] = React.useState(0);
   const [activeCompetitorId, setActiveCompetitorId] = React.useState(
@@ -121,7 +130,62 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
   );
   const [saveState, setSaveState] = React.useState<SaveState>("idle");
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [mutatingCompetitors, setMutatingCompetitors] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement>(null);
+
+  // Quando o servidor reenvia a comparação (após add/remover/renomear empresa,
+  // via router.refresh + revalidate), sincroniza o estado local. As edições de
+  // campo já são auto-salvas, então não há trabalho não persistido a perder.
+  React.useEffect(() => {
+    setComparison(initial);
+    setActiveCompetitorId((current) =>
+      initial.competitors.some((c) => c.id === current)
+        ? current
+        : initial.competitors[0]?.id ?? "",
+    );
+  }, [initial]);
+
+  // Gestão de empresas da avaliação (acrescentar / renomear / remover).
+  const runCompetitorMutation = React.useCallback(
+    async (fn: () => Promise<void>) => {
+      setMutatingCompetitors(true);
+      setErrorMsg(null);
+      try {
+        await fn();
+        router.refresh();
+      } catch (err) {
+        setErrorMsg(err instanceof Error ? err.message : "Não foi possível atualizar as empresas.");
+      } finally {
+        setMutatingCompetitors(false);
+      }
+    },
+    [router],
+  );
+
+  const handleAddCompetitor = React.useCallback(
+    (name: string) => runCompetitorMutation(async () => {
+      await addCompetitorAction(comparison.id, name);
+    }),
+    [comparison.id, runCompetitorMutation],
+  );
+
+  const handleRenameCompetitor = React.useCallback(
+    (competitorId: string, name: string) => runCompetitorMutation(async () => {
+      await renameCompetitorAction(comparison.id, competitorId, name);
+    }),
+    [comparison.id, runCompetitorMutation],
+  );
+
+  const handleRemoveCompetitor = React.useCallback(
+    (competitorId: string) => runCompetitorMutation(async () => {
+      if (activeCompetitorId === competitorId) {
+        const fallback = comparison.competitors.find((c) => c.id !== competitorId);
+        if (fallback) setActiveCompetitorId(fallback.id);
+      }
+      await removeCompetitorAction(comparison.id, competitorId);
+    }),
+    [activeCompetitorId, comparison.competitors, comparison.id, runCompetitorMutation],
+  );
 
   // Ao trocar de seção, rola para o topo (o conteúdo rola dentro do <main>).
   const didMount = React.useRef(false);
@@ -224,6 +288,10 @@ export function StepWizard({ comparison: initial }: { comparison: ComparisonInpu
             competitors={comparison.competitors}
             activeId={activeCompetitor.id}
             onSelect={setActiveCompetitorId}
+            onAdd={handleAddCompetitor}
+            onRename={handleRenameCompetitor}
+            onRemove={handleRemoveCompetitor}
+            mutating={mutatingCompetitors}
           />
         )}
 
@@ -349,76 +417,214 @@ function SaveIndicator({ state }: { state: SaveState }) {
  * others are a quiet switch list. Each shows a fill-progress ring so the buyer
  * sees at a glance how complete each interview is.
  */
+const MAX_COMPETITORS = 6;
+const MIN_COMPETITORS = 2;
+
 function SupplierPanel({
   competitors,
   activeId,
   onSelect,
+  onAdd,
+  onRename,
+  onRemove,
+  mutating,
 }: {
   competitors: CompetitorProposal[];
   activeId: string;
   onSelect: (id: string) => void;
+  onAdd: (name: string) => void;
+  onRename: (id: string, name: string) => void;
+  onRemove: (id: string) => void;
+  mutating: boolean;
 }) {
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editValue, setEditValue] = React.useState("");
+  const [adding, setAdding] = React.useState(false);
+  const [addValue, setAddValue] = React.useState("");
+
+  const canAdd = competitors.length < MAX_COMPETITORS;
+  const canRemove = competitors.length > MIN_COMPETITORS;
+
+  function startEdit(id: string, current: string) {
+    setEditingId(id);
+    setEditValue(current);
+  }
+  function confirmEdit() {
+    const name = editValue.trim();
+    const target = competitors.find((c) => c.id === editingId);
+    if (editingId && name && name !== target?.companyName) onRename(editingId, name);
+    setEditingId(null);
+  }
+  function confirmAdd() {
+    const name = addValue.trim();
+    if (name) onAdd(name);
+    setAddValue("");
+    setAdding(false);
+  }
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex items-center gap-1.5 border-b border-slate-100 px-3 py-2.5">
           <Users className="h-3.5 w-3.5 text-slate-400" />
           <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Avaliando agora · clique para trocar
+            Empresas · clique para trocar
           </p>
+          {mutating && <Loader2 className="ml-auto h-3.5 w-3.5 animate-spin text-slate-400" />}
         </div>
-        <div className="max-h-52 overflow-y-auto p-2 lg:max-h-none">
+        <div className="max-h-72 overflow-y-auto p-2 lg:max-h-none">
           {competitors.map((c, i) => {
             const isActive = c.id === activeId;
             const ratio = competitorProgress(c);
+            const isEditing = editingId === c.id;
+
+            if (isEditing) {
+              return (
+                <div key={c.id} className="flex items-center gap-1.5 px-1.5 py-2">
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") confirmEdit();
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    maxLength={120}
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-primary/40 px-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-primary/15"
+                  />
+                  <button
+                    onClick={confirmEdit}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white hover:bg-primary/90"
+                    title="Salvar nome"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100"
+                    title="Cancelar"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              );
+            }
+
             return (
-              <button
+              <div
                 key={c.id}
-                onClick={() => onSelect(c.id)}
                 className={cn(
-                  "relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors",
+                  "group relative flex items-center gap-2 rounded-lg pr-1.5 transition-colors",
                   isActive ? "bg-slate-100" : "hover:bg-slate-50",
                 )}
               >
                 {isActive && (
                   <span className="absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-primary" />
                 )}
-                <span
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
-                    isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500",
-                  )}
+                <button
+                  onClick={() => onSelect(c.id)}
+                  className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-2.5 text-left"
                 >
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block truncate text-sm font-bold",
-                      isActive ? "text-slate-900" : "text-slate-700",
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
+                      isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500",
                     )}
                   >
-                    {c.companyName}
+                    {i + 1}
                   </span>
-                  <span className="mt-1 flex items-center gap-1.5">
-                    <span className="block h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
-                      <span
-                        className={cn(
-                          "block h-full rounded-full transition-all",
-                          ratio >= 1 ? "bg-emerald-500" : "bg-primary/60",
-                        )}
-                        style={{ width: `${Math.round(ratio * 100)}%` }}
-                      />
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={cn(
+                        "block truncate text-sm font-bold",
+                        isActive ? "text-slate-900" : "text-slate-700",
+                      )}
+                    >
+                      {c.companyName}
                     </span>
-                    <span className="text-[10px] font-medium text-slate-400">
-                      {Math.round(ratio * 100)}%
+                    <span className="mt-1 flex items-center gap-1.5">
+                      <span className="block h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
+                        <span
+                          className={cn(
+                            "block h-full rounded-full transition-all",
+                            ratio >= 1 ? "bg-emerald-500" : "bg-primary/60",
+                          )}
+                          style={{ width: `${Math.round(ratio * 100)}%` }}
+                        />
+                      </span>
+                      <span className="text-[10px] font-medium text-slate-400">
+                        {Math.round(ratio * 100)}%
+                      </span>
                     </span>
                   </span>
-                </span>
-                {ratio >= 1 && <Check className="h-4 w-4 shrink-0 text-emerald-500" />}
-              </button>
+                </button>
+                <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                  <button
+                    onClick={() => startEdit(c.id, c.companyName)}
+                    disabled={mutating}
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-white hover:text-primary disabled:opacity-40"
+                    title="Renomear empresa"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Remover "${c.companyName}" desta avaliação? As notas dela serão apagadas.`)) {
+                        onRemove(c.id);
+                      }
+                    }}
+                    disabled={mutating || !canRemove}
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 hover:bg-white hover:text-destructive disabled:opacity-30"
+                    title={canRemove ? "Remover empresa" : "Mínimo de 2 empresas"}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
             );
           })}
+
+          {/* Adicionar empresa */}
+          {adding ? (
+            <div className="flex items-center gap-1.5 px-1.5 py-2">
+              <input
+                autoFocus
+                value={addValue}
+                onChange={(e) => setAddValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") confirmAdd();
+                  if (e.key === "Escape") { setAdding(false); setAddValue(""); }
+                }}
+                maxLength={120}
+                placeholder="Nome da nova empresa"
+                className="h-9 min-w-0 flex-1 rounded-lg border border-primary/40 px-2.5 text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-primary/15"
+              />
+              <button
+                onClick={confirmAdd}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white hover:bg-primary/90"
+                title="Adicionar"
+              >
+                <Check className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => { setAdding(false); setAddValue(""); }}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100"
+                title="Cancelar"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setAdding(true)}
+              disabled={mutating || !canAdd}
+              className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-2.5 py-2.5 text-xs font-bold text-slate-500 transition-colors hover:border-primary/40 hover:bg-primary/[0.03] hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+              title={canAdd ? "Adicionar empresa" : `Máximo de ${MAX_COMPETITORS} empresas`}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {canAdd ? "Adicionar empresa" : `Máximo de ${MAX_COMPETITORS} empresas`}
+            </button>
+          )}
         </div>
       </div>
     </aside>
