@@ -2,32 +2,26 @@ import React from 'react'
 import { BarChart3, Layout, MinusCircle, Target, TrendingUp, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { Cta, CtaArrow, DarkBackdrop, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
 
-type ItemProps = {
+type CardProps = {
   Icon: React.ComponentType<{ size?: number }>
   title: string
   desc: React.ReactNode
   delay?: number
 }
 
-/* Item editorial sem caixa: anel hairline + hairline inferior, inversão laranja no hover */
-const FeatureItem: React.FC<ItemProps> = ({ Icon, title, desc, delay = 0 }) => (
-  <Reveal
-    as="li"
-    delay={delay}
-    className="group grid grid-cols-[48px_1fr] gap-5 border-b border-white/[0.08] py-6 transition-transform duration-500 hover:translate-x-1"
-  >
-    <span
-      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-orange-500 transition-all duration-500 group-hover:border-orange-500 group-hover:bg-orange-500 group-hover:text-white"
-      aria-hidden
-    >
-      <Icon size={20} />
-    </span>
-    <div className="min-w-0 space-y-1.5">
-      <h4 className="text-lg font-bold text-white">{title}</h4>
-      <p className="leading-relaxed text-slate-400">{desc}</p>
+const FeatureCard: React.FC<CardProps> = ({ Icon, title, desc, delay = 0 }) => (
+  <Reveal delay={delay}>
+    <div className="v4-lift group relative flex gap-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm hover:border-orange-500/25 hover:bg-white/[0.045]">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500 transition-all duration-500 group-hover:scale-105 group-hover:bg-orange-500 group-hover:text-white group-hover:shadow-[0_14px_28px_-10px_rgba(249,115,22,0.7)]">
+        <Icon size={22} />
+      </div>
+      <div className="min-w-0 space-y-1.5">
+        <h4 className="text-lg font-bold text-white transition-colors group-hover:text-orange-400">{title}</h4>
+        <p className="text-base leading-relaxed text-slate-400">{desc}</p>
+      </div>
     </div>
   </Reveal>
 )
@@ -36,33 +30,29 @@ export const ManualStrategicV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('manual-strategic')
 
-  const manualImage = section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
-      <GrainOverlay />
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#070d1d] via-[#060b1a] to-[#030712] text-slate-100 antialiased">
+      <DarkBackdrop orbs="orange" />
 
-      {/* pb-44: a próxima seção (paper) sobrepõe este ato com um arco */}
-      <div className="relative mx-auto max-w-7xl px-6 py-24 pb-44 md:py-32 md:pb-44">
-        {/* ── Parte 1: spotlight do produto ─────────────────────────────── */}
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+      <div className="relative mx-auto max-w-7xl px-6 py-20 md:py-24">
+        <div className="grid grid-cols-1 items-start gap-14 lg:grid-cols-12 lg:gap-10">
           {/* Texto */}
           <div className="relative z-10 flex flex-col lg:col-span-6">
             <Reveal>
               <Kicker tone="dark">{section?.texts.badge || 'A ferramenta estratégica'}</Kicker>
             </Reveal>
             <Reveal delay={90}>
-              <h2 className="mt-4 text-[clamp(2.6rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tight text-white">
+              <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-white md:text-[2.8rem] md:leading-[1.08]">
                 {section?.texts.title || 'Manual Solar Buy-Side'}
               </h2>
             </Reveal>
-            <Reveal delay={180}>
-              <p className="v4-serif mt-5 max-w-md border-l-2 border-orange-500 pl-5 text-2xl leading-snug text-amber-200/90">
+            <Reveal delay={170}>
+              <p className="mt-5 max-w-md border-l-2 border-orange-500 pl-5 text-lg font-medium leading-relaxed text-slate-300 md:text-xl">
                 {section?.texts.subtitle || 'A ferramenta estratégica que todo vendedor do setor solar precisa ter.'}
               </p>
             </Reveal>
 
-            <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-slate-400">
+            <Reveal delay={250} className="mt-8 max-w-2xl space-y-5 text-lg font-medium leading-relaxed text-slate-400">
               <p>
                 {section?.texts.description1 ||
                   'O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.'}
@@ -77,7 +67,7 @@ export const ManualStrategicV4: React.FC = () => {
               </p>
             </Reveal>
 
-            <Reveal delay={360} className="mt-10">
+            <Reveal delay={330} className="mt-10">
               <Cta size="lg" onClick={() => scrollToId('oferta')}>
                 {section?.texts.ctaButton || 'QUERO VENDER COM ESTRATÉGIA AVANÇADA'}
                 <CtaArrow size={20} />
@@ -85,50 +75,30 @@ export const ManualStrategicV4: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Pedestal de luz: glow + capa flutuando + elipse no chão + reflexo */}
-          <div className="lg:sticky lg:top-24 lg:col-span-6">
+          {/* Imagem do manual */}
+          <div className="flex justify-center pt-4 lg:col-span-6 lg:sticky lg:top-24 lg:justify-end">
             <Reveal delay={180}>
-              <div className="relative flex justify-center">
-                <div className="absolute -inset-12 rounded-full bg-orange-500/25 blur-[120px]" aria-hidden />
-
-                <div className="relative w-[520px] max-w-full">
-                  <div className="relative">
-                    <img
-                      src={manualImage}
-                      alt="Manual Solar Buy-Side"
-                      className="v4-float relative h-auto w-full"
-                      loading="lazy"
-                    />
-                    {/* Elipse de luz no chão */}
-                    <div
-                      className="absolute -bottom-10 left-1/2 h-16 w-[70%] -translate-x-1/2 rounded-[100%] bg-orange-500/20 blur-2xl"
-                      aria-hidden
-                    />
-                  </div>
-
-                  {/* Reflexo espelhado */}
-                  <img
-                    src={manualImage}
-                    alt=""
-                    aria-hidden
-                    className="h-40 w-full scale-y-[-1] object-cover object-bottom opacity-[0.07]"
-                    style={{
-                      WebkitMaskImage: 'linear-gradient(180deg, black, transparent 70%)',
-                      maskImage: 'linear-gradient(180deg, black, transparent 70%)',
-                    }}
-                    loading="lazy"
-                  />
-                </div>
+              <div className="group relative">
+                <div
+                  className="absolute -inset-16 rounded-full bg-orange-500/35 blur-[120px] transition-colors duration-700 group-hover:bg-orange-500/45"
+                  aria-hidden
+                />
+                <img
+                  src={section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'}
+                  alt="Manual Solar Buy-Side"
+                  className="relative h-auto w-[540px] max-w-full transition-transform duration-700 ease-out group-hover:scale-[1.025] group-hover:-rotate-1"
+                  loading="lazy"
+                />
               </div>
             </Reveal>
           </div>
         </div>
 
-        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
+        <div className="my-14 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
 
-        {/* ── Parte 2: resultados ───────────────────────────────────────── */}
+        {/* Resultados */}
         <Reveal className="max-w-4xl">
-          <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
+          <h2 className="text-3xl font-extrabold leading-snug tracking-tight text-white md:text-[2.5rem] md:leading-[1.2]">
             <CMSText
               value={
                 section?.texts.section2Title?.trim()
@@ -142,28 +112,28 @@ export const ManualStrategicV4: React.FC = () => {
           )}
         </Reveal>
 
-        <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-12 lg:grid-cols-2">
-          <div>
+        <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <div className="space-y-6">
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
-              <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{section?.texts.sellSideHeader || 'O que o vendedor vai dominar'}</span>
+              <h3 className="text-sm font-extrabold uppercase tracking-[0.28em] text-orange-500">
+                {section?.texts.sellSideHeader || 'O que o vendedor vai dominar'}
               </h3>
             </Reveal>
-            <ul className="mt-2">
-              <FeatureItem
+            <div className="space-y-4">
+              <FeatureCard
                 Icon={Target}
                 delay={80}
                 title={section?.texts.sellCard1Title || 'Dores reais do cliente'}
                 desc={section?.texts.sellCard1Desc || 'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'}
               />
-              <FeatureItem
+              <FeatureCard
                 Icon={Users}
                 delay={160}
                 title={section?.texts.sellCard2Title || 'Postura consultiva'}
                 desc={section?.texts.sellCard2Desc || 'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'}
               />
-              <FeatureItem
+              <FeatureCard
                 Icon={TrendingUp}
                 delay={240}
                 title={section?.texts.sellCard3Title || 'Valor técnico e econômico'}
@@ -172,36 +142,36 @@ export const ManualStrategicV4: React.FC = () => {
                   'Demonstra, de forma fundamentada, como o valor técnico da solução se converte em benefício econômico.'
                 }
               />
-            </ul>
+            </div>
           </div>
 
-          <div>
+          <div className="space-y-6">
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
-              <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{section?.texts.focusHeader || 'Principais focos e habilidades'}</span>
+              <h3 className="text-sm font-extrabold uppercase tracking-[0.28em] text-orange-500">
+                {section?.texts.focusHeader || 'Principais focos e habilidades'}
               </h3>
             </Reveal>
-            <ul className="mt-2">
-              <FeatureItem
+            <div className="space-y-4">
+              <FeatureCard
                 Icon={Layout}
                 delay={80}
                 title={section?.texts.focusCard1Title || 'Apresentações persuasivas'}
                 desc={section?.texts.focusCard1Desc || 'Estruture propostas objetivas e transparentes que facilitam a decisão do cliente.'}
               />
-              <FeatureItem
+              <FeatureCard
                 Icon={BarChart3}
                 delay={160}
                 title={section?.texts.focusCard2Title || 'Domine a Venda'}
                 desc={section?.texts.focusCard2Desc || 'Conquiste autoridade e crie conexões reais para fechar mais negócios.'}
               />
-              <FeatureItem
+              <FeatureCard
                 Icon={MinusCircle}
                 delay={240}
                 title={section?.texts.focusCard3Title || 'Menos desconto, mais margem'}
                 desc={section?.texts.focusCard3Desc || 'Argumente com precisão e preserve sua comissão sem perder vendas.'}
               />
-            </ul>
+            </div>
           </div>
         </div>
       </div>

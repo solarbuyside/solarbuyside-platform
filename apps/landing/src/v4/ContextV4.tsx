@@ -1,7 +1,7 @@
 import React from 'react'
 import { AlertCircle, CheckCircle2, Search, ShieldCheck, Zap } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, Kicker, Reveal } from './atoms'
+import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
 
 const CARD_ICONS = [Search, Zap, ShieldCheck]
@@ -32,95 +32,104 @@ export const ContextV4: React.FC = () => {
   ]
 
   return (
-    <section className="relative bg-[#fafaf8] text-slate-900 antialiased">
-      <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-        {/* Cabeçalho */}
-        <div className="mb-12 max-w-3xl">
+    <section className="relative bg-[#07090d] text-white antialiased">
+      <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
+        {/* Cabeçalho — índice editorial com número fantasma */}
+        <div className="relative">
+          <span
+            className="v4-stroke pointer-events-none absolute -top-10 right-0 hidden font-['Sora'] text-[7rem] font-extrabold opacity-60 md:block md:text-[10rem]"
+            aria-hidden
+          >
+            01
+          </span>
           <Reveal>
-            <Kicker tone="light">{section?.texts.badge || 'Vision 2026'}</Kicker>
+            <Kicker tone="dark">{section?.texts.badge || 'Vision 2026'}</Kicker>
           </Reveal>
-          <Reveal delay={80}>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 md:text-[2.7rem] md:leading-[1.1]">
+          <Reveal delay={90}>
+            <h2 className="mt-5 font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
               {section?.texts.title || 'Panorama'}{' '}
-              <span className="text-slate-300">{section?.texts.titleHighlight || '2026'}</span>
+              <span className="v4-serif v4-grad-text">{section?.texts.titleHighlight || '2026'}</span>
             </h2>
           </Reveal>
-          <Reveal delay={160}>
-            <p className="mt-4 text-lg font-medium leading-relaxed text-slate-500 md:text-xl">
+          <Reveal delay={180}>
+            <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-400 md:text-2xl">
               {section?.texts.subtitle ||
                 'Pode parecer exagero, mas em breve cada vez mais compradores de sistema fotovoltaico estarão informados.'}
             </p>
           </Reveal>
         </div>
 
-        {/* Cards do novo comprador */}
-        <div className="mb-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+        {/* As 3 previsões — lista-índice com hairlines */}
+        <div className="mt-16">
           {cards.map((item, idx) => {
             const Icon = CARD_ICONS[idx]
             return (
-              <Reveal key={item.title} delay={idx * 110}>
-                <div className="v4-lift group relative h-full overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-7 shadow-[0_2px_10px_rgba(15,23,42,0.04)] hover:border-orange-200 hover:shadow-[0_24px_50px_-20px_rgba(15,23,42,0.18)]">
-                  <div className="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 rounded-full bg-orange-50 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" aria-hidden />
-                  <span className="mb-5 block text-xs font-extrabold tracking-[0.25em] text-slate-300">
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 transition-all duration-500 group-hover:bg-orange-500 group-hover:text-white group-hover:shadow-[0_12px_24px_-8px_rgba(249,115,22,0.6)]">
-                    <Icon className="h-5 w-5" />
+              <Reveal key={item.title} delay={idx * 90}>
+                <div
+                  className={`group grid items-center gap-6 border-t border-white/[0.08] py-9 transition-colors duration-500 hover:bg-white/[0.015] md:grid-cols-[90px_1fr_1.1fr] ${
+                    idx === cards.length - 1 ? 'border-b' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="v4-mono text-xs text-slate-500">{String(idx + 1).padStart(2, '0')}</span>
+                    <Icon size={20} className="text-slate-500 transition-colors duration-500 group-hover:text-orange-400" />
                   </div>
-                  <h4 className="mb-2 text-lg font-bold text-slate-900">{item.title}</h4>
-                  <p className="text-base leading-relaxed text-slate-500">{item.desc}</p>
+                  <h3 className="font-['Sora'] text-2xl font-bold text-white transition-transform duration-500 group-hover:translate-x-2 md:text-3xl">
+                    {item.title}
+                  </h3>
+                  <p className="text-base leading-relaxed text-slate-400 md:text-lg">{item.desc}</p>
                 </div>
               </Reveal>
             )
           })}
         </div>
 
-        {/* Alerta */}
+        {/* Alerta — faixa entre hairlines */}
         <Reveal delay={120}>
-          <div className="relative mb-10 overflow-hidden rounded-3xl bg-[#060b1a] px-7 py-6 md:px-9">
-            <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-orange-400 to-orange-600" aria-hidden />
-            <div
-              className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-orange-500/10 blur-3xl"
-              aria-hidden
-            />
-            <div className="flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-400">
-                  <AlertCircle className="h-5 w-5" />
-                </div>
-                <h3 className="text-lg font-bold leading-snug text-white md:text-xl">
+          <div
+            className="mt-20 border-y border-white/[0.08] py-12"
+            style={{ background: 'radial-gradient(70% 140% at 50% 50%, rgba(220,80,40,0.06), transparent 75%)' }}
+          >
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+              <div className="flex items-start gap-5">
+                <AlertCircle size={26} className="mt-1.5 shrink-0 text-orange-500" />
+                <h3 className="max-w-3xl font-['Sora'] text-2xl font-extrabold leading-tight tracking-tight text-white md:text-4xl">
                   {section?.texts.alertTitle || 'Quem não entender essa nova jornada vai perder vendas.'}
                 </h3>
               </div>
-              <div className="hidden h-10 w-px bg-white/10 md:block" aria-hidden />
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+              <p className="v4-mono shrink-0 text-[10px] uppercase tracking-[0.3em] text-amber-500/80 md:text-right">
                 {section?.texts.alertSubtitle || 'O cenário está evoluindo. Você está pronto?'}
               </p>
             </div>
           </div>
         </Reveal>
 
-        {/* Solução */}
+        {/* Solução — painel "amanhecer" */}
         <Reveal delay={100}>
-          <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white p-8 shadow-[0_30px_70px_-40px_rgba(15,23,42,0.25)] md:p-12">
+          <div className="relative mt-20 overflow-hidden rounded-[2.5rem] border border-white/[0.08] bg-[#0a0c12] p-10 md:p-14">
             <div
-              className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-orange-100/60 blur-3xl"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
+              style={{ background: 'radial-gradient(90% 100% at 50% 100%, rgba(251,191,36,0.10), transparent 70%)' }}
               aria-hidden
             />
+            <GrainOverlay />
             <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-5">
               <div className="lg:col-span-3">
-                <Kicker tone="light">{section?.texts.solutionBadge || 'A Solução Definitiva'}</Kicker>
-                <h3 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
+                <Kicker tone="dark">{section?.texts.solutionBadge || 'A Solução Definitiva'}</Kicker>
+                <h3 className="mt-5 font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
                   {section?.texts.solutionTitle || 'Ainda há tempo para reverter essa situação.'}
                 </h3>
-                <p className="mt-4 max-w-xl leading-relaxed text-slate-600">
+                <p className="mt-4 max-w-xl leading-relaxed text-slate-400">
                   {section?.texts.solutionDesc ||
                     'O Manual de Compra Solar Buy-Side mapeia os novos gatilhos de decisão do cliente moderno, garantindo que você esteja do lado certo da venda.'}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-x-7 gap-y-3">
+                <div className="mt-7 flex flex-wrap gap-3">
                   {checks.map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-base font-bold text-slate-700">
-                      <CheckCircle2 className="h-[18px] w-[18px] text-orange-500" /> {item}
+                    <div key={item} className="rounded-full border border-white/10 px-4 py-2">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 size={16} className="shrink-0 text-orange-500" />
+                        <span className="text-sm font-semibold text-slate-200">{item}</span>
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -131,7 +140,7 @@ export const ContextV4: React.FC = () => {
                   {section?.texts.ctaButton || 'Garantir meu acesso agora'}
                   <CtaArrow />
                 </Cta>
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">
+                <p className="v4-mono text-[9px] uppercase tracking-[0.25em] text-slate-500">
                   {section?.texts.ctaSubtext || 'Download Imediato • PDF Interativo'}
                 </p>
               </div>

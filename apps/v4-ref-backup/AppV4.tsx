@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import './v4.css'
 import { trackPageView, observeSection } from '../utils/analytics'
-import { Marquee } from './atoms'
 import { FloatingCTAV4, HeaderV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
@@ -15,8 +14,8 @@ import { BuyerWaveV4 } from './BuyerWaveV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4, LeadMagnetV4, NewsletterV4 } from './ClosingV4'
 
-/* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP atual,
-   experiência redesenhada em 4 atos. Preview em /v4; produção intocada. */
+/* V4 — mesma copy e mesma ordem narrativa da LP atual, UI redesenhada.
+   Preview em /v4; a LP de produção (App.tsx) permanece intocada. */
 
 const SECTION_IDS = [
   'hero',
@@ -37,24 +36,6 @@ const SECTION_IDS = [
   'contact',
 ] as const
 
-/* Banda tipográfica da marca entre atos — só wordmark, nenhuma copy nova. */
-const MarqueeBand: React.FC<{ tone?: 'cool' | 'warm' }> = ({ tone = 'cool' }) => (
-  <div className="relative overflow-hidden border-y border-white/[0.06] bg-[#06080b] py-5" aria-hidden>
-    <Marquee speed={42} reverse={tone === 'warm'}>
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="flex items-center gap-14 whitespace-nowrap">
-          <span className="v4-stroke font-['Sora'] text-4xl font-extrabold tracking-tight md:text-6xl">
-            Solar Buy-Side
-          </span>
-          <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
-          <span className="v4-serif text-3xl text-slate-500/80 md:text-5xl">Manual de Compra</span>
-          <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
-        </span>
-      ))}
-    </Marquee>
-  </div>
-)
-
 export default function AppV4() {
   useEffect(() => {
     trackPageView()
@@ -73,7 +54,7 @@ export default function AppV4() {
   }, [])
 
   return (
-    <div className="v4-root overflow-x-hidden bg-[#07090d] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
+    <div className="v4-root overflow-x-hidden bg-[#030712] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
       <HeaderV4 />
       <FloatingCTAV4 />
       <div id="hero">
@@ -85,7 +66,6 @@ export default function AppV4() {
       <div id="video-section">
         <VideoV4 />
       </div>
-      <MarqueeBand />
       <div id="audiencia">
         <AudienceV4 />
       </div>
@@ -105,7 +85,6 @@ export default function AppV4() {
       <div id="buyer-wave">
         <BuyerWaveV4 />
       </div>
-      <MarqueeBand tone="warm" />
       <div id="authority">
         <AuthorityV4 />
       </div>

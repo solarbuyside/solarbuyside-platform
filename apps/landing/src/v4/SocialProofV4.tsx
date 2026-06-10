@@ -1,91 +1,102 @@
 import React from 'react'
-import { BookOpen, CheckCircle2, FileCheck, LayoutGrid, Layers, Quote } from 'lucide-react'
+import { BookOpen, FileCheck, LayoutGrid, Layers, Quote } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, Reveal } from './atoms'
+import { Cta, CtaArrow, Reveal, Stamp } from './atoms'
 
-/* Depoimento do Rodrigo — editorial, foto grande + leitura confortável. */
+/* Depoimento do Rodrigo — abertura do ato "paper": inversão editorial sobre o
+   dark anterior, foto em arch com selo girando + citação gigante em serif. */
 export const TestimonialsV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonials')
   const rodrigoImage = section?.images.testimonialImage || '/assets/Integrador_Rodrigo_SP.png'
 
   return (
-    <section className="relative overflow-hidden bg-[#fafaf8]">
-      <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-1/3 bg-white lg:block" aria-hidden />
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24">
-        <div className="grid items-stretch gap-12 lg:grid-cols-12">
-          {/* Foto */}
-          <Reveal className="relative flex lg:col-span-5">
-            <figure className="relative aspect-[3/4] w-full overflow-hidden rounded-[1.75rem] bg-slate-900 shadow-[0_50px_100px_-40px_rgba(15,23,42,0.5)] lg:aspect-auto lg:h-full">
-              <img src={rodrigoImage} alt="Rodrigo" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/10 to-slate-950/30" aria-hidden />
-              <figcaption className="absolute bottom-8 left-8 right-8">
-                <Quote className="mb-3 h-9 w-9 fill-current text-orange-500" />
-                <p className="text-lg font-bold text-white">{section?.texts.authorName || 'Rodrigo'}</p>
-                <p className="text-base text-slate-300">{section?.texts.authorRole || 'Integrador Solar, SP'}</p>
-              </figcaption>
-            </figure>
+    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f2ece1] pb-20 pt-24 text-[#181410] md:rounded-t-[4.5rem] md:pt-32">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="grid items-start gap-14 lg:grid-cols-12">
+          {/* Figura: foto arch + selo girando + legenda */}
+          <Reveal className="lg:col-span-5">
+            <div className="relative mx-auto max-w-[420px]">
+              <figure>
+                <div className="v4-arch v4-hard-shadow aspect-[3/4] w-full">
+                  <img
+                    src={rodrigoImage}
+                    alt="Rodrigo"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <figcaption className="mt-8">
+                  <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
+                  <p className="font-['Sora'] text-lg font-bold text-[#181410]">
+                    {section?.texts.authorName || 'Rodrigo'}
+                  </p>
+                  <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-[#4f463c]">
+                    {section?.texts.authorRole || 'Integrador Solar, SP'}
+                  </p>
+                </figcaption>
+              </figure>
 
-            <div className="v4-float absolute -right-5 top-10 hidden rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_24px_60px_-20px_rgba(15,23,42,0.3)] md:block">
-              <p className="mb-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
-                {section?.texts.statLabel || 'Crescimento'}
-              </p>
-              <p className="text-3xl font-extrabold tracking-tight text-orange-500">{section?.texts.statValue || '+5 Sistemas'}</p>
-              <p className="mt-1 text-xs text-slate-400">{section?.texts.statSubtext || 'Fechados em 30 dias'}</p>
+              <div className="absolute right-0 -top-6 origin-top-right scale-[0.8] md:-right-8 md:-top-8 md:scale-100">
+                <Stamp text={section?.texts.statLabel || 'Crescimento'} tone="ink" size={140}>
+                  <p className="font-['Sora'] text-base font-extrabold leading-tight text-[#181410]">
+                    {section?.texts.statValue || '+5 Sistemas'}
+                  </p>
+                  <p className="v4-mono mt-1 text-[8px] uppercase tracking-[0.18em] text-[#181410]">
+                    {section?.texts.statSubtext || 'Fechados em 30 dias'}
+                  </p>
+                </Stamp>
+              </div>
             </div>
           </Reveal>
 
-          {/* Texto */}
+          {/* Citação editorial */}
           <div className="lg:col-span-7">
             <Reveal>
-              <h2 className="text-3xl font-extrabold leading-snug tracking-tight text-slate-900 md:text-[2.6rem] md:leading-[1.15]">
-                {section?.texts.title || '"Em um mês fechei 5 sistemas novos"'}
+              <Quote size={44} className="mb-4 fill-current text-orange-500" aria-hidden />
+              <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-[#181410]">
+                <span className="v4-serif">
+                  {section?.texts.title || '"Em um mês fechei 5 sistemas novos"'}
+                </span>
               </h2>
             </Reveal>
             <Reveal delay={90}>
-              <p className="mt-4 text-lg font-medium text-slate-500 md:text-xl">
+              <p className="mt-5 text-xl font-semibold text-[#4f463c]">
                 {section?.texts.subtitle || 'Os benefícios são claros, e a prática comprova.'}
               </p>
             </Reveal>
             <Reveal delay={150}>
-              <p className="mt-3 text-base font-medium text-slate-400">
+              <p className="v4-mono mt-2 text-[10px] uppercase tracking-[0.3em] text-[#4f463c]/70">
                 {section?.texts.intro || 'Veja a experiência de Rodrigo, Integrador de São Paulo'}
               </p>
             </Reveal>
 
-            <Reveal delay={220} className="mt-7 space-y-5 text-base leading-relaxed text-slate-600 md:text-lg">
-              <p>
+            <Reveal delay={220}>
+              <p className="v4-dropcap mt-8 text-lg leading-relaxed text-[#4f463c] md:text-xl">
                 {section?.texts.quote1 ||
                   '"Eu sofria com a concorrência acirrada e a baixa conversão. O Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e isso mudou o jogo."'}
               </p>
-              <p>
+              <p className="mt-5 text-lg leading-relaxed text-[#4f463c] md:text-xl">
                 {section?.texts.quote2 ||
                   '"Em um mês, fechei 5 sistemas novos. O mais gratificante, porém, foi a conexão. Deixei de ser apenas um vendedor e me tornei um verdadeiro parceiro para meus clientes."'}
               </p>
             </Reveal>
 
             <Reveal delay={300}>
-              <div className="mt-8 overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50/80 to-white p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600">
-                    <CheckCircle2 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="mb-1 text-sm font-extrabold uppercase tracking-[0.14em] text-slate-900">
-                      {section?.texts.ctaTitle || 'Faça como ele'}
-                    </h4>
-                    <p className="text-base font-semibold leading-relaxed text-slate-700">
-                      {section?.texts.ctaText ||
-                        'Imersão no Manual de Compra Solar Buy-Side: pense como seu cliente e torne-se um Vendedor de Alta Performance!'}
-                    </p>
-                  </div>
-                </div>
+              <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white/50 p-6">
+                <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#181410]">
+                  {section?.texts.ctaTitle || 'Faça como ele'}
+                </p>
+                <p className="mt-2 text-lg font-semibold leading-relaxed text-[#181410]">
+                  {section?.texts.ctaText ||
+                    'Imersão no Manual de Compra Solar Buy-Side: pense como seu cliente e torne-se um Vendedor de Alta Performance!'}
+                </p>
               </div>
             </Reveal>
           </div>
         </div>
 
-        <Reveal delay={140} className="mt-12 flex justify-center">
+        <Reveal delay={140} className="mt-14 flex justify-center">
           <Cta size="lg" href="#oferta">
             {section?.texts.ctaButton || 'Quero fechar mais projetos solares'}
             <CtaArrow size={20} />
@@ -96,7 +107,8 @@ export const TestimonialsV4: React.FC = () => {
   )
 }
 
-/* Ponte narrativa — manual + 4 atributos em grade limpa. */
+/* Ponte narrativa — manual sobre bloco paper-deep + tabela de specs estilo
+   revista com hairlines colapsadas e inversão de tinta no hover. */
 export const StoryBridgeV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('story-bridge')
@@ -125,48 +137,56 @@ export const StoryBridgeV4: React.FC = () => {
   ]
 
   return (
-    <section className="bg-white text-slate-900">
-      <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-        <header className="mx-auto mb-14 max-w-3xl text-center">
+    <section className="bg-[#f2ece1] pb-24 pt-4 text-[#181410]">
+      <div className="mx-auto max-w-7xl px-6">
+        <header className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <h2 className="text-3xl font-extrabold leading-snug tracking-tight text-slate-900 md:text-[2.5rem] md:leading-[1.15]">
+            <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold leading-[1.12] tracking-tight text-[#181410]">
               {section?.texts.title || 'A história de Rodrigo é apenas um exemplo do poder deste manual.'}
             </h2>
           </Reveal>
           <Reveal delay={110}>
-            <p className="mt-4 text-lg font-medium leading-relaxed text-slate-500">
+            <p className="mt-4 text-xl leading-relaxed text-[#4f463c]">
               {section?.texts.subtitle ||
                 'Ele é uma ponte entre o comprador bem informado e o vendedor preparado, impulsionando negociações justas e satisfatórias.'}
             </p>
           </Reveal>
         </header>
 
-        <div className="grid items-center gap-12 lg:grid-cols-12">
-          <Reveal className="flex justify-center lg:col-span-6 lg:justify-start">
-            <div className="group relative">
-              <div
-                className="absolute left-1/2 top-1/2 h-[85%] w-[85%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-200/50 blur-[100px] transition-all duration-700 group-hover:bg-orange-200/70"
-                aria-hidden
-              />
+        <div className="mt-14 grid items-center gap-14 lg:grid-cols-12">
+          {/* Manual sobre bloco paper-deep */}
+          <Reveal className="lg:col-span-5">
+            <div className="group v4-hard-shadow rounded-[2rem] bg-[#e9e0d0] p-10">
               <img
                 src={section?.images.manualImage || '/assets/Manual de Compra -OF.png'}
                 alt="Manual de Compra Solar Buy-Side"
-                className="relative h-auto w-[460px] max-w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                className="h-auto w-full rotate-[-2deg] transition-transform duration-700 ease-out group-hover:rotate-0"
                 loading="lazy"
               />
             </div>
           </Reveal>
 
-          <div className="lg:col-span-6">
-            <div className="grid gap-5 sm:grid-cols-2">
+          {/* Tabela de specs com hairlines colapsadas */}
+          <div className="lg:col-span-7">
+            <div className="grid grid-cols-1 border-l border-t border-[#181410]/15 sm:grid-cols-2">
               {features.map((feature, idx) => (
                 <Reveal key={feature.title} delay={idx * 90}>
-                  <div className="v4-lift group h-full rounded-2xl border border-slate-200/70 bg-slate-50/60 p-6 hover:border-orange-200 hover:bg-white hover:shadow-[0_20px_44px_-22px_rgba(15,23,42,0.2)]">
-                    <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white text-orange-600 shadow-sm transition-all duration-500 group-hover:bg-orange-500 group-hover:text-white">
-                      <feature.Icon size={22} />
+                  <div className="group h-full border-b border-r border-[#181410]/15 p-8 transition-colors duration-500 hover:bg-[#181410]">
+                    <div className="flex items-center justify-between">
+                      <span className="v4-mono text-xs text-[#181410]/40 transition-colors duration-500 group-hover:text-orange-400">
+                        {String(idx + 1).padStart(2, '0')}
+                      </span>
+                      <feature.Icon
+                        size={22}
+                        className="text-[#181410] transition-colors duration-500 group-hover:text-orange-400"
+                      />
                     </div>
-                    <h4 className="mb-1.5 text-base font-bold leading-tight text-slate-900">{feature.title}</h4>
-                    <p className="text-base font-medium leading-relaxed text-slate-500">{feature.desc}</p>
+                    <h4 className="mt-5 text-lg font-bold leading-tight text-[#181410] transition-colors duration-500 group-hover:text-[#f2ece1]">
+                      {feature.title}
+                    </h4>
+                    <p className="mt-2 leading-relaxed text-[#4f463c] transition-colors duration-500 group-hover:text-[#f2ece1]/70">
+                      {feature.desc}
+                    </p>
                   </div>
                 </Reveal>
               ))}

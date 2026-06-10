@@ -1,13 +1,19 @@
-import React, { useRef } from 'react'
-import { BookOpen, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react'
+import React, { useEffect, useRef } from 'react'
+import { BookOpen, CheckCircle2, Sparkles } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow } from './atoms'
+import { Cta, CtaArrow, WordReveal } from './atoms'
 import { scrollToId } from './scroll'
+
+/* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
+   gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
+   campo azul à esquerda (comprador) e âmbar à direita (vendedor).
+   Headline massiva com reveal palavra-a-palavra; destaque em serif itálica.
+   O manual + bônus viram um "ticket de acesso" com picote central. */
 
 export const HeroV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('hero')
-  const tiltRef = useRef<HTMLDivElement | null>(null)
+  const glowRef = useRef<HTMLDivElement | null>(null)
 
   const titlePrefix = section?.texts.titlePrefix || section?.texts.title1 || 'Saia da Disputa de Preço e Passe a'
   const titleHighlight = section?.texts.titleHighlight || section?.texts.title2 || 'Vender Decisões'
@@ -24,91 +30,137 @@ export const HeroV4: React.FC = () => {
   const ctaButton = section?.texts.ctaButton || 'Quero vender decisões agora'
   const ctaSubtext = section?.texts.ctaSubtext || 'Acesso imediato ao Manual Solar Buy-Side.'
   const scrollHint = section?.texts.scrollHint || 'Entenda a lógica'
-  const heroImage = section?.images.heroImage || '/assets/img-hero-solar.png'
 
   const isDefaultSubtitle = !subtitle || subtitle.startsWith('O método Buy-Side')
   const isDefaultManualTitle = !manualTitle || manualTitle === 'Manual Solar Buy-Side'
 
-  const handleTilt = (event: React.MouseEvent<HTMLDivElement>) => {
-    const el = tiltRef.current
-    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const rect = el.getBoundingClientRect()
-    const x = (event.clientX - rect.left) / rect.width - 0.5
-    const y = (event.clientY - rect.top) / rect.height - 0.5
-    el.style.transform = `perspective(1100px) rotateY(${x * 5}deg) rotateX(${y * -5}deg)`
-  }
-
-  const resetTilt = () => {
-    if (tiltRef.current) tiltRef.current.style.transform = 'perspective(1100px) rotateY(0deg) rotateX(0deg)'
-  }
+  /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let rafId = 0
+    const onMove = (e: MouseEvent) => {
+      cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 26
+        const y = (e.clientY / window.innerHeight - 0.5) * 14
+        if (glowRef.current) glowRef.current.style.transform = `translate(${x}px, ${y}px)`
+      })
+    }
+    window.addEventListener('mousemove', onMove, { passive: true })
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('mousemove', onMove)
+    }
+  }, [])
 
   return (
-    <section className="relative flex min-h-screen w-full items-center overflow-hidden bg-[#030712]">
-      {/* Camadas de atmosfera */}
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
+      {/* ── Céu ───────────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {/* gradiente vertical da noite */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, #0c1422 0%, #090d16 45%, #07090d 100%)' }}
+        />
+        {/* dualidade: campo azul (comprador) à esquerda, âmbar (vendedor) à direita */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(180deg, #081226 0%, #060e1f 38%, #040a18 68%, #030712 100%)',
+              'radial-gradient(55% 60% at 8% 75%, rgba(59,130,246,0.13), transparent 70%), radial-gradient(55% 60% at 92% 75%, rgba(249,115,22,0.13), transparent 70%)',
           }}
         />
+        {/* brilho central do amanhecer (com parallax) */}
+        <div ref={glowRef} className="absolute inset-0 will-change-transform">
+          <div
+            className="absolute left-1/2 top-[74%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 62%, rgba(253,186,116,0.32) 0%, rgba(249,115,22,0.16) 22%, transparent 52%)',
+            }}
+          />
+        </div>
+        {/* raios cônicos girando muito devagar */}
+        <div className="v4-rays absolute left-1/2 top-[80%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10]" />
+        {/* o disco solar: silhueta gigante com aresta incandescente */}
         <div
-          className="v4-aurora absolute left-[8%] top-[-22%] h-[58vw] w-[58vw] rounded-full blur-[140px]"
-          style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.16), transparent 65%)' }}
+          className="absolute left-1/2 top-[80%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d]"
+          style={{
+            boxShadow:
+              '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
+          }}
         />
+        {/* grade técnica só no "chão", abaixo do horizonte */}
         <div
-          className="v4-aurora-slow absolute right-[-14%] top-[28%] h-[44vw] w-[44vw] rounded-full blur-[150px]"
-          style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.12), transparent 65%)' }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.055]"
+          className="absolute inset-x-0 bottom-0 h-[28%] opacity-[0.05]"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
-            backgroundSize: '52px 52px',
-            maskImage: 'radial-gradient(ellipse 72% 60% at 50% 42%, black 25%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 72% 60% at 50% 42%, black 25%, transparent 100%)',
+              'linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'linear-gradient(180deg, transparent, black 40%)',
+            WebkitMaskImage: 'linear-gradient(180deg, transparent, black 40%)',
           }}
         />
         <div className="v4-noise absolute inset-0 opacity-[0.03]" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#030712]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 px-6 pb-20 pt-32 lg:grid-cols-12 lg:gap-10 lg:pb-24 lg:pt-36">
-        {/* Coluna de texto */}
-        <div className="flex flex-col items-center text-center lg:col-span-6 lg:items-start lg:text-left">
-          <h1
-            className="v4-rise text-[2.35rem] font-extrabold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]"
-            style={{ ['--d' as string]: '80ms' }}
-          >
-            {titlePrefix} <span className="v4-grad-text whitespace-pre-wrap">{titleHighlight}</span>{' '}
-            <span className="text-slate-300">{titleSuffix}</span>
-          </h1>
+      {/* ── Conteúdo ──────────────────────────────────────────────────── */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[16vh] pt-28 text-center md:pb-[18vh]">
+        {/* chip do produto */}
+        <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '60ms' }}>
+          <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
+            <span className="v4-dot absolute inset-0 rounded-full" />
+          </span>
+          <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-slate-300">{manualTitle}</span>
+        </div>
 
-          <p
-            className="v4-rise mt-6 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg"
-            style={{ ['--d' as string]: '200ms' }}
-          >
-            {!isDefaultSubtitle ? (
-              subtitle
-            ) : (
-              <>
-                O método <strong className="font-semibold text-slate-100">Buy-Side</strong> ensina você a pensar como o
-                cliente e conduzir decisões de compra, não disputas de preço.
-              </>
-            )}
+        {/* headline massiva */}
+        <h1 className="max-w-5xl text-[clamp(2.5rem,6.6vw,5.6rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
+          <WordReveal trigger="load" text={titlePrefix} baseDelay={150} step={50} />{' '}
+          <WordReveal
+            trigger="load"
+            text={titleHighlight}
+            baseDelay={520}
+            step={70}
+            wordClassName="v4-serif v4-grad-text pr-[0.06em]"
+          />{' '}
+          <WordReveal trigger="load" text={titleSuffix} baseDelay={700} step={50} wordClassName="text-slate-400/90" />
+        </h1>
+
+        {/* subtítulo */}
+        <p className="v4-rise mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg md:text-xl" style={{ ['--d' as string]: '900ms' }}>
+          {!isDefaultSubtitle ? (
+            subtitle
+          ) : (
+            <>
+              O método <strong className="font-semibold text-slate-100">Buy-Side</strong> ensina você a pensar como o
+              cliente e conduzir decisões de compra, não disputas de preço.
+            </>
+          )}
+        </p>
+
+        {/* CTA */}
+        <div className="v4-rise mt-10" style={{ ['--d' as string]: '1050ms' }}>
+          <Cta size="lg" onClick={() => scrollToId('oferta')}>
+            {ctaButton}
+            <CtaArrow />
+          </Cta>
+          <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500">
+            <CheckCircle2 size={14} className="text-emerald-500" />
+            {ctaSubtext}
           </p>
+        </div>
 
-          {/* Cartão do manual */}
-          <div className="v4-rise mt-8 w-full max-w-xl" style={{ ['--d' as string]: '320ms' }}>
-            <div className="group relative flex items-center gap-4 rounded-2xl border border-white/[0.09] bg-white/[0.035] p-4 backdrop-blur-md transition-all duration-500 hover:border-orange-400/40 hover:bg-white/[0.06]">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-orange-500/0 via-orange-500/[0.08] to-orange-500/0 opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.8)]">
+        {/* ticket de acesso: manual + bônus com picote central */}
+        <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '1200ms' }}>
+          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] backdrop-blur-md md:grid-cols-[1.15fr_1fr]">
+            {/* lado A — o manual */}
+            <div className="flex items-center gap-4 p-6 text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.8)]">
                 <BookOpen className="h-5 w-5" />
               </div>
-              <div className="relative min-w-0 text-left">
-                <h2 className="text-base font-bold tracking-tight text-white sm:text-lg">
+              <div className="min-w-0">
+                <p className="text-base font-bold tracking-tight text-white">
                   {!isDefaultManualTitle ? (
                     manualTitle
                   ) : (
@@ -116,108 +168,41 @@ export const HeroV4: React.FC = () => {
                       Manual Solar <span className="text-orange-400">Buy-Side</span>
                     </>
                   )}
-                </h2>
-                <p className="mt-0.5 text-xs leading-snug text-slate-400 sm:text-sm">{manualSubtitle}</p>
+                </p>
+                <p className="mt-1 text-xs leading-snug text-slate-400">{manualSubtitle}</p>
               </div>
             </div>
-          </div>
 
-          {/* CTA */}
-          <div
-            className="v4-rise mt-9 flex w-full max-w-xl flex-col items-center gap-4 sm:flex-row lg:items-center"
-            style={{ ['--d' as string]: '440ms' }}
-          >
-            <Cta size="lg" onClick={() => scrollToId('oferta')} className="w-full sm:w-auto">
-              {ctaButton}
-              <CtaArrow />
-            </Cta>
-          </div>
+            {/* picote do ticket */}
+            <div className="pointer-events-none absolute inset-x-6 top-1/2 border-t border-dashed border-white/15 md:inset-x-auto md:inset-y-6 md:left-[53.5%] md:border-l md:border-t-0" aria-hidden />
+            <span className="pointer-events-none absolute -left-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:left-[53.5%] md:-top-2 md:block md:-translate-x-1/2 md:translate-y-0" aria-hidden />
+            <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:-bottom-2 md:left-[53.5%] md:right-auto md:top-auto md:block md:-translate-x-1/2" aria-hidden />
 
-          <p
-            className="v4-rise mt-4 inline-flex items-center gap-2 text-xs font-semibold text-slate-500"
-            style={{ ['--d' as string]: '540ms' }}
-          >
-            <CheckCircle2 size={14} className="text-emerald-500" />
-            {ctaSubtext}
-          </p>
-
-          {/* Scroll hint no mobile (no desktop ele vive no rodapé do hero) */}
-          <button
-            onClick={() => scrollToId('contexto')}
-            type="button"
-            className="v4-rise group mt-8 flex flex-col items-center gap-2 self-center text-slate-500 transition-colors hover:text-orange-400 lg:hidden"
-            style={{ ['--d' as string]: '620ms' }}
-          >
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em]">{scrollHint}</span>
-            <ChevronDown size={16} className="animate-bounce" />
-          </button>
-        </div>
-
-        {/* Coluna visual */}
-        <div className="relative lg:col-span-6">
-          <div
-            className="v4-rise relative mx-auto max-w-[560px]"
-            style={{ ['--d' as string]: '300ms' }}
-            onMouseMove={handleTilt}
-            onMouseLeave={resetTilt}
-          >
-            <div
-              className="absolute left-1/2 top-1/2 h-[110%] w-[110%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[110px]"
-              style={{
-                background:
-                  'radial-gradient(circle at 35% 35%, rgba(37,99,235,0.22), transparent 60%), radial-gradient(circle at 70% 70%, rgba(249,115,22,0.2), transparent 60%)',
-              }}
-              aria-hidden
-            />
-
-            <div ref={tiltRef} className="v4-tilt relative">
-              <div className="absolute -inset-[1.5px] rounded-[26px] bg-gradient-to-br from-orange-500/60 via-white/10 to-blue-600/50 opacity-70" aria-hidden />
-              <figure className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#030712] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.9)]">
-                <img
-                  src={heroImage}
-                  alt="Consultoria Solar Executiva"
-                  className="h-auto w-full object-cover"
-                  style={{ aspectRatio: '1/1', objectPosition: 'center' }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#030712]/70 via-transparent to-[#030712]/20" aria-hidden />
-                <div
-                  className="absolute inset-0 opacity-40"
-                  style={{ background: 'linear-gradient(120deg, transparent 55%, rgba(255,255,255,0.06) 70%, transparent 85%)' }}
-                  aria-hidden
-                />
-              </figure>
-
-              {/* Card de bônus flutuante */}
-              <div className="v4-float absolute -bottom-7 -left-4 z-20 w-[290px] max-w-[82vw] rounded-2xl border border-orange-500/30 bg-[#0a1122]/95 p-5 text-left shadow-[0_28px_70px_-20px_rgba(0,0,0,0.85)] backdrop-blur-xl sm:-left-8">
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
-                    <span className="v4-dot absolute inset-0 rounded-full" />
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-[0.22em] text-orange-400">
-                    <Sparkles className="h-3.5 w-3.5 fill-orange-400" />
-                    {bonusBadge}
-                  </span>
-                </div>
-                <h3 className="text-base font-bold leading-tight text-white">{bonusTitle}</h3>
-                <p className="mt-1.5 text-xs leading-snug text-slate-400">{bonusSubtitle}</p>
-              </div>
+            {/* lado B — o bônus */}
+            <div className="flex flex-col justify-center gap-1 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
+              <span className="v4-mono inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.28em] text-orange-400">
+                <Sparkles className="h-3 w-3 fill-orange-400" />
+                {bonusBadge}
+              </span>
+              <p className="text-sm font-bold leading-tight text-white">{bonusTitle}</p>
+              <p className="text-xs leading-snug text-slate-500">{bonusSubtitle}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll hint */}
+      {/* scroll hint sobre o horizonte */}
       <button
         onClick={() => scrollToId('contexto')}
         type="button"
         aria-label={scrollHint}
-        className="group absolute bottom-7 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-2.5 lg:flex"
+        className="group absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-3"
       >
-        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 transition-colors group-hover:text-orange-400">
+        <span className="v4-mono text-[9px] font-bold uppercase tracking-[0.4em] text-slate-500 transition-colors group-hover:text-orange-400">
           {scrollHint}
         </span>
-        <span className="block h-9 w-px overflow-hidden bg-white/10">
-          <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-500 to-transparent" />
+        <span className="block h-10 w-px overflow-hidden bg-white/10">
+          <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-400 to-transparent" />
         </span>
       </button>
     </section>

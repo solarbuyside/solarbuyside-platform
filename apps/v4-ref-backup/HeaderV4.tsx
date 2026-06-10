@@ -52,40 +52,39 @@ export const HeaderV4: React.FC = () => {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'border-b border-white/[0.06] bg-[#07090d]/80 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
+          ? 'border-b border-white/[0.07] bg-[#030712]/85 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
           : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
         <a href="#hero" className="flex items-center gap-3">
           <img
             src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
             alt="Solar Buy-Side"
-            className="h-11 w-auto sm:h-12"
+            className="h-12 w-auto sm:h-14"
             onError={(e) => {
               e.currentTarget.src = '/assets/LOGOSOLARBUYSIDE3.png'
             }}
           />
-          <span className="flex items-baseline gap-1 whitespace-nowrap text-base font-bold tracking-tight sm:text-lg">
+          <span className="flex items-baseline gap-1 whitespace-nowrap text-lg font-bold tracking-tight">
             <span className="text-white">Solar</span>
             <span className="text-orange-500">Buy-Side</span>
           </span>
         </a>
 
-        <nav className="hidden items-center gap-0.5 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {NAV_ITEMS.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-slate-400 transition-colors duration-300 hover:text-white"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition-all duration-300 hover:bg-white/[0.06] hover:text-white"
             >
               {item.label}
-              <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 scale-0 rounded-full bg-orange-500 transition-transform duration-300 group-hover:scale-100" />
             </a>
           ))}
           <a
             href="#oferta"
-            className="group ml-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-8px_rgba(249,115,22,0.8)]"
+            className="group ml-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-8px_rgba(249,115,22,0.8)]"
           >
             Garantir Acesso
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -93,7 +92,7 @@ export const HeaderV4: React.FC = () => {
         </nav>
 
         <button
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-white md:hidden"
           type="button"
           aria-expanded={isMenuOpen}
           aria-controls="v4-mobile-menu"
@@ -104,10 +103,7 @@ export const HeaderV4: React.FC = () => {
         </button>
       </div>
 
-      <div
-        ref={progressRef}
-        className="v4-progress h-px w-full scale-x-0 bg-gradient-to-r from-orange-600 via-orange-400 to-amber-300"
-      />
+      <div ref={progressRef} className="v4-progress h-[2px] w-full scale-x-0 bg-gradient-to-r from-orange-600 via-orange-400 to-amber-300" />
 
       {isMenuOpen && (
         <div
@@ -117,7 +113,7 @@ export const HeaderV4: React.FC = () => {
       )}
       <div
         id="v4-mobile-menu"
-        className={`fixed left-4 right-4 top-[4.5rem] z-50 rounded-3xl border border-white/10 bg-[#0a0c12]/95 shadow-2xl backdrop-blur-xl transition-all duration-300 md:hidden ${
+        className={`fixed left-4 right-4 top-20 z-50 rounded-3xl border border-white/10 bg-[#060b1a]/95 shadow-2xl backdrop-blur-xl transition-all duration-300 md:hidden ${
           isMenuOpen ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-3 opacity-0'
         }`}
       >
@@ -134,7 +130,7 @@ export const HeaderV4: React.FC = () => {
           ))}
           <a
             href="#oferta"
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg"
+            className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg"
             onClick={() => setIsMenuOpen(false)}
           >
             Garantir Acesso
@@ -197,16 +193,16 @@ export const FloatingCTAV4: React.FC = () => {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       }}
-      className={`fixed bottom-6 right-6 z-40 hidden max-w-[330px] items-center gap-4 rounded-full border border-white/10 bg-[#0a0c12]/95 py-2.5 pl-3 pr-6 text-slate-50 shadow-[0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-500 md:flex ${
+      className={`fixed bottom-6 right-6 z-40 hidden max-w-[330px] items-center gap-4 rounded-2xl border border-white/10 bg-[#060b1a]/95 px-4 py-3.5 text-slate-50 shadow-[0_24px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-500 md:flex ${
         isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
       }`}
       aria-hidden={!isVisible}
     >
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
-        <ArrowRight size={19} />
+      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
+        <ArrowRight size={20} />
       </span>
       <span className="min-w-0">
-        <span className="v4-mono block text-[9px] font-bold uppercase tracking-[0.24em] text-orange-300">
+        <span className="block text-[10px] font-extrabold uppercase tracking-[0.2em] text-orange-300">
           Manual Solar Buy-Side
         </span>
         <span className="block text-sm font-extrabold leading-tight text-slate-50">

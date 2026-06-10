@@ -1,19 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════════
-   SOLAR BUY-SIDE — V4 DESIGN LAYER
+   SOLAR BUY-SIDE — V4 "SOLAR DAWN"
+   Um canvas escuro contínuo em 4 atos com uma inversão editorial (paper).
    Escopo: tudo prefixado com v4- para não vazar para a LP atual.
    ═══════════════════════════════════════════════════════════════════════ */
 
 .v4-root {
-  --v4-ink: #0b0f17;
-  --v4-night: #030712;
-  --v4-night-2: #060b1a;
-  --v4-panel: rgba(255, 255, 255, 0.03);
+  /* Atos escuros */
+  --v4-night: #07090d; /* carvão azulado — ato I/II */
+  --v4-night-deep: #050608; /* sala de cinema */
+  --v4-ember: #0b0807; /* carvão quente — ato IV */
   --v4-line: rgba(255, 255, 255, 0.08);
-  --v4-paper: #fafaf8;
+  --v4-line-hot: rgba(255, 255, 255, 0.16);
+
+  /* Ato editorial (paper) */
+  --v4-paper: #f2ece1;
+  --v4-ink: #181410;
+  --v4-ink-soft: #4f463c;
+  --v4-line-ink: rgba(24, 20, 16, 0.14);
+
+  /* Marca */
   --v4-orange: #f97316;
   --v4-amber: #fbbf24;
+  --v4-blue: #3b82f6;
+
   --v4-ease: cubic-bezier(0.16, 1, 0.3, 1);
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
@@ -25,11 +38,59 @@
   font-family: 'Sora', system-ui, sans-serif;
 }
 
-/* ── Reveal system ──────────────────────────────────────────────────── */
+.v4-root [id] {
+  scroll-margin-top: 76px;
+}
+
+/* ── Tipografia expressiva ──────────────────────────────────────────── */
+.v4-serif {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 480;
+  letter-spacing: -0.015em;
+}
+
+.v4-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Número/palavra fantasma (contorno) */
+.v4-stroke {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.16);
+  color: transparent;
+}
+
+.v4-stroke-ink {
+  -webkit-text-stroke: 1.5px rgba(24, 20, 16, 0.3);
+  color: transparent;
+}
+
+/* Gradiente solar em texto (combina com .v4-serif) */
+.v4-grad-text {
+  background: linear-gradient(100deg, #fb923c 0%, #f97316 35%, #fcd34d 60%, #f97316 85%, #fb923c 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: v4-grad 8s ease-in-out infinite;
+}
+
+@keyframes v4-grad {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ── Reveal por bloco (scroll) ──────────────────────────────────────── */
 .v4r {
   opacity: 0;
-  transform: translateY(26px);
-  filter: blur(5px);
+  transform: translateY(28px);
+  filter: blur(6px);
   transition:
     opacity 0.9s var(--v4-ease),
     transform 0.9s var(--v4-ease),
@@ -44,7 +105,26 @@
   filter: blur(0);
 }
 
-/* ── Hero entrance (independente do scroll) ─────────────────────────── */
+/* ── Reveal palavra-a-palavra ───────────────────────────────────────── */
+.v4-words .v4-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.55em);
+  filter: blur(7px);
+  transition:
+    opacity 0.8s var(--v4-ease),
+    transform 0.8s var(--v4-ease),
+    filter 0.8s var(--v4-ease);
+  transition-delay: var(--wd, 0ms);
+}
+
+.v4-words.go .v4-word {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ── Entrada do hero (sem depender de scroll) ───────────────────────── */
 @keyframes v4-rise {
   from {
     opacity: 0;
@@ -64,74 +144,57 @@
   animation-delay: var(--d, 0ms);
 }
 
-/* ── Aurora do hero ─────────────────────────────────────────────────── */
-@keyframes v4-aurora {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.85;
-  }
-  33% {
-    transform: translate(4%, -3%) scale(1.08);
-    opacity: 1;
-  }
-  66% {
-    transform: translate(-3%, 2%) scale(0.96);
-    opacity: 0.75;
+/* ── Rotação contínua (raios, selos, anéis) ─────────────────────────── */
+@keyframes v4-rotate {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.v4-aurora {
-  animation: v4-aurora 14s ease-in-out infinite;
+.v4-spin-slow {
+  animation: v4-rotate 48s linear infinite;
 }
 
-.v4-aurora-slow {
-  animation: v4-aurora 22s ease-in-out infinite reverse;
+.v4-spin-slower {
+  animation: v4-rotate 26s linear infinite;
 }
 
-/* ── Flutuação suave (cards sobre a imagem) ─────────────────────────── */
+/* Raios solares: leque cônico mascarado (usar num div quadrado grande) */
+.v4-rays {
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(251, 146, 60, 0.5) 0deg,
+    rgba(251, 146, 60, 0.5) 0.4deg,
+    transparent 0.4deg,
+    transparent 5.2deg
+  );
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 22%, black 32%, transparent 60%);
+  mask-image: radial-gradient(circle at 50% 50%, transparent 22%, black 32%, transparent 60%);
+  animation: v4-rotate 140s linear infinite;
+}
+
+/* ── Flutuação suave ────────────────────────────────────────────────── */
 @keyframes v4-float {
   0%,
   100% {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-9px);
+    transform: translateY(-10px);
   }
 }
 
 .v4-float {
-  animation: v4-float 6s ease-in-out infinite;
+  animation: v4-float 7s ease-in-out infinite;
 }
 
-/* ── Texto com gradiente animado ────────────────────────────────────── */
-@keyframes v4-grad {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.v4-grad-text {
-  background: linear-gradient(100deg, #fb923c 0%, #f97316 30%, #fdba74 55%, #f97316 80%, #fb923c 100%);
-  background-size: 220% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  animation: v4-grad 7s ease-in-out infinite;
-}
-
-/* ── Shimmer dos CTAs ───────────────────────────────────────────────── */
+/* ── Shimmer nos CTAs sólidos ───────────────────────────────────────── */
 @keyframes v4-shimmer {
   from {
-    transform: translateX(-150%) skewX(-18deg);
+    transform: translateX(-160%) skewX(-18deg);
   }
   to {
-    transform: translateX(250%) skewX(-18deg);
+    transform: translateX(260%) skewX(-18deg);
   }
 }
 
@@ -141,7 +204,7 @@
   inset: 0;
   width: 40%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: translateX(-150%) skewX(-18deg);
+  transform: translateX(-160%) skewX(-18deg);
   pointer-events: none;
 }
 
@@ -149,7 +212,7 @@
   animation: v4-shimmer 0.9s var(--v4-ease);
 }
 
-/* ── Scroll hint (linha que desce) ──────────────────────────────────── */
+/* ── Scroll hint: linha que escorre ─────────────────────────────────── */
 @keyframes v4-drip {
   0% {
     transform: scaleY(0);
@@ -173,7 +236,7 @@
   animation: v4-drip 2.2s var(--v4-ease) infinite;
 }
 
-/* ── Pulso do ponto "ao vivo" ───────────────────────────────────────── */
+/* ── Ponto "ao vivo" pulsante ───────────────────────────────────────── */
 @keyframes v4-ping {
   0% {
     transform: scale(1);
@@ -194,25 +257,94 @@
   animation: v4-ping 1.8s ease-out infinite;
 }
 
-/* ── Grain / noise overlay ──────────────────────────────────────────── */
+/* ── Grain global ───────────────────────────────────────────────────── */
 .v4-noise {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
   background-size: 160px 160px;
 }
 
-/* ── Card 3D tilt (hero) ────────────────────────────────────────────── */
-.v4-tilt {
-  transform-style: preserve-3d;
-  transition: transform 0.5s var(--v4-ease);
+/* ── Marquee (banda da marca entre atos) ────────────────────────────── */
+.v4-marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
 }
 
-/* ── Marcador de seção numerada ─────────────────────────────────────── */
+.v4-marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+  padding-right: 3.5rem;
+  flex-shrink: 0;
+  min-width: 100%;
+  animation: v4-marq var(--mq-speed, 36s) linear infinite;
+}
+
+.v4-marquee.reverse .v4-marquee-track {
+  animation-direction: reverse;
+}
+
+@keyframes v4-marq {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ── Borda cônica animada (painel do preço) ─────────────────────────── */
+/* Uso: <div class="v4-conic-frame rounded-X p-px"><div class="v4-conic-inner rounded-[inherit]">…  */
+.v4-conic-frame {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.v4-conic-frame::before {
+  content: '';
+  position: absolute;
+  inset: -75%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgba(249, 115, 22, 0.9) 38deg,
+    rgba(251, 191, 36, 0.45) 72deg,
+    transparent 110deg,
+    transparent 180deg,
+    rgba(249, 115, 22, 0.35) 230deg,
+    transparent 280deg
+  );
+  animation: v4-rotate 6s linear infinite;
+  z-index: -1;
+}
+
+.v4-conic-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Sombras editoriais duras (ato paper) ───────────────────────────── */
+.v4-hard-shadow {
+  box-shadow: 14px 14px 0 0 var(--v4-ink);
+}
+
+.v4-hard-shadow-orange {
+  box-shadow: 12px 12px 0 0 var(--v4-orange);
+}
+
+/* Janela arch (foto editorial) */
+.v4-arch {
+  border-radius: 999px 999px 28px 28px;
+  overflow: hidden;
+}
+
+/* ── Kicker (etiqueta de seção) ─────────────────────────────────────── */
 .v4-kicker {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 0.68rem;
-  font-weight: 800;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.32em;
   text-transform: uppercase;
 }
@@ -225,13 +357,13 @@
   opacity: 0.5;
 }
 
-/* ── Scrollbar de progresso no header ───────────────────────────────── */
+/* ── Barra de progresso do header ───────────────────────────────────── */
 .v4-progress {
   transform-origin: left;
   transition: transform 80ms linear;
 }
 
-/* ── Hover lift padrão de card ──────────────────────────────────────── */
+/* ── Hover lift discreto ────────────────────────────────────────────── */
 .v4-lift {
   transition:
     transform 0.45s var(--v4-ease),
@@ -259,10 +391,31 @@
   overflow: hidden;
 }
 
-/* ── Acessibilidade: respeita reduced motion ────────────────────────── */
+/* ── Painéis expansivos (audiência) ─────────────────────────────────── */
+.v4-panel {
+  transition:
+    flex-grow 0.8s var(--v4-ease),
+    border-color 0.5s var(--v4-ease),
+    background-color 0.5s var(--v4-ease);
+}
+
+/* ── Drop cap editorial ─────────────────────────────────────────────── */
+.v4-dropcap::first-letter {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: 3.4em;
+  font-weight: 600;
+  float: left;
+  line-height: 0.8;
+  margin: 0.06em 0.12em 0 0;
+  color: var(--v4-orange);
+}
+
+/* ── Acessibilidade: reduced motion ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .v4r,
-  .v4-rise {
+  .v4-rise,
+  .v4-words .v4-word {
     opacity: 1;
     transform: none;
     filter: none;
@@ -270,12 +423,15 @@
     transition: none;
   }
 
-  .v4-aurora,
-  .v4-aurora-slow,
+  .v4-spin-slow,
+  .v4-spin-slower,
+  .v4-rays,
   .v4-float,
   .v4-grad-text,
   .v4-drip,
-  .v4-dot::after {
+  .v4-dot::after,
+  .v4-marquee-track,
+  .v4-conic-frame::before {
     animation: none;
   }
 }

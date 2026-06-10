@@ -1,17 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Building2, CheckCircle2, Rocket, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Reveal } from './atoms'
+import { GrainOverlay, Reveal, WordReveal } from './atoms'
 
+/* Cores semânticas dos perfis: azul = comprador estruturado (buy-side),
+   laranja = marca, esmeralda = conversão/vendas. */
 const PROFILE_META = [
-  { Icon: Building2, accent: 'text-blue-600', soft: 'bg-blue-50', ring: 'group-hover:shadow-[0_22px_44px_-18px_rgba(37,99,235,0.35)]' },
-  { Icon: Rocket, accent: 'text-orange-600', soft: 'bg-orange-50', ring: 'group-hover:shadow-[0_22px_44px_-18px_rgba(249,115,22,0.35)]' },
-  { Icon: Users, accent: 'text-emerald-600', soft: 'bg-emerald-50', ring: 'group-hover:shadow-[0_22px_44px_-18px_rgba(16,185,129,0.35)]' },
+  {
+    Icon: Building2,
+    accent: 'text-blue-400',
+    borderActive: 'border-blue-500/40',
+    glow: 'radial-gradient(circle at 50% 0%, rgba(59,130,246,0.08), transparent 72%)',
+  },
+  {
+    Icon: Rocket,
+    accent: 'text-orange-400',
+    borderActive: 'border-orange-500/40',
+    glow: 'radial-gradient(circle at 50% 0%, rgba(249,115,22,0.08), transparent 72%)',
+  },
+  {
+    Icon: Users,
+    accent: 'text-emerald-400',
+    borderActive: 'border-emerald-500/40',
+    glow: 'radial-gradient(circle at 50% 0%, rgba(16,185,129,0.08), transparent 72%)',
+  },
 ]
 
 export const AudienceV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('audience')
+  const [activeIndex, setActiveIndex] = useState(0)
 
   const profiles = [
     {
@@ -34,70 +52,135 @@ export const AudienceV4: React.FC = () => {
     },
   ]
 
+  const title = section?.texts.title || 'Quem REALMENTE precisa desse conhecimento?'
+
   return (
-    <section className="relative bg-white text-slate-900 antialiased">
-      <div className="mx-auto max-w-7xl px-6 py-20 md:py-24">
-        <div className="mb-12 max-w-3xl">
+    <section className="relative overflow-hidden bg-[#07090d] text-white antialiased">
+      <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+        {/* ── Header: número fantasma + título palavra-a-palavra ───────── */}
+        <div className="max-w-4xl">
           <Reveal>
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-[2.7rem] md:leading-[1.1]">
-              {section?.texts.title || 'Quem REALMENTE precisa desse conhecimento?'}
+            <span className="v4-stroke block font-['Sora'] text-7xl font-extrabold leading-none md:text-8xl" aria-hidden>
+              03
+            </span>
+          </Reveal>
+          <Reveal delay={90}>
+            <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-extrabold leading-[1.05] tracking-tight text-white">
+              <WordReveal text={title} trigger="scroll" step={45} />
             </h2>
           </Reveal>
-          <Reveal delay={100}>
-            <p className="mt-4 text-lg font-medium leading-relaxed text-slate-500 md:text-xl">
+          <Reveal delay={180}>
+            <p className="mt-5 text-xl leading-relaxed text-slate-400">
               {section?.texts.subtitle || 'Veja para quem o Manual Solar Buy-Side é essencial:'}
             </p>
           </Reveal>
         </div>
 
-        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* ── Desktop: painéis expansivos horizontais ──────────────────── */}
+        <Reveal delay={120}>
+          <div className="mt-16 hidden h-[560px] gap-4 lg:flex">
+            {profiles.map((profile, idx) => {
+              const meta = PROFILE_META[idx]
+              const active = activeIndex === idx
+              return (
+                <article
+                  key={profile.title}
+                  tabIndex={0}
+                  onMouseEnter={() => setActiveIndex(idx)}
+                  onClick={() => setActiveIndex(idx)}
+                  onFocus={() => setActiveIndex(idx)}
+                  className={`v4-panel relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[2rem] border p-8 ${
+                    active ? meta.borderActive : 'border-white/[0.08]'
+                  }`}
+                  style={{ flexGrow: active ? 3 : 1, flexBasis: 0 }}
+                >
+                  <div
+                    className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+                    style={{ background: meta.glow, opacity: active ? 1 : 0 }}
+                    aria-hidden
+                  />
+                  <GrainOverlay />
+
+                  <div className="relative flex items-start justify-between gap-4">
+                    <div className="flex flex-col gap-3">
+                      <span className="v4-mono text-xs font-bold text-slate-500">{`0${idx + 1}`}</span>
+                      <span className="v4-mono text-[9px] uppercase tracking-[0.25em] text-slate-500">{profile.tag}</span>
+                    </div>
+                    <meta.Icon className={`h-6 w-6 shrink-0 ${meta.accent}`} />
+                  </div>
+
+                  <div className="relative">
+                    <h3 className="min-w-[220px] text-2xl font-bold tracking-tight text-white">{profile.title}</h3>
+                    <div
+                      className={`mt-5 min-w-[340px] max-w-[28rem] transition-all duration-500 ${
+                        active ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'
+                      }`}
+                    >
+                      <p className="text-lg leading-relaxed text-slate-300">{profile.description}</p>
+                      <div className="mt-6 space-y-3">
+                        {profile.bullets.map((bullet) => (
+                          <div key={bullet} className="flex items-center gap-3">
+                            <CheckCircle2 className={`h-5 w-5 shrink-0 ${meta.accent}`} />
+                            <span className="font-semibold text-white">{bullet}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        </Reveal>
+
+        {/* ── Mobile: stack vertical, painéis sempre expandidos ────────── */}
+        <div className="mt-14 flex flex-col gap-5 lg:hidden">
           {profiles.map((profile, idx) => {
             const meta = PROFILE_META[idx]
             return (
-              <Reveal key={profile.title} delay={idx * 110}>
-                <div
-                  className={`v4-lift group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/60 p-7 shadow-[0_2px_12px_rgba(15,23,42,0.05)] hover:border-slate-300 ${meta.ring}`}
-                >
-                  <div className="mb-6 flex items-start justify-between">
-                    <div className={`flex h-[52px] w-[52px] items-center justify-center rounded-2xl ${meta.soft} ${meta.accent} transition-transform duration-500 group-hover:scale-110`}>
-                      <meta.Icon className="h-6 w-6" />
-                    </div>
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-400">
-                      {profile.tag}
-                    </span>
-                  </div>
-
-                  <h3 className="mb-2.5 text-xl font-bold tracking-tight text-slate-900 transition-colors group-hover:text-orange-600 md:text-2xl">
-                    {profile.title}
-                  </h3>
-                  <p className="mb-6 font-medium leading-relaxed text-slate-500">{profile.description}</p>
-
-                  <div className="mt-auto space-y-2.5 border-t border-slate-100 pt-5">
-                    {profile.bullets.map((bullet) => (
-                      <div key={bullet} className="flex items-center gap-3">
-                        <CheckCircle2 className="h-5 w-5 shrink-0 text-orange-500" />
-                        <span className="text-base font-semibold text-slate-800">{bullet}</span>
+              <Reveal key={profile.title} delay={idx * 100}>
+                <article className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.08] p-7">
+                  <div className="pointer-events-none absolute inset-0" style={{ background: meta.glow }} aria-hidden />
+                  <GrainOverlay />
+                  <div className="relative">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col gap-2.5">
+                        <span className="v4-mono text-xs font-bold text-slate-500">{`0${idx + 1}`}</span>
+                        <span className="v4-mono text-[9px] uppercase tracking-[0.25em] text-slate-500">{profile.tag}</span>
                       </div>
-                    ))}
+                      <meta.Icon className={`h-6 w-6 shrink-0 ${meta.accent}`} />
+                    </div>
+                    <h3 className="mt-6 text-2xl font-bold tracking-tight text-white">{profile.title}</h3>
+                    <p className="mt-3 text-lg leading-relaxed text-slate-300">{profile.description}</p>
+                    <div className="mt-6 space-y-3">
+                      {profile.bullets.map((bullet) => (
+                        <div key={bullet} className="flex items-center gap-3">
+                          <CheckCircle2 className={`h-5 w-5 shrink-0 ${meta.accent}`} />
+                          <span className="font-semibold text-white">{bullet}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </article>
               </Reveal>
             )
           })}
         </div>
 
+        {/* ── Painel de fechamento (bottomTitle) ───────────────────────── */}
         <Reveal delay={120}>
-          <div className="relative overflow-hidden rounded-3xl bg-[#060b1a] px-8 py-8 md:px-10">
-            <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-orange-400 to-orange-600" aria-hidden />
+          <div className="relative mt-16 overflow-hidden rounded-[2.5rem] border border-white/[0.08] p-10 md:p-14">
             <div
-              className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-orange-500/10 blur-3xl"
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 115%, rgba(251,191,36,0.14), transparent 70%)' }}
               aria-hidden
             />
-            <div className="flex items-start gap-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-400">
+            <GrainOverlay />
+            <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-8">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-500">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
-              <h3 className="max-w-4xl text-lg font-bold leading-relaxed text-white md:text-2xl md:leading-snug">
+              <h3 className="max-w-4xl text-2xl font-bold leading-snug text-white md:text-3xl">
                 {section?.texts.bottomTitle ||
                   'Não importa em qual ponto da cadeia você está, o Manual Solar Buy-Side não é apenas um guia, mas uma imersão completa na perspectiva do comprador.'}
               </h3>

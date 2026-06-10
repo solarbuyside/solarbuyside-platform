@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Award, Check, ChevronLeft, ChevronRight, Target } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { Cta, CtaArrow, Reveal } from './atoms'
 import { scrollToId } from './scroll'
 
 type BuyerTestimonial = {
@@ -133,22 +133,20 @@ export const BuyerWaveV4: React.FC = () => {
     }
   })
 
-  const total = testimonials.length
+  const active = testimonials[activeTestimonial]
   const next = () => setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
   const prev = () => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#0a0705] to-[#07090d] py-24 text-white antialiased md:py-32">
-      <GrainOverlay />
-
-      <div className="relative mx-auto max-w-6xl px-6">
+    <section className="bg-[#f4f4f2] text-slate-900 antialiased">
+      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
         {/* Cabeçalho */}
-        <div className="text-center">
+        <div className="mb-12 text-center">
           <Reveal>
-            <Kicker tone="dark">{section?.texts.badge || 'Guia do Comprador'}</Kicker>
+            <span className="v4-kicker justify-center text-orange-600">{section?.texts.badge || 'Guia do Comprador'}</span>
           </Reveal>
           <Reveal delay={90}>
-            <h2 className="mx-auto mt-5 max-w-3xl font-['Sora'] text-[clamp(2rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
+            <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight md:text-4xl">
               <CMSText
                 value={
                   section?.texts.title?.trim()
@@ -159,153 +157,134 @@ export const BuyerWaveV4: React.FC = () => {
             </h2>
           </Reveal>
           <Reveal delay={170}>
-            <p className="mx-auto mt-5 max-w-2xl text-xl leading-relaxed text-slate-400">
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-500 md:text-xl">
               {section?.texts.subtitle || 'Compradores estão evoluindo. Veja o que eles estarão aprendendo em breve.'}
             </p>
           </Reveal>
         </div>
 
-        {/* Duas colunas de conhecimento — índice editorial, sem cards */}
-        <div className="mt-16 grid border-y border-white/[0.08] lg:grid-cols-2 lg:divide-x lg:divide-white/[0.08]">
-          <Reveal className="py-12 lg:pl-0 lg:pr-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08]">
-              <Award className="text-blue-500" size={22} />
+        {/* Cards lado comprador */}
+        <div className="grid gap-7 md:grid-cols-2">
+          <Reveal>
+            <div className="v4-lift flex h-full flex-col rounded-3xl border border-slate-200/70 bg-white p-8 shadow-[0_2px_12px_rgba(15,23,42,0.04)] hover:shadow-[0_30px_60px_-28px_rgba(37,99,235,0.3)]">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+                <Award className="text-blue-600" size={24} />
+              </div>
+              <h3 className="mb-5 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
+                {section?.texts.card1Title || 'O que o comprador vai dominar?'}
+              </h3>
+              <ul className="flex-grow space-y-3.5">
+                {[
+                  section?.texts.card1Item1 || 'Conceitos essenciais para uma compra técnica e segura',
+                  section?.texts.card1Item2 || 'Reconhecimento de marcas e distribuidores de alta confiança',
+                  section?.texts.card1Item3 || 'Critérios para selecionar empresas sérias e competentes',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3.5 text-slate-600">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-50">
+                      <Check size={14} className="text-blue-600" />
+                    </span>
+                    <span className="text-base font-medium leading-relaxed md:text-lg">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <h3 className="mt-5 font-['Sora'] text-2xl font-bold tracking-tight text-white">
-              {section?.texts.card1Title || 'O que o comprador vai dominar?'}
-            </h3>
-            <ul className="mt-3">
-              {[
-                section?.texts.card1Item1 || 'Conceitos essenciais para uma compra técnica e segura',
-                section?.texts.card1Item2 || 'Reconhecimento de marcas e distribuidores de alta confiança',
-                section?.texts.card1Item3 || 'Critérios para selecionar empresas sérias e competentes',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-4 border-b border-white/[0.06] py-4 last:border-b-0">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
-                    <Check size={13} className="text-blue-400" />
-                  </span>
-                  <span className="text-lg font-medium leading-relaxed text-slate-300">{item}</span>
-                </li>
-              ))}
-            </ul>
           </Reveal>
 
-          <Reveal delay={110} className="py-12 lg:pl-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08]">
-              <Target className="text-orange-500" size={22} />
+          <Reveal delay={110}>
+            <div className="v4-lift flex h-full flex-col rounded-3xl border border-slate-200/70 bg-white p-8 shadow-[0_2px_12px_rgba(15,23,42,0.04)] hover:shadow-[0_30px_60px_-28px_rgba(249,115,22,0.3)]">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50">
+                <Target className="text-orange-500" size={24} />
+              </div>
+              <h3 className="mb-5 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
+                {section?.texts.card2Title || 'Principais focos e Habilidades'}
+              </h3>
+              <ul className="flex-grow space-y-3.5">
+                {[
+                  section?.texts.card2Item1 || 'Analisar propostas com critérios técnicos e financeiros',
+                  section?.texts.card2Item2 || 'Avaliar reputação e suporte de pós-venda com precisão',
+                  section?.texts.card2Item3 || 'Tomar decisão com segurança e embasamento técnico',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3.5 text-slate-600">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-50">
+                      <Check size={14} className="text-orange-500" />
+                    </span>
+                    <span className="text-base font-medium leading-relaxed md:text-lg">{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <h3 className="mt-5 font-['Sora'] text-2xl font-bold tracking-tight text-white">
-              {section?.texts.card2Title || 'Principais focos e Habilidades'}
-            </h3>
-            <ul className="mt-3">
-              {[
-                section?.texts.card2Item1 || 'Analisar propostas com critérios técnicos e financeiros',
-                section?.texts.card2Item2 || 'Avaliar reputação e suporte de pós-venda com precisão',
-                section?.texts.card2Item3 || 'Tomar decisão com segurança e embasamento técnico',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-4 border-b border-white/[0.06] py-4 last:border-b-0">
-                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
-                    <Check size={13} className="text-orange-400" />
-                  </span>
-                  <span className="text-lg font-medium leading-relaxed text-slate-300">{item}</span>
-                </li>
-              ))}
-            </ul>
           </Reveal>
         </div>
 
-        {/* Deck de depoimentos */}
-        <div className="mt-24">
-          <Reveal className="flex flex-wrap items-end justify-between gap-6">
+        {/* Carrossel de depoimentos */}
+        <div className="mt-16">
+          <Reveal className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+              <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
                 {section?.texts.testimonialsTitle || 'As vozes de quem aprendeu'}
               </h2>
-              <p className="mt-2 text-lg text-slate-400">
+              <p className="mt-2 text-lg text-slate-500">
                 {section?.texts.testimonialsSubtitle || 'Relatos de compradores informados e preparados'}
               </p>
             </div>
-            <div className="flex items-center gap-5">
-              <span className="v4-mono text-2xl text-slate-500 md:text-3xl">
-                {String(activeTestimonial + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={prev}
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 text-slate-300 transition-all duration-300 hover:border-orange-400 hover:text-orange-400 active:scale-90"
-                  type="button"
-                  aria-label="Depoimento anterior"
-                >
-                  <ChevronLeft size={22} />
-                </button>
-                <button
-                  onClick={next}
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-white/15 text-slate-300 transition-all duration-300 hover:border-orange-400 hover:text-orange-400 active:scale-90"
-                  type="button"
-                  aria-label="Próximo depoimento"
-                >
-                  <ChevronRight size={22} />
-                </button>
-              </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={prev}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white shadow-sm transition-all duration-300 hover:border-orange-400 hover:text-orange-600 active:scale-90"
+                type="button"
+                aria-label="Depoimento anterior"
+              >
+                <ChevronLeft size={22} />
+              </button>
+              <button
+                onClick={next}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-slate-300 bg-white shadow-sm transition-all duration-300 hover:border-orange-400 hover:text-orange-600 active:scale-90"
+                type="button"
+                aria-label="Próximo depoimento"
+              >
+                <ChevronRight size={22} />
+              </button>
             </div>
           </Reveal>
 
           <Reveal delay={100}>
-            <div className="relative mt-10 min-h-[620px] md:min-h-[460px]">
-              {testimonials.map((t, idx) => {
-                const offset = (idx - activeTestimonial + total) % total
-                const deckPose =
-                  offset === 0
-                    ? 'z-30 translate-y-0 rotate-0 scale-100 opacity-100'
-                    : offset === 1
-                      ? 'z-20 translate-y-7 rotate-[1.5deg] scale-[0.97] opacity-50'
-                      : offset === 2
-                        ? 'z-10 translate-y-14 rotate-[-1deg] scale-[0.94] opacity-25'
-                        : 'pointer-events-none scale-[0.9] opacity-0'
-
-                return (
-                  <div key={t.name} className={`absolute inset-0 transition-all duration-700 ${deckPose}`}>
-                    <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0e0c10] md:grid-cols-[230px_1fr] md:grid-rows-1">
-                      <div className="relative">
-                        <img
-                          src={t.avatar}
-                          className="h-52 w-full object-cover md:h-full"
-                          style={{ objectPosition: t.objectPosition || 'center' }}
-                          alt={t.name}
-                          loading="lazy"
-                        />
-                        <div
-                          className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0e0c10]/90 to-transparent"
-                          aria-hidden
-                        />
-                        <div className="absolute bottom-4 left-4 pr-4">
-                          <p className="font-['Sora'] text-lg font-bold tracking-tight text-white">{t.name}</p>
-                          <div className="v4-mono mt-1 flex flex-wrap items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-slate-300">
-                            <span>{t.role}</span>
-                            <span className="h-1 w-1 rounded-full bg-white/50" aria-hidden />
-                            <span>{t.location}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-4 overflow-y-auto p-7 md:p-9">
-                        <h4 className="font-['Sora'] text-xl font-bold leading-tight text-white md:text-2xl">
-                          {t.reviewTitle}
-                        </h4>
-                        <p className="text-sm leading-relaxed text-slate-400 md:text-base">{t.quote}</p>
-                        <div className="border-t border-white/[0.08] pt-4">
-                          <p className="v4-serif text-lg text-amber-200/90 md:text-xl">"{t.highlight}"</p>
-                        </div>
-                      </div>
-                    </div>
+            <div className="flex flex-col overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white shadow-[0_40px_90px_-50px_rgba(15,23,42,0.35)] md:min-h-[360px] md:flex-row">
+              <div className="relative h-[380px] w-full md:h-auto md:w-[38%]">
+                <img
+                  key={active.avatar}
+                  src={active.avatar}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={{ objectPosition: active.objectPosition || 'center' }}
+                  alt={active.name}
+                  loading="lazy"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/70 to-transparent" aria-hidden />
+                <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/25 bg-white/15 px-5 py-3 text-white shadow-2xl backdrop-blur-xl">
+                  <p className="text-lg font-bold tracking-tight md:text-xl">{active.name}</p>
+                  <div className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] opacity-90">
+                    <span>{active.role}</span>
+                    <span className="h-1 w-1 rounded-full bg-white/60" aria-hidden />
+                    <span>{active.location}</span>
                   </div>
-                )
-              })}
+                </div>
+              </div>
+
+              <div key={activeTestimonial} className="v4-rise flex w-full flex-col justify-center gap-4 p-7 md:w-[62%] md:p-10">
+                <h4 className="text-xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-[1.7rem]">
+                  {active.reviewTitle}
+                </h4>
+                <p className="text-base leading-relaxed text-slate-600 md:text-lg">{active.quote}</p>
+                <div className="border-t border-slate-100 pt-4">
+                  <p className="text-base font-bold leading-snug tracking-tight text-slate-900 md:text-xl">
+                    "{active.highlight}"
+                  </p>
+                </div>
+              </div>
             </div>
           </Reveal>
 
           {/* Indicadores */}
-          <div className="mt-6 flex justify-center">
+          <div className="mt-4 flex justify-center">
             {testimonials.map((t, idx) => (
               <button
                 key={t.name}
@@ -315,15 +294,15 @@ export const BuyerWaveV4: React.FC = () => {
                 className="group flex items-center justify-center px-1"
               >
                 <span
-                  className={`block h-1.5 rounded-full transition-all duration-300 ${
-                    idx === activeTestimonial ? 'w-7 bg-orange-500' : 'w-1.5 bg-white/20 group-hover:bg-white/40'
+                  className={`block h-2 rounded-full transition-all duration-300 ${
+                    idx === activeTestimonial ? 'w-8 bg-orange-500' : 'w-2 bg-slate-300 group-hover:bg-slate-400'
                   }`}
                 />
               </button>
             ))}
           </div>
 
-          <Reveal delay={120} className="mt-12 text-center">
+          <Reveal delay={120} className="mt-10 text-center">
             <Cta size="lg" onClick={() => scrollToId('oferta')}>
               {section?.texts.ctaButton || 'ACESSAR GUIA ESTRATÉGICO AGORA'}
               <CtaArrow size={20} />

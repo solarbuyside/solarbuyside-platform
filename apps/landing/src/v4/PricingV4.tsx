@@ -3,7 +3,7 @@ import { ArrowRight, CheckCircle2, Lock as LockIcon, ShieldCheck, Sparkles } fro
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { CMSText } from '../components/CMSText'
-import { Reveal } from './atoms'
+import { GrainOverlay, Reveal } from './atoms'
 
 type PricingV4Props = {
   id?: string
@@ -59,37 +59,33 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   ]
 
   return (
-    <section id={id} className="relative overflow-hidden bg-[#02050f] text-white">
-      {/* Atmosfera */}
+    <section
+      id={id}
+      className="relative z-10 -mt-20 overflow-hidden rounded-t-[3rem] bg-[#0a0705] pb-28 pt-24 text-white md:rounded-t-[4.5rem] md:pt-32"
+    >
+      {/* Spotlight do palco */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/60 to-transparent" />
-        <div className="absolute left-1/2 top-[-30%] h-[60vw] w-[60vw] -translate-x-1/2 rounded-full bg-blue-600/[0.09] blur-[160px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[40vw] w-[40vw] rounded-full bg-orange-600/[0.07] blur-[150px]" />
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute left-1/2 top-0 h-[60vh] w-[80vw] -translate-x-1/2"
           style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-            backgroundSize: '52px 52px',
-            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black 25%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black 25%, transparent 100%)',
+            background: 'radial-gradient(ellipse 60% 55% at 50% 0%, rgba(251,191,36,0.10), transparent 70%)',
           }}
         />
-        <div className="v4-noise absolute inset-0 opacity-[0.025]" />
+        <GrainOverlay />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-28">
-        {/* Cabeçalho */}
-        <div className="mb-14 space-y-5 text-center">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        {/* Cabeçalho central */}
+        <div className="text-center">
           <Reveal>
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-orange-400">
+            <div className="v4-mono inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-400">
               <Sparkles size={13} className="animate-pulse" />
               {section?.texts.badge || 'Pré-venda profissional por tempo limitado'}
             </div>
           </Reveal>
 
           <Reveal delay={90}>
-            <h2 className="mx-auto max-w-4xl text-3xl font-extrabold leading-tight tracking-tight md:text-[2.8rem] md:leading-[1.12]">
+            <h2 className="mx-auto mt-7 max-w-4xl font-['Sora'] text-[clamp(2.2rem,5vw,4rem)] font-extrabold leading-[1.08] tracking-tight">
               <CMSText
                 value={
                   section?.texts.title?.trim()
@@ -105,7 +101,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           </Reveal>
 
           <Reveal delay={170}>
-            <p className="mx-auto max-w-2xl text-lg font-medium text-slate-400">
+            <p className="mx-auto mt-6 max-w-2xl text-xl text-slate-400">
               {section?.texts.subtitle?.trim()
                 ? section.texts.subtitle
                 : isFirstSection
@@ -116,160 +112,150 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           </Reveal>
         </div>
 
-        <div className="grid items-stretch gap-10 lg:grid-cols-12">
-          {/* Entregáveis */}
-          <div className="flex flex-col lg:col-span-7">
-            <Reveal>
-              <h3 className="mb-6 flex items-center gap-3 text-lg font-bold tracking-tight text-slate-200">
-                <span className="h-1 w-8 rounded-full bg-gradient-to-r from-orange-500 to-amber-400" aria-hidden />
-                {featuresTitle}
-              </h3>
-            </Reveal>
-
-            <div className="flex flex-1 flex-col gap-4">
-              {productCards.map((card, idx) => {
-                const isBonus = card.variant === 'bonus'
-                return (
-                  <Reveal key={card.title} delay={idx * 110}>
-                    <div
-                      className={`v4-lift group relative flex items-stretch gap-6 rounded-3xl p-5 md:p-6 ${
-                        isBonus
-                          ? 'border border-orange-500/30 bg-gradient-to-br from-orange-500/[0.12] to-orange-600/[0.04] hover:border-orange-400/50'
-                          : 'border border-white/[0.07] bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.05]'
-                      }`}
-                    >
-                      {isBonus && (
-                        <div className="absolute -top-3 left-6">
-                          <span className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-3.5 py-1 text-[9px] font-extrabold uppercase tracking-[0.22em] text-white shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
-                            Bônus Especial
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex w-[105px] shrink-0 items-center justify-center sm:w-[125px]">
-                        <img
-                          src={card.image}
-                          alt={card.imageAlt}
-                          loading={idx === 0 ? 'eager' : 'lazy'}
-                          className="h-auto max-h-[165px] w-full object-contain drop-shadow-[0_16px_30px_rgba(0,0,0,0.5)] transition-transform duration-700 ease-out group-hover:scale-[1.06] group-hover:-rotate-1"
-                        />
-                      </div>
-
-                      <div className="flex min-w-0 flex-col justify-center gap-1.5">
-                        <span
-                          className={`text-[10px] font-extrabold tracking-[0.2em] ${isBonus ? 'text-orange-400' : 'text-slate-400'}`}
-                        >
-                          {card.tag}
-                        </span>
-                        <h4 className="text-base font-bold leading-tight text-white sm:text-lg">{card.title}</h4>
-                        <p className="text-sm leading-relaxed text-slate-400">{card.desc}</p>
-                      </div>
-                    </div>
-                  </Reveal>
-                )
-              })}
-            </div>
+        {/* Kicker dos entregáveis */}
+        <Reveal className="mt-20">
+          <div className="flex items-center gap-4">
+            <div className="h-px flex-1 bg-white/10" aria-hidden />
+            <span className="v4-mono text-center text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
+              {featuresTitle}
+            </span>
+            <div className="h-px flex-1 bg-white/10" aria-hidden />
           </div>
+        </Reveal>
 
-          {/* Card de preço */}
-          <div className="lg:col-span-5 lg:self-start lg:sticky lg:top-24">
-            <Reveal delay={150}>
-              <div className="relative">
-                <div className="absolute -inset-3 rounded-[40px] bg-gradient-to-br from-orange-500/25 via-transparent to-blue-500/15 blur-2xl" aria-hidden />
-
-                <div className="relative overflow-hidden rounded-[2rem] bg-white p-8 text-slate-950 shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9)]">
-                  <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-orange-600 via-orange-400 to-amber-300" aria-hidden />
-
-                  <div className="mb-7 flex items-start justify-between">
-                    <div>
-                      <span className="text-[11px] font-extrabold uppercase tracking-[0.28em] text-orange-600">
-                        {section?.texts.planBadge || 'Plano de Acesso'}
-                      </span>
-                      <h3 className="mt-1.5 text-[22px] font-extrabold tracking-tight text-slate-900">
-                        {section?.texts.planTitle || 'Oferta Especial'}
-                      </h3>
-                    </div>
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
-                      <ShieldCheck className="h-5 w-5 text-slate-500" />
-                    </div>
-                  </div>
-
-                  <div className="mb-7">
-                    <p className="text-[15px] font-bold text-slate-400 line-through">
-                      {section?.texts.priceFrom || 'De R$ 997,00 por apenas:'}
-                    </p>
-                    <div className="mt-1 flex items-start">
-                      <span className="mr-2 mt-2 text-lg font-bold">{section?.texts.priceInstallments || '12x de'}</span>
-                      <span className="mt-2 text-xl font-extrabold">R$</span>
-                      <span className="text-[84px] font-extrabold leading-none tracking-tighter">
-                        {section?.texts.priceValue || '61'}
-                      </span>
-                      <span className="mt-2 text-xl font-extrabold">{section?.texts.priceCents || ',38'}</span>
-                    </div>
-                    <p className="mt-2 text-[15px] font-medium text-slate-500">
-                      {section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'}
-                    </p>
-                  </div>
-
-                  <a
-                    href={globalSettings.purchaseLink || '#oferta'}
-                    target={globalSettings.purchaseLink ? '_blank' : undefined}
-                    rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
-                    onClick={trackBuyClick}
-                    className="v4-cta-shine group relative flex min-h-[44px] w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 py-5 font-extrabold text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8),inset_0_1px_0_rgba(255,255,255,0.3)] active:scale-[0.98]"
+        {/* Entregáveis — sem cards, capas no palco */}
+        <div className="mt-14 grid gap-12 md:grid-cols-3">
+          {productCards.map((card, idx) => {
+            const isBonus = card.variant === 'bonus'
+            return (
+              <Reveal key={card.title} delay={idx * 110} className="group relative flex flex-col items-center text-center">
+                {idx > 0 && (
+                  <span
+                    className="absolute -left-8 top-24 hidden text-3xl font-light text-orange-500/40 md:block"
+                    aria-hidden
                   >
-                    <span className="relative z-10 text-center text-[16px] uppercase leading-tight tracking-tight">
-                      {id === 'oferta-final'
-                        ? section?.texts.finalCtaButton || 'DESBLOQUEAR CONTEÚDO COMPLETO'
-                        : section?.texts.ctaButton || 'ACESSAR O MANUAL AGORA'}
-                    </span>
-                    <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
-                  </a>
+                    +
+                  </span>
+                )}
 
-                  <div className="mt-5 flex flex-col gap-2.5">
-                    <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-tight text-slate-500">
-                      <CheckCircle2 size={17} className="shrink-0 text-emerald-600" />
-                      {section?.texts.benefit1 || 'Liberação imediata no seu e-mail'}
-                    </div>
-                    <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-tight text-slate-500">
-                      <ShieldCheck size={17} className="shrink-0 text-blue-600" />
-                      {section?.texts.benefit2 || 'Checkout 100% criptografado'}
-                    </div>
-                    <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-tight text-slate-500">
-                      <LockIcon size={17} className="shrink-0 text-blue-600" />
-                      {section?.texts.benefit3 || 'Acesso Imediato'}
-                    </div>
+                {isBonus && (
+                  <span className="v4-mono absolute -top-4 z-10 rotate-[-3deg] rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.22em] text-white shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
+                    Bônus Especial
+                  </span>
+                )}
+
+                <div className="relative flex w-full flex-col items-center">
+                  <img
+                    src={card.image}
+                    alt={card.imageAlt}
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    className="h-[230px] w-auto object-contain drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
+                  />
+                  <div
+                    className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
+                    aria-hidden
+                  />
+                </div>
+
+                <span
+                  className={`v4-mono mt-6 text-[9px] font-bold uppercase tracking-[0.25em] ${
+                    isBonus ? 'text-orange-400' : 'text-slate-500'
+                  }`}
+                >
+                  {card.tag}
+                </span>
+                <h4 className="mt-2 font-['Sora'] text-lg font-bold text-white">{card.title}</h4>
+                <p className="mt-2 max-w-[300px] text-sm leading-relaxed text-slate-400">{card.desc}</p>
+              </Reveal>
+            )
+          })}
+        </div>
+
+        {/* Preço — center stage */}
+        <Reveal delay={120} className="mx-auto mt-24 max-w-2xl">
+          <div className="v4-conic-frame rounded-[2.5rem] p-px">
+            <div className="v4-conic-inner rounded-[calc(2.5rem-1px)] bg-[#0d0a08] p-10 text-center md:p-14">
+              <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400">
+                {section?.texts.planBadge || 'Plano de Acesso'}
+              </span>
+              <h3 className="mt-2 font-['Sora'] text-2xl font-extrabold tracking-tight text-white">
+                {section?.texts.planTitle || 'Oferta Especial'}
+              </h3>
+
+              <p className="mt-6 font-bold text-slate-500 line-through">
+                {section?.texts.priceFrom || 'De R$ 997,00 por apenas:'}
+              </p>
+              <div className="flex items-start justify-center">
+                <span className="mr-2 mt-3 text-xl font-bold text-slate-300">
+                  {section?.texts.priceInstallments || '12x de'}
+                </span>
+                <span className="mt-3 text-2xl font-extrabold">R$</span>
+                <span className="font-['Sora'] text-[clamp(6rem,14vw,9rem)] font-extrabold leading-none tracking-tighter text-white">
+                  {section?.texts.priceValue || '61'}
+                </span>
+                <span className="mt-3 text-2xl font-extrabold">{section?.texts.priceCents || ',38'}</span>
+              </div>
+              <p className="mt-2 text-slate-400">{section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'}</p>
+
+              <a
+                href={globalSettings.purchaseLink || '#oferta'}
+                target={globalSettings.purchaseLink ? '_blank' : undefined}
+                rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
+                onClick={trackBuyClick}
+                className="v4-cta-shine group relative mt-8 flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 py-6 text-lg font-extrabold uppercase tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8),inset_0_1px_0_rgba(255,255,255,0.3)] active:scale-[0.98] md:text-xl"
+              >
+                <span className="relative z-10 leading-tight">
+                  {id === 'oferta-final'
+                    ? section?.texts.finalCtaButton || 'DESBLOQUEAR CONTEÚDO COMPLETO'
+                    : section?.texts.ctaButton || 'ACESSAR O MANUAL AGORA'}
+                </span>
+                <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
+              </a>
+
+              <div className="v4-mono mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
+                  {section?.texts.benefit1 || 'Liberação imediata no seu e-mail'}
+                </span>
+                <span className="flex items-center gap-2">
+                  <ShieldCheck size={15} className="shrink-0 text-blue-500" />
+                  {section?.texts.benefit2 || 'Checkout 100% criptografado'}
+                </span>
+                <span className="flex items-center gap-2">
+                  <LockIcon size={15} className="shrink-0 text-blue-500" />
+                  {section?.texts.benefit3 || 'Acesso Imediato'}
+                </span>
+              </div>
+
+              <div className="mt-8 border-t border-white/[0.08] pt-8">
+                <div className="mx-auto max-w-sm space-y-4 rounded-2xl bg-white p-5">
+                  <div className="flex items-center justify-center">
+                    <img
+                      src={section?.images.guarantee || '/assets/Garantia.png'}
+                      alt="7 dias de garantia"
+                      className="h-auto w-full max-w-[70px]"
+                      loading="lazy"
+                    />
                   </div>
-
-                  <div className="mt-7 space-y-4 border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-center">
-                      <img
-                        src={section?.images.guarantee || '/assets/Garantia.png'}
-                        alt="7 dias de garantia"
-                        className="h-auto w-full max-w-[72px]"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="flex items-center justify-center gap-4">
-                      <img src={section?.images.visa || '/assets/Visa.png'} alt="Visa" className="h-6 w-auto object-contain" loading="lazy" />
-                      <img src={section?.images.mastercard || '/assets/Mastercard.png'} alt="Mastercard" className="h-6 w-auto object-contain" loading="lazy" />
-                      <img src={section?.images.pix || '/assets/Pix.png'} alt="PIX" className="h-6 w-auto object-contain" loading="lazy" />
-                      <img src={section?.images.boleto || '/assets/Boleto.png'} alt="Boleto" className="h-6 w-auto object-contain" loading="lazy" />
-                    </div>
-                    <div className="flex justify-center pt-1">
-                      <img
-                        src={section?.images.securePurchase || '/assets/Compra segura.png'}
-                        alt="Compra Segura"
-                        className="h-auto max-w-[240px] object-contain"
-                        loading="lazy"
-                      />
-                    </div>
+                  <div className="flex items-center justify-center gap-4">
+                    <img src={section?.images.visa || '/assets/Visa.png'} alt="Visa" className="h-6 w-auto object-contain" loading="lazy" />
+                    <img src={section?.images.mastercard || '/assets/Mastercard.png'} alt="Mastercard" className="h-6 w-auto object-contain" loading="lazy" />
+                    <img src={section?.images.pix || '/assets/Pix.png'} alt="PIX" className="h-6 w-auto object-contain" loading="lazy" />
+                    <img src={section?.images.boleto || '/assets/Boleto.png'} alt="Boleto" className="h-6 w-auto object-contain" loading="lazy" />
+                  </div>
+                  <div className="flex justify-center pt-1">
+                    <img
+                      src={section?.images.securePurchase || '/assets/Compra segura.png'}
+                      alt="Compra Segura"
+                      className="h-auto max-w-[240px] object-contain"
+                      loading="lazy"
+                    />
                   </div>
                 </div>
               </div>
-            </Reveal>
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
