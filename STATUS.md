@@ -1,8 +1,57 @@
 # STATUS DO PROJETO — Solar Buy-Side
 
 > Estado atual e canônico para qualquer agente/dev que continuar.
-> Última atualização: 2026-06-08. Branch: `main` (tudo commitado e no GitHub).
+> Última atualização: 2026-06-09. Branch: `main` (tudo commitado e no GitHub).
 > Leia também: `AGENTS.md`, `design.md`, `MONOREPO.md`, `ajustes/HANDOFF-brevo-greenn.md`.
+
+---
+
+## 🆕 ONDE PARAMOS (2026-06-09) — Pontuação ponderada + Viabilidade informativa
+
+**Contexto:** o Francis (cliente) enviou o PPTX `apps/platform/4 Regras de pontuação.pptx`
+e o DOCX `apps/platform/Ponderação dos critérios de cada grupo.docx` (ambos no repo,
+fora do git — binários de referência) com as NOVAS regras de pontuação. Tudo abaixo já
+está **implementado, testado (43/43), buildado e no ar** (commit `00dc5bf`).
+
+**O que mudou no domínio (`apps/platform/src/domain/comparisons`):**
+- **Pontuação PONDERADA por peso (%)**: cada critério de Empresa/Tecnologia tem um
+  `weight` em `score-definitions.ts` (slide 11). Nota ponderada = `(nota/10) × peso`.
+  O motor (`scoring.ts`) usa o peso **da definição** (fonte de verdade), NÃO do
+  scoreSetting (que vinha 1 e anularia). O scoreSetting só controla o liga/desliga.
+- **Índice de Confiabilidade Solar Buy-Side (0–100)** = `grade10 × 10`, campo `index100`
+  em `ScoreSummary`. Exibido nas tabelas Empresa, Tecnologia e Pontuação Geral.
+- **Nota `null` não penaliza**: critério sem dado / "sem reputação" fica fora do
+  numerador E do denominador (mostra "—"); o índice renormaliza sobre o que pontuou.
+- **Reclame Aqui**: escala 0/2/4/6/8/10 (`reputation.ts`); "suspensa/em análise/sem
+  reputação" → `null` (traço).
+- **Confiabilidade dos fabricantes/distribuidoras ELIMINADA** (form + comparativo +
+  schema + auto-scoring + risk-flags). Colunas `*_reliability` ficam órfãs no banco.
+- **Viabilidade Financeira = INFORMATIVA** de novo (reverteu o slide 19 provisório):
+  `financialScoreDefinitions = []`, `financialAffectsScore: false`, fora do ranking.
+- **Tecnologia: só 10 critérios pontuam** (slides 8/10); o resto virou informativo.
+  `comparison-rows.ts` agora casa campo→critério por **mapa explícito** `FIELD_TO_SCORE`
+  (a heurística posicional não servia mais). Grupos de marca (módulo 5/6/8/10, inversor
+  6/7/8/9) e cálculo de geração anual no `auto-scoring.ts`.
+
+**O que mudou na UI (`comparativo/comparativo-view.tsx`):**
+- Aba "Pontuação Viabilidade Financeira" → **"Análise de Viabilidade Financeira"**, agora
+  só informativa (sem coluna de nota, sem "Avaliar?", sem linha de total) + painel de
+  **padronização** (simultaneidade 30/60/80, inflação 4%, dica ChatGPT).
+- Botões Auto/Manual em **2 cards rotulados** (Automática é o padrão).
+- Total das tabelas mostra o **Índice (0–100)**. `finalists-view.tsx` perdeu a barra
+  "Viabilidade".
+
+**⚠️ PENDÊNCIAS DESTE BLOCO (ver também `O QUE FALTA` abaixo):**
+1. **Pesos de TECNOLOGIA somam 87%, não 100%** (faltam 13% — provável erro do Francis).
+   Implementado com os pesos literais; o motor renormaliza, então a proporção está
+   certa. Gabriel ia confirmar com ele. Quando vier o número, trocar em
+   `technicalScoreDefinitions` e o `87` no `workflow.test.ts`.
+2. **Rubricas sinalizadas** (`SINALIZADO` no `auto-scoring.ts`): "Prazo de instalação"
+   (slide 6) veio não-monotônico (30 dias=0, 45=10 — invertido); garantias com faixas
+   parciais; sobrecarga sem 10 definido. Implementei o sensato — confirmar com o Francis.
+
+**Landing (commit `62c0274`):** outro agente criou um **redesign V4 em preview** na rota
+`/v4` (`apps/landing/src/v4/`, lazy via `React.lazy`). NÃO afeta a LP de produção (`/`).
 
 ---
 
@@ -84,6 +133,15 @@ apps/landing/   LANDING PAGE — Vite + React + funções serverless. Deploy Ver
 ---
 
 ## O QUE FALTA
+
+0. **(2026-06-09) Pesos de TECNOLOGIA = 87%**: aguardando o Francis confirmar os 13%
+   faltantes do slide 11. Trocar em `technicalScoreDefinitions` (campo `weight`) e o
+   valor `87` em `workflow.test.ts`. O motor renormaliza, então hoje já funciona certo.
+0b. **(2026-06-09) Confirmar rubricas sinalizadas** com o Francis (prazo de instalação
+   invertido no slide 6; faixas parciais de garantia; sobrecarga). Ver `SINALIZADO` em
+   `auto-scoring.ts`.
+0c. **(opcional) Promover o redesign V4 da landing** (`apps/landing/src/v4/`, hoje só em
+   `/v4`) para a LP de produção, se aprovado.
 
 1. **Desligar o Render** (só o usuário, no painel Render, ou via Render API token). A LP não depende mais dele.
    - ⚠️ O admin ANTIGO embutido na landing (login + aba Leads em `landing/src/components/admin`, que batiam em `/api/auth/*` e `/api/admin/leads/*` no Render) vai parar. Substituto: `/admin/landing` (conteúdo) na plataforma; leads ficam no Supabase. TODO opcional: aba "Leads" no /admin da plataforma lendo `newsletter_subscribers`/`ebook_leads`.
