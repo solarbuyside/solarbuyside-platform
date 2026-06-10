@@ -82,15 +82,10 @@ export const AudienceV4: React.FC = () => {
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-white antialiased">
       <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-        {/* ── Header: número fantasma + título palavra-a-palavra ───────── */}
+        {/* ── Header: título palavra-a-palavra ─────────────────────────── */}
         <div className="max-w-4xl">
           <Reveal>
-            <span className="v4-stroke block font-['Sora'] text-7xl font-extrabold leading-none md:text-8xl" aria-hidden>
-              03
-            </span>
-          </Reveal>
-          <Reveal delay={90}>
-            <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-extrabold leading-[1.05] tracking-tight text-white">
+            <h2 className="text-[clamp(2.2rem,4.5vw,3.8rem)] font-extrabold leading-[1.05] tracking-tight text-white">
               <WordReveal text={title} trigger="scroll" step={45} />
             </h2>
           </Reveal>
