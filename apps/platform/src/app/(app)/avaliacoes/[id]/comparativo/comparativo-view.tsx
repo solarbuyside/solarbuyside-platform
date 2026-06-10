@@ -28,6 +28,7 @@ import {
 } from "@/domain/comparisons/comparison-rows";
 import { calculateComparisonResult } from "@/domain/comparisons/scoring";
 import { applyAutoScores, autoScoreFor } from "@/domain/comparisons/auto-scoring";
+import { scoreDefinitions } from "@/domain/comparisons/score-definitions";
 import type { ComparisonInput, CompetitorProposal, ScoreCategory } from "@/domain/comparisons/types";
 import { cn } from "@/lib/utils";
 import { ScoreCell } from "./score-cell";
@@ -40,6 +41,10 @@ import {
 } from "./actions";
 
 type TabId = "company" | "technical" | "financial" | "overview";
+
+/** Peso (%) de cada critério, para exibir o valor ponderado na célula. */
+const WEIGHT_BY_KEY = new Map(scoreDefinitions.map((d) => [d.key, d.weight] as const));
+const weightOf = (key: string) => WEIGHT_BY_KEY.get(key) ?? 1;
 
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: "company", label: "Pontuação Empresas", icon: ShieldCheck },
@@ -379,6 +384,7 @@ function ScoreTable({
                             {row.scoreKey ? (
                               <ScoreCell
                                 value={effective}
+                                weight={weightOf(row.scoreKey)}
                                 auto={isAutoValue}
                                 disabled={!enabled}
                                 onChange={(next) => onScore(c.id, row.scoreKey!, category, next)}

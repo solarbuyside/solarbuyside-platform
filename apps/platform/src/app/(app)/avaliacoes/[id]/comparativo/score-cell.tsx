@@ -4,19 +4,36 @@ import * as React from "react";
 import { ChevronUp, ChevronDown, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/** Pontuação ponderada exibida na célula: (nota / 10) × peso. */
+function weightedOf(value: number | null, weight: number): number | null {
+  if (value == null) return null;
+  return Math.round((value / 10) * weight * 10) / 10;
+}
+
+function fmt(n: number | null): string {
+  if (n == null) return "—";
+  return n.toFixed(1).replace(".", ",");
+}
+
 /**
- * Célula de nota editável (coluna "P" da planilha). Mostra a nota atual com
- * setinhas ↑↓ e, ao clicar no número, abre um seletor 0-10 bonito. Quando a
- * nota é a sugestão automática (não foi editada à mão), mostra o selo "auto".
+ * Célula da tabela de pontuação. O que aparece e o que SOMA na coluna é o valor
+ * PONDERADO de cada critério: (nota / 10) × peso. Assim o total da coluna bate
+ * com o Índice de Confiabilidade, sem o usuário ver uma soma de notas brutas
+ * diferente do índice. A edição continua sendo da nota de 0 a 10 (inteiro): ao
+ * clicar, abre o seletor 0-10; a célula recalcula o ponderado. Quando a nota é
+ * a sugestão automática (não editada à mão), mostra o selo "auto".
  */
 export function ScoreCell({
   value,
+  weight,
   auto,
   disabled,
   onChange,
 }: {
-  /** Nota efetiva exibida (override manual, ou auto). */
+  /** Nota efetiva (0 a 10): override manual, ou a sugestão automática. */
   value: number | null;
+  /** Peso (%) do critério, usado para calcular o valor ponderado exibido. */
+  weight: number;
   /** True quando o valor exibido vem do cálculo automático (não manual). */
   auto: boolean;
   /** Linha desligada (Avaliar? = não). */
@@ -44,21 +61,27 @@ export function ScoreCell({
     return <span className="text-xs text-slate-300">—</span>;
   }
 
+  const weighted = weightedOf(value, weight);
+
   return (
     <div ref={ref} className="relative inline-flex items-center gap-1">
       <button
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "inline-flex h-8 min-w-[2.5rem] items-center justify-center gap-1 rounded-md border px-2 text-sm font-bold transition-all",
+          "inline-flex h-8 min-w-[3rem] items-center justify-center gap-1 rounded-md border px-2 text-sm font-bold transition-all",
           open
             ? "border-primary bg-primary/10 text-primary"
             : auto
               ? "border-slate-200 bg-white text-slate-500 hover:border-primary/40"
               : "border-primary/40 bg-primary/5 text-primary hover:border-primary",
         )}
-        title={auto ? "Nota sugerida automaticamente — clique para definir" : "Clique para editar"}
+        title={
+          value == null
+            ? "Clique para definir a nota (0 a 10)"
+            : `Nota ${value}/10 com peso ${weight}% = ${fmt(weighted)} ponderado`
+        }
       >
-        {value ?? "—"}
+        {fmt(weighted)}
         {auto && value != null && <Sparkles className="h-3 w-3 text-primary/60" />}
       </button>
 
@@ -81,7 +104,7 @@ export function ScoreCell({
 
       {open && (
         <div className="absolute left-1/2 top-10 z-30 w-56 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl animate-in fade-in zoom-in-95">
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1 flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Nota (0 a 10)
             </span>
@@ -92,6 +115,9 @@ export function ScoreCell({
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
+          <p className="mb-2 text-[10px] text-slate-400">
+            Peso {weight}%. A nota vira {value == null ? "o valor" : fmt(weighted)} ponderado na tabela.
+          </p>
           <div className="grid grid-cols-6 gap-1.5">
             {Array.from({ length: 11 }).map((_, n) => (
               <button
