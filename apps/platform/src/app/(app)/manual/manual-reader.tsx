@@ -294,11 +294,80 @@ export function ManualReader({
     return () => window.removeEventListener("keydown", onKey);
   }, [page, goTo]);
 
+  // Navegação pela roda do mouse — com proteção anti-esbarrão para não virar
+  // várias páginas sem querer:
+  //  (1) só vira quando o scroll já está no LIMITE (topo/fundo) da página —
+  //      assim uma página ampliada rola normalmente primeiro;
+  //  (2) exige um overscroll ACUMULADO acima de um limiar (gesto deliberado,
+  //      não um toque leve); muda de direção zera o acúmulo;
+  //  (3) após virar, TRAVA por um curto período, cobrindo a inércia do
+  //      trackpad (que dispara dezenas de eventos por gesto).
+  React.useEffect(() => {
+    const el = document.getElementById("manual-canvas-scroll");
+    if (!el) return;
+    let acc = 0;
+    let locked = false;
+    let resetT: number | undefined;
+    const THRESHOLD = 90; // px de overscroll para confirmar a virada
+    const COOLDOWN = 650; // ms travado após virar
+    const IDLE_RESET = 220; // ms sem rolar zera o acúmulo
+
+    function onWheel(e: WheelEvent) {
+      if (!el) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // gesto horizontal
+      const down = e.deltaY > 0;
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+      const canScrollInside = (down && !atBottom) || (!down && !atTop);
+      if (canScrollInside) {
+        acc = 0;
+        return; // deixa rolar o conteúdo da página (zoom alto)
+      }
+      if (locked) {
+        e.preventDefault();
+        return;
+      }
+      if ((down && acc < 0) || (!down && acc > 0)) acc = 0; // inverteu direção
+      acc += e.deltaY;
+      window.clearTimeout(resetT);
+      resetT = window.setTimeout(() => {
+        acc = 0;
+      }, IDLE_RESET);
+      if (Math.abs(acc) >= THRESHOLD) {
+        const target = down ? page + 1 : page - 1;
+        if (target >= 1 && target <= index.numPages) {
+          e.preventDefault();
+          locked = true;
+          acc = 0;
+          goTo(target);
+          window.setTimeout(() => {
+            locked = false;
+          }, COOLDOWN);
+        }
+      }
+    }
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(resetT);
+    };
+  }, [page, index.numPages, goTo]);
+
   return (
     <div className="flex h-[calc(100vh-10.5rem)] flex-col md:h-[calc(100vh-9rem)]">
-      <div className="flex min-h-0 flex-1 gap-5">
-        {/* Painel do índice — seções agrupadas e recolhíveis */}
-        <aside className="hidden w-[310px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:flex">
+      {/* viewerRef envolve índice + leitor, então a tela cheia (modo leitura)
+          também mostra o índice fixo à esquerda. */}
+      <div
+        ref={viewerRef}
+        className={cn(
+          "flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
+          isFullscreen && "rounded-none",
+        )}
+      >
+        {/* Índice fixo à esquerda — permanente no desktop E na tela cheia.
+            Clicar num tópico só navega; o painel não fecha. */}
+        <aside className="hidden w-[300px] shrink-0 flex-col overflow-hidden border-r border-slate-200 lg:flex">
           <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
             <ListTree className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-bold text-slate-800">Índice</h2>
@@ -316,28 +385,21 @@ export function ManualReader({
           />
         </aside>
 
-        {/* Visualizador */}
-        <div
-          ref={viewerRef}
-          className={cn(
-            "relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
-            isFullscreen && "rounded-none",
-          )}
-        >
+        {/* Coluna do leitor */}
+        <div className="relative flex min-w-0 flex-1 flex-col">
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-2">
-              {/* Botão de índice — aparece no mobile (painel lateral some) e na
-                  tela cheia. Some no desktop normal, onde o painel fixo já mostra
-                  o índice. */}
+              {/* Botão de índice — só no mobile (lg-): o painel lateral some em
+                  telas pequenas. No desktop e na tela cheia o índice fixo já
+                  está visível, então o botão fica oculto. */}
               <button
                 onClick={() => setDrawerOpen((o) => !o)}
                 className={cn(
-                  "inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition-colors sm:px-3",
+                  "inline-flex h-9 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-bold transition-colors sm:px-3 lg:hidden",
                   drawerOpen
                     ? "border-primary/40 bg-primary/10 text-primary"
                     : "border-slate-200 bg-white text-slate-600 hover:border-primary/40 hover:text-primary",
-                  !isFullscreen && "lg:hidden",
                 )}
                 title="Mostrar índice"
               >
