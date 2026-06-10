@@ -5,11 +5,9 @@ import {
   CheckCircle2,
   ChevronDown,
   Download,
-  HelpCircle,
   Mail,
   MapPin,
   X,
-  Zap,
 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics'
@@ -38,8 +36,8 @@ export const LeadMagnetV4: React.FC = () => {
           {/* Coluna esquerda — conteúdo */}
           <div className="p-10 md:p-14">
             <Reveal>
-              <span className="v4-mono inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-400">
-                <Zap size={13} fill="currentColor" />
+              <span className="v4-mono inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
+                <span aria-hidden>✦</span>
                 {section?.texts.badge || 'Conteúdo Exclusivo'}
               </span>
             </Reveal>
@@ -320,8 +318,7 @@ export const FAQV4: React.FC = () => {
     <section className="bg-[#07090d] px-6 py-24 text-white">
       <div className="mx-auto max-w-3xl">
         <Reveal className="flex justify-center">
-          <span className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.3em] text-orange-400">
-            <HelpCircle size={18} />
+          <span className="v4-kicker text-orange-400">
             {section?.texts.sectionTitle || 'Perguntas Frequentes'}
           </span>
         </Reveal>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowRight, Settings2, ShieldCheck, Sparkles, Target, UserCheck } from 'lucide-react'
+import { ArrowRight, Settings2, ShieldCheck, Target, UserCheck } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { GrainOverlay, Reveal } from './atoms'
 
@@ -80,8 +80,8 @@ export const SellerCodeV4: React.FC = () => {
             {/* Bônus */}
             <Reveal delay={180} className="mt-12">
               <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                  <Sparkles size={15} />
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-orange-600" aria-hidden>
+                  ✦
                 </span>
                 <span>
                   <span className="v4-mono block text-[10px] font-bold uppercase tracking-[0.25em] text-[#4f463c]">

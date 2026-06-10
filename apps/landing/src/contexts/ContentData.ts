@@ -47,7 +47,7 @@ export const initialContent: SectionContent[] = [
             "title1": "Transforme-se no",
             "title2": "Vendedor Ideal.",
             "subtitle": "O método Buy-Side ensina você a pensar como o cliente e conduzir decisões de compra, não disputas de preço.",
-            "ctaButton": "Entenda a Lógica",
+            "ctaButton": "Quero o Manual Buy-Side",
             "subtitle1": "Aprenda como o seu cliente pensa e fuja da guerra de preços com o",
             "subtitle2": "Manual Solar Buy-Side.",
             "bonusBadge": "Bônus Exclusivo",

@@ -141,7 +141,7 @@ export const AudienceV4: React.FC = () => {
                       <div className="mt-6 space-y-3">
                         {profile.bullets.map((bullet) => (
                           <div key={bullet} className="flex items-center gap-3">
-                            <CheckCircle2 className={`h-5 w-5 shrink-0 ${meta.accent}`} />
+                            <span className={`h-2.5 w-2.5 shrink-0 rotate-45 rounded-[2px] bg-current ${meta.accent}`} aria-hidden />
                             <span className="font-semibold text-white">{bullet}</span>
                           </div>
                         ))}
@@ -176,7 +176,7 @@ export const AudienceV4: React.FC = () => {
                     <div className="mt-6 space-y-3">
                       {profile.bullets.map((bullet) => (
                         <div key={bullet} className="flex items-center gap-3">
-                          <CheckCircle2 className={`h-5 w-5 shrink-0 ${meta.accent}`} />
+                          <span className={`h-2.5 w-2.5 shrink-0 rotate-45 rounded-[2px] bg-current ${meta.accent}`} aria-hidden />
                           <span className="font-semibold text-white">{bullet}</span>
                         </div>
                       ))}

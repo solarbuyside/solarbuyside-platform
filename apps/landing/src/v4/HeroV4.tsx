@@ -27,7 +27,8 @@ export const HeroV4: React.FC = () => {
   const bonusBadge = section?.texts.bonusBadge || 'Bônus Exclusivo'
   const bonusTitle = section?.texts.bonusTitle || 'O Código do Vendedor Consultivo'
   const bonusSubtitle = section?.texts.bonusSubtitle || 'Para quem quer conduzir decisões, não concessões.'
-  const ctaButton = section?.texts.ctaButton || 'Quero vender decisões agora'
+  const ctaButton = section?.texts.ctaButton || 'Quero o Manual Buy-Side'
+  const ctaSecondary = section?.texts.ctaSecondary || 'Ver como funciona'
   const ctaSubtext = section?.texts.ctaSubtext || 'Acesso imediato ao Manual Solar Buy-Side.'
   const scrollHint = section?.texts.scrollHint || 'Entenda a lógica'
 
@@ -135,12 +136,18 @@ export const HeroV4: React.FC = () => {
           )}
         </p>
 
-        {/* CTA */}
+        {/* CTAs: compra para o tráfego quente, vídeo para quem ainda não
+            conhece o produto — o hero vende antes da página explicar */}
         <div className="v4-rise mt-10" style={{ ['--d' as string]: '700ms' }}>
-          <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {ctaButton}
-            <CtaArrow />
-          </Cta>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <Cta size="lg" onClick={() => scrollToId('oferta')}>
+              {ctaButton}
+              <CtaArrow />
+            </Cta>
+            <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('video-section')}>
+              {ctaSecondary}
+            </Cta>
+          </div>
           <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500">
             <CheckCircle2 size={14} className="text-emerald-500" />
             {ctaSubtext}
