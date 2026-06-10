@@ -598,15 +598,16 @@ export const FooterV4: React.FC = () => {
 
         {/* Wordmark gigante desvanecendo no rodapé */}
         <div
-          className="mb-[-1.5vw] mt-14 select-none whitespace-nowrap text-center leading-none"
+          className="mb-[-1vw] mt-14 select-none px-2 text-center leading-[0.9]"
           style={{
-            WebkitMaskImage: 'linear-gradient(180deg, black 30%, transparent 95%)',
-            maskImage: 'linear-gradient(180deg, black 30%, transparent 95%)',
+            WebkitMaskImage: 'linear-gradient(180deg, black 30%, transparent 96%)',
+            maskImage: 'linear-gradient(180deg, black 30%, transparent 96%)',
           }}
           aria-hidden
         >
-          <span className="font-['Sora'] text-[11.5vw] font-extrabold tracking-tight">
-            <span className="v4-stroke">Solar{' '}</span>
+          {/* cabe inteiro: quebra para a 2ª linha quando não couber numa só */}
+          <span className="block font-['Sora'] text-[clamp(2.75rem,9.5vw,8.5rem)] font-extrabold tracking-tight">
+            <span className="v4-stroke">Solar </span>
             <span className="v4-grad-text">Buy-Side</span>
           </span>
         </div>

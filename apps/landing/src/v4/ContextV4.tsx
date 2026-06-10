@@ -1,7 +1,7 @@
 import React from 'react'
 import { AlertCircle, CheckCircle2, Search, ShieldCheck, Zap } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 
 const CARD_ICONS = [Search, Zap, ShieldCheck]
@@ -33,6 +33,7 @@ export const ContextV4: React.FC = () => {
 
   return (
     <section className="relative bg-[#07090d] text-white antialiased">
+      <SolarCells fade="top" />
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
         {/* Cabeçalho — índice editorial com número fantasma */}
         <div className="relative">

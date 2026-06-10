@@ -105,7 +105,7 @@ export const HeroV4: React.FC = () => {
       </div>
 
       {/* ── Conteúdo ──────────────────────────────────────────────────── */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[16vh] pt-28 text-center md:pb-[18vh]">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-28 pt-28 text-center md:pb-[22vh]">
         {/* chip do produto */}
         <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '60ms' }}>
           <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
@@ -124,7 +124,7 @@ export const HeroV4: React.FC = () => {
             step={70}
             wordClassName="v4-serif v4-grad-text pr-[0.06em]"
           />{' '}
-          <WordReveal trigger="load" text={titleSuffix} baseDelay={700} step={50} wordClassName="text-slate-400/90" />
+          <WordReveal trigger="load" text={titleSuffix} baseDelay={700} step={50} wordClassName="text-white" />
         </h1>
 
         {/* subtítulo */}
@@ -196,7 +196,7 @@ export const HeroV4: React.FC = () => {
         onClick={() => scrollToId('contexto')}
         type="button"
         aria-label={scrollHint}
-        className="group absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-3"
+        className="group absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
       >
         <span className="v4-mono text-[9px] font-bold uppercase tracking-[0.4em] text-slate-500 transition-colors group-hover:text-orange-400">
           {scrollHint}

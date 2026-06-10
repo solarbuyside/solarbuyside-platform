@@ -233,6 +233,26 @@ export const GrainOverlay: React.FC<{ opacity?: number }> = ({ opacity = 0.028 }
   <div className="v4-noise pointer-events-none absolute inset-0" style={{ opacity }} aria-hidden />
 )
 
+/* ── Células fotovoltaicas: grade sutil de "painel solar" no fundo ────── */
+export const SolarCells: React.FC<{ className?: string; fade?: 'top' | 'center' | 'bottom' }> = ({
+  className = '',
+  fade = 'top',
+}) => {
+  const mask =
+    fade === 'center'
+      ? 'radial-gradient(70% 60% at 50% 50%, black, transparent 80%)'
+      : fade === 'bottom'
+        ? 'linear-gradient(0deg, black, transparent 75%)'
+        : 'radial-gradient(120% 80% at 50% 0%, black, transparent 78%)'
+  return (
+    <div
+      className={`v4-cells pointer-events-none absolute inset-0 overflow-hidden ${className}`}
+      style={{ WebkitMaskImage: mask, maskImage: mask }}
+      aria-hidden
+    />
+  )
+}
+
 /* ── Fundo escuro técnico (compat + grain) ───────────────────────────── */
 export const DarkBackdrop: React.FC<{ orbs?: 'orange' | 'blue' | 'dual' }> = ({ orbs = 'dual' }) => (
   <div className="pointer-events-none absolute inset-0" aria-hidden>

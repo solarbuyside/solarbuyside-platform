@@ -448,7 +448,33 @@
   .v4-dot::after,
   .v4-ring,
   .v4-marquee-track,
-  .v4-conic-frame::before {
+  .v4-conic-frame::before,
+  .v4-cells::after {
     animation: none;
+  }
+}
+
+/* ── Células fotovoltaicas: grade sutil + brilho do sol passando ─────────
+   Motivo recorrente de energia solar no fundo de seções escuras. Bem leve. */
+.v4-cells {
+  background-image:
+    linear-gradient(rgba(249, 115, 22, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(249, 115, 22, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.v4-cells::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(253, 186, 116, 0.06) 50%, transparent 62%);
+  background-size: 260% 100%;
+  animation: v4-panel-sheen 16s linear infinite;
+}
+@keyframes v4-panel-sheen {
+  from {
+    background-position: 210% 0;
+  }
+  to {
+    background-position: -60% 0;
   }
 }
