@@ -157,11 +157,16 @@ export const SellerCodeV4: React.FC = () => {
             </Reveal>
           </div>
 
-          {/* Painel dark do livro no desktop */}
-          <div className="hidden lg:col-span-5 lg:flex lg:items-start lg:justify-end">
-            <Reveal delay={200} className="w-full max-w-[440px] lg:sticky lg:top-24">
-              {bookPanel(false)}
-            </Reveal>
+          {/* Painel dark do livro no desktop — acompanha em sticky enquanto a
+              coluna de texto rola; solta quando a seção termina. O sticky fica
+              num wrapper limpo (o Reveal tem will-change/transform, que
+              quebraria o grude se fosse o próprio nó sticky). */}
+          <div className="hidden lg:col-span-5 lg:block">
+            <div className="lg:sticky lg:top-24">
+              <Reveal delay={200} className="ml-auto w-full max-w-[440px]">
+                {bookPanel(false)}
+              </Reveal>
+            </div>
           </div>
         </div>
       </div>

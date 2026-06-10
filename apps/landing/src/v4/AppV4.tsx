@@ -76,7 +76,9 @@ export default function AppV4() {
   }, [])
 
   return (
-    <div className="v4-root overflow-x-hidden bg-[#07090d] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
+    // overflow-x-clip (não -hidden): corta vazamento horizontal sem virar
+    // scroll-container, preservando position:sticky (livro, manual)
+    <div className="v4-root overflow-x-clip bg-[#07090d] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
       <HeaderV4 />
       <FloatingCTAV4 />
       <MobileCtaBarV4 />
