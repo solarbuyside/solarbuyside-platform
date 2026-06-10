@@ -111,7 +111,7 @@ export const HeroV4: React.FC = () => {
           <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
             <span className="v4-dot absolute inset-0 rounded-full" />
           </span>
-          <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-slate-300">{manualTitle}</span>
+          <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-slate-300">{manualTitle}</span>
         </div>
 
         {/* headline massiva */}

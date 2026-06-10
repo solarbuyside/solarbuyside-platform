@@ -1,6 +1,6 @@
 import React from 'react'
 import { useContent } from '../contexts/ContentContext'
-import { GrainOverlay, Reveal, SolarCells } from './atoms'
+import { Reveal, SolarCells } from './atoms'
 
 /* "O DUELO" — Francis (azul, buy-side) à esquerda vs. Ovídio (laranja,
    sell-side) à direita, divididos por uma linha vertical que funde as
@@ -113,7 +113,6 @@ export const AuthorityV4: React.FC = () => {
 
   return (
     <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
-      <GrainOverlay />
       <SolarCells fade="center" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-6">
@@ -127,7 +126,7 @@ export const AuthorityV4: React.FC = () => {
           <Reveal delay={100}>
             <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,3.8vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
               {section?.texts.title || 'Este conteúdo foi concebido por quem viveu'}{' '}
-              <span className="v4-serif v4-grad-text">
+              <span className="v4-serif text-orange-400">
                 {section?.texts.titleHighlight || 'os dois lados da mesa: o do comprador e o do vendedor.'}
               </span>
             </h2>

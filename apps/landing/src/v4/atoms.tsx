@@ -154,8 +154,9 @@ export const Cta: React.FC<CtaProps> = ({
     'group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full font-bold tracking-tight transition-all duration-300 active:scale-[0.97]'
   const sizes = size === 'lg' ? 'px-10 py-5 text-base md:text-lg' : 'px-7 py-4 text-sm md:text-base'
   const variants = {
+    /* Shimmer (v4-cta-shine) é exclusivo do CTA do preço: efeito raro = efeito forte. */
     solid:
-      'v4-cta-shine bg-gradient-to-b from-orange-500 to-orange-600 text-white shadow-[0_14px_36px_-10px_rgba(249,115,22,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] hover:shadow-[0_20px_48px_-10px_rgba(249,115,22,0.7),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5',
+      'bg-gradient-to-b from-orange-500 to-orange-600 text-white shadow-[0_14px_36px_-10px_rgba(249,115,22,0.55),inset_0_1px_0_rgba(255,255,255,0.25)] hover:shadow-[0_20px_48px_-10px_rgba(249,115,22,0.7),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5',
     'ghost-dark':
       'border border-white/15 bg-white/[0.04] text-slate-200 backdrop-blur-sm hover:border-orange-400/50 hover:text-white hover:bg-white/[0.07]',
     'ghost-paper':

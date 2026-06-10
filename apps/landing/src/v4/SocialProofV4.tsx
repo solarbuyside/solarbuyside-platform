@@ -97,7 +97,7 @@ export const TestimonialsV4: React.FC = () => {
         </div>
 
         <Reveal delay={140} className="mt-14 flex justify-center">
-          <Cta size="lg" href="#oferta">
+          <Cta size="lg" variant="ghost-paper" href="#oferta">
             {section?.texts.ctaButton || 'Quero fechar mais projetos solares'}
             <CtaArrow size={20} />
           </Cta>
@@ -188,7 +188,7 @@ export const StoryBridgeV4: React.FC = () => {
       <div className="mx-auto max-w-7xl px-6">
         <header className="mx-auto max-w-3xl text-center">
           <Reveal>
-            <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold leading-[1.12] tracking-tight text-[#181410]">
+            <h2 className="text-[clamp(1.8rem,3.2vw,2.6rem)] font-extrabold leading-[1.12] tracking-tight text-[#181410]">
               {section?.texts.title || 'A história de Rodrigo é apenas um exemplo do poder deste manual.'}
             </h2>
           </Reveal>

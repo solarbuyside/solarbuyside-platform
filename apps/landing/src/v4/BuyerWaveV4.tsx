@@ -324,7 +324,7 @@ export const BuyerWaveV4: React.FC = () => {
           </div>
 
           <Reveal delay={120} className="mt-12 text-center">
-            <Cta size="lg" onClick={() => scrollToId('oferta')}>
+            <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
               {section?.texts.ctaButton || 'Quero esse conhecimento do meu lado'}
               <CtaArrow size={20} />
             </Cta>

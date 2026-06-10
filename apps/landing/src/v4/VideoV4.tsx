@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Map as MapIcon, Play, Search, ShieldAlert } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Reveal, SolarCells } from './atoms'
+import { Cta, CtaArrow, GrainOverlay, Reveal } from './atoms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -71,7 +71,6 @@ export const VideoV4: React.FC = () => {
         aria-hidden
       />
       <GrainOverlay />
-      <SolarCells fade="top" />
 
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
         {/* Título + número fantasma do ato */}
@@ -171,7 +170,7 @@ export const VideoV4: React.FC = () => {
                   {/* Barra inferior */}
                   <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-4 md:bottom-9 md:left-10 md:right-10">
                     <div className="min-w-0">
-                      <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400">
+                      <p className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-orange-400">
                         {section?.texts.videoBadge || 'Conteúdo Exclusivo'}
                       </p>
                       <p className="mt-1.5 font-['Sora'] text-xl font-bold tracking-tight text-white md:text-2xl">
@@ -223,7 +222,7 @@ export const VideoV4: React.FC = () => {
         </Reveal>
 
         <Reveal delay={160} className="mt-12 flex justify-center">
-          <Cta size="lg" href="#oferta">
+          <Cta size="lg" variant="ghost-dark" href="#oferta">
             {section?.texts.ctaButton || 'Quero sair na frente e vender mais'}
             <CtaArrow size={20} />
           </Cta>

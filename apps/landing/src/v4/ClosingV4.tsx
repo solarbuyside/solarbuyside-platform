@@ -51,7 +51,7 @@ export const LeadMagnetV4: React.FC = () => {
             <Reveal delay={90}>
               <h2 className="mt-6 font-['Sora'] text-[clamp(2.2rem,4.5vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
                 {section?.texts.title || 'Ainda com'}{' '}
-                <span className="v4-serif v4-grad-text">{section?.texts.titleHighlight || 'dúvidas?'}</span>
+                <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || 'dúvidas?'}</span>
               </h2>
             </Reveal>
 
@@ -431,10 +431,10 @@ export const NewsletterV4: React.FC = () => {
           </Reveal>
 
           <Reveal delay={90}>
-            <h2 className="mt-5 font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+            <h2 className="mt-5 font-['Sora'] text-2xl font-extrabold tracking-tight text-white md:text-3xl">
               {section?.texts.title || (
                 <>
-                  Fique por dentro das <span className="v4-serif v4-grad-text">novidades</span>
+                  Fique por dentro das <span className="v4-serif text-orange-400">novidades</span>
                 </>
               )}
             </h2>
@@ -505,10 +505,10 @@ export const ContactV4: React.FC = () => {
       <div className="mx-auto max-w-4xl">
         <div className="text-center">
           <Reveal>
-            <h2 className="font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+            <h2 className="font-['Sora'] text-2xl font-extrabold tracking-tight text-white md:text-3xl">
               {section?.texts.title || (
                 <>
-                  DADOS E <span className="text-orange-500">CONTATOS</span>
+                  Dados e <span className="text-orange-500">contato</span>
                 </>
               )}
             </h2>

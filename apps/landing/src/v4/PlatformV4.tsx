@@ -1,6 +1,6 @@
 import React from 'react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
+import { Cta, CtaArrow, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 
 /* ACESSO À PLATAFORMA — beat de "produto em ação". A compra do Manual também
@@ -82,7 +82,7 @@ const ComparativoMock: React.FC = () => (
         </span>
         {INDEX.map((v, i) => (
           <div key={i} className="text-center">
-            <span className={`font-['Sora'] text-2xl font-extrabold ${i === 2 ? 'v4-grad-text' : 'text-slate-500'}`}>{v}</span>
+            <span className={`font-['Sora'] text-2xl font-extrabold ${i === 2 ? 'text-orange-400' : 'text-slate-500'}`}>{v}</span>
             <span className={`text-[9px] ${i === 2 ? 'text-orange-300/70' : 'text-slate-600'}`}>/100</span>
           </div>
         ))}
@@ -111,7 +111,6 @@ export const PlatformV4: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-slate-100 antialiased">
-      <GrainOverlay />
       <SolarCells fade="center" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 md:py-32">
@@ -152,11 +151,11 @@ export const PlatformV4: React.FC = () => {
             </Reveal>
 
             <Reveal delay={340} className="mt-8">
-              <Cta size="lg" onClick={() => scrollToId('oferta')}>
+              <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
                 {ctaButton}
                 <CtaArrow size={20} />
               </Cta>
-              <p className="v4-mono mt-4 text-[10px] uppercase tracking-[0.2em] text-slate-500">{accessNote}</p>
+              <p className="v4-mono mt-4 text-[11px] uppercase tracking-[0.18em] text-slate-500">{accessNote}</p>
             </Reveal>
           </div>
         </div>

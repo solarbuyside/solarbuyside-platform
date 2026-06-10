@@ -359,9 +359,9 @@
   align-items: center;
   gap: 0.75rem;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 

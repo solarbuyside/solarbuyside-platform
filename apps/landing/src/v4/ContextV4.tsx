@@ -47,7 +47,7 @@ export const ContextV4: React.FC = () => {
           <Reveal delay={90}>
             <h2 className="mt-5 font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
               {section?.texts.title || 'Panorama'}{' '}
-              <span className="v4-serif v4-grad-text">{section?.texts.titleHighlight || '2026'}</span>
+              <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || '2026'}</span>
             </h2>
           </Reveal>
           <Reveal delay={180}>
@@ -131,7 +131,7 @@ export const ContextV4: React.FC = () => {
               </div>
 
               <div className="flex flex-col items-center gap-4 lg:col-span-2 lg:items-end">
-                <Cta size="lg" onClick={() => scrollToId('oferta')}>
+                <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
                   {section?.texts.ctaButton || 'Garantir meu acesso agora'}
                   <CtaArrow />
                 </Cta>
