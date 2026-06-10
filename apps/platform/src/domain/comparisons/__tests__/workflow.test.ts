@@ -56,12 +56,10 @@ describe("comparison workflow", () => {
     expect(comparisonWorkflowSummary.financialAffectsScore).toBe(false);
   });
 
-  it("os pesos de cada grupo seguem o slide 11 (Empresa fecha 100%, Tecnologia provisória)", () => {
+  it("os pesos de cada grupo fecham 100% (slide 11, Tecnologia corrigida pelo Francis)", () => {
     const sum = (defs: { weight: number }[]) => defs.reduce((t, d) => t + d.weight, 0);
     expect(sum(companyScoreDefinitions)).toBe(100);
-    // PROVISÓRIO: o slide 11 soma 87% em Tecnologia (Francis vai confirmar os
-    // 13% faltantes). O motor renormaliza, então a proporção já está correta.
-    expect(sum(technicalScoreDefinitions)).toBe(87);
+    expect(sum(technicalScoreDefinitions)).toBe(100);
   });
 
   it("todos os critérios técnicos pontuados nascem habilitados", () => {

@@ -527,45 +527,46 @@ function FinancialStandardizationPanel() {
           Ao exigir dos vendedores os mesmos índices de reajuste tarifário e fator de simultaneidade,
           você garante uma comparação objetiva do prazo de retorno e da rentabilidade.
         </p>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
+        <ul className="mt-2 list-disc space-y-4 pl-5">
           <li>
             <strong>Inflação/reajuste da tarifa de energia:</strong> 4,0% ao ano (exemplo).
+            {/* Dica conectada ao tópico de reajuste/inflação (é sobre isto). */}
+            <div className="mt-1.5 rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2 text-[12px] leading-snug text-slate-600">
+              <strong className="text-slate-800">Dica:</strong> pergunte ao ChatGPT a média de reajuste da sua
+              distribuidora:{" "}
+              <span className="italic">
+                “Com base nos reajustes tarifários da distribuidora de energia do meu estado nos últimos 10
+                ciclos tarifários, calcule a média anual de reajuste da tarifa residencial – Grupo B.”
+              </span>
+            </div>
           </li>
           <li>
             <strong>Fator de simultaneidade residencial:</strong> 30% (exemplo).
+            {/* Tabela de fatores conectada ao tópico de simultaneidade. */}
+            <div className="mt-1.5 max-w-sm overflow-hidden rounded-lg border border-slate-200">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-[#09143c] text-white">
+                    <th className="px-3 py-1.5 text-left font-semibold">Classe de consumo</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">Fator sugerido</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate-700">
+                  {[
+                    ["Residencial", "30%"],
+                    ["Comercial", "60%"],
+                    ["Industrial", "80%"],
+                  ].map(([classe, fator], i) => (
+                    <tr key={classe} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                      <td className="px-3 py-1.5 font-medium">{classe}</td>
+                      <td className="px-3 py-1.5 text-right font-semibold">{fator}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </li>
         </ul>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div className="overflow-hidden rounded-lg border border-slate-200">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="bg-[#09143c] text-white">
-                  <th className="px-3 py-1.5 text-left font-semibold">Classe de consumo</th>
-                  <th className="px-3 py-1.5 text-right font-semibold">Fator sugerido</th>
-                </tr>
-              </thead>
-              <tbody className="text-slate-700">
-                {[
-                  ["Residencial", "30%"],
-                  ["Comercial", "60%"],
-                  ["Industrial", "80%"],
-                ].map(([classe, fator], i) => (
-                  <tr key={classe} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                    <td className="px-3 py-1.5 font-medium">{classe}</td>
-                    <td className="px-3 py-1.5 text-right font-semibold">{fator}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-[12px] leading-snug text-slate-600">
-            <strong>Dica:</strong> pergunte ao ChatGPT a média de reajuste da sua distribuidora:{" "}
-            <span className="italic">
-              “Com base nos reajustes tarifários da distribuidora de energia do meu estado nos últimos
-              10 ciclos tarifários, calcule a média anual de reajuste da tarifa residencial – Grupo B.”
-            </span>
-          </p>
-        </div>
       </div>
     </div>
   );

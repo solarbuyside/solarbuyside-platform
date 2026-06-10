@@ -42,10 +42,12 @@ está **implementado, testado (43/43), buildado e no ar** (commit `00dc5bf`).
   "Viabilidade".
 
 **⚠️ PENDÊNCIAS DESTE BLOCO (ver também `O QUE FALTA` abaixo):**
-1. **Pesos de TECNOLOGIA somam 87%, não 100%** (faltam 13% — provável erro do Francis).
-   Implementado com os pesos literais; o motor renormaliza, então a proporção está
-   certa. Gabriel ia confirmar com ele. Quando vier o número, trocar em
-   `technicalScoreDefinitions` e o `87` no `workflow.test.ts`.
+1. ~~Pesos de TECNOLOGIA somam 87%~~ **RESOLVIDO (2026-06-10)**: Francis enviou os
+   pesos corrigidos, agora fecham **100%** (Marca módulo 10, Marca inversor 10,
+   Geração anual 10, Sobrecarga DC/AC 10, Garantia eficiência módulo 10, Garantia
+   defeito módulo 10, Garantia defeito inversor 10, RA distribuidora 15, RA fabricante
+   módulo 5, RA fabricante inversor 10). Atualizado em `technicalScoreDefinitions` +
+   teste `workflow.test.ts` (agora espera 100).
 2. **Rubricas sinalizadas** (`SINALIZADO` no `auto-scoring.ts`): "Prazo de instalação"
    (slide 6) veio não-monotônico (30 dias=0, 45=10 — invertido); garantias com faixas
    parciais; sobrecarga sem 10 definido. Implementei o sensato — confirmar com o Francis.
@@ -134,9 +136,8 @@ apps/landing/   LANDING PAGE — Vite + React + funções serverless. Deploy Ver
 
 ## O QUE FALTA
 
-0. **(2026-06-09) Pesos de TECNOLOGIA = 87%**: aguardando o Francis confirmar os 13%
-   faltantes do slide 11. Trocar em `technicalScoreDefinitions` (campo `weight`) e o
-   valor `87` em `workflow.test.ts`. O motor renormaliza, então hoje já funciona certo.
+0. ~~(2026-06-09) Pesos de TECNOLOGIA = 87%~~ **RESOLVIDO 2026-06-10**: Francis enviou
+   os pesos corrigidos (fecham 100%). Aplicados em `technicalScoreDefinitions` + teste.
 0b. **(2026-06-09) Confirmar rubricas sinalizadas** com o Francis (prazo de instalação
    invertido no slide 6; faixas parciais de garantia; sobrecarga). Ver `SINALIZADO` em
    `auto-scoring.ts`.
