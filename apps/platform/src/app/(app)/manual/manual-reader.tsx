@@ -222,12 +222,14 @@ export function ManualReader({
           if (availW > 0 && base.width > 0) {
             const fitW = availW / base.width;
             const fitH = availH > 0 && base.height > 0 ? availH / base.height : fitW;
-            // Tela cheia (modo leitura): "fit-page" — a página inteira aparece
-            // preenchendo a dimensão que limita (largura ou altura), ou seja,
-            // o zoom acompanha o tamanho real do monitor (~100% numa tela
-            // comum, maior em telas grandes). Modo janela: enche a largura do
-            // card e rola na vertical.
-            const raw = fs ? Math.min(fitW, fitH) : fitW;
+            // Tela cheia (modo leitura): a ALTURA é a referência — a página
+            // encaixa inteira na altura da tela, sem scroll vertical; a largura
+            // ajusta proporcional (sobra nas laterais, centralizada). O zoom
+            // acompanha o monitor (~100% numa tela comum, maior em telas
+            // altas). Guard: se uma página larga estourar a largura nessa
+            // escala, recua para caber sem scroll horizontal.
+            let raw = fs ? fitH : fitW;
+            if (fs && base.width * raw > availW) raw = fitW;
             // Teto generoso (300%) para não limitar monitores grandes; piso
             // 0.5 para não sumir.
             const fitScale = Math.max(0.5, Math.min(3, Math.round(raw * 100) / 100));
