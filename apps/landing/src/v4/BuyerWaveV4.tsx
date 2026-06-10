@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Award, Check, ChevronLeft, ChevronRight, Target } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
@@ -174,10 +174,8 @@ export const BuyerWaveV4: React.FC = () => {
         {/* Duas colunas de conhecimento — índice editorial, sem cards */}
         <div className="mt-16 grid border-y border-white/[0.08] lg:grid-cols-2 lg:divide-x lg:divide-white/[0.08]">
           <Reveal className="py-12 lg:pl-0 lg:pr-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08]">
-              <Award className="text-blue-500" size={22} />
-            </div>
-            <h3 className="mt-5 font-['Sora'] text-2xl font-bold tracking-tight text-white">
+            <span className="v4-mono text-3xl font-bold text-blue-400/70">01</span>
+            <h3 className="mt-4 font-['Sora'] text-2xl font-bold tracking-tight text-white">
               {section?.texts.card1Title || 'O que o comprador está aprendendo'}
             </h3>
             <ul className="mt-3">
@@ -197,10 +195,8 @@ export const BuyerWaveV4: React.FC = () => {
           </Reveal>
 
           <Reveal delay={110} className="py-12 lg:pl-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.08]">
-              <Target className="text-orange-500" size={22} />
-            </div>
-            <h3 className="mt-5 font-['Sora'] text-2xl font-bold tracking-tight text-white">
+            <span className="v4-mono text-3xl font-bold text-orange-400/70">02</span>
+            <h3 className="mt-4 font-['Sora'] text-2xl font-bold tracking-tight text-white">
               {section?.texts.card2Title || 'Principais focos e Habilidades'}
             </h3>
             <ul className="mt-3">

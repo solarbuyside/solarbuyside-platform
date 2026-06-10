@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Map as MapIcon, Play, Search, ShieldAlert } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, GrainOverlay, Reveal } from './atoms'
@@ -37,7 +37,6 @@ export const VideoV4: React.FC = () => {
   const cards = [
     {
       id: '01',
-      icon: <ShieldAlert size={18} />,
       title: section?.texts.card1Title || 'Os 3 grandes RISCOS',
       desc:
         section?.texts.card1Desc ||
@@ -46,14 +45,12 @@ export const VideoV4: React.FC = () => {
     },
     {
       id: '02',
-      icon: <Search size={18} />,
       title: section?.texts.card2Title || 'Comprador Informado',
       desc: section?.texts.card2Desc || 'Como identificar promessas exageradas e indício de risco em propostas comerciais.',
       tag: section?.texts.card2Tag || 'Análise',
     },
     {
       id: '03',
-      icon: <MapIcon size={18} />,
       title: section?.texts.card3Title || 'Jornada Planejada',
       desc: section?.texts.card3Desc || 'As 4 fases da decisão de compra e os momentos exatos nos quais o vendedor perde a venda.',
       tag: section?.texts.card3Tag || 'Estratégia',
@@ -111,14 +108,9 @@ export const VideoV4: React.FC = () => {
               </span>
 
               <div className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <span className="text-orange-500" aria-hidden>
-                    {card.icon}
-                  </span>
-                  <span className="v4-mono rounded-full border border-orange-500/25 bg-orange-500/10 px-3 py-1 text-[9px] uppercase tracking-[0.22em] text-orange-400">
-                    {card.tag}
-                  </span>
-                </div>
+                <span className="v4-mono inline-block rounded-full border border-orange-500/25 bg-orange-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-orange-400">
+                  {card.tag}
+                </span>
                 <h3 className="mt-3 font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">{card.title}</h3>
                 <p className="mt-2 max-w-2xl text-lg leading-relaxed text-slate-400">{card.desc}</p>
               </div>

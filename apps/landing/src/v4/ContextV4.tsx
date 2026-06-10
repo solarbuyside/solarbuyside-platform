@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
@@ -121,8 +121,11 @@ export const ContextV4: React.FC = () => {
                 <div className="mt-7 flex flex-wrap gap-3">
                   {checks.map((item) => (
                     <div key={item} className="rounded-full border border-white/10 px-4 py-2">
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="shrink-0 text-orange-500" />
+                      <span className="flex items-center gap-2.5">
+                        <span
+                          className="h-2 w-2 shrink-0 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-500 to-amber-400"
+                          aria-hidden
+                        />
                         <span className="text-sm font-semibold text-slate-200">{item}</span>
                       </span>
                     </div>

@@ -1,17 +1,13 @@
 import React, { useState } from 'react'
 import {
-  AlertTriangle,
   ArrowUpRight,
   Building2,
   CheckCircle2,
   ChevronDown,
   Download,
   HelpCircle,
-  Layers,
-  ListChecks,
   Mail,
   MapPin,
-  Scale,
   X,
   Zap,
 } from 'lucide-react'
@@ -25,10 +21,10 @@ export const LeadMagnetV4: React.FC = () => {
   const section = getSection('lead-magnet')
 
   const features = [
-    { title: section?.texts.feature1 || 'Veja o processo de compra pelos olhos do cliente', Icon: AlertTriangle },
-    { title: section?.texts.feature2 || 'Aprenda a conduzir o comprador até a decisão certa', Icon: Layers },
-    { title: section?.texts.feature3 || 'Blindagem contra o leilão reverso de preços', Icon: Scale },
-    { title: section?.texts.feature4 || 'Método exclusivo Buy-Side para o mercado solar brasileiro', Icon: ListChecks },
+    section?.texts.feature1 || 'Veja o processo de compra pelos olhos do cliente',
+    section?.texts.feature2 || 'Aprenda a conduzir o comprador até a decisão certa',
+    section?.texts.feature3 || 'Blindagem contra o leilão reverso de preços',
+    section?.texts.feature4 || 'Método exclusivo Buy-Side para o mercado solar brasileiro',
   ]
 
   const [showModal, setShowModal] = useState(false)
@@ -75,14 +71,17 @@ export const LeadMagnetV4: React.FC = () => {
             <ul className="mt-8">
               {features.map((feature, idx) => (
                 <Reveal
-                  key={feature.title}
+                  key={feature}
                   delay={idx * 80}
                   as="li"
                   className="group flex items-center gap-4 border-b border-white/[0.06] py-4"
                 >
-                  <feature.Icon size={18} className="shrink-0 text-orange-500" />
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rotate-45 rounded-[2px] bg-gradient-to-br from-orange-500 to-amber-400"
+                    aria-hidden
+                  />
                   <h3 className="font-['Sora'] text-base font-semibold text-white transition-colors group-hover:text-orange-300 md:text-lg">
-                    {feature.title}
+                    {feature}
                   </h3>
                 </Reveal>
               ))}

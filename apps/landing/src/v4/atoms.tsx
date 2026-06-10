@@ -244,7 +244,9 @@ export const SolarCells: React.FC<{ className?: string; fade?: 'top' | 'center' 
       ? 'radial-gradient(70% 60% at 50% 50%, black, transparent 80%)'
       : fade === 'bottom'
         ? 'linear-gradient(0deg, black, transparent 75%)'
-        : 'radial-gradient(120% 80% at 50% 0%, black, transparent 78%)'
+        : /* 'top': plena na borda superior, sem fade lateral — encaixa com a
+             grade que a seção anterior deixa visível na borda inferior */
+          'linear-gradient(180deg, black, transparent 82%)'
   return (
     <div
       className={`v4-cells pointer-events-none absolute inset-0 overflow-hidden ${className}`}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { BookOpen, CheckCircle2, Sparkles } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, WordReveal } from './atoms'
 import { scrollToId } from './scroll'
@@ -90,15 +90,13 @@ export const HeroV4: React.FC = () => {
               '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
           }}
         />
-        {/* grade técnica só no "chão", abaixo do horizonte */}
+        {/* grade de células no "chão": mesma textura (cor/escala) da seção
+            seguinte e visível até a borda inferior — o panorama continua dela */}
         <div
-          className="absolute inset-x-0 bottom-0 h-[28%] opacity-[0.05]"
+          className="v4-cells absolute inset-x-0 bottom-0 h-[30%]"
           style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
-            maskImage: 'linear-gradient(180deg, transparent, black 40%)',
-            WebkitMaskImage: 'linear-gradient(180deg, transparent, black 40%)',
+            maskImage: 'linear-gradient(180deg, transparent, black 55%)',
+            WebkitMaskImage: 'linear-gradient(180deg, transparent, black 55%)',
           }}
         />
         <div className="v4-noise absolute inset-0 opacity-[0.03]" />
@@ -108,9 +106,7 @@ export const HeroV4: React.FC = () => {
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-28 pt-28 text-center md:pb-[22vh]">
         {/* chip do produto */}
         <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
-          <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
-            <span className="v4-dot absolute inset-0 rounded-full" />
-          </span>
+          <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
           <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-slate-300">{manualTitle}</span>
         </div>
 
@@ -154,11 +150,14 @@ export const HeroV4: React.FC = () => {
         {/* ticket de acesso: manual + bônus com picote central */}
         <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '820ms' }}>
           <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-[1.15fr_1fr]">
-            {/* lado A — o manual */}
+            {/* lado A — o manual (capa real, não ícone) */}
             <div className="flex items-center gap-4 p-6 text-left">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.8)]">
-                <BookOpen className="h-5 w-5" />
-              </div>
+              <img
+                src="/assets/livro-de-frente.png"
+                alt=""
+                aria-hidden
+                className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"
+              />
               <div className="min-w-0">
                 <p className="text-base font-bold tracking-tight text-white">
                   {!isDefaultManualTitle ? (
@@ -180,8 +179,8 @@ export const HeroV4: React.FC = () => {
 
             {/* lado B — o bônus */}
             <div className="flex flex-col justify-center gap-1 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
-              <span className="v4-mono inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.28em] text-orange-400">
-                <Sparkles className="h-3 w-3 fill-orange-400" />
+              <span className="v4-mono inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-orange-400">
+                <span aria-hidden>✦</span>
                 {bonusBadge}
               </span>
               <p className="text-sm font-bold leading-tight text-white">{bonusTitle}</p>
