@@ -7,7 +7,6 @@ import {
   saveScoreSetting,
   saveSelectedFinalists,
   saveScoringMode,
-  applyAutoScoresToAll,
 } from "@/lib/comparisons/repository";
 import type { ScoreCategory } from "@/domain/comparisons/types";
 
@@ -53,11 +52,5 @@ export async function setFinalistsAction(comparisonId: string, finalistIds: stri
 /** Define o modo de pontuação da avaliação (automático ou manual). */
 export async function setScoringModeAction(comparisonId: string, mode: "auto" | "manual") {
   await saveScoringMode(comparisonId, mode);
-  revalidate(comparisonId);
-}
-
-/** Aplica as notas automáticas a todos os critérios (override em massa). */
-export async function applyAutoScoresAction(comparisonId: string) {
-  await applyAutoScoresToAll(comparisonId);
   revalidate(comparisonId);
 }

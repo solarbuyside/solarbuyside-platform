@@ -16,7 +16,6 @@ import {
   Info,
   Sparkles,
   Pencil,
-  Wand2,
 } from "lucide-react";
 
 import {
@@ -38,7 +37,6 @@ import {
   toggleCriterionAction,
   setFinalistsAction,
   setScoringModeAction,
-  applyAutoScoresAction,
 } from "./actions";
 
 type TabId = "company" | "technical" | "financial" | "overview";
@@ -70,7 +68,6 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
   const [comparison, setComparison] = React.useState<ComparisonInput>(initial);
   const [tab, setTab] = React.useState<TabId>(initialTab);
   const [saving, setSaving] = React.useState(false);
-  const [applyingAuto, setApplyingAuto] = React.useState(false);
 
   const result = React.useMemo(
     () => calculateComparisonResult(applyAutoScores(comparison)),
@@ -141,35 +138,6 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
     run(() => setScoringModeAction(comparison.id, mode));
   }
 
-  function handleApplyAuto() {
-    setApplyingAuto(true);
-    applyAutoScoresAction(comparison.id)
-      .then(() => {
-        // Reflete localmente: grava as notas auto como entries (override).
-        setComparison((prev) => {
-          const entries = [...prev.scoreEntries];
-          const byKey = new Map(entries.map((e) => [`${e.competitorId}::${e.criterionKey}`, e]));
-          for (const c of prev.competitors) {
-            for (const cat of ["company", "technical"] as const) {
-              const defs = cat === "company" ? companyComparisonRows : technicalComparisonRows;
-              for (const row of defs) {
-                if (!row.scoreKey) continue;
-                const auto = autoScoreFor(row.scoreKey, cat, c);
-                if (auto == null) continue;
-                byKey.set(`${c.id}::${row.scoreKey}`, {
-                  competitorId: c.id,
-                  criterionKey: row.scoreKey,
-                  score: auto,
-                });
-              }
-            }
-          }
-          return { ...prev, scoreEntries: Array.from(byKey.values()) };
-        });
-      })
-      .finally(() => setApplyingAuto(false));
-  }
-
   return (
     <div className="space-y-5">
       {/* Aviso (mobile retrato): girar o celular para ver a tabela larga. */}
@@ -195,15 +163,10 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
           />
         </div>
         {isAuto && (
-          <button
-            onClick={handleApplyAuto}
-            disabled={applyingAuto}
-            className="inline-flex h-8 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 text-[11px] font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98] disabled:opacity-50"
-            title="Calcula e grava as notas automáticas em todos os critérios"
-          >
-            {applyingAuto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
-            Pontuar tudo automaticamente
-          </button>
+          <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            As notas já vêm calculadas a partir dos dados de cada proposta. Troque para Manual se quiser pontuar você mesmo.
+          </p>
         )}
       </div>
 
