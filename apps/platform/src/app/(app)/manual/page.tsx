@@ -37,9 +37,10 @@ export default async function ManualPage({
       ? requested
       : 1;
 
-  // O leitor só precisa de outline + numPages + pdf. NÃO enviamos `pages` (o
-  // texto de 161 páginas, ~240KB) ao cliente — a busca é feita no header.
-  const slimIndex = { pdf: index.pdf, numPages: index.numPages, outline: index.outline, pages: [] };
+  // O leitor só precisa de numPages + pdf. O índice da barra lateral vem do TOC
+  // curado (manual-toc.ts), e a busca de texto roda no servidor (/api/manual/
+  // search) — então NÃO enviamos `outline` nem `pages` ao cliente.
+  const slimIndex = { pdf: index.pdf, numPages: index.numPages, outline: [], pages: [] };
 
   return <ManualReader index={slimIndex} pdfUrl={pdfUrl} initialPage={initialPage} />;
 }

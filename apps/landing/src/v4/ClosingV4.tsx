@@ -280,7 +280,31 @@ export const FAQV4: React.FC = () => {
       question: section?.texts.faq3Question || 'Política de devolução: como proceder para o reembolso?',
       answer:
         section?.texts.faq3Answer ||
-        'Para solicitar o reembolso dentro do prazo de 7 dias, entre em contato com nossa equipe pelo WhatsApp informando o e-mail utilizado na compra e o motivo (opcional). O estorno é processado em até 7 dias úteis, na mesma forma de pagamento utilizada — cartão, PIX ou boleto.',
+        'Para solicitar o reembolso dentro do prazo de 7 dias, entre em contato com nossa equipe pelo WhatsApp informando o e-mail utilizado na compra e o motivo (opcional). O estorno é processado em até 7 dias úteis, na mesma forma de pagamento utilizada: cartão, PIX ou boleto.',
+    },
+    {
+      question: section?.texts.faq4Question || 'Preciso ter conhecimento técnico para aproveitar o Manual?',
+      answer:
+        section?.texts.faq4Answer ||
+        'Não. O Manual foi escrito para orientar decisões, não para formar engenheiros. Os 160 tópicos são organizados para consulta rápida, em linguagem direta, e os anexos técnicos aprofundam quem quiser ir além. Vendedores iniciantes e compradores leigos acompanham sem dificuldade.',
+    },
+    {
+      question: section?.texts.faq5Question || 'Em que formato recebo o material?',
+      answer:
+        section?.texts.faq5Answer ||
+        'O Manual Solar Buy-Side e o Código do Vendedor Consultivo chegam em PDF interativo, com índice navegável. Você lê no celular, tablet ou computador, online ou offline. O link de acesso chega no e-mail cadastrado logo após a confirmação do pagamento.',
+    },
+    {
+      question: section?.texts.faq6Question || 'Como funciona o acesso à Plataforma de Avaliação de Propostas?',
+      answer:
+        section?.texts.faq6Answer ||
+        'A compra do Manual libera automaticamente o acesso à plataforma por 6 meses. Nela você compara propostas de fornecedores lado a lado, com pontuação por reputação, tecnologia e viabilidade e o Índice de Confiabilidade de 0 a 100.',
+    },
+    {
+      question: section?.texts.faq7Question || 'Posso comprar para a minha equipe comercial?',
+      answer:
+        section?.texts.faq7Answer ||
+        'Sim. A oferta inclui a Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ, pagando uma única vez. É o formato pensado para integradoras que querem padronizar a abordagem do time inteiro.',
     },
   ]
 
@@ -513,7 +537,7 @@ export const ContactV4: React.FC = () => {
               </div>
               <p className="mt-3 text-sm text-slate-400">
                 {section?.texts.cnpjLabel || 'CNPJ:'}{' '}
-                <span className="font-semibold text-slate-200">{section?.texts.cnpjValue || '55.463.06/0001-80'}</span>
+                <span className="font-semibold text-slate-200">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
               </p>
 
               <div className="mt-7 flex items-start gap-3">

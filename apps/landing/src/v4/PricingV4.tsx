@@ -212,18 +212,18 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
               </a>
 
-              <div className="v4-mono mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+              <div className="v4-mono mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
                 <span className="flex items-center gap-2">
                   <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
                   {section?.texts.benefit1 || 'Liberação imediata no seu e-mail'}
                 </span>
                 <span className="flex items-center gap-2">
-                  <ShieldCheck size={15} className="shrink-0 text-blue-500" />
-                  {section?.texts.benefit2 || 'Checkout 100% criptografado'}
+                  <LockIcon size={15} className="shrink-0 text-emerald-500" />
+                  {section?.texts.benefit2 || 'Pagamento criptografado'}
                 </span>
                 <span className="flex items-center gap-2">
-                  <LockIcon size={15} className="shrink-0 text-blue-500" />
-                  {section?.texts.benefit3 || 'Acesso Imediato'}
+                  <ShieldCheck size={15} className="shrink-0 text-emerald-500" />
+                  {section?.texts.benefit3 || 'Garantia incondicional de 7 dias'}
                 </span>
               </div>
 

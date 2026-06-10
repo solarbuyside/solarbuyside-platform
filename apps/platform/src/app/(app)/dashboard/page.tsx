@@ -12,7 +12,8 @@ import {
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { getHomeOverview } from "@/lib/comparisons/home";
-import { loadManualIndex, flattenManualOutline } from "@/lib/manual/manual-index";
+import { loadManualIndex } from "@/lib/manual/manual-index";
+import { flattenTocForSearch } from "@/lib/manual/manual-toc";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrencyBRL } from "@/lib/utils";
 import { ManualHomeCard } from "./manual-home-card";
@@ -35,9 +36,8 @@ export default async function DashboardPage() {
   const [overview, manualIndex] = await Promise.all([getHomeOverview(firstName), loadManualIndex()]);
   const manualPages = manualIndex?.numPages ?? 0;
   // Capítulos (título + página) para o card resolver onde o usuário parou.
-  const manualChapters = manualIndex
-    ? flattenManualOutline(manualIndex.outline).map((c) => ({ title: c.title, page: c.page }))
-    : [];
+  // Fonte: índice curado (mesma fonte da busca e do leitor).
+  const manualChapters = flattenTocForSearch();
 
   const greeting = overview.firstName ? `Olá, ${overview.firstName}!` : "Olá!";
 

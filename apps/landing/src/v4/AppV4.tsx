@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import './v4.css'
 import { trackPageView, observeSection } from '../utils/analytics'
 import { Marquee } from './atoms'
-import { FloatingCTAV4, HeaderV4 } from './HeaderV4'
+import { FloatingCTAV4, HeaderV4, MobileCtaBarV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
 import { VideoV4 } from './VideoV4'
@@ -78,6 +78,7 @@ export default function AppV4() {
     <div className="v4-root overflow-x-hidden bg-[#07090d] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
       <HeaderV4 />
       <FloatingCTAV4 />
+      <MobileCtaBarV4 />
       <div id="hero">
         <HeroV4 />
       </div>

@@ -149,16 +149,17 @@ export const HeaderV4: React.FC = () => {
 
 const BLOCKING_SELECTORS = ['#oferta', '#oferta-final', '#faq', '#contact', 'footer']
 
-export const FloatingCTAV4: React.FC = () => {
-  const { getSection } = useContent()
-  const section = getSection('pricing')
+/* Visibilidade compartilhada dos CTAs persistentes: aparece depois do hero,
+   some quando uma seção de conversão/encerramento já está na viewport. */
+const useCtaVisibility = (breakpoint: 'mobile' | 'desktop') => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     let rafId = 0
 
     const shouldShow = () => {
-      if (window.innerWidth < 768) return false
+      const isDesktop = window.innerWidth >= 768
+      if (breakpoint === 'desktop' ? !isDesktop : isDesktop) return false
       const hero = document.getElementById('hero')
       if (hero) {
         const heroRect = hero.getBoundingClientRect()
@@ -185,7 +186,15 @@ export const FloatingCTAV4: React.FC = () => {
       window.removeEventListener('scroll', updateVisibility)
       window.removeEventListener('resize', updateVisibility)
     }
-  }, [])
+  }, [breakpoint])
+
+  return isVisible
+}
+
+export const FloatingCTAV4: React.FC = () => {
+  const { getSection } = useContent()
+  const section = getSection('pricing')
+  const isVisible = useCtaVisibility('desktop')
 
   return (
     <a
@@ -215,5 +224,48 @@ export const FloatingCTAV4: React.FC = () => {
         </span>
       </span>
     </a>
+  )
+}
+
+/* Barra de conversão fixa no mobile — onde está a maior parte do tráfego.
+   Preço sempre à vista do polegar; some sobre oferta/FAQ/contato/rodapé. */
+export const MobileCtaBarV4: React.FC = () => {
+  const { getSection } = useContent()
+  const section = getSection('pricing')
+  const isVisible = useCtaVisibility('mobile')
+
+  const installments = `${section?.texts.priceInstallments || '12x de'} R$ ${section?.texts.priceValue || '61'}${section?.texts.priceCents || ',38'}`
+  const upfront = section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'
+
+  return (
+    <div
+      className={`fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0c12]/95 backdrop-blur-xl transition-all duration-500 md:hidden ${
+        isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
+      }`}
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      aria-hidden={!isVisible}
+    >
+      <div className="flex items-center justify-between gap-4 px-4 py-3">
+        <div className="min-w-0">
+          <p className="text-base font-extrabold leading-tight text-white">{installments}</p>
+          <p className="truncate text-[11px] font-medium text-slate-400">{upfront}</p>
+        </div>
+        <a
+          href="#oferta"
+          onClick={(e) => {
+            trackBuyClick()
+            const target = document.getElementById('oferta')
+            if (target) {
+              e.preventDefault()
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          }}
+          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.7)] active:scale-[0.97]"
+        >
+          Garantir acesso
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
+    </div>
   )
 }

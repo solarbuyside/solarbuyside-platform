@@ -35,7 +35,7 @@ export const ContactSection: React.FC = () => {
               </div>
               <p className="text-slate-600 text-sm">
                 {section?.texts.cnpjLabel || 'CNPJ:'}{' '}
-                <span className="font-semibold text-[#F97316]">{section?.texts.cnpjValue || '55.463.06/0001-80'}</span>
+                <span className="font-semibold text-[#F97316]">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
               </p>
             </div>
 

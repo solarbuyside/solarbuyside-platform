@@ -17,7 +17,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { writeManualProgress } from "./reading-progress";
-import type { ManualIndex, ManualOutlineItem } from "./types";
+import type { ManualIndex } from "./types";
+import { MANUAL_TOC, MANUAL_TOPIC_COUNT } from "@/lib/manual/manual-toc";
 
 // Tipos mínimos do pdf.js que usamos (evita depender dos tipos do pacote).
 type PdfPage = {
@@ -29,85 +30,14 @@ type PdfPage = {
 };
 type PdfDoc = { numPages: number; getPage: (n: number) => Promise<PdfPage> };
 
-type Chapter = { title: string; page: number };
-type Section = { title: string; page: number; children: Chapter[] };
+// Chave única de um tópico no índice: "parteIdx-topicoIdx".
+type TopicKey = string;
 
-// Achata o outline mantendo só títulos de navegação úteis (cabeçalhos numerados,
-// CAIXA ALTA ou fases/módulos). Filtra rodapés, fragmentos e duplicatas.
-function flattenOutline(
-  items: ManualOutlineItem[],
-  depth = 0,
-  seen: Set<string> = new Set(),
-): Chapter[] {
-  const out: Chapter[] = [];
-  for (const it of items) {
-    const title = it.title.trim();
-    const looksLikeHeading =
-      /^\d+(\.\d+)*[\s.—-]/.test(title) ||
-      /^(fase|módulo|capítulo|parte|anexo|apêndice)\b/i.test(title) ||
-      (title.length >= 6 && title === title.toUpperCase());
-    const isNoise =
-      !title ||
-      depth > 1 ||
-      title.length > 70 ||
-      /copyright/i.test(title) ||
-      /^manual de compra/i.test(title) ||
-      /^fase\s*\d+$/i.test(title) ||
-      !looksLikeHeading;
-    const key = `${title}|${it.page}`;
-    if (!isNoise && it.page != null && !seen.has(key)) {
-      seen.add(key);
-      out.push({ title, page: it.page });
-    }
-    if (it.children?.length) out.push(...flattenOutline(it.children, depth + 1, seen));
-  }
-  return out;
-}
-
-// Títulos genéricos que NÃO devem virar seção (agrupam como subitem).
-const GENERIC_TITLES = new Set([
-  "ASSUNTOS",
-  "RESPOSTAS",
-  "DICA 1:",
-  "GUIA INFORMATIVO:",
-  "TÜV NORD",
-]);
-
-// É uma "seção principal"? Capítulos numerados com .0, ETAPA/FASE, divisores
-// conhecidos ou cabeçalhos longos em CAIXA ALTA (não genéricos).
-function isMajorSection(title: string): boolean {
-  const t = title.trim();
-  if (GENERIC_TITLES.has(t)) return false;
-  if (/^\d+\.0\b/.test(t)) return true; // 2.0, 24.0
-  if (/^\d+\.\s/.test(t)) return true; // "17. 4"
-  if (/^(etapa|fase)\b/i.test(t)) return true;
-  if (/^(preliminares|conhecimento|preparação|análise|decisão final|anexos|linha de chegada)\b/i.test(t))
-    return true;
-  if (t.length >= 12 && t === t.toUpperCase() && !/^\d/.test(t)) return true;
-  return false;
-}
-
-// Agrupa os capítulos achatados em seções principais com subtópicos recolhíveis.
-// Cada seção acumula tudo até a próxima seção principal. Seções consecutivas que
-// apontam para a MESMA página são mescladas (evita itens "mortos" que não rolam).
-function buildSections(chapters: Chapter[]): Section[] {
-  const sections: Section[] = [];
-  for (const ch of chapters) {
-    const last = sections[sections.length - 1];
-    if (isMajorSection(ch.title) || sections.length === 0) {
-      // Mescla se a seção anterior já está nesta mesma página: mantém o título
-      // mais longo (geralmente o mais descritivo) e não cria item duplicado.
-      if (last && last.page === ch.page && last.children.length === 0) {
-        if (ch.title.length > last.title.length) last.title = ch.title;
-        continue;
-      }
-      sections.push({ title: ch.title, page: ch.page, children: [] });
-    } else {
-      last.children.push(ch);
-    }
-  }
-  return sections;
-}
+// Tópicos achatados na ordem do índice, para descobrir o tópico ATIVO pela
+// página atual (as páginas crescem monotonicamente ao longo do manual).
+const FLAT_TOPICS: { key: TopicKey; page: number }[] = MANUAL_TOC.flatMap((part, pi) =>
+  part.topics.map((topic, ti) => ({ key: `${pi}-${ti}`, page: topic.page })),
+);
 
 export function ManualReader({
   index,
@@ -188,28 +118,24 @@ export function ManualReader({
     return () => document.removeEventListener("fullscreenchange", onFs);
   }, []);
 
-  const chapters = React.useMemo(() => flattenOutline(index.outline), [index.outline]);
-  const sections = React.useMemo(() => buildSections(chapters), [chapters]);
-
-  // Índice da seção ATIVA (a última cujo início <= página atual). Um único ativo.
-  const activeSectionIndex = React.useMemo(() => {
-    let idx = 0;
-    for (let i = 0; i < sections.length; i += 1) {
-      if (sections[i].page <= page) idx = i;
+  // Tópico ATIVO: o último cujo início <= página atual.
+  const activeKey = React.useMemo<TopicKey | null>(() => {
+    let key: TopicKey | null = null;
+    for (const tp of FLAT_TOPICS) {
+      if (tp.page <= page) key = tp.key;
       else break;
     }
-    return idx;
-  }, [sections, page]);
+    return key;
+  }, [page]);
 
-  // Seção aberta no acordeão: por padrão segue a ativa; quando o usuário
-  // alterna manualmente, guardamos o override (e -1 = fechou tudo).
-  const [openOverride, setOpenOverride] = React.useState<{ forPage: number; value: number | null } | null>(
+  // Tópico expandido no acordeão: por padrão segue o ativo; quando o usuário
+  // alterna manualmente, guardamos o override por página (null = recolhido).
+  const [openOverride, setOpenOverride] = React.useState<{ forPage: number; value: TopicKey | null } | null>(
     null,
   );
-  const openSection =
-    openOverride && openOverride.forPage === page ? openOverride.value : activeSectionIndex;
-  function toggleSection(si: number) {
-    setOpenOverride({ forPage: page, value: openSection === si ? null : si });
+  const openKey = openOverride && openOverride.forPage === page ? openOverride.value : activeKey;
+  function toggleTopic(key: TopicKey) {
+    setOpenOverride({ forPage: page, value: openKey === key ? null : key });
   }
 
   const goTo = React.useCallback(
@@ -234,10 +160,10 @@ export function ManualReader({
     }
   }, [paramPage, index.numPages, goTo]);
 
-  // Mantém o capítulo ativo visível no painel.
+  // Mantém o tópico ativo visível no painel.
   React.useEffect(() => {
     activeChapterRef.current?.scrollIntoView({ block: "nearest" });
-  }, [activeSectionIndex]);
+  }, [activeKey]);
 
   // Registra o progresso de leitura (página atual + máxima alcançada).
   React.useEffect(() => {
@@ -377,15 +303,14 @@ export function ManualReader({
             <ListTree className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-bold text-slate-800">Índice</h2>
             <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-              {sections.length} seções
+              {MANUAL_TOPIC_COUNT} tópicos
             </span>
           </div>
           <IndexList
-            sections={sections}
             page={page}
-            activeSectionIndex={activeSectionIndex}
-            openSection={openSection}
-            onToggleSection={toggleSection}
+            activeKey={activeKey}
+            openKey={openKey}
+            onToggleTopic={toggleTopic}
             onGo={goTo}
             activeRef={activeChapterRef}
           />
@@ -535,7 +460,7 @@ export function ManualReader({
                   <ListTree className="h-4 w-4 text-primary" />
                   <h2 className="text-sm font-bold text-slate-800">Índice</h2>
                   <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                    {sections.length} seções
+                    {MANUAL_TOPIC_COUNT} tópicos
                   </span>
                   <button
                     onClick={() => setDrawerOpen(false)}
@@ -546,11 +471,10 @@ export function ManualReader({
                   </button>
                 </div>
                 <IndexList
-                  sections={sections}
                   page={page}
-                  activeSectionIndex={activeSectionIndex}
-                  openSection={openSection}
-                  onToggleSection={toggleSection}
+                  activeKey={activeKey}
+                  openKey={openKey}
+                  onToggleTopic={toggleTopic}
                   expandOnly
                   onGo={(n) => {
                     goTo(n);
@@ -589,112 +513,165 @@ export function ManualReader({
   );
 }
 
-/** Índice agrupado e recolhível — reutilizado no painel fixo e no drawer. */
+/**
+ * Índice detalhado: Parte (Fase/Anexo) → Tópico (X.0, número em negrito) →
+ * Subtópicos recolhíveis. Espelha o índice impresso do manual. Reutilizado no
+ * painel fixo (desktop) e no drawer (mobile / tela cheia).
+ */
 function IndexList({
-  sections,
   page,
-  activeSectionIndex,
-  openSection,
-  onToggleSection,
+  activeKey,
+  openKey,
+  onToggleTopic,
   onGo,
   activeRef,
   expandOnly,
 }: {
-  sections: Section[];
   page: number;
-  activeSectionIndex: number;
-  openSection: number | null;
-  onToggleSection: (si: number) => void;
+  activeKey: TopicKey | null;
+  openKey: TopicKey | null;
+  onToggleTopic: (key: TopicKey) => void;
   onGo: (n: number) => void;
   activeRef?: React.Ref<HTMLButtonElement>;
-  /** Quando true (drawer), clicar num capítulo COM subtópicos só os expande
-      (não navega nem fecha) — o usuário escolhe a página nos subitens. */
+  /** Quando true (drawer), clicar num tópico COM subtópicos só os expande (não
+      navega nem fecha) — o usuário escolhe a página nos subitens. */
   expandOnly?: boolean;
 }) {
   return (
-    <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
-      {sections.map((section, si) => {
-        const isActive = si === activeSectionIndex;
-        const isOpen = openSection === si;
-        const hasChildren = section.children.length > 0;
-        return (
-          <div key={`${section.title}-${si}`}>
-            <button
-              ref={isActive ? activeRef : undefined}
-              onClick={() => {
-                if (hasChildren) {
-                  onToggleSection(si);
-                  // No drawer, capítulo com subtópicos só expande (não navega).
-                  if (!expandOnly) onGo(section.page);
-                } else {
-                  // Sem subtópicos: não há o que escolher — navega direto.
-                  onGo(section.page);
-                }
-              }}
-              className={cn(
-                "relative flex w-full items-center gap-2 rounded-xl py-2.5 pl-3.5 pr-2.5 text-left transition-all",
-                isActive ? "bg-primary/[0.07] text-primary" : "text-slate-700 hover:bg-slate-100",
-              )}
-            >
-              {isActive && (
-                <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
-              )}
-              <span
-                className={cn(
-                  "line-clamp-2 flex-1 text-[13px] font-semibold leading-snug",
-                  isActive && "font-bold",
-                )}
-              >
-                {section.title}
+    <nav className="min-h-0 flex-1 overflow-y-auto px-2.5 py-3">
+      {MANUAL_TOC.map((part, pi) => (
+        <div key={`${part.title}-${pi}`} className={pi > 0 ? "mt-4" : undefined}>
+          {/* Cabeçalho da parte — navega para a página divisória da fase/anexo. */}
+          <button
+            onClick={() => onGo(part.page)}
+            className="group flex w-full items-baseline gap-2 rounded-lg px-2.5 py-1.5 text-left transition-colors hover:bg-slate-50"
+          >
+            {part.kicker && (
+              <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-primary">
+                {part.kicker}
               </span>
-              <span
-                className={cn(
-                  "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                  isActive ? "bg-primary/15 text-primary" : "bg-slate-100 text-slate-400",
-                )}
-              >
-                {section.page}
-              </span>
-              {hasChildren && (
-                <ChevronDown
-                  className={cn(
-                    "h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform",
-                    isOpen && "rotate-180",
-                  )}
-                />
-              )}
-            </button>
+            )}
+            <span className="flex-1 text-[11px] font-bold uppercase tracking-wide text-slate-500 group-hover:text-slate-700">
+              {part.title}
+            </span>
+            <span className="shrink-0 text-[10px] font-semibold tabular-nums text-slate-300">
+              {part.page}
+            </span>
+          </button>
+          {part.subtitle && (
+            <p className="px-2.5 pb-1.5 pt-0.5 text-[11px] leading-snug text-slate-400">{part.subtitle}</p>
+          )}
 
-            {hasChildren && isOpen && (
-              <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
-                {section.children.map((ch, ci) => {
-                  const isCurrent = ch.page === page;
-                  return (
-                    <button
-                      key={`${ch.title}-${ci}`}
-                      onClick={() => onGo(ch.page)}
-                      className={cn(
-                        "flex w-full items-center gap-2 rounded-lg py-1.5 pl-2.5 pr-2 text-left transition-colors",
-                        isCurrent ? "bg-primary/10 text-primary" : "text-slate-500 hover:bg-slate-100",
-                      )}
-                    >
-                      <span className="line-clamp-2 flex-1 text-[12px] leading-snug">{ch.title}</span>
+          <div className="space-y-0.5">
+            {part.topics.map((topic, ti) => {
+              const key: TopicKey = `${pi}-${ti}`;
+              const isActive = key === activeKey;
+              const isOpen = key === openKey;
+              const hasSubs = topic.subtopics.length > 0;
+              return (
+                <div key={key}>
+                  <button
+                    ref={isActive ? activeRef : undefined}
+                    onClick={() => {
+                      if (hasSubs) {
+                        onToggleTopic(key);
+                        if (!expandOnly) onGo(topic.page);
+                      } else {
+                        onGo(topic.page);
+                      }
+                    }}
+                    className={cn(
+                      "relative flex w-full items-center gap-2 rounded-xl py-2 pl-3 pr-2 text-left transition-all",
+                      isActive ? "bg-primary/[0.07]" : "hover:bg-slate-100",
+                    )}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+                    )}
+                    {topic.n && (
                       <span
                         className={cn(
-                          "shrink-0 text-[10px] font-semibold tabular-nums",
-                          isCurrent ? "text-primary/70" : "text-slate-400",
+                          "shrink-0 text-[12px] font-bold tabular-nums",
+                          isActive ? "text-primary" : "text-slate-800",
                         )}
                       >
-                        {ch.page}
+                        {topic.n}
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+                    )}
+                    <span
+                      className={cn(
+                        "line-clamp-2 flex-1 text-[12.5px] leading-snug",
+                        isActive ? "font-semibold text-primary" : "font-medium text-slate-700",
+                      )}
+                    >
+                      {topic.title}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
+                        isActive ? "bg-primary/15 text-primary" : "bg-slate-100 text-slate-400",
+                      )}
+                    >
+                      {topic.page}
+                    </span>
+                    {hasSubs && (
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform",
+                          isOpen && "rotate-180",
+                        )}
+                      />
+                    )}
+                  </button>
+
+                  {hasSubs && isOpen && (
+                    <div className="mb-1 ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 pl-2">
+                      {topic.subtopics.map((sub) => {
+                        const isCurrent = sub.page === page;
+                        return (
+                          <button
+                            key={sub.n}
+                            onClick={() => onGo(sub.page)}
+                            className={cn(
+                              "flex w-full items-start gap-1.5 rounded-lg py-1.5 pl-2.5 pr-2 text-left transition-colors",
+                              isCurrent ? "bg-primary/10" : "hover:bg-slate-100",
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "shrink-0 text-[10.5px] font-semibold tabular-nums",
+                                isCurrent ? "text-primary" : "text-slate-400",
+                              )}
+                            >
+                              {sub.n}
+                            </span>
+                            <span
+                              className={cn(
+                                "line-clamp-2 flex-1 text-[12px] leading-snug",
+                                isCurrent ? "text-primary" : "text-slate-500",
+                              )}
+                            >
+                              {sub.title}
+                            </span>
+                            <span
+                              className={cn(
+                                "shrink-0 text-[10px] font-semibold tabular-nums",
+                                isCurrent ? "text-primary/70" : "text-slate-400",
+                              )}
+                            >
+                              {sub.page}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+      ))}
     </nav>
   );
 }

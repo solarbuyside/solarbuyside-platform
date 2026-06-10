@@ -375,6 +375,8 @@ function MobileSearch({
     };
   }, [query, items, manualChapters]);
 
+  const pageHits = useManualFullText(query);
+
   function goEval(id: string) {
     onClose();
     router.push(`/avaliacoes/${id}/comparativo`);
@@ -402,7 +404,7 @@ function MobileSearch({
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-2">
-        {query.trim() && evals.length === 0 && chapters.length === 0 && (
+        {query.trim() && evals.length === 0 && chapters.length === 0 && pageHits.length === 0 && (
           <p className="px-3 py-6 text-center text-sm text-slate-400">Nada encontrado.</p>
         )}
         {evals.length > 0 && (
@@ -430,18 +432,42 @@ function MobileSearch({
         {chapters.length > 0 && (
           <>
             <p className="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Manual Solar Buy-Side
+              Capítulos do manual
             </p>
             {chapters.map((ch, i) => (
               <button
                 key={`${ch.page}-${i}`}
                 onClick={() => goChapter(ch.page)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-3 text-left active:bg-primary/5"
+                className="flex w-full items-start gap-2.5 rounded-lg px-3 py-3 text-left active:bg-primary/5"
               >
-                <BookOpen className="h-4 w-4 shrink-0 text-primary" />
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">{ch.title}</span>
+                <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span className="min-w-0 flex-1 text-sm font-medium leading-snug text-slate-700">
+                  <Highlight text={ch.title} query={query} />
+                </span>
                 <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
                   p. {ch.page}
+                </span>
+              </button>
+            ))}
+          </>
+        )}
+        {pageHits.length > 0 && (
+          <>
+            <p className="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              No conteúdo do manual
+            </p>
+            {pageHits.map((hit) => (
+              <button
+                key={`p-${hit.page}`}
+                onClick={() => goChapter(hit.page)}
+                className="flex w-full items-start gap-2.5 rounded-lg px-3 py-3 text-left active:bg-primary/5"
+              >
+                <FileText className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                <span className="min-w-0 flex-1 text-[12.5px] leading-snug text-slate-500">
+                  <Highlight text={hit.snippet} query={query} />
+                </span>
+                <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                  p. {hit.page}
                 </span>
               </button>
             ))}
@@ -483,6 +509,54 @@ function normalizeSearch(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
+type ManualPageHit = { page: number; snippet: string };
+
+/**
+ * Busca em texto completo no Manual (todas as 161 páginas) via /api/manual/search.
+ * Debounce de 200ms + AbortController para não disparar a cada tecla. Complementa
+ * a busca instantânea por capítulo (que roda no cliente sobre o índice curado).
+ */
+function useManualFullText(query: string): ManualPageHit[] {
+  const q = query.trim();
+  // Guardamos o termo junto dos hits: só exibimos resultados cujo termo bate com
+  // a busca atual (evita mostrar resultado velho durante o debounce do próximo).
+  const [res, setRes] = React.useState<{ q: string; hits: ManualPageHit[] }>({ q: "", hits: [] });
+  React.useEffect(() => {
+    if (q.length < 2) return;
+    const ctrl = new AbortController();
+    const id = window.setTimeout(() => {
+      fetch(`/api/manual/search?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then((r) => (r.ok ? r.json() : { pages: [] }))
+        .then((d) => setRes({ q, hits: Array.isArray(d.pages) ? d.pages : [] }))
+        .catch(() => {
+          /* abortado ou erro de rede — ignora */
+        });
+    }, 200);
+    return () => {
+      window.clearTimeout(id);
+      ctrl.abort();
+    };
+  }, [q]);
+  return res.q === q && q.length >= 2 ? res.hits : [];
+}
+
+/** Destaca a ocorrência do termo no trecho (case-insensitive, melhor esforço). */
+function Highlight({ text, query }: { text: string; query: string }) {
+  const needle = query.trim();
+  if (!needle) return <>{text}</>;
+  const at = text.toLowerCase().indexOf(needle.toLowerCase());
+  if (at === -1) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, at)}
+      <mark className="rounded bg-primary/15 font-semibold text-primary">
+        {text.slice(at, at + needle.length)}
+      </mark>
+      {text.slice(at + needle.length)}
+    </>
+  );
+}
+
 function GlobalSearch({
   items,
   manualChapters,
@@ -511,7 +585,10 @@ function GlobalSearch({
     return { evals, chapters };
   }, [query, items, manualChapters]);
 
-  const hasResults = evals.length > 0 || chapters.length > 0;
+  // Busca em texto completo (corpo de todas as páginas) — complementa os capítulos.
+  const pageHits = useManualFullText(query);
+
+  const hasResults = evals.length > 0 || chapters.length > 0 || pageHits.length > 0;
 
   React.useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -536,7 +613,7 @@ function GlobalSearch({
   }
 
   return (
-    <div ref={containerRef} className="relative w-80">
+    <div ref={containerRef} className="relative w-80 lg:w-[34rem] xl:w-[40rem]">
       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
       <input
         value={query}
@@ -545,7 +622,7 @@ function GlobalSearch({
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Buscar avaliações ou capítulos do manual…"
+        placeholder="Buscar no manual: capítulos e conteúdo das páginas…"
         className="pl-9 pr-4 h-10 w-full rounded-lg bg-slate-100 border border-border text-sm text-slate-700 placeholder-slate-400 outline-none focus-within:border-primary/50 focus:border-primary/50 transition-all"
       />
       {open && query.trim() && (
@@ -583,20 +660,46 @@ function GlobalSearch({
             <div>
               {evals.length > 0 && <div className="my-1 border-t border-slate-100" />}
               <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Manual Solar Buy-Side
+                Capítulos do manual
               </p>
               {chapters.map((ch, i) => (
                 <button
                   key={`${ch.page}-${i}`}
                   onClick={() => goChapter(ch.page)}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-primary/5"
+                  className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-primary/5"
                 >
-                  <BookOpen className="h-4 w-4 shrink-0 text-primary" />
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
-                    {ch.title}
+                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span className="min-w-0 flex-1 text-sm font-medium leading-snug text-slate-700">
+                    <Highlight text={ch.title} query={query} />
                   </span>
                   <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
                     p. {ch.page}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {pageHits.length > 0 && (
+            <div>
+              {(evals.length > 0 || chapters.length > 0) && (
+                <div className="my-1 border-t border-slate-100" />
+              )}
+              <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                No conteúdo do manual
+              </p>
+              {pageHits.map((hit) => (
+                <button
+                  key={`p-${hit.page}`}
+                  onClick={() => goChapter(hit.page)}
+                  className="flex w-full items-start gap-2.5 px-4 py-2.5 text-left transition-colors hover:bg-primary/5"
+                >
+                  <FileText className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                  <span className="min-w-0 flex-1 text-[12.5px] leading-snug text-slate-500">
+                    <Highlight text={hit.snippet} query={query} />
+                  </span>
+                  <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                    p. {hit.page}
                   </span>
                 </button>
               ))}

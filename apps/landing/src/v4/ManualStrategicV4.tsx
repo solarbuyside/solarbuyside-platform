@@ -161,7 +161,10 @@ export const ManualStrategicV4: React.FC = () => {
                 Icon={Users}
                 delay={160}
                 title={section?.texts.sellCard2Title || 'Postura consultiva'}
-                desc={section?.texts.sellCard2Desc || 'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'}
+                desc={
+                  section?.texts.sellCard2Desc ||
+                  'Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.'
+                }
               />
               <FeatureItem
                 Icon={TrendingUp}
