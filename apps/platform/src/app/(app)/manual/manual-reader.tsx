@@ -209,19 +209,28 @@ export function ManualReader({
         const pdfPage = await doc.getPage(page);
         if (cancelled) return;
 
-        // Na primeira renderização, ajusta a escala para a página caber na
-        // largura do visualizador (essencial no mobile, onde 130% estoura).
+        // Ajuste de zoom relativo à tela do usuário. Refeito sempre que
+        // didFitRef é resetado (montagem e ao entrar/sair da tela cheia).
         if (!didFitRef.current) {
           didFitRef.current = true;
           const container = document.getElementById("manual-canvas-scroll");
-          // Na tela cheia usamos menos margem (a página fica um pouco maior).
-          const margin = document.fullscreenElement ? 12 : 40;
-          const avail = (container?.clientWidth ?? 0) - margin;
+          const fs = Boolean(document.fullscreenElement);
+          const margin = fs ? 16 : 40;
+          const availW = (container?.clientWidth ?? 0) - margin;
+          const availH = (container?.clientHeight ?? 0) - margin;
           const base = pdfPage.getViewport({ scale: 1 });
-          if (avail > 0 && base.width > 0) {
-            const fit = avail / base.width;
-            // Limita entre 0.5 e 1.6 para não ficar minúsculo nem gigante.
-            const fitScale = Math.max(0.5, Math.min(1.6, Math.round(fit * 100) / 100));
+          if (availW > 0 && base.width > 0) {
+            const fitW = availW / base.width;
+            const fitH = availH > 0 && base.height > 0 ? availH / base.height : fitW;
+            // Tela cheia (modo leitura): "fit-page" — a página inteira aparece
+            // preenchendo a dimensão que limita (largura ou altura), ou seja,
+            // o zoom acompanha o tamanho real do monitor (~100% numa tela
+            // comum, maior em telas grandes). Modo janela: enche a largura do
+            // card e rola na vertical.
+            const raw = fs ? Math.min(fitW, fitH) : fitW;
+            // Teto generoso (300%) para não limitar monitores grandes; piso
+            // 0.5 para não sumir.
+            const fitScale = Math.max(0.5, Math.min(3, Math.round(raw * 100) / 100));
             if (Math.abs(fitScale - scale) > 0.01) {
               setScale(fitScale);
               setRendering(false);
@@ -255,7 +264,9 @@ export function ManualReader({
       cancelled = true;
       renderTaskRef.current?.cancel();
     };
-  }, [doc, page, scale]);
+    // isFullscreen entra nas deps para reexecutar o ajuste de zoom (didFitRef
+    // é zerado em onFs) quando o usuário entra/sai do modo leitura.
+  }, [doc, page, scale, isFullscreen]);
 
   // Prefetch inteligente: aquece a janela vizinha (2 atrás, 3 à frente) em
   // segundo plano. Com disableAutoFetch, cada getPage baixa só os bytes daquela
