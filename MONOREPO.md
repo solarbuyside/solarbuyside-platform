@@ -1,29 +1,43 @@
 # Estrutura (monorepo)
 
-Este repositório agrupa o produto Solar Buy-Side. Por enquanto:
+Este repositório agrupa o produto Solar Buy-Side:
 
 ```
-/ (raiz)        → PLATAFORMA (Next.js + Supabase). Deploy Vercel atual.
+apps/platform/  → PLATAFORMA (Next.js + Supabase). Deploy Vercel.
                   Domínio: plataforma.solarbuyside.com.br
-landing/        → LANDING PAGE (Vite + React). Importada via git subtree do
+apps/landing/   → LANDING PAGE (Vite + React). Importada via git subtree do
                   repo solar-buy-side-v2 (com histórico). Deploy Vercel próprio.
-                  Domínio (alvo): solarbuyside.com.br
+                  Domínio: solarbuyside.com.br (apex + www)
+/ (raiz)        → docs de governança (AGENTS/CLAUDE/STATUS/design/MONOREPO),
+                  assets de negócio (planilha/contrato/termos), tooling (.mcp.json),
+                  e o `.env` compartilhado (gitignored).
 ```
 
-## Por que a plataforma fica na raiz (e não em apps/platform)
-O projeto Vercel da plataforma builda da raiz. Mover para `apps/platform`
-exigiria trocar o Root Directory no Vercel (que não temos acesso via automação)
-e derrubaria o deploy. Manter na raiz evita downtime. A landing entra em
-`landing/` como projeto Vercel separado (Root Directory = `landing`).
-Promover para `apps/*` depois é possível, coordenando o Vercel.
+## Migração para apps/* (feita em 2026-06-09)
+Antes, a plataforma vivia na raiz porque se assumia não haver acesso via automação
+ao Vercel. Com o `VERCEL_API_TOKEN` (owner do time `francis-solarbuyside`), o
+`rootDirectory` dos dois projetos foi ajustado via API:
+- platform: `null` (raiz) → `apps/platform`
+- landing: `landing` → `apps/landing`
+
+Plano completo e rollback: `ajustes/PLANO-MONOREPO-APPS.md`.
+
+## git subtree (landing)
+A landing foi importada por subtree de `gabrielfeelix/solar-buy-side-v2`. Após a
+migração, futuros pulls usam o prefixo novo:
+`git subtree pull --prefix apps/landing <remote> <branch>`.
+
+## .env (dev local)
+O Next.js carrega o `.env` a partir do diretório onde roda (`apps/platform`). Existe
+uma cópia `apps/platform/.env` (gitignored) para o dev local; o `.env` da raiz serve
+o tooling/scripts. Produção usa as env vars do projeto no Vercel.
 
 ## Isolamento
-- `tsconfig.json` e `eslint.config.mjs` da plataforma ignoram `landing/`.
-- A landing tem o próprio `package.json`, build (Vite) e lint.
+- `apps/platform` e `apps/landing` têm cada um seu `package.json`, build, lint e `.gitignore`.
 
 ## Vercel
-- Projeto **platform**: Root Directory `.` (raiz) → `plataforma.solarbuyside.com.br`.
-- Projeto **landing** (criar): mesmo repo, Root Directory `landing` → `solarbuyside.com.br`.
+- Projeto **platform**: Root Directory `apps/platform` → `plataforma.solarbuyside.com.br`.
+- Projeto **landing**: Root Directory `apps/landing` → `solarbuyside.com.br`.
 
 ## Próximas fases (ver ajustes/HANDOFF-brevo-greenn.md e plano)
 1. Landing no Vercel (tirar do HostGator).
