@@ -42,27 +42,29 @@ export const REPUTATION_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 /**
- * Converte a categoria de reputação em nota 0-10 para o ranking.
- * "em_analise" e "sem_reputacao" retornam null (não pontuam).
+ * Converte a categoria de reputação em nota 0-10 para o ranking (escala do PPTX
+ * slides 6/10): Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10.
+ *
+ * "Reputação suspensa", "Em análise" e "Sem reputação definida" retornam null —
+ * não pontuam e aparecem como "—" (slide 7): a empresa/distribuidora/fabricante
+ * não recebe nota nenhuma, sem penalizar nem inflar o ranking.
  */
 export function reputationToScore(value: unknown): number | null {
   switch (value) {
     case "ra_1000":
       return 10;
     case "otimo":
-      return 9;
+      return 8;
     case "bom":
-      return 7;
+      return 6;
     case "regular":
-      return 5;
+      return 4;
     case "ruim":
-      return 3;
+      return 2;
     case "nao_recomendado":
-      return 1;
-    case "suspensa":
-      return 1;
+      return 0;
     default:
-      // em_analise, sem_reputacao, null/undefined → sem nota
+      // suspensa, em_analise, sem_reputacao, null/undefined → sem nota (—)
       return null;
   }
 }

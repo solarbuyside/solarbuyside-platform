@@ -62,9 +62,6 @@ export const sampleComparison: ComparisonInput = {
         annualGenerationKwh: 8732,
         moduleBrand: "HANERSUN",
         inverterBrand: "GOODWE",
-        inverterReliability: "yes",
-        moduleReliability: "unknown",
-        distributorReliability: "yes",
       },
       financial: {
         monthlyBillWithoutSolar: 698.3,

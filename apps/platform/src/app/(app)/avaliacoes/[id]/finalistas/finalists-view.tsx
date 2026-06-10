@@ -192,7 +192,6 @@ function FinalistCard({
         <div className="flex-1 space-y-1.5 pb-1">
           <ScoreBar label="Empresa" value={competitor.companyScore.grade10} />
           <ScoreBar label="Técnico" value={competitor.technicalScore.grade10} />
-          <ScoreBar label="Viabilidade" value={competitor.financialScore.grade10} />
         </div>
       </div>
 

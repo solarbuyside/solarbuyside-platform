@@ -7,7 +7,6 @@ import {
 import {
   companyScoreDefinitions,
   technicalScoreDefinitions,
-  financialScoreDefinitions,
 } from "./score-definitions";
 import { REPUTATION_LABEL } from "./reputation";
 import type {
@@ -20,10 +19,43 @@ import type {
 /**
  * As tabelas comparativas (Avaliação Empresas / Tecnológica) replicam a
  * planilha: cada linha é uma PERGUNTA do formulário + a RESPOSTA do fornecedor
- * + a NOTA (0-10). Este módulo casa, por seção+ordem, os campos do formulário
- * (perguntas/respostas) com as definições de pontuação (notas), já que as duas
- * listas seguem a mesma sequência da planilha.
+ * + a NOTA (0-10). Este módulo casa, por um MAPA EXPLÍCITO campo→critério, as
+ * perguntas do formulário com as definições de pontuação. (Antes o casamento
+ * era posicional; com a Tecnologia esparsa do PPTX — 10 notas entre ~25 campos,
+ * o resto informativo — o mapa explícito é mais robusto.)
  */
+
+/**
+ * Campo do formulário (camelCase) → critério de pontuação (snake_case). Campos
+ * fora do mapa são INFORMATIVOS (sem nota canônica). PPTX 2026-06-09.
+ */
+const FIELD_TO_SCORE: Record<string, string> = {
+  // Empresa (13 critérios — slide 11).
+  "company.solarSinceYear": "company.solar_since_year",
+  "company.companyFoundedYear": "company.founded_year",
+  "company.hasElectricalEngineeringCrea": "company.crea_registration",
+  "company.engineerGraduationYear": "company.engineer_graduation_year",
+  "company.installedSystemsRange": "company.installed_systems",
+  "company.ownInstallationTeam": "company.own_installation_team",
+  "company.installationDeadlineDays": "company.installation_deadline",
+  "company.projectExecutionWarrantyYears": "company.execution_warranty",
+  "company.hasMaintenanceSupport": "company.maintenance_support",
+  "company.supportDeadlineDays": "company.support_deadline",
+  "company.deliveredTechnicalDocs": "company.technical_docs_delivered",
+  "company.sellerTrustScore": "company.seller_trust",
+  "company.reclameAquiScore": "company.reclame_aqui",
+  // Tecnologia (10 critérios — slide 11; o resto é informativo "/").
+  "technical.annualGenerationKwh": "technical.annual_generation",
+  "technical.moduleBrand": "technical.module_brand",
+  "technical.moduleDefectWarrantyYears": "technical.module_defect_warranty",
+  "technical.moduleEfficiencyWarrantyYears": "technical.module_efficiency_warranty",
+  "technical.inverterBrand": "technical.inverter_brand",
+  "technical.inverterDefectWarrantyYears": "technical.inverter_defect_warranty",
+  "technical.inverterOversizingRatio": "technical.inverter_oversizing",
+  "technical.distributorScore": "technical.reputation_distributor",
+  "technical.moduleMakerScore": "technical.reputation_module_maker",
+  "technical.inverterMakerScore": "technical.reputation_inverter_maker",
+};
 
 export type ComparisonRow = {
   /** Chave da pergunta no formulário (ex: company.solarSinceYear). */
@@ -44,75 +76,40 @@ function fieldProp(key: string) {
 }
 
 /**
- * Casa campos de formulário com definições de score na ordem em que aparecem.
- * Campos sem score correspondente (ex: contagem de módulos) ficam com
- * scoreKey null e não entram no cálculo — só aparecem como dado informativo.
+ * Casa cada campo do formulário com seu critério de pontuação via FIELD_TO_SCORE.
+ * Campos fora do mapa são INFORMATIVOS: recebem um scoreKey sintético (= fieldKey)
+ * DESLIGADO por padrão, então o comprador ainda pode ligá-los para pontuar
+ * ad-hoc, mas eles não alteram o ranking até serem ligados.
  */
 function buildRows(
   fields: readonly EvaluationFieldDefinition[],
   defs: readonly ScoreDefinition[],
 ): ComparisonRow[] {
-  // Os score definitions têm `section` própria; casamos por proximidade de
-  // ordem dentro da lista, consumindo um def por campo que tenha nota.
-  const defQueue = [...defs];
-  const rows: ComparisonRow[] = [];
-
-  for (const field of fields) {
-    // Heurística: o próximo def da fila corresponde ao campo atual, exceto
-    // campos puramente informativos (sem rubrica) como contagens.
+  const defByKey = new Map(defs.map((d) => [d.key, d]));
+  return fields.map((field) => {
     const prop = fieldProp(field.key);
-    const informationalOnly = INFORMATIONAL_PROPS.has(prop);
-    const def = !informationalOnly ? defQueue[0] : undefined;
-
-    if (def && !informationalOnly) {
-      defQueue.shift();
-      rows.push({
-        fieldKey: field.key,
-        prop,
-        label: field.label,
-        section: field.section,
-        kind: field.kind,
-        scoreKey: def.key,
-        rubric: def.rubric ?? null,
-        defaultEnabled: def.defaultEnabled,
-      });
-    } else {
-      // Linha informativa: sem critério canônico, mas o comprador ainda pode
-      // querer pontuar manualmente. Damos um scoreKey sintético (= fieldKey) e
-      // deixamos DESLIGADO por padrão — assim a matemática do ranking não muda
-      // até o usuário ligar a linha. O motor de pontuação soma os ad-hoc ligados.
-      rows.push({
-        fieldKey: field.key,
-        prop,
-        label: field.label,
-        section: field.section,
-        kind: field.kind,
-        scoreKey: field.key,
-        rubric: null,
-        defaultEnabled: false,
-      });
-    }
-  }
-
-  return rows;
+    const scoreKey = FIELD_TO_SCORE[field.key];
+    const def = scoreKey ? defByKey.get(scoreKey) : undefined;
+    return {
+      fieldKey: field.key,
+      prop,
+      label: field.label,
+      section: field.section,
+      kind: field.kind,
+      scoreKey: def ? def.key : field.key,
+      rubric: def?.rubric ?? null,
+      defaultEnabled: def?.defaultEnabled ?? false,
+    };
+  });
 }
-
-// Campos do formulário que NÃO têm linha de pontuação (apenas informativos).
-// Os nomes do Reclame Aqui (slide 12) são informativos; a NOTA correspondente
-// é que pontua, casando com os critérios reputation_* na sequência.
-const INFORMATIONAL_PROPS = new Set<string>([
-  "annualConsumptionKwh",
-  "moduleCount",
-  "inverterCount",
-  "distributorName",
-  "moduleMakerName",
-  "inverterMakerName",
-]);
 
 export const companyComparisonRows = buildRows(companyFormFields, companyScoreDefinitions);
 export const technicalComparisonRows = buildRows(technicalFormFields, technicalScoreDefinitions);
 
-/** Linhas do comparativo financeiro (informativo, sem nota). */
+/**
+ * Linhas da Análise de Viabilidade Financeira — INFORMATIVA, sem nota nem total
+ * (PPTX 2026-06-09, slides 4-5). Só os dados lado a lado.
+ */
 export const financialComparisonRows = financialFormFields.map((field) => ({
   fieldKey: field.key,
   prop: fieldProp(field.key),
@@ -120,37 +117,6 @@ export const financialComparisonRows = financialFormFields.map((field) => ({
   section: field.section,
   kind: field.kind,
 }));
-
-// Slide 19: a Viabilidade passa a ser pontuada (1 a 10). Mapeamento explícito
-// dos campos do formulário financeiro para os critérios de pontuação. Campos
-// fora deste mapa são informativos (scoreKey null) e não entram na nota.
-const FINANCIAL_PROP_TO_SCORE: Record<string, string> = {
-  simplePaybackMonths: "financial.simple_payback",
-  annualReturnPct: "financial.annual_return",
-  roiMultiplier: "financial.roi",
-  viabilityConfidence: "financial.viability_confidence",
-};
-
-export const financialScoreRows: ComparisonRow[] = financialFormFields.map((field) => {
-  const prop = fieldProp(field.key);
-  const realScoreKey = FINANCIAL_PROP_TO_SCORE[prop];
-  const def = realScoreKey
-    ? financialScoreDefinitions.find((d) => d.key === realScoreKey)
-    : undefined;
-  // Campos sem critério canônico viram pontuáveis manualmente (scoreKey
-  // sintético = fieldKey), DESLIGADOS por padrão — não alteram o ranking até
-  // o usuário ligar a linha.
-  return {
-    fieldKey: field.key,
-    prop,
-    label: field.label,
-    section: field.section,
-    kind: field.kind,
-    scoreKey: def?.key ?? field.key,
-    rubric: def?.rubric ?? null,
-    defaultEnabled: def?.defaultEnabled ?? false,
-  };
-});
 
 // --- Formatação das respostas para exibição na tabela ----------------------
 

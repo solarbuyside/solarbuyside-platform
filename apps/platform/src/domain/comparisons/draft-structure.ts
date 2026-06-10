@@ -53,8 +53,9 @@ export function buildInitialDraftComparisonStructure(
     scoreSettings: scoreDefinitions.map((definition) => ({
       comparisonId,
       criterionKey: definition.key,
+      // Peso informativo no banco; o motor usa o peso da definição (slide 11).
+      weight: definition.weight,
       enabled: definition.defaultEnabled,
-      weight: 1,
     })),
     scoreEntries: competitors.flatMap((competitor) =>
       scoreDefinitions.map((definition) => ({

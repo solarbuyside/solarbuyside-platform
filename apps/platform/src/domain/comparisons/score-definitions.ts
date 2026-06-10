@@ -1,5 +1,18 @@
 import type { ScoreDefinition } from "./types";
 
+/**
+ * Critérios pontuados e seus PESOS (%) — PPTX 2026-06-09 (slides 6, 8, 10, 11).
+ *
+ * Modelo de ponderação (slide 11): cada critério tem um peso em %. A soma dos
+ * pesos de cada grupo é 100. A nota ponderada de um critério = (nota/10) × peso;
+ * o motor (scoring.ts) usa `weight` como multiplicador e o "Índice de
+ * Confiabilidade Solar Buy-Side" do grupo = soma das notas ponderadas (0–100).
+ *
+ * As rubricas 0–10 abaixo transcrevem as escalas dos slides 6/8/10. Onde o slide
+ * estava embaralhado ou incompleto, a rubrica/auto-scoring usa uma interpretação
+ * monotônica sensata e o ponto fica SINALIZADO (ver auto-scoring.ts).
+ */
+
 export const companyScoreDefinitions = [
   {
     key: "company.solar_since_year",
@@ -8,9 +21,10 @@ export const companyScoreDefinitions = [
     label: "Atuação no ramo solar",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 7,
-    rubric: "10 se >=10 anos, 7 se 5-9, 4 se 2-4, 1 se <2.",
+    rubric: "Peso 10% · 1 ponto por ano de atuação (2016 ou antes = 10).",
   },
   {
     key: "company.founded_year",
@@ -19,9 +33,10 @@ export const companyScoreDefinitions = [
     label: "Ano de abertura da empresa",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 4,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 8,
-    rubric: "10 se >=15 anos de existencia, 7 se 8-14, 4 se 3-7, 1 se <3.",
+    rubric: "Peso 4% · 1 ponto por ano de existência (15+ anos = 10).",
   },
   {
     key: "company.crea_registration",
@@ -30,9 +45,10 @@ export const companyScoreDefinitions = [
     label: "Registro CREA engenharia elétrica",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 9,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 9,
-    rubric: "10 se sim, 1 se nao.",
+    rubric: "Peso 9% · Sim = 10, Não = 0.",
   },
   {
     key: "company.engineer_graduation_year",
@@ -41,9 +57,10 @@ export const companyScoreDefinitions = [
     label: "Ano de colação de grau do engenheiro",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 9,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 10,
-    rubric: "10 se >=10 anos formado, 7 se 5-9, 4 se 2-4, 1 se <2.",
+    rubric: "Peso 9% · 1 ponto por ano de formado (2016 ou antes = 10).",
   },
   {
     key: "company.installed_systems",
@@ -52,9 +69,10 @@ export const companyScoreDefinitions = [
     label: "Quantidade de SFV instalado",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 11,
-    rubric: "10 se >100, 7 se 50-100, 4 se 10-49, 1 se <10.",
+    rubric: "Peso 10% · 10-49=2, 50-100=4, 100-500=6, 500-1000=8, +1000=10.",
   },
   {
     key: "company.own_installation_team",
@@ -63,9 +81,10 @@ export const companyScoreDefinitions = [
     label: "Instalações são feitas por funcionário próprio",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 12,
-    rubric: "10 se sim, 5 se terceirizado conhecido, 1 se nao.",
+    rubric: "Peso 10% · Sim = 10, 'Sim mas duvido' = 7, Não = 4.",
   },
   {
     key: "company.installation_deadline",
@@ -74,9 +93,10 @@ export const companyScoreDefinitions = [
     label: "Prazo de instalação do sistema solar",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 14,
-    rubric: "10 se <=30 dias, 7 se 31-45, 4 se 46-60, 1 se >60.",
+    rubric: "Peso 5% · Mais rápido, melhor (<=45 dias = 10).",
   },
   {
     key: "company.execution_warranty",
@@ -85,9 +105,10 @@ export const companyScoreDefinitions = [
     label: "Garantia contra defeito de projeto e execução",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 15,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 15,
-    rubric: "10 se >=5 anos, 7 se 3-4, 4 se 1-2, 1 se <1.",
+    rubric: "Peso 15% · 2 pontos por ano (5+ anos = 10).",
   },
   {
     key: "company.maintenance_support",
@@ -96,9 +117,10 @@ export const companyScoreDefinitions = [
     label: "Apresentou prova de manutenção e assistência",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 17,
-    rubric: "10 se sim, 1 se nao.",
+    rubric: "Peso 10% · Sim = 10, 'Sim mas duvido' = 5, Não = 0.",
   },
   {
     key: "company.support_deadline",
@@ -107,9 +129,10 @@ export const companyScoreDefinitions = [
     label: "Prazo de assistência técnica",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 18,
-    rubric: "10 se <=3 dias, 7 se 4-7, 4 se 8-15, 1 se >15.",
+    rubric: "Peso 5% · 1 dia = 10, cada dia a mais -1 (11+ dias = 0).",
   },
   {
     key: "company.technical_docs_delivered",
@@ -118,9 +141,10 @@ export const companyScoreDefinitions = [
     label: "Memorial descritivo e diagrama unifilar",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 20,
-    rubric: "10 se sim, 1 se nao.",
+    rubric: "Peso 5% · Sim = 10, 'Sim mas duvido' = 5, Não = 0.",
   },
   {
     key: "company.seller_trust",
@@ -129,9 +153,10 @@ export const companyScoreDefinitions = [
     label: "Competência e confiança com o vendedor",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 22,
-    rubric: "Subjetivo: 1 a 10 segundo percepcao do comprador.",
+    rubric: "Peso 5% · Subjetivo: 1 a 10 segundo a percepção do comprador.",
   },
   {
     key: "company.reclame_aqui",
@@ -140,34 +165,35 @@ export const companyScoreDefinitions = [
     label: "Reclame Aqui: indicador de reputação dos últimos 12 meses",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 3,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 23,
-    rubric: "Categoria de reputação (RA 1000…sem reputação) convertida em nota.",
+    rubric: "Peso 3% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (suspensa/em análise/sem reputação = —).",
   },
 ] satisfies ScoreDefinition[];
 
+/**
+ * TECNOLOGIA — apenas 10 critérios pontuam (PPTX slides 8/10: as linhas
+ * marcadas "/" viraram INFORMATIVAS e saíram da pontuação; a seção de
+ * Confiabilidade dos fabricantes foi eliminada por inteiro).
+ *
+ * ⚠️ PESOS PROVISÓRIOS: a soma dos pesos de Tecnologia no slide 11 é 87%, não
+ * 100% (faltam 13% — Francis vai confirmar). O motor renormaliza pelo
+ * denominador (Σ peso × 10), então a PROPORÇÃO já está correta; quando os pesos
+ * finais chegarem, é só trocar os números abaixo.
+ */
 export const technicalScoreDefinitions = [
-  {
-    key: "technical.system_power_kwp",
-    category: "technical",
-    section: "Sistema solar fotovoltaico",
-    label: "Potência do sistema",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 7,
-    rubric: "Pontuacao proporcional ao kWp ofertado versus necessidade.",
-  },
   {
     key: "technical.annual_generation",
     category: "technical",
     section: "Estimativa de geração",
-    label: "Geração anual",
+    label: "Geração anual proposta",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 9,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 10,
-    rubric: "Mesma logica do mensal, base anual.",
+    rubric: "Peso 9% · (geração − consumo)/consumo: −5%=0, 0%=5, +5%=10.",
   },
   {
     key: "technical.module_brand",
@@ -176,53 +202,10 @@ export const technicalScoreDefinitions = [
     label: "Módulo - marca",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 12,
-    rubric: "10 se Tier 1 reconhecida, 5 se Tier 2, 1 se desconhecida.",
-  },
-  {
-    key: "technical.module_model",
-    category: "technical",
-    section: "Módulo fotovoltaico",
-    label: "Módulo - modelo",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 13,
-    rubric: "10 se modelo atual de linha, 4 se descontinuado ou antigo.",
-  },
-  {
-    key: "technical.module_power_w",
-    category: "technical",
-    section: "Módulo fotovoltaico",
-    label: "Módulo - potência",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 14,
-    rubric: "10 se >=550W, 7 se 450-549W, 4 se 350-449W, 1 se <350W.",
-  },
-  {
-    key: "technical.module_efficiency_pct",
-    category: "technical",
-    section: "Módulo fotovoltaico",
-    label: "Módulo - eficiência",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 16,
-    rubric: "10 se >=22%, 7 se 20-21,9%, 4 se 18-19,9%, 1 se <18%.",
-  },
-  {
-    key: "technical.module_lifetime_efficiency_pct",
-    category: "technical",
-    section: "Módulo fotovoltaico",
-    label: "Módulo - eficiência aos 25 ou 30 anos",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 17,
-    rubric: "10 se >=85%, 7 se 80-84%, 4 se 75-79%, 1 se <75%.",
+    rubric: "Peso 10% · Grupo de marca: 5, 6, 8 ou 10 (não listada = 5).",
   },
   {
     key: "technical.module_defect_warranty",
@@ -231,9 +214,10 @@ export const technicalScoreDefinitions = [
     label: "Módulo - garantia contra defeito",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 18,
-    rubric: "10 se >=12 anos, 7 se 8-11, 4 se 5-7, 1 se <5.",
+    rubric: "Peso 10% · 10 anos=4, 12 anos=7, 15 anos=10.",
   },
   {
     key: "technical.module_efficiency_warranty",
@@ -242,9 +226,10 @@ export const technicalScoreDefinitions = [
     label: "Módulo - garantia de eficiência",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 19,
-    rubric: "10 se 30 anos, 7 se 25 anos, 4 se <25 anos.",
+    rubric: "Peso 10% · 25 anos=6, 30 anos=10.",
   },
   {
     key: "technical.inverter_brand",
@@ -253,31 +238,10 @@ export const technicalScoreDefinitions = [
     label: "Inversor - marca",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 4,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 21,
-    rubric: "10 se Tier 1, 5 se Tier 2, 1 se desconhecida.",
-  },
-  {
-    key: "technical.inverter_model",
-    category: "technical",
-    section: "Inversor de corrente",
-    label: "Inversor - modelo",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 22,
-    rubric: "10 se atual, 4 se descontinuado.",
-  },
-  {
-    key: "technical.inverter_power_kw",
-    category: "technical",
-    section: "Inversor de corrente",
-    label: "Inversor - potência",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 23,
-    rubric: "10 se compativel com kWp e sobrecarga adequada.",
+    rubric: "Peso 4% · Grupo de marca: 6, 7, 8 ou 9 (não listada = 6).",
   },
   {
     key: "technical.inverter_defect_warranty",
@@ -286,20 +250,22 @@ export const technicalScoreDefinitions = [
     label: "Inversor - garantia contra defeito",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 24,
-    rubric: "10 se >=10 anos, 7 se 7-9, 4 se 5-6, 1 se <5.",
+    rubric: "Peso 5% · 4 anos=0, 6=2, 8=4, 10=6, 12=8, 15=10.",
   },
   {
     key: "technical.inverter_oversizing",
     category: "technical",
     section: "Sobrecarga do inversor",
-    label: "Sobrecarga do inversor",
+    label: "Sobrecarga DC/AC (kWp/kW)",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 9,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 26,
-    rubric: "10 se 1,25-1,35, 7 se 1,15-1,24 ou 1,36-1,45, 4 fora da faixa.",
+    rubric: "Peso 9% · Faixa ideal 1,25–1,40 (=9-10); abaixo/acima pontua menos.",
   },
   {
     key: "technical.reputation_distributor",
@@ -308,9 +274,10 @@ export const technicalScoreDefinitions = [
     label: "Reputação da distribuidora",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 15,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 29,
-    rubric: "Nota do Reclame Aqui (0 a 10) informada pelo comprador (slide 12).",
+    rubric: "Peso 15% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
   },
   {
     key: "technical.reputation_module_maker",
@@ -319,9 +286,10 @@ export const technicalScoreDefinitions = [
     label: "Reputação do fabricante do módulo",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 30,
-    rubric: "Nota do Reclame Aqui (0 a 10) informada pelo comprador (slide 12).",
+    rubric: "Peso 10% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
   },
   {
     key: "technical.reputation_inverter_maker",
@@ -330,101 +298,22 @@ export const technicalScoreDefinitions = [
     label: "Reputação do fabricante do inversor",
     defaultEnabled: true,
     maxScore: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 31,
-    rubric: "Nota do Reclame Aqui (0 a 10) informada pelo comprador (slide 12).",
-  },
-  {
-    key: "technical.inverter_reliability",
-    category: "technical",
-    section: "Confiabilidade dos fabricantes",
-    label: "Confiabilidade do inversor",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 32,
-    rubric: "10 se sim, intermediario se nao sei, baixo se nao.",
-  },
-  {
-    key: "technical.module_reliability",
-    category: "technical",
-    section: "Confiabilidade dos fabricantes",
-    label: "Confiabilidade do módulo",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 33,
-    rubric: "10 se sim, intermediario se nao sei, baixo se nao.",
-  },
-  {
-    key: "technical.distributor_reliability",
-    category: "technical",
-    section: "Confiabilidade dos fabricantes",
-    label: "Confiabilidade da distribuidora",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Avaliacao Tecnologica",
-    sourceRow: 34,
-    rubric: "10 se sim, intermediario se nao sei, baixo se nao.",
+    rubric: "Peso 5% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
   },
 ] satisfies ScoreDefinition[];
 
 /**
- * Pontuação da Viabilidade Financeira (1 a 10).
- *
- * ATENÇÃO (regra de negócio): a planilha de referência trata a Viabilidade como
- * "comparativo informativo (sem pontuação)" — porque os números financeiros das
- * propostas são facilmente manipuláveis (geração/reajuste/simultaneidade
- * inflados). A pontuação abaixo foi adicionada por decisão de produto (slide 19)
- * para somar no ranking. O RUBRIC É PROVISÓRIO e precisa de validação do Francis
- * / alinhamento com a planilha antes de ir para produção.
+ * Viabilidade Econômico-Financeira: INFORMATIVA, sem pontuação (PPTX 2026-06-09,
+ * slides 4-5). Os números financeiros das propostas são facilmente manipuláveis
+ * (geração/reajuste/simultaneidade inflados), então não entram no ranking. A aba
+ * "Análise de Viabilidade Financeira" exibe os dados lado a lado, sem nota nem
+ * linha de total. Mantido como lista vazia para o resto do código continuar
+ * referenciando o grupo financeiro sem ramificações.
  */
-export const financialScoreDefinitions = [
-  {
-    key: "financial.simple_payback",
-    category: "financial",
-    section: "Prazo de retorno e rentabilidade do capital",
-    label: "Payback simples (meses)",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Viabilidade Financeira",
-    sourceRow: 23,
-    rubric: "PROVISORIO: 10 se <=48 meses, 7 se <=72, 4 se <=96, 1 se acima.",
-  },
-  {
-    key: "financial.annual_return",
-    category: "financial",
-    section: "Prazo de retorno e rentabilidade do capital",
-    label: "Rentabilidade do capital por mês (%)",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Viabilidade Financeira",
-    sourceRow: 24,
-    rubric: "PROVISORIO: 10 se >=20%, 7 se >=15%, 4 se >=10%, 1 se abaixo.",
-  },
-  {
-    key: "financial.roi",
-    category: "financial",
-    section: "Prazo de retorno e rentabilidade do capital",
-    label: "ROI (multiplicação por X vezes)",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Viabilidade Financeira",
-    sourceRow: 25,
-    rubric: "PROVISORIO: 10 se >=5x, 7 se >=4x, 4 se >=3x, 1 se abaixo.",
-  },
-  {
-    key: "financial.viability_confidence",
-    category: "financial",
-    section: "Índice de inflação e fator de simultaneidade",
-    label: "Confiabilidade da viabilidade",
-    defaultEnabled: true,
-    maxScore: 10,
-    sourceSheet: "Viabilidade Financeira",
-    sourceRow: 28,
-    rubric: "PROVISORIO: 10 se alta, 6 se media, 3 se baixa, intermediario se nao sei.",
-  },
-] satisfies ScoreDefinition[];
+export const financialScoreDefinitions: ScoreDefinition[] = [];
 
 export const scoreDefinitions = [
   ...companyScoreDefinitions,

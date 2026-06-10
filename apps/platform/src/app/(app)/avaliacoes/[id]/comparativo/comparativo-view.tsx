@@ -22,7 +22,7 @@ import {
 import {
   companyComparisonRows,
   technicalComparisonRows,
-  financialScoreRows,
+  financialComparisonRows,
   formatAnswer,
   answerFor,
   type ComparisonRow,
@@ -46,14 +46,14 @@ type TabId = "company" | "technical" | "financial" | "overview";
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: "company", label: "Pontuação Empresas", icon: ShieldCheck },
   { id: "technical", label: "Pontuação Tecnológica", icon: Cpu },
-  { id: "financial", label: "Pontuação Viabilidade Financeira", icon: Wallet },
+  { id: "financial", label: "Análise de Viabilidade Financeira", icon: Wallet },
   { id: "overview", label: "Pontuação Geral", icon: Trophy },
 ];
 
-// Botão "Ir para Pontuação X" conforme a aba ativa (slides 17/18/20).
+// Botão "Ir para X" conforme a aba ativa (slides 17/18/20).
 const NEXT_TAB: Record<Exclude<TabId, "overview">, { id: TabId; label: string }> = {
   company: { id: "technical", label: "Ir para Pontuação Tecnológica" },
-  technical: { id: "financial", label: "Ir para Pontuação Viabilidade" },
+  technical: { id: "financial", label: "Ir para Análise de Viabilidade" },
   financial: { id: "overview", label: "Ir para Pontuação Geral" },
 };
 
@@ -175,47 +175,36 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
       {/* Aviso (mobile retrato): girar o celular para ver a tabela larga. */}
       <RotateHint />
 
-      {/* Barra de modo de pontuação */}
-      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-            <button
-              onClick={() => handleSetMode("auto")}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
-                isAuto ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
-              )}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Automática
-            </button>
-            <button
-              onClick={() => handleSetMode("manual")}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold transition-all",
-                !isAuto ? "bg-primary text-white shadow-sm" : "text-slate-500 hover:text-slate-700",
-              )}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Manual
-            </button>
-          </div>
-          <p className="max-w-md text-[11px] leading-snug text-slate-400">
-            {isAuto
-              ? "As notas são geradas automaticamente a partir dos dados fornecidos por você. Você poderá revisar e alterar qualquer nota a qualquer momento."
-              : "Com base nos dados que você informou, caberá a você realizar a atribuição manual das notas para cada critério avaliado."}
-          </p>
+      {/* Modo de pontuação — Automática é o padrão; o comprador clica em Manual
+          para atribuir as notas ele mesmo (PPTX slide 12 / print 13). */}
+      <div className="space-y-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ModeCard
+            active={isAuto}
+            onClick={() => handleSetMode("auto")}
+            icon={Sparkles}
+            title="Pontuação Automática"
+            description="As notas são geradas automaticamente a partir dos dados fornecidos por você."
+          />
+          <ModeCard
+            active={!isAuto}
+            onClick={() => handleSetMode("manual")}
+            icon={Pencil}
+            title="Pontuação Manual"
+            description="Você atribui suas próprias notas para cada critério."
+          />
         </div>
-
-        <button
-          onClick={handleApplyAuto}
-          disabled={applyingAuto}
-          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3.5 text-xs font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98] disabled:opacity-50"
-          title="Calcula e grava as notas automáticas em todos os critérios"
-        >
-          {applyingAuto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
-          Pontuar tudo automaticamente
-        </button>
+        {isAuto && (
+          <button
+            onClick={handleApplyAuto}
+            disabled={applyingAuto}
+            className="inline-flex h-8 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 text-[11px] font-bold text-primary transition-all hover:bg-primary/10 active:scale-[0.98] disabled:opacity-50"
+            title="Calcula e grava as notas automáticas em todos os critérios"
+          >
+            {applyingAuto ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+            Pontuar tudo automaticamente
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -283,32 +272,8 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
 
       {tab === "financial" && (
         <div className="space-y-5">
-          {/* Cuidado: números de viabilidade são facilmente manipuláveis (texto fiel à planilha). */}
-          <div className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-4">
-            <p className="mb-1.5 flex items-center gap-2 text-sm font-bold text-amber-700">
-              <AlertTriangle className="h-4 w-4" />
-              Atenção ao pontuar a viabilidade econômico-financeira
-            </p>
-            <p className="text-[13px] leading-relaxed text-slate-700">
-              Os valores apresentados pelas empresas variam muito e podem ser manipulados —
-              índice de reajuste da energia, fator de simultaneidade e previsões de geração{" "}
-              <strong>exageradas</strong> reduzem artificialmente o prazo de retorno. Pontue com
-              critério: quanto maiores esses índices, menor o payback, podendo levar a um resultado
-              enganador.
-            </p>
-          </div>
-          <ScoreTable
-            rows={financialScoreRows}
-            category="financial"
-            comparison={comparison}
-            autoMode={isAuto}
-            getAnswer={(c, prop) => answerFor(c.financial, prop)}
-            manualScore={manualScore}
-            isEnabled={isEnabled}
-            onScore={handleScore}
-            onToggle={handleToggle}
-            gradeOf={(id) => result.competitors.find((x) => x.competitorId === id)?.financialScore}
-          />
+          <FinancialStandardizationPanel />
+          <FinancialInfoTable comparison={comparison} />
         </div>
       )}
 
@@ -350,7 +315,9 @@ export function ComparativoView({ comparison: initial }: { comparison: Compariso
 // Score table (Empresas / Tecnológica) — fiel à planilha
 // ---------------------------------------------------------------------------
 
-type Grade = { points: number; maxPoints: number; grade10: number; enabledCriteria: number } | undefined;
+type Grade =
+  | { points: number; maxPoints: number; grade10: number; index100: number; enabledCriteria: number }
+  | undefined;
 
 function ScoreTable({
   rows,
@@ -473,25 +440,193 @@ function ScoreTable({
             </React.Fragment>
           ))}
 
-          {/* Totais */}
+          {/* Índice de Confiabilidade ponderado (0–100) do grupo */}
           <tr className="border-t-2 border-slate-200 bg-[#09143c]/5 font-bold">
             <td className="sticky left-0 z-10 bg-[#eef1f7] px-4 py-3 text-xs uppercase tracking-wider text-slate-700">
-              Total da pontuação
+              Índice de Confiabilidade
             </td>
             {competitors.map((c) => {
               const g = gradeOf(c.id);
               return (
                 <td key={c.id} colSpan={2} className="border-l border-slate-200 px-3 py-3 text-center">
-                  <span className="text-base font-extrabold text-slate-900">{g?.grade10 ?? 0}</span>
-                  <span className="text-xs text-slate-400">/10</span>
+                  <span className="text-base font-extrabold text-slate-900">{g?.index100 ?? 0}</span>
+                  <span className="text-xs text-slate-400">/100</span>
                   <span className="mt-0.5 block text-[10px] font-normal text-slate-500">
-                    {g?.points ?? 0} / {g?.maxPoints ?? 0} pts
+                    nota ponderada {g?.grade10 ?? 0}/10
                   </span>
                 </td>
               );
             })}
             <td className="px-3 py-3 text-center text-slate-400">—</td>
           </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ModeCard({
+  active,
+  onClick,
+  icon: Icon,
+  title,
+  description,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-start gap-3 rounded-lg border p-3 text-left transition-all active:scale-[0.99]",
+        active
+          ? "border-primary bg-primary/5 shadow-[0_4px_15px_rgba(249,115,22,0.12)]"
+          : "border-slate-200 bg-white hover:border-slate-300",
+      )}
+    >
+      <span
+        className={cn(
+          "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
+          active ? "bg-primary text-white" : "bg-slate-100 text-slate-400",
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <span>
+        <span className={cn("block text-sm font-bold", active ? "text-primary" : "text-slate-700")}>
+          {title}
+        </span>
+        <span className="mt-0.5 block text-[11px] leading-snug text-slate-500">{description}</span>
+      </span>
+    </button>
+  );
+}
+
+// Painel de padronização da viabilidade econômico-financeira (PPTX slide 3-4).
+function FinancialStandardizationPanel() {
+  return (
+    <div className="space-y-3 rounded-xl border border-amber-300/60 bg-amber-50/70 p-4">
+      <p className="flex items-center gap-2 text-sm font-bold text-amber-700">
+        <AlertTriangle className="h-4 w-4" />
+        Não se pontua na análise de viabilidade econômico-financeira
+      </p>
+      <p className="text-[13px] leading-relaxed text-slate-700">
+        Os valores apresentados pelas empresas variam muito e podem ser manipulados — índice de
+        reajuste da energia, fator de simultaneidade e previsões de geração{" "}
+        <strong>exageradas</strong> reduzem artificialmente o prazo de retorno. Quanto maiores esses
+        índices, menor o payback, podendo levar a uma tomada de decisão equivocada.
+      </p>
+      <div className="rounded-lg bg-white/70 p-3 text-[13px] leading-relaxed text-slate-700">
+        <p className="font-bold text-slate-900">Padronização das viabilidades econômico-financeiras</p>
+        <p className="mt-1">
+          Para comparar propostas de forma justa, todas devem usar os mesmos parâmetros de cálculo.
+          Ao exigir dos vendedores os mesmos índices de reajuste tarifário e fator de simultaneidade,
+          você garante uma comparação objetiva do prazo de retorno e da rentabilidade.
+        </p>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>
+            <strong>Inflação/reajuste da tarifa de energia:</strong> 4,0% ao ano (exemplo).
+          </li>
+          <li>
+            <strong>Fator de simultaneidade residencial:</strong> 30% (exemplo).
+          </li>
+        </ul>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-[#09143c] text-white">
+                  <th className="px-3 py-1.5 text-left font-semibold">Classe de consumo</th>
+                  <th className="px-3 py-1.5 text-right font-semibold">Fator sugerido</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-700">
+                {[
+                  ["Residencial", "30%"],
+                  ["Comercial", "60%"],
+                  ["Industrial", "80%"],
+                ].map(([classe, fator], i) => (
+                  <tr key={classe} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                    <td className="px-3 py-1.5 font-medium">{classe}</td>
+                    <td className="px-3 py-1.5 text-right font-semibold">{fator}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[12px] leading-snug text-slate-600">
+            <strong>Dica:</strong> pergunte ao ChatGPT a média de reajuste da sua distribuidora:{" "}
+            <span className="italic">
+              “Com base nos reajustes tarifários da distribuidora de energia do meu estado nos últimos
+              10 ciclos tarifários, calcule a média anual de reajuste da tarifa residencial – Grupo B.”
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Tabela informativa da viabilidade — só dados lado a lado, sem nota nem total.
+function FinancialInfoTable({ comparison }: { comparison: ComparisonInput }) {
+  const { competitors } = comparison;
+  const sections = React.useMemo(() => {
+    const map = new Map<string, typeof financialComparisonRows>();
+    for (const r of financialComparisonRows) {
+      const list = map.get(r.section) ?? [];
+      list.push(r);
+      map.set(r.section, list);
+    }
+    return Array.from(map.entries());
+  }, []);
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-[#09143c] text-white">
+            <th className="sticky left-0 z-10 min-w-[260px] bg-[#09143c] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+              Item
+            </th>
+            {competitors.map((c) => (
+              <th
+                key={c.id}
+                className="min-w-[140px] border-l border-white/10 px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider"
+              >
+                {c.companyName}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {sections.map(([section, sectionRows]) => (
+            <React.Fragment key={section}>
+              <tr>
+                <td
+                  colSpan={competitors.length + 1}
+                  className="bg-slate-100 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-500"
+                >
+                  {section}
+                </td>
+              </tr>
+              {sectionRows.map((row, idx) => (
+                <tr key={row.fieldKey} className={cn(idx % 2 === 0 ? "bg-white" : "bg-slate-50/60")}>
+                  <td className="sticky left-0 z-10 bg-inherit border-r border-slate-100 px-4 py-2.5 font-medium text-slate-700">
+                    {row.label}
+                  </td>
+                  {competitors.map((c) => (
+                    <td key={c.id} className="border-l border-slate-100 px-3 py-2 text-center text-slate-600">
+                      {formatAnswer(answerFor(c.financial, row.prop), row.kind)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </React.Fragment>
+          ))}
         </tbody>
       </table>
     </div>
@@ -561,29 +696,20 @@ function OverviewTable({
                   return inv != null ? BRL.format(inv) : "—";
                 }}
               </OverviewRow>
-              <OverviewRow label="Empresas (pontos)" competitors={competitors}>
-                {(id) => byId(id)?.companyScore.points ?? 0}
+              <OverviewRow label="Empresas — Índice" competitors={competitors}>
+                {(id) => `${byId(id)?.companyScore.index100 ?? 0}/100`}
               </OverviewRow>
-              <OverviewRow label="Nota sobre 10" competitors={competitors} muted>
+              <OverviewRow label="Nota ponderada" competitors={competitors} muted>
                 {(id) => `${byId(id)?.companyScore.grade10 ?? 0}/10`}
               </OverviewRow>
-              <OverviewRow label="Tecnologias (pontos)" competitors={competitors}>
-                {(id) => byId(id)?.technicalScore.points ?? 0}
+              <OverviewRow label="Tecnologias — Índice" competitors={competitors}>
+                {(id) => `${byId(id)?.technicalScore.index100 ?? 0}/100`}
               </OverviewRow>
-              <OverviewRow label="Nota sobre 10" competitors={competitors} muted>
+              <OverviewRow label="Nota ponderada" competitors={competitors} muted>
                 {(id) => `${byId(id)?.technicalScore.grade10 ?? 0}/10`}
               </OverviewRow>
-              <OverviewRow label="Viabilidade (pontos)" competitors={competitors}>
-                {(id) => byId(id)?.financialScore.points ?? 0}
-              </OverviewRow>
-              <OverviewRow label="Nota sobre 10" competitors={competitors} muted>
-                {(id) => `${byId(id)?.financialScore.grade10 ?? 0}/10`}
-              </OverviewRow>
-              <OverviewRow label="Total (pontos)" competitors={competitors} strong>
-                {(id) => byId(id)?.totalScore.points ?? 0}
-              </OverviewRow>
-              <OverviewRow label="Nota sobre 10" competitors={competitors} highlight>
-                {(id) => `${byId(id)?.totalScore.grade10 ?? 0}/10`}
+              <OverviewRow label="Índice de Confiabilidade Solar Buy-Side" competitors={competitors} highlight>
+                {(id) => `${byId(id)?.totalScore.index100 ?? 0}/100`}
               </OverviewRow>
 
               {/* Decisão do comprador */}

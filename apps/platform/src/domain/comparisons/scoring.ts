@@ -67,41 +67,59 @@ export function summarizeCategoryScore(
   category: ScoreCategory,
 ): ScoreSummary {
   const definitions = enabledDefinitions(category, comparison.scoreSettings);
-  let points = definitions.reduce((total, definition) => {
-    const entry = scoreFor(comparison.scoreEntries, competitorId, definition.key);
-    const weight = settingFor(comparison.scoreSettings, definition.key)?.weight ?? 1;
-    return total + normalizeScore(entry?.score) * weight;
-  }, 0);
-  let maxPoints = definitions.reduce((total, definition) => {
-    const weight = settingFor(comparison.scoreSettings, definition.key)?.weight ?? 1;
-    return total + definition.maxScore * weight;
-  }, 0);
 
-  // Critérios ad-hoc ligados manualmente pelo comprador (maxScore 10 cada).
-  const adHoc = enabledAdHoc(category, comparison.scoreSettings);
-  for (const setting of adHoc) {
-    const weight = setting.weight ?? 1;
-    const entry = scoreFor(comparison.scoreEntries, competitorId, setting.criterionKey);
-    points += normalizeScore(entry?.score) * weight;
-    maxPoints += 10 * weight;
+  // Cada critério é ponderado pelo seu peso (%): nota ponderada = (nota/10)×peso.
+  // O peso vem da definição (slide 11); um override em scoreSettings tem
+  // precedência (permite ajuste fino futuro). Critérios SEM nota (null — ex.:
+  // "sem reputação definida", ou dado não preenchido) ficam de fora do
+  // numerador E do denominador: aparecem como "—" e não penalizam nem inflam o
+  // índice, que renormaliza sobre os critérios efetivamente pontuados (slide 7).
+  let points = 0;
+  let maxPoints = 0;
+  let scoredCriteria = 0;
+  for (const definition of definitions) {
+    const entry = scoreFor(comparison.scoreEntries, competitorId, definition.key);
+    if (entry?.score == null) continue;
+    // O peso (%) é o da DEFINIÇÃO (fonte de verdade, slide 11) — não o do
+    // scoreSetting, que sempre traz 1 por padrão e anularia a ponderação. O
+    // scoreSetting controla apenas o liga/desliga ("Avaliar?") do critério.
+    const weight = definition.weight ?? 1;
+    points += normalizeScore(entry.score) * weight;
+    maxPoints += definition.maxScore * weight;
+    scoredCriteria += 1;
   }
 
+  // Critérios ad-hoc ligados manualmente pelo comprador (peso 1, maxScore 10).
+  const adHoc = enabledAdHoc(category, comparison.scoreSettings);
+  for (const setting of adHoc) {
+    const entry = scoreFor(comparison.scoreEntries, competitorId, setting.criterionKey);
+    if (entry?.score == null) continue;
+    const weight = setting.weight ?? 1;
+    points += normalizeScore(entry.score) * weight;
+    maxPoints += 10 * weight;
+    scoredCriteria += 1;
+  }
+
+  const grade10 = maxPoints > 0 ? round2((points / maxPoints) * 10) : 0;
   return {
     points: round2(points),
     maxPoints: round2(maxPoints),
-    grade10: maxPoints > 0 ? round2((points / maxPoints) * 10) : 0,
-    enabledCriteria: definitions.length + adHoc.length,
+    grade10,
+    index100: round2(grade10 * 10),
+    enabledCriteria: scoredCriteria,
   };
 }
 
 function totalScore(...summaries: ScoreSummary[]): ScoreSummary {
   const points = summaries.reduce((sum, s) => sum + s.points, 0);
   const maxPoints = summaries.reduce((sum, s) => sum + s.maxPoints, 0);
+  const grade10 = maxPoints > 0 ? round2((points / maxPoints) * 10) : 0;
 
   return {
     points: round2(points),
     maxPoints: round2(maxPoints),
-    grade10: maxPoints > 0 ? round2((points / maxPoints) * 10) : 0,
+    grade10,
+    index100: round2(grade10 * 10),
     enabledCriteria: summaries.reduce((sum, s) => sum + s.enabledCriteria, 0),
   };
 }
@@ -109,7 +127,6 @@ function totalScore(...summaries: ScoreSummary[]): ScoreSummary {
 function riskFlagsFor(competitor: CompetitorProposal) {
   const flags: string[] = [];
   const company = competitor.company;
-  const technical = competitor.technical;
   const financial = competitor.financial;
 
   if (company.hasElectricalEngineeringCrea && company.hasElectricalEngineeringCrea !== "yes") {
@@ -125,14 +142,6 @@ function riskFlagsFor(competitor: CompetitorProposal) {
 
   if (typeof company.supportDeadlineDays === "number" && company.supportDeadlineDays > 7) {
     flags.push("Prazo de assistencia tecnica acima de 7 dias");
-  }
-
-  if (technical.inverterReliability && technical.inverterReliability !== "yes") {
-    flags.push("Confiabilidade do inversor nao confirmada");
-  }
-
-  if (technical.moduleReliability && technical.moduleReliability !== "yes") {
-    flags.push("Confiabilidade do modulo nao confirmada");
   }
 
   if (financial.viabilityConfidence && financial.viabilityConfidence !== "high") {
@@ -212,8 +221,9 @@ export function calculateComparisonResult(comparison: ComparisonInput): Comparis
   const baseResults = comparison.competitors.map((competitor) => {
     const companyScore = summarizeCategoryScore(comparison, competitor.id, "company");
     const technicalScore = summarizeCategoryScore(comparison, competitor.id, "technical");
+    // Viabilidade financeira é INFORMATIVA (PPTX slides 4-5): não soma no ranking.
     const financialScore = summarizeCategoryScore(comparison, competitor.id, "financial");
-    const combinedScore = totalScore(companyScore, technicalScore, financialScore);
+    const combinedScore = totalScore(companyScore, technicalScore);
     const investment = competitor.financial.totalInvestment ?? null;
 
     return {

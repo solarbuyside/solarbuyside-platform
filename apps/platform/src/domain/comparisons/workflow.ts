@@ -332,30 +332,10 @@ export const technicalFormFields = [
     sourceRow: 36,
     section: "Reclame Aqui",
   },
-  {
-    key: "technical.inverterReliability",
-    label: "Confiabilidade do inversor de corrente",
-    kind: "tri_state",
-    sourceSheet: "Form. Tecnologico",
-    sourceRow: 38,
-    section: "Confiabilidade dos fabricantes e distribuidoras",
-  },
-  {
-    key: "technical.moduleReliability",
-    label: "Confiabilidade do módulo fotovoltaico",
-    kind: "tri_state",
-    sourceSheet: "Form. Tecnologico",
-    sourceRow: 39,
-    section: "Confiabilidade dos fabricantes e distribuidoras",
-  },
-  {
-    key: "technical.distributorReliability",
-    label: "Confiabilidade da distribuidora de equipamento",
-    kind: "tri_state",
-    sourceSheet: "Form. Tecnologico",
-    sourceRow: 40,
-    section: "Confiabilidade dos fabricantes e distribuidoras",
-  },
+  // Seção "Confiabilidade dos fabricantes e distribuidoras" REMOVIDA (PPTX
+  // 2026-06-09, slides 1-2: "eliminar o tópico inteiro"). Os 3 campos
+  // tri_state (inversor/módulo/distribuidora) saíram do formulário e da
+  // pontuação técnica.
 ] as const satisfies readonly EvaluationFieldDefinition[];
 
 export const financialFormFields = [
@@ -562,6 +542,8 @@ export const comparisonWorkflowSummary = {
   enabledTechnicalCriteriaCount: technicalScoreDefinitions.filter((definition) => definition.defaultEnabled).length,
   enabledFinancialCriteriaCount: financialScoreDefinitions.filter((definition) => definition.defaultEnabled).length,
   totalCriteriaCount: scoreDefinitions.length,
-  // Slide 19: a Viabilidade passa a somar no ranking (rubric provisório).
-  financialAffectsScore: true,
+  // PPTX 2026-06-09 (slides 4-5): a Viabilidade volta a ser INFORMATIVA — sem
+  // pontuação, sem linha de total. Os números financeiros são manipuláveis
+  // (geração/reajuste/simultaneidade inflados), então não entram no ranking.
+  financialAffectsScore: false,
 } as const;

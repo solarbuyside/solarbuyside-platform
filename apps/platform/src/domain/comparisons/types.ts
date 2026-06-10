@@ -65,9 +65,8 @@ export const technicalEvaluationSchema = z.object({
   moduleMakerScore: reputationRatingSchema.nullable().optional(),
   inverterMakerName: z.string().nullable().optional(),
   inverterMakerScore: reputationRatingSchema.nullable().optional(),
-  inverterReliability: triStateAnswerSchema.nullable().optional(),
-  moduleReliability: triStateAnswerSchema.nullable().optional(),
-  distributorReliability: triStateAnswerSchema.nullable().optional(),
+  // Confiabilidade (inversor/módulo/distribuidora) REMOVIDA — PPTX 2026-06-09
+  // slides 1-2 ("eliminar o tópico inteiro").
 });
 
 export const financialEvaluationSchema = z.object({
@@ -106,6 +105,10 @@ export const scoreDefinitionSchema = z.object({
   label: z.string().min(1),
   defaultEnabled: z.boolean(),
   maxScore: z.number().positive().default(10),
+  // Peso (%) do critério dentro do seu grupo (PPTX 2026-06-09, slide 11). A soma
+  // dos pesos de cada grupo é 100. A nota ponderada = (nota/10) × peso; o motor
+  // usa este peso como multiplicador (ver scoring.ts).
+  weight: z.number().min(0).default(1),
   sourceSheet: z.string().min(1),
   sourceRow: z.number().int().positive(),
   rubric: z.string().optional(),
@@ -155,6 +158,8 @@ export type ScoreSummary = {
   points: number;
   maxPoints: number;
   grade10: number;
+  /** Índice de Confiabilidade Solar Buy-Side (0–100) = grade10 × 10. */
+  index100: number;
   enabledCriteria: number;
 };
 

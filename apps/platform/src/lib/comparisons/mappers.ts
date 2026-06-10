@@ -83,9 +83,8 @@ export function technicalRowToDomain(row: TechnicalRow): TechnicalEvaluation {
     moduleMakerScore: row.module_maker_score as ReputationRating | null,
     inverterMakerName: row.inverter_maker_name,
     inverterMakerScore: row.inverter_maker_score as ReputationRating | null,
-    inverterReliability: row.inverter_reliability,
-    moduleReliability: row.module_reliability,
-    distributorReliability: row.distributor_reliability,
+    // Confiabilidade dos fabricantes/distribuidoras removida (PPTX 2026-06-09).
+    // As colunas *_reliability permanecem no banco, mas não são mais lidas.
   };
 }
 
@@ -116,9 +115,8 @@ export function technicalDomainToUpdate(value: TechnicalEvaluation): TechnicalUp
     module_maker_score: value.moduleMakerScore ?? null,
     inverter_maker_name: value.inverterMakerName ?? null,
     inverter_maker_score: value.inverterMakerScore ?? null,
-    inverter_reliability: value.inverterReliability ?? null,
-    module_reliability: value.moduleReliability ?? null,
-    distributor_reliability: value.distributorReliability ?? null,
+    // Confiabilidade removida (PPTX 2026-06-09): não escrevemos mais essas
+    // colunas; permanecem no banco apenas por compatibilidade.
   };
 }
 

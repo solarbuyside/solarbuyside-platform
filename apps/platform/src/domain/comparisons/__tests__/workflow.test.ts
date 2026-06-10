@@ -38,26 +38,33 @@ describe("comparison workflow", () => {
     ]);
   });
 
-  it("keeps field and scoring counts aligned with the source spreadsheet", () => {
+  it("keeps field and scoring counts aligned with the PPTX 2026-06-09", () => {
     expect(companyFormFields).toHaveLength(13);
-    // +1 consumo anual, -1 geração mensal, -1 peso do módulo (27 -> 26 campos).
-    expect(technicalFormFields).toHaveLength(26);
+    // 26 -> 23 campos: a seção Confiabilidade (3 campos) foi eliminada.
+    expect(technicalFormFields).toHaveLength(23);
     expect(financialFormFields).toHaveLength(15);
 
     expect(companyScoreDefinitions).toHaveLength(13);
-    // -1 geração mensal, -1 peso do módulo (22 -> 20 critérios).
-    expect(technicalScoreDefinitions).toHaveLength(20);
-    // Slide 19: 4 critérios de viabilidade passam a pontuar (rubric provisório).
-    // Slide 12: os 3 critérios de reputação do Reclame Aqui passam a contar.
+    // Tecnologia: só 10 critérios pontuam (slides 8/10); o resto é informativo
+    // e a Confiabilidade foi eliminada.
+    expect(technicalScoreDefinitions).toHaveLength(10);
+    // Viabilidade voltou a ser INFORMATIVA (slides 4-5): 0 critérios financeiros.
     expect(comparisonWorkflowSummary.enabledCompanyCriteriaCount).toBe(13);
-    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(20);
-    expect(comparisonWorkflowSummary.enabledFinancialCriteriaCount).toBe(4);
-    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(37);
-    expect(comparisonWorkflowSummary.financialAffectsScore).toBe(true);
+    expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(10);
+    expect(comparisonWorkflowSummary.enabledFinancialCriteriaCount).toBe(0);
+    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(23);
+    expect(comparisonWorkflowSummary.financialAffectsScore).toBe(false);
   });
 
-  it("scores Reclame Aqui reputation criteria from the buyer's typed note (slide 12)", () => {
-    // Todos os critérios técnicos passam a estar habilitados por padrão.
+  it("os pesos de cada grupo seguem o slide 11 (Empresa fecha 100%, Tecnologia provisória)", () => {
+    const sum = (defs: { weight: number }[]) => defs.reduce((t, d) => t + d.weight, 0);
+    expect(sum(companyScoreDefinitions)).toBe(100);
+    // PROVISÓRIO: o slide 11 soma 87% em Tecnologia (Francis vai confirmar os
+    // 13% faltantes). O motor renormaliza, então a proporção já está correta.
+    expect(sum(technicalScoreDefinitions)).toBe(87);
+  });
+
+  it("todos os critérios técnicos pontuados nascem habilitados", () => {
     expect(technicalScoreDefinitions.filter((definition) => !definition.defaultEnabled)).toHaveLength(0);
   });
 
