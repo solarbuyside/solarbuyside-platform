@@ -1,0 +1,281 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SOLAR BUY-SIDE — V4 DESIGN LAYER
+   Escopo: tudo prefixado com v4- para não vazar para a LP atual.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.v4-root {
+  --v4-ink: #0b0f17;
+  --v4-night: #030712;
+  --v4-night-2: #060b1a;
+  --v4-panel: rgba(255, 255, 255, 0.03);
+  --v4-line: rgba(255, 255, 255, 0.08);
+  --v4-paper: #fafaf8;
+  --v4-orange: #f97316;
+  --v4-amber: #fbbf24;
+  --v4-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+}
+
+.v4-root h1,
+.v4-root h2,
+.v4-root h3,
+.v4-root h4 {
+  font-family: 'Sora', system-ui, sans-serif;
+}
+
+/* ── Reveal system ──────────────────────────────────────────────────── */
+.v4r {
+  opacity: 0;
+  transform: translateY(26px);
+  filter: blur(5px);
+  transition:
+    opacity 0.9s var(--v4-ease),
+    transform 0.9s var(--v4-ease),
+    filter 0.9s var(--v4-ease);
+  transition-delay: var(--d, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.v4r.in {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ── Hero entrance (independente do scroll) ─────────────────────────── */
+@keyframes v4-rise {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.v4-rise {
+  opacity: 0;
+  animation: v4-rise 1s var(--v4-ease) forwards;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ── Aurora do hero ─────────────────────────────────────────────────── */
+@keyframes v4-aurora {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.85;
+  }
+  33% {
+    transform: translate(4%, -3%) scale(1.08);
+    opacity: 1;
+  }
+  66% {
+    transform: translate(-3%, 2%) scale(0.96);
+    opacity: 0.75;
+  }
+}
+
+.v4-aurora {
+  animation: v4-aurora 14s ease-in-out infinite;
+}
+
+.v4-aurora-slow {
+  animation: v4-aurora 22s ease-in-out infinite reverse;
+}
+
+/* ── Flutuação suave (cards sobre a imagem) ─────────────────────────── */
+@keyframes v4-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+.v4-float {
+  animation: v4-float 6s ease-in-out infinite;
+}
+
+/* ── Texto com gradiente animado ────────────────────────────────────── */
+@keyframes v4-grad {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.v4-grad-text {
+  background: linear-gradient(100deg, #fb923c 0%, #f97316 30%, #fdba74 55%, #f97316 80%, #fb923c 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: v4-grad 7s ease-in-out infinite;
+}
+
+/* ── Shimmer dos CTAs ───────────────────────────────────────────────── */
+@keyframes v4-shimmer {
+  from {
+    transform: translateX(-150%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(250%) skewX(-18deg);
+  }
+}
+
+.v4-cta-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-150%) skewX(-18deg);
+  pointer-events: none;
+}
+
+.v4-cta-shine:hover::after {
+  animation: v4-shimmer 0.9s var(--v4-ease);
+}
+
+/* ── Scroll hint (linha que desce) ──────────────────────────────────── */
+@keyframes v4-drip {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.v4-drip {
+  animation: v4-drip 2.2s var(--v4-ease) infinite;
+}
+
+/* ── Pulso do ponto "ao vivo" ───────────────────────────────────────── */
+@keyframes v4-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.v4-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: v4-ping 1.8s ease-out infinite;
+}
+
+/* ── Grain / noise overlay ──────────────────────────────────────────── */
+.v4-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ── Card 3D tilt (hero) ────────────────────────────────────────────── */
+.v4-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.5s var(--v4-ease);
+}
+
+/* ── Marcador de seção numerada ─────────────────────────────────────── */
+.v4-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+.v4-kicker::before {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* ── Scrollbar de progresso no header ───────────────────────────────── */
+.v4-progress {
+  transform-origin: left;
+  transition: transform 80ms linear;
+}
+
+/* ── Hover lift padrão de card ──────────────────────────────────────── */
+.v4-lift {
+  transition:
+    transform 0.45s var(--v4-ease),
+    box-shadow 0.45s var(--v4-ease),
+    border-color 0.45s var(--v4-ease),
+    background-color 0.45s var(--v4-ease);
+}
+
+.v4-lift:hover {
+  transform: translateY(-6px);
+}
+
+/* ── FAQ expand ─────────────────────────────────────────────────────── */
+.v4-faq-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--v4-ease);
+}
+
+.v4-faq-body.open {
+  grid-template-rows: 1fr;
+}
+
+.v4-faq-body > div {
+  overflow: hidden;
+}
+
+/* ── Acessibilidade: respeita reduced motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .v4r,
+  .v4-rise {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+    transition: none;
+  }
+
+  .v4-aurora,
+  .v4-aurora-slow,
+  .v4-float,
+  .v4-grad-text,
+  .v4-drip,
+  .v4-dot::after {
+    animation: none;
+  }
+}

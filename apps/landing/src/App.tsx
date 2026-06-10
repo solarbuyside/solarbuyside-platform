@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import {
@@ -26,6 +26,9 @@ import {
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
 import { trackPageView, observeSection } from './utils/analytics'
 
+// Redesign V4 em preview — carregado sob demanda apenas em /v4, sem afetar a LP atual.
+const AppV4 = lazy(() => import('./v4/AppV4'))
+
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
 
@@ -39,6 +42,14 @@ function App() {
       <div className="flex min-h-screen items-center justify-center bg-[#020617] text-slate-300">
         Redirecionando para o painel…
       </div>
+    )
+  }
+
+  if (pathname === '/v4') {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-[#030712]" />}>
+        <AppV4 />
+      </Suspense>
     )
   }
 
