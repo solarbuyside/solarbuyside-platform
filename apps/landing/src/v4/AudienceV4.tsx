@@ -11,20 +11,45 @@ const PROFILE_META = [
     accent: 'text-blue-400',
     borderActive: 'border-blue-500/40',
     glow: 'radial-gradient(circle at 50% 0%, rgba(59,130,246,0.08), transparent 72%)',
+    ring: 'border-blue-400/30',
+    coreGlow: 'bg-blue-500/15',
   },
   {
     Icon: Rocket,
     accent: 'text-orange-400',
     borderActive: 'border-orange-500/40',
     glow: 'radial-gradient(circle at 50% 0%, rgba(249,115,22,0.08), transparent 72%)',
+    ring: 'border-orange-400/30',
+    coreGlow: 'bg-orange-500/15',
   },
   {
     Icon: Users,
     accent: 'text-emerald-400',
     borderActive: 'border-emerald-500/40',
     glow: 'radial-gradient(circle at 50% 0%, rgba(16,185,129,0.08), transparent 72%)',
+    ring: 'border-emerald-400/30',
+    coreGlow: 'bg-emerald-500/15',
   },
 ]
+
+/* Emblema que preenche o miolo do painel: anéis concêntricos + ícone do
+   perfil com glow. Aceso e pulsando no painel ativo, esmaecido nos demais. */
+const PanelEmblem: React.FC<{ meta: (typeof PROFILE_META)[number]; active: boolean }> = ({ meta, active }) => (
+  <div
+    className={`pointer-events-none absolute inset-x-0 bottom-[34%] top-[15%] flex items-center justify-center transition-all duration-700 ${
+      active ? 'scale-100 opacity-100' : 'scale-[0.78] opacity-25'
+    }`}
+    aria-hidden
+  >
+    <div className="relative flex items-center justify-center">
+      <span className={`v4-spin-slow absolute h-[260px] w-[260px] rounded-full border border-dashed ${meta.ring}`} />
+      <span className="absolute h-[190px] w-[190px] rounded-full border border-white/[0.06]" />
+      {active && <span className={`v4-ring absolute h-[190px] w-[190px] rounded-full border ${meta.ring}`} />}
+      <span className={`absolute h-[130px] w-[130px] rounded-full blur-2xl ${meta.coreGlow}`} />
+      <meta.Icon strokeWidth={1.2} className={`relative h-16 w-16 ${meta.accent}`} />
+    </div>
+  </div>
+)
 
 export const AudienceV4: React.FC = () => {
   const { getSection } = useContent()
@@ -100,6 +125,7 @@ export const AudienceV4: React.FC = () => {
                     aria-hidden
                   />
                   <GrainOverlay />
+                  <PanelEmblem meta={meta} active={active} />
 
                   <div className="relative flex items-start justify-between gap-4">
                     <div className="flex flex-col gap-3">

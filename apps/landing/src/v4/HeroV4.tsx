@@ -153,7 +153,7 @@ export const HeroV4: React.FC = () => {
 
         {/* ticket de acesso: manual + bônus com picote central */}
         <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '1200ms' }}>
-          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035] backdrop-blur-md md:grid-cols-[1.15fr_1fr]">
+          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-[1.15fr_1fr]">
             {/* lado A — o manual */}
             <div className="flex items-center gap-4 p-6 text-left">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.8)]">
@@ -169,7 +169,7 @@ export const HeroV4: React.FC = () => {
                     </>
                   )}
                 </p>
-                <p className="mt-1 text-xs leading-snug text-slate-400">{manualSubtitle}</p>
+                <p className="mt-1 text-xs leading-snug text-slate-300">{manualSubtitle}</p>
               </div>
             </div>
 
@@ -185,7 +185,7 @@ export const HeroV4: React.FC = () => {
                 {bonusBadge}
               </span>
               <p className="text-sm font-bold leading-tight text-white">{bonusTitle}</p>
-              <p className="text-xs leading-snug text-slate-500">{bonusSubtitle}</p>
+              <p className="text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
             </div>
           </div>
         </div>

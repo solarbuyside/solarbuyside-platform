@@ -173,6 +173,22 @@
   animation: v4-rotate 140s linear infinite;
 }
 
+/* ── Pulso de radar (emblema dos painéis) ───────────────────────────── */
+@keyframes v4-ring {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.v4-ring {
+  animation: v4-ring 3.2s ease-out infinite;
+}
+
 /* ── Flutuação suave ────────────────────────────────────────────────── */
 @keyframes v4-float {
   0%,
@@ -430,6 +446,7 @@
   .v4-grad-text,
   .v4-drip,
   .v4-dot::after,
+  .v4-ring,
   .v4-marquee-track,
   .v4-conic-frame::before {
     animation: none;
