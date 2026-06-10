@@ -32,17 +32,15 @@ const AppV4 = lazy(() => import('./v4/AppV4'))
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
 
-  // O admin agora vive na plataforma (Next + Supabase, com 2FA). O /admin da
-  // landing redireciona para lá — o admin antigo (Render) foi aposentado.
-  if (pathname === '/admin') {
+  // O admin vive só na plataforma (Next + Supabase + 2FA). Aqui, /admin é
+  // tratado como rota inexistente: redireciona para a home da própria LP, sem
+  // revelar a URL do painel. Não dar pista do cofre para quem só chuta o
+  // domínio público (solarbuyside.com.br/admin) é redução de superfície.
+  if (pathname === '/admin' || pathname.startsWith('/admin/') || pathname === '/users') {
     if (typeof window !== 'undefined') {
-      window.location.replace('https://plataforma.solarbuyside.com.br/admin')
+      window.location.replace('/')
     }
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#020617] text-slate-300">
-        Redirecionando para o painel…
-      </div>
-    )
+    return null
   }
 
   if (pathname === '/v4') {
