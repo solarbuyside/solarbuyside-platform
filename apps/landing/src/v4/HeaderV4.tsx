@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: '#contexto', label: 'Panorama' },
   { href: '#video-section', label: 'Vídeo' },
   { href: '#audiencia', label: 'Para Quem' },
+  { href: '#plataforma', label: 'Plataforma' },
   { href: '#autor', label: 'Mentor' },
   { href: '#faq', label: 'FAQ' },
 ]

@@ -8,6 +8,7 @@ import { ContextV4 } from './ContextV4'
 import { VideoV4 } from './VideoV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
+import { PlatformV4 } from './PlatformV4'
 import { StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
 import { SellerCodeV4 } from './SellerCodeV4'
 import { PricingV4 } from './PricingV4'
@@ -24,6 +25,7 @@ const SECTION_IDS = [
   'video-section',
   'audiencia',
   'manual-strategic',
+  'plataforma',
   'depoimentos',
   'story-bridge',
   'seller-code',
@@ -91,6 +93,9 @@ export default function AppV4() {
       </div>
       <div id="manual-strategic">
         <ManualStrategicV4 />
+      </div>
+      <div id="plataforma">
+        <PlatformV4 />
       </div>
       <div id="depoimentos">
         <TestimonialsV4 />
