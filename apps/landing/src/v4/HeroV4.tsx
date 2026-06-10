@@ -107,7 +107,7 @@ export const HeroV4: React.FC = () => {
       {/* ── Conteúdo ──────────────────────────────────────────────────── */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-28 pt-28 text-center md:pb-[22vh]">
         {/* chip do produto */}
-        <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '60ms' }}>
+        <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="relative flex h-2 w-2 items-center justify-center rounded-full bg-orange-500 text-orange-500">
             <span className="v4-dot absolute inset-0 rounded-full" />
           </span>
@@ -116,19 +116,19 @@ export const HeroV4: React.FC = () => {
 
         {/* headline massiva */}
         <h1 className="max-w-5xl text-[clamp(2.5rem,6.6vw,5.6rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
-          <WordReveal trigger="load" text={titlePrefix} baseDelay={150} step={50} />{' '}
+          <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />{' '}
           <WordReveal
             trigger="load"
             text={titleHighlight}
-            baseDelay={520}
-            step={70}
+            baseDelay={340}
+            step={55}
             wordClassName="v4-serif v4-grad-text pr-[0.06em]"
           />{' '}
-          <WordReveal trigger="load" text={titleSuffix} baseDelay={700} step={50} wordClassName="text-white" />
+          <WordReveal trigger="load" text={titleSuffix} baseDelay={470} step={40} wordClassName="text-white" />
         </h1>
 
         {/* subtítulo */}
-        <p className="v4-rise mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg md:text-xl" style={{ ['--d' as string]: '900ms' }}>
+        <p className="v4-rise mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg md:text-xl" style={{ ['--d' as string]: '560ms' }}>
           {!isDefaultSubtitle ? (
             subtitle
           ) : (
@@ -140,7 +140,7 @@ export const HeroV4: React.FC = () => {
         </p>
 
         {/* CTA */}
-        <div className="v4-rise mt-10" style={{ ['--d' as string]: '1050ms' }}>
+        <div className="v4-rise mt-10" style={{ ['--d' as string]: '700ms' }}>
           <Cta size="lg" onClick={() => scrollToId('oferta')}>
             {ctaButton}
             <CtaArrow />
@@ -152,7 +152,7 @@ export const HeroV4: React.FC = () => {
         </div>
 
         {/* ticket de acesso: manual + bônus com picote central */}
-        <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '1200ms' }}>
+        <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '820ms' }}>
           <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-[1.15fr_1fr]">
             {/* lado A — o manual */}
             <div className="flex items-center gap-4 p-6 text-left">

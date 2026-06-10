@@ -575,13 +575,69 @@ export const ContactV4: React.FC = () => {
   )
 }
 
-/* ── Footer — mega wordmark ────────────────────────────────────────────── */
+/* ── Footer — newsletter compacta + mega wordmark ──────────────────────── */
 export const FooterV4: React.FC = () => {
-  const { globalAssets } = useContent()
+  const { globalAssets, getSection } = useContent()
+  const newsletter = getSection('newsletter')
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+    const submittedEmail = email
+    setSubscribed(true)
+    setEmail('')
+    trackNewsletterSubscribe()
+    fetch(`/api/newsletter/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: submittedEmail }),
+      keepalive: true,
+    }).catch((err) => console.error('[newsletter] background submit failed:', err))
+  }
 
   return (
     <footer className="overflow-hidden bg-[#050608] px-6 pb-0 pt-20 text-white">
       <div className="mx-auto max-w-7xl">
+        {/* Newsletter: uma linha discreta no rodapé, sem competir com o lead magnet */}
+        <div id="newsletter" className="flex flex-col gap-5 border-t border-white/[0.06] pt-10 pb-10 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="font-['Sora'] text-lg font-bold text-white">
+              {newsletter?.texts.title || 'Novidades do mercado solar, direto no e-mail'}
+            </p>
+            <p className="mt-1 text-sm text-slate-400">
+              {newsletter?.texts.subtitle || 'Lançamentos, atualizações do Manual e conteúdo sobre o setor.'}
+            </p>
+          </div>
+          <form onSubmit={handleNewsletter} className="flex w-full max-w-md items-stretch gap-3">
+            <label htmlFor="footer-newsletter" className="sr-only">
+              Seu e-mail
+            </label>
+            <input
+              id="footer-newsletter"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={newsletter?.texts.placeholder || 'seu@email.com'}
+              required
+              disabled={subscribed}
+              className="min-w-0 flex-1 border-b border-white/15 bg-transparent px-1 py-3 text-sm text-white placeholder-slate-500 transition-colors focus:border-orange-500 focus:outline-none disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={subscribed}
+              className={`shrink-0 rounded-full px-6 py-3 text-sm font-bold transition-all duration-300 ${
+                subscribed
+                  ? 'cursor-default bg-emerald-500 text-white'
+                  : 'border border-white/15 text-slate-200 hover:border-orange-400/60 hover:text-white'
+              }`}
+            >
+              {subscribed ? (newsletter?.texts.successButton || 'Cadastrado!') : newsletter?.texts.ctaButton || 'Cadastrar'}
+            </button>
+          </form>
+        </div>
+
         <div className="flex flex-col items-center justify-between gap-6 border-t border-white/[0.06] pt-10 sm:flex-row">
           <div className="flex items-center gap-3">
             <img

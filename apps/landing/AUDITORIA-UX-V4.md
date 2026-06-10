@@ -105,4 +105,40 @@ Cor, fontes, fotos reais, nicho. Isso já te diferencia de 90% dos sites de IA.
 
 A V4 está num patamar **acima** do site-de-IA médio graças a cor, tipografia e fotos reais. O que ainda "entrega" a origem é **a escrita (hype + em-dash)** e a **repetição de um único molde de seção**. Atacando P0 (copy) e P1 (ritmo) — os dois mais baratos — a página passa de "bonita, mas template" para "claramente feita sob medida para a Solar Buy-Side".
 
-*Documento de auditoria. Próximo passo sugerido: aprovar o P0 e eu reescrevo a copy das 3 seções-âncora (Hero, Oferta, Fechamento) na voz do comprador.*
+---
+
+## 6. Status pós-correção (10/06/2026, tarde)
+
+Segunda auditoria (visual + UX + cara de IA) executada e **20 correções aplicadas** em 4 lotes:
+
+**Conversão/confiança (P0)**
+- ✅ Barra de CTA fixa no mobile (preço 12x + botão; some sobre oferta/FAQ/footer)
+- ✅ CNPJ corrigido (`55.463.086/0001-80`) em ContactV4, ContactSection e legalContent — *se houver override salvo no CMS, corrigir no admin também*
+- ✅ `sellCard2Desc` duplicado ganhou texto próprio
+- ✅ FAQ 3 → 7 perguntas (técnica, formato, plataforma 6 meses, licença coletiva) + chaves no editorSchema
+- ✅ Selos do preço sem duplicata, ícones unificados
+
+**Copy anti-IA (P1)**
+- ✅ Pricing sem CAPS de urgência, sem "bíblia/dominar/não perdoa/grandes players"
+- ✅ Nota do autor em 1ª pessoa (FounderNoteV4, ato paper, assinatura serif)
+- ✅ Depoimentos com comprimentos variados; linha constrangedora da Lucineide removida
+- ✅ Título duplicado VideoV4 ↔ BuyerWave resolvido; "Vision 2026" → "O que muda em 2026"
+- ✅ Em-dash zerado na copy (restam só comentários de código); "dominar" zerado
+
+**Visual premium (P2)**
+- ✅ Faixa de pagamento dark: Stamp de garantia desenhado + marcas de pagamento em traço mono (PNGs fora)
+- ✅ 2ª oferta = reprise compacta (headline + preço + CTA + garantia); 1ª oferta intacta (3 livros + "+")
+- ✅ Dieta de efeito: grad-text só hero + wordmark do footer; shimmer só no CTA do preço; 1 camada ambiente por seção
+- ✅ Hierarquia de CTA: sólido em Hero/Manual/Oferta, intermediários ghost
+- ✅ Pacing: headlines de fechamento rebaixadas; preço "12x de R$ 61,38" legível como unidade; labels mono ≥11px
+
+**Polish (P3)**
+- ✅ Poster do vídeo: Francis em quadro (não a capa do livro), com override CMS (`videoPoster`)
+- ✅ Deck de depoimentos sem scroll-dentro-de-scroll (clamp + "ler depoimento completo" no mobile)
+- ✅ Newsletter saiu de seção própria → faixa compacta no footer (menos fadiga de captura no fim)
+- ✅ Hero: CTA visível em ~700ms (antes 1050ms)
+
+**Pendências fora do código** (dependem do dono):
+- Conferir no CMS/admin se algum campo sobrescreve os novos defaults (CNPJ, títulos, CTAs)
+- Depoimentos: colocar kWp/cidade verificáveis reais quando disponíveis
+- Copy nova do Pricing/Platform sujeita à aprovação do Francis

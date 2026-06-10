@@ -156,7 +156,15 @@ export const VideoV4: React.FC = () => {
             >
               {!showPlayer ? (
                 <>
-                  <div className="absolute inset-0 bg-[url('/assets/manualdecompra1.png')] bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]" />
+                  {/* Poster: o autor em quadro (frame de fala), não a capa do livro. */}
+                  <div
+                    className="absolute inset-0 bg-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                    style={{
+                      backgroundImage: `url('${section?.images.videoPoster || '/assets/Francis Poloni LP PRO.jpg.jpeg'}')`,
+                      backgroundPosition: '50% 18%',
+                      filter: 'saturate(0.82) contrast(1.05)',
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/25 transition-colors duration-500 group-hover:via-black/20" />
 
                   {/* Play: anel tracejado girando + disco */}

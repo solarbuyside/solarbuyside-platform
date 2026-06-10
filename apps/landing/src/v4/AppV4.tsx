@@ -14,7 +14,7 @@ import { SellerCodeV4 } from './SellerCodeV4'
 import { PricingV4 } from './PricingV4'
 import { BuyerWaveV4 } from './BuyerWaveV4'
 import { AuthorityV4 } from './AuthorityV4'
-import { ContactV4, FAQV4, FooterV4, LeadMagnetV4, NewsletterV4 } from './ClosingV4'
+import { ContactV4, FAQV4, FooterV4, LeadMagnetV4 } from './ClosingV4'
 
 /* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP atual,
    experiência redesenhada em 4 atos. Preview em /v4; produção intocada. */
@@ -125,9 +125,6 @@ export default function AppV4() {
       </div>
       <div id="faq">
         <FAQV4 />
-      </div>
-      <div id="newsletter">
-        <NewsletterV4 />
       </div>
       <ContactV4 />
       <FooterV4 />

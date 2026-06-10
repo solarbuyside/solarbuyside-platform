@@ -133,9 +133,15 @@ export const BuyerWaveV4: React.FC = () => {
     }
   })
 
+  const [quoteExpanded, setQuoteExpanded] = useState(false)
+
   const total = testimonials.length
-  const next = () => setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
-  const prev = () => setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+  const goTo = (index: number) => {
+    setQuoteExpanded(false)
+    setActiveTestimonial(index)
+  }
+  const next = () => goTo((activeTestimonial + 1) % testimonials.length)
+  const prev = () => goTo((activeTestimonial - 1 + testimonials.length) % testimonials.length)
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#0a0705] to-[#07090d] py-24 text-white antialiased md:py-32">
@@ -251,7 +257,7 @@ export const BuyerWaveV4: React.FC = () => {
           </Reveal>
 
           <Reveal delay={100}>
-            <div className="relative mt-10 min-h-[620px] md:min-h-[460px]">
+            <div className="relative mt-10 min-h-[660px] md:min-h-[460px]">
               {testimonials.map((t, idx) => {
                 const offset = (idx - activeTestimonial + total) % total
                 const deckPose =
@@ -288,11 +294,30 @@ export const BuyerWaveV4: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-4 overflow-y-auto p-7 md:p-9">
+                      <div
+                        className={`flex flex-col gap-4 p-7 md:justify-center md:p-9 ${
+                          quoteExpanded && idx === activeTestimonial ? 'overflow-y-auto' : ''
+                        }`}
+                      >
                         <h4 className="font-['Sora'] text-xl font-bold leading-tight text-white md:text-2xl">
                           {t.reviewTitle}
                         </h4>
-                        <p className="text-sm leading-relaxed text-slate-400 md:text-base">{t.quote}</p>
+                        <p
+                          className={`text-sm leading-relaxed text-slate-400 md:line-clamp-none md:text-base ${
+                            quoteExpanded && idx === activeTestimonial ? '' : 'line-clamp-[6]'
+                          }`}
+                        >
+                          {t.quote}
+                        </p>
+                        {idx === activeTestimonial && (
+                          <button
+                            type="button"
+                            onClick={() => setQuoteExpanded((v) => !v)}
+                            className="-mt-2 self-start text-xs font-bold uppercase tracking-wide text-orange-400 md:hidden"
+                          >
+                            {quoteExpanded ? 'Recolher' : 'Ler depoimento completo'}
+                          </button>
+                        )}
                         <div className="border-t border-white/[0.08] pt-4">
                           <p className="v4-serif text-lg text-amber-200/90 md:text-xl">"{t.highlight}"</p>
                         </div>
@@ -311,7 +336,7 @@ export const BuyerWaveV4: React.FC = () => {
                 key={t.name}
                 type="button"
                 aria-label={`Ver depoimento de ${t.name}`}
-                onClick={() => setActiveTestimonial(idx)}
+                onClick={() => goTo(idx)}
                 className="group flex items-center justify-center px-1"
               >
                 <span
