@@ -204,10 +204,11 @@ export const StoryBridgeV4: React.FC = () => {
           {/* Manual sobre bloco paper-deep */}
           <Reveal className="lg:col-span-5">
             <div className="group v4-hard-shadow rounded-[2rem] bg-[#e9e0d0] p-10">
+              {/* multiply: o fundo branco do PNG some sobre o paper */}
               <img
                 src={section?.images.manualImage || '/assets/Manual de Compra -OF.png'}
                 alt="Manual de Compra Solar Buy-Side"
-                className="h-auto w-full rotate-[-2deg] transition-transform duration-700 ease-out group-hover:rotate-0"
+                className="h-auto w-full rotate-[-2deg] mix-blend-multiply transition-transform duration-700 ease-out group-hover:rotate-0"
                 loading="lazy"
               />
             </div>

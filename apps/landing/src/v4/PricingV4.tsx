@@ -120,18 +120,20 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
             </p>
           </Reveal>
 
-          <Reveal delay={150} className="mx-auto mt-12 max-w-2xl">
+          <Reveal delay={150} className="mx-auto mt-12 max-w-4xl">
             <div className="rounded-[2rem] bg-gradient-to-br from-orange-500/40 via-white/10 to-transparent p-px">
               <div className="rounded-[calc(2rem-1px)] bg-[#0d0a08] p-8 md:p-10">
-                <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:text-left">
-                  <div>
+                <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:text-left">
+                  <div className="text-center lg:text-left">
                     <p className="text-sm font-bold text-slate-500 line-through">
                       {section?.texts.priceFrom || 'De R$ 997,00 por apenas:'}
                     </p>
-                    <p className="mt-2 flex items-baseline justify-center gap-2 md:justify-start">
-                      <span className="text-lg font-bold text-slate-300">{section?.texts.priceInstallments || '12x de'}</span>
-                      <span className="font-['Sora'] text-5xl font-extrabold tracking-tight text-white md:text-6xl">
-                        <span className="mr-1 text-2xl align-middle md:text-3xl">R$</span>
+                    <p className="mt-2 flex flex-wrap items-baseline justify-center gap-x-2 lg:justify-start">
+                      <span className="whitespace-nowrap text-lg font-bold text-slate-300">
+                        {section?.texts.priceInstallments || '12x de'}
+                      </span>
+                      <span className="whitespace-nowrap font-['Sora'] text-5xl font-extrabold tracking-tight text-white md:text-6xl">
+                        <span className="mr-1 align-middle text-2xl md:text-3xl">R$</span>
                         {installments}
                       </span>
                     </p>
@@ -145,7 +147,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     target={globalSettings.purchaseLink ? '_blank' : undefined}
                     rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
                     onClick={trackBuyClick}
-                    className="group inline-flex shrink-0 items-center justify-center gap-3 rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-5 text-base font-extrabold text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8)] active:scale-[0.98] md:text-lg"
+                    className="group inline-flex w-full max-w-md items-center justify-center gap-3 rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-5 text-center text-base font-extrabold leading-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8)] active:scale-[0.98] lg:w-auto lg:shrink-0 md:text-lg"
                   >
                     {section?.texts.finalCtaButton || 'Começar agora com garantia de 7 dias'}
                     <ArrowRight size={20} className="shrink-0 transition-transform group-hover:translate-x-1" />

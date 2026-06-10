@@ -455,12 +455,16 @@
 }
 
 /* ── Células fotovoltaicas: grade sutil + brilho do sol passando ─────────
-   Motivo recorrente de energia solar no fundo de seções escuras. Bem leve. */
+   Motivo recorrente de energia solar no fundo de seções escuras. Bem leve.
+   background-attachment fixed ancora a grade no viewport: a fase é a mesma
+   em todas as seções, então hero→panorama lê como uma grade contínua,
+   sem linha de costura. (iOS degrada para scroll; aceitável.) */
 .v4-cells {
   background-image:
-    linear-gradient(rgba(249, 115, 22, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(249, 115, 22, 0.07) 1px, transparent 1px);
+    linear-gradient(rgba(226, 232, 240, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.07) 1px, transparent 1px);
   background-size: 40px 40px;
+  background-attachment: fixed;
 }
 .v4-cells::after {
   content: '';

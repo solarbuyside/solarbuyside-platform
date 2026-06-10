@@ -520,52 +520,55 @@ export const ContactV4: React.FC = () => {
         </div>
 
         <Reveal delay={120}>
-          <div className="mt-12 grid overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.015] md:grid-cols-2 md:divide-x md:divide-white/[0.08]">
-            <div className="p-8 md:p-12">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-400">
-                  <Building2 size={18} />
-                </span>
-                <h3 className="font-['Sora'] text-2xl font-bold tracking-tight text-white">
-                  {section?.texts.companyName || (
-                    <>
-                      <span className="text-orange-500">Buy-Side</span> Soluções
-                    </>
-                  )}
-                </h3>
-              </div>
-              <p className="mt-3 text-sm text-slate-400">
+          {/* 3 colunas com a mesma anatomia: label mono no topo, conteúdo
+              alinhado pela mesma linha de base — nada órfão, nada flutuando */}
+          <div className="mt-12 grid overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.015] divide-y divide-white/[0.08] md:grid-cols-3 md:divide-x md:divide-y-0">
+            <div className="p-8 md:p-10">
+              <p className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
+                <Building2 size={14} aria-hidden />
+                {section?.texts.companyLabel || 'Empresa'}
+              </p>
+              <h3 className="mt-4 font-['Sora'] text-xl font-bold tracking-tight text-white">
+                {section?.texts.companyName || (
+                  <>
+                    <span className="text-orange-500">Buy-Side</span> Soluções
+                  </>
+                )}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
                 {section?.texts.cnpjLabel || 'CNPJ:'}{' '}
                 <span className="font-semibold text-slate-200">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
               </p>
+            </div>
 
-              <div className="mt-7 flex items-start gap-3">
-                <MapPin className="mt-1 h-5 w-5 shrink-0 text-orange-500" />
-                <div className="text-slate-400">
-                  <p className="font-semibold text-slate-200">
-                    {section?.texts.addressLine1 || 'Torre Norte - Av. Bento Munhoz da Rocha Neto, 632'}
-                  </p>
-                  <p>{section?.texts.addressLine2 || '19º Andar, Salas 1905 a 1908 - Zona 7,'}</p>
-                  <p>{section?.texts.addressLine3 || 'Maringá - PR, 87030-010'}</p>
-                </div>
+            <div className="p-8 md:p-10">
+              <p className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
+                <MapPin size={14} aria-hidden />
+                {section?.texts.addressLabel || 'Endereço'}
+              </p>
+              <div className="mt-4 text-sm leading-relaxed text-slate-400">
+                <p className="font-semibold text-slate-200">
+                  {section?.texts.addressLine1 || 'Torre Norte - Av. Bento Munhoz da Rocha Neto, 632'}
+                </p>
+                <p className="mt-1">{section?.texts.addressLine2 || '19º Andar, Salas 1905 a 1908 - Zona 7,'}</p>
+                <p>{section?.texts.addressLine3 || 'Maringá - PR, 87030-010'}</p>
               </div>
             </div>
 
-            <div className="flex flex-col justify-center border-t border-white/[0.08] p-8 md:border-t-0 md:p-12">
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-400">
-                  <Mail size={18} />
-                </span>
-                <div>
-                  <p className="mb-0.5 text-sm text-slate-500">{section?.texts.emailLabel || 'E-mail:'}</p>
-                  <a
-                    href={`mailto:${email}`}
-                    className="text-lg font-semibold text-orange-400 underline decoration-orange-500/40 underline-offset-4 transition-colors hover:text-orange-300"
-                  >
-                    {email}
-                  </a>
-                </div>
-              </div>
+            <div className="p-8 md:p-10">
+              <p className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
+                <Mail size={14} aria-hidden />
+                {section?.texts.emailLabel?.replace(':', '') || 'E-mail'}
+              </p>
+              <a
+                href={`mailto:${email}`}
+                className="mt-4 inline-block break-all text-base font-semibold text-orange-400 underline decoration-orange-500/40 underline-offset-4 transition-colors hover:text-orange-300"
+              >
+                {email}
+              </a>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                {section?.texts.emailNote || 'Respondemos em horário comercial.'}
+              </p>
             </div>
           </div>
         </Reveal>
