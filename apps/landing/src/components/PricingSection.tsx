@@ -90,8 +90,8 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ id }) => {
               section?.texts.title?.trim()
                 ? section.texts.title
                 : isFirstSection
-                  ? (section?.texts.titleFirst?.trim() || 'NÃO PERCA TEMPO NEM <br/><span class="cms-gradient-blue">POSIÇÃO NO MERCADO.</span>')
-                  : (section?.texts.titleSecond?.trim() || 'ATENÇÃO: O TEMPO ESTÁ <span class="cms-gradient-blue">CORRENDO</span><br/>E QUEM AGIR PRIMEIRO, <span class="cms-gradient-blue">VENDE MAIS.</span>')
+                  ? (section?.texts.titleFirst?.trim() || 'O comprador já está estudando.<br/><span class="cms-gradient-blue">Chegue preparado primeiro.</span>')
+                  : (section?.texts.titleSecond?.trim() || 'Você viu o método inteiro.<br/><span class="cms-gradient-blue">Agora é decisão.</span>')
             } />
           </h2>
 
@@ -99,8 +99,8 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ id }) => {
             {section?.texts.subtitle?.trim()
               ? section.texts.subtitle
               : isFirstSection
-                ? (section?.texts.subtitleFirst || 'O mercado solar não perdoa quem fica para trás. Garanta o método que os grandes players usam para dominar o Buy-Side.')
-                : (section?.texts.subtitleSecond || 'Em um mercado competitivo, sua vantagem é o conhecimento.')}
+                ? (section?.texts.subtitleFirst || 'Manual + Código do Vendedor + Plataforma de Avaliação: o mesmo material que orienta compradores, agora do seu lado da mesa.')
+                : (section?.texts.subtitleSecond || 'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.')}
           </p>
         </div>
 
