@@ -27,10 +27,10 @@ export const HeroV4: React.FC = () => {
   const bonusBadge = section?.texts.bonusBadge || 'Bônus Exclusivo'
   const bonusTitle = section?.texts.bonusTitle || 'O Código do Vendedor Consultivo'
   const bonusSubtitle = section?.texts.bonusSubtitle || 'Para quem quer conduzir decisões, não concessões.'
-  const ctaButton = section?.texts.ctaButton || 'Quero o Manual Buy-Side'
+  const ctaButton = section?.texts.ctaButton || 'Quero meu acesso agora'
   const ctaSecondary = section?.texts.ctaSecondary || 'Ver como funciona'
   const ctaSubtext = section?.texts.ctaSubtext || 'Acesso imediato ao Manual Solar Buy-Side.'
-  const scrollHint = section?.texts.scrollHint || 'Entenda a lógica'
+  const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
   const isDefaultSubtitle = !subtitle || subtitle.startsWith('O método Buy-Side')
   const isDefaultManualTitle = !manualTitle || manualTitle === 'Manual Solar Buy-Side'

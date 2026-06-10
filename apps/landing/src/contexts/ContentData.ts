@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 20
+export const CONTENT_VERSION = 21
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -47,13 +47,13 @@ export const initialContent: SectionContent[] = [
             "title1": "Transforme-se no",
             "title2": "Vendedor Ideal.",
             "subtitle": "O método Buy-Side ensina você a pensar como o cliente e conduzir decisões de compra, não disputas de preço.",
-            "ctaButton": "Quero o Manual Buy-Side",
+            "ctaButton": "Quero meu acesso agora",
             "subtitle1": "Aprenda como o seu cliente pensa e fuja da guerra de preços com o",
             "subtitle2": "Manual Solar Buy-Side.",
             "bonusBadge": "Bônus Exclusivo",
             "bonusTitle": "O Código do Vendedor Consultivo",
             "ctaSubtext": "Acesso imediato ao Manual Solar Buy-Side.",
-            "scrollHint": "Entenda a lógica",
+            "scrollHint": "Veja o panorama 2026",
             "manualTitle": "Manual Solar Buy-Side",
             "titlePrefix": "Saia da Disputa de Preço e Passe a",
             "titleSuffix": "em Sistema Solar",
