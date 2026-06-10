@@ -11,13 +11,13 @@
 Monorepo com dois apps no mesmo repositório GitHub (`solarbuyside/solarbuyside-platform`):
 
 ```
-/ (raiz)     PLATAFORMA — Next.js 16 + Supabase. Deploy Vercel (projeto solarbuyside-platform).
-             Domínio: plataforma.solarbuyside.com.br (+ solarbuyside-platform.vercel.app)
-landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel (projeto solarbuyside-landing).
-             Domínio: solarbuyside.com.br (apex) + www. Importada via git subtree de gabrielfeelix/solar-buy-side-v2.
+apps/platform/  PLATAFORMA — Next.js 16 + Supabase. Deploy Vercel (projeto solarbuyside-platform).
+                Domínio: plataforma.solarbuyside.com.br (+ solarbuyside-platform.vercel.app)
+apps/landing/   LANDING PAGE — Vite + React + funções serverless. Deploy Vercel (projeto solarbuyside-landing).
+                Domínio: solarbuyside.com.br (apex) + www. Importada via git subtree de gabrielfeelix/solar-buy-side-v2.
 ```
 
-- A plataforma fica na raiz (não em `apps/platform`) para não quebrar o Root Directory do Vercel. Ver `MONOREPO.md`.
+- **2026-06-09:** plataforma e landing promovidas para `apps/*`. O `rootDirectory` dos 2 projetos Vercel foi ajustado via API (platform→`apps/platform`, landing→`apps/landing`). Ver `MONOREPO.md` e `ajustes/PLANO-MONOREPO-APPS.md`.
 - Supabase: projeto `phuomgqgucrcljwddrmq`.
 
 ## Acessos (no `.env` local, NUNCA commitar)
@@ -89,7 +89,7 @@ landing/     LANDING PAGE — Vite + React + funções serverless. Deploy Vercel
    - ⚠️ O admin ANTIGO embutido na landing (login + aba Leads em `landing/src/components/admin`, que batiam em `/api/auth/*` e `/api/admin/leads/*` no Render) vai parar. Substituto: `/admin/landing` (conteúdo) na plataforma; leads ficam no Supabase. TODO opcional: aba "Leads" no /admin da plataforma lendo `newsletter_subscribers`/`ebook_leads`.
 2. ~~Confirmar o payload real da Greenn~~ **RESOLVIDO**: mapeamento confirmado pela doc oficial (`client.email`/`client.name`/`sale.status`/`sale.id`) e webhook provado ao vivo (provisão + e-mail + bloqueio). Greenn não tem sandbox; quando quiser validar uma compra de verdade, use cupom que deixe R$10 + Pix e depois reembolse.
 3. ~~Item 12 (email confirmação Supabase Auth)~~ **FEITO**: Custom SMTP (Brevo) ligado, templates PT, e o fluxo de reset/1º-acesso passa pelo `/auth/confirm`. (Validar na prática enviando um "esqueci minha senha" real.)
-4. **(Opcional) Promover para `apps/*`**: hoje platform na raiz + landing/. Com o token Vercel dá pra mover coordenando o Root Directory.
+4. ~~**(Opcional) Promover para `apps/*`**~~ **FEITO (2026-06-09)**: platform→`apps/platform`, landing→`apps/landing`; `rootDirectory` dos 2 projetos ajustado via API; preview + produção validados (READY + HTTP 200). Ver `ajustes/PLANO-MONOREPO-APPS.md`.
 
 ---
 
