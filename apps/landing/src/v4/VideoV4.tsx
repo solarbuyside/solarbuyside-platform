@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Map as MapIcon, Play, Search, ShieldAlert } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Reveal } from './atoms'
+import { Cta, CtaArrow, GrainOverlay, Reveal, SolarCells } from './atoms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -71,6 +71,7 @@ export const VideoV4: React.FC = () => {
         aria-hidden
       />
       <GrainOverlay />
+      <SolarCells fade="top" />
 
       <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
         {/* Título + número fantasma do ato */}
