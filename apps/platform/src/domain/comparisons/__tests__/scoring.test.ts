@@ -46,6 +46,28 @@ describe("comparison scoring", () => {
     expect(result.selectedFinalistIds).toEqual(sampleComparison.selectedFinalistIds);
   });
 
+  it("no modo manual o índice é a média simples das notas (sem peso)", () => {
+    const renova = "22222222-2222-4222-8222-222222222222";
+    // Só dois critérios de empresa têm nota; no manual o resto fica de fora.
+    const result = calculateComparisonResult({
+      ...sampleComparison,
+      scoringMode: "manual",
+      scoreSettings: [
+        { criterionKey: "company.crea_registration", enabled: true, weight: 1 },
+        { criterionKey: "company.maintenance_support", enabled: true, weight: 1 },
+      ],
+      scoreEntries: [
+        { competitorId: renova, criterionKey: "company.crea_registration", score: 4 },
+        { competitorId: renova, criterionKey: "company.maintenance_support", score: 8 },
+      ],
+    }).competitors.find((c) => c.competitorId === renova)!;
+
+    // Média simples de 4 e 8 = 6, independentemente dos pesos das definições.
+    expect(result.companyScore.grade10).toBe(6);
+    expect(result.companyScore.index100).toBe(60);
+    expect(result.companyScore.enabledCriteria).toBe(2);
+  });
+
   it("conta um critério ad-hoc só quando o comprador o liga", () => {
     const renova = "22222222-2222-4222-8222-222222222222";
     const base = calculateComparisonResult(sampleComparison).competitors.find(

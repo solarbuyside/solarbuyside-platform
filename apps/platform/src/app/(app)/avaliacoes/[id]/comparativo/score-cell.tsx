@@ -16,16 +16,18 @@ function fmt(n: number | null): string {
 }
 
 /**
- * Célula da tabela de pontuação. O que aparece e o que SOMA na coluna é o valor
- * PONDERADO de cada critério: (nota / 10) × peso. Assim o total da coluna bate
- * com o Índice de Confiabilidade, sem o usuário ver uma soma de notas brutas
- * diferente do índice. A edição continua sendo da nota de 0 a 10 (inteiro): ao
- * clicar, abre o seletor 0-10; a célula recalcula o ponderado. Quando a nota é
- * a sugestão automática (não editada à mão), mostra o selo "auto".
+ * Célula da tabela de pontuação. A exibição depende do MODO:
+ * - AUTOMÁTICO (`weighted`): mostra o valor PONDERADO de cada critério
+ *   ((nota/10)×peso), para o total da coluna bater com o Índice de
+ *   Confiabilidade. A nota automática (não editada à mão) ganha o selo "auto".
+ * - MANUAL (`weighted=false`): mostra a NOTA CRUA que o comprador escolheu
+ *   (clicou 4 → aparece 4), sem peso, porque no manual o índice é a média
+ *   simples das notas. Em ambos os casos a edição é da nota de 0 a 10 (inteiro).
  */
 export function ScoreCell({
   value,
   weight,
+  weighted = true,
   auto,
   disabled,
   readOnly,
@@ -35,6 +37,8 @@ export function ScoreCell({
   value: number | null;
   /** Peso (%) do critério, usado para calcular o valor ponderado exibido. */
   weight: number;
+  /** True (automático) exibe o ponderado; false (manual) exibe a nota crua. */
+  weighted?: boolean;
   /** True quando o valor exibido vem do cálculo automático (não manual). */
   auto: boolean;
   /** Linha desligada (Avaliar? = não). */
@@ -64,7 +68,8 @@ export function ScoreCell({
     return <span className="text-xs text-slate-300">—</span>;
   }
 
-  const weighted = weightedOf(value, weight);
+  // No automático mostramos o ponderado; no manual, a nota crua escolhida.
+  const display = weighted ? weightedOf(value, weight) : value;
 
   return (
     <div ref={ref} className="relative inline-flex items-center gap-1">
@@ -86,10 +91,12 @@ export function ScoreCell({
             ? `Nota ${value}/10 (modo automático — não editável)`
             : value == null
               ? "Clique para definir a nota (0 a 10)"
-              : `Nota ${value}/10 com peso ${weight}% = ${fmt(weighted)} ponderado`
+              : weighted
+                ? `Nota ${value}/10 com peso ${weight}% = ${fmt(display)} ponderado`
+                : `Nota ${value}/10`
         }
       >
-        {fmt(weighted)}
+        {fmt(display)}
         {auto && value != null && <Sparkles className="h-3 w-3 text-primary/60" />}
       </button>
 
@@ -126,7 +133,9 @@ export function ScoreCell({
             </button>
           </div>
           <p className="mb-2 text-[10px] text-slate-400">
-            Peso {weight}%. A nota vira {value == null ? "o valor" : fmt(weighted)} ponderado na tabela.
+            {weighted
+              ? `Peso ${weight}%. A nota vira ${value == null ? "o valor" : fmt(display)} ponderado na tabela.`
+              : "A nota escolhida aparece direto na tabela e entra na média."}
           </p>
           <div className="grid grid-cols-6 gap-1.5">
             {Array.from({ length: 11 }).map((_, n) => (
@@ -155,7 +164,7 @@ export function ScoreCell({
               }}
               className="mt-2 w-full rounded-md py-1 text-[11px] font-semibold text-slate-400 hover:text-slate-600"
             >
-              Limpar (voltar à nota automática)
+              {weighted ? "Limpar (voltar à nota automática)" : "Limpar nota"}
             </button>
           )}
         </div>

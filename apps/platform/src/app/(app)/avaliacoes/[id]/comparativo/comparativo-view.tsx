@@ -385,6 +385,7 @@ function ScoreTable({
                               <ScoreCell
                                 value={effective}
                                 weight={weightOf(row.scoreKey)}
+                                weighted={autoMode}
                                 auto={isAutoValue}
                                 disabled={!enabled}
                                 readOnly={autoMode}
@@ -422,7 +423,7 @@ function ScoreTable({
                   <span className="text-base font-extrabold text-slate-900">{g?.index100 ?? 0}</span>
                   <span className="text-xs text-slate-400">/100</span>
                   <span className="mt-0.5 block text-[10px] font-normal text-slate-500">
-                    nota ponderada {g?.grade10 ?? 0}/10
+                    {autoMode ? "nota ponderada" : "média das notas"} {g?.grade10 ?? 0}/10
                   </span>
                 </td>
               );
@@ -638,6 +639,7 @@ function OverviewTable({
   const { competitors } = comparison;
   const byId = (id: string) => result.competitors.find((x) => x.competitorId === id);
   const selectedCount = comparison.selectedFinalistIds.length;
+  const gradeLabel = comparison.scoringMode === "manual" ? "Média das notas" : "Nota ponderada";
 
   return (
     <div className="space-y-6">
@@ -670,13 +672,13 @@ function OverviewTable({
               <OverviewRow label="Empresas — Índice" competitors={competitors}>
                 {(id) => `${byId(id)?.companyScore.index100 ?? 0}/100`}
               </OverviewRow>
-              <OverviewRow label="Nota ponderada" competitors={competitors} muted>
+              <OverviewRow label={gradeLabel} competitors={competitors} muted>
                 {(id) => `${byId(id)?.companyScore.grade10 ?? 0}/10`}
               </OverviewRow>
               <OverviewRow label="Tecnologias — Índice" competitors={competitors}>
                 {(id) => `${byId(id)?.technicalScore.index100 ?? 0}/100`}
               </OverviewRow>
-              <OverviewRow label="Nota ponderada" competitors={competitors} muted>
+              <OverviewRow label={gradeLabel} competitors={competitors} muted>
                 {(id) => `${byId(id)?.technicalScore.grade10 ?? 0}/10`}
               </OverviewRow>
               <OverviewRow label="Índice de Confiabilidade Solar Buy-Side" competitors={competitors} highlight>

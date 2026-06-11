@@ -68,12 +68,16 @@ export function summarizeCategoryScore(
 ): ScoreSummary {
   const definitions = enabledDefinitions(category, comparison.scoreSettings);
 
-  // Cada critério é ponderado pelo seu peso (%): nota ponderada = (nota/10)×peso.
-  // O peso vem da definição (slide 11); um override em scoreSettings tem
-  // precedência (permite ajuste fino futuro). Critérios SEM nota (null — ex.:
-  // "sem reputação definida", ou dado não preenchido) ficam de fora do
-  // numerador E do denominador: aparecem como "—" e não penalizam nem inflam o
-  // índice, que renormaliza sobre os critérios efetivamente pontuados (slide 7).
+  // Ponderação por MODO (decisão do dono do produto):
+  // - AUTOMÁTICO: cada critério entra ponderado pelo seu peso (%): nota
+  //   ponderada = (nota/10)×peso. O peso vem da definição (slide 11). Critérios
+  //   SEM nota (null) ficam de fora do numerador E do denominador, e o índice
+  //   renormaliza sobre os critérios efetivamente pontuados (slide 7).
+  // - MANUAL: o comprador atribui as notas e o índice é a MÉDIA SIMPLES delas
+  //   (peso 1 para todos). Assim o número final é reproduzível de cabeça — a
+  //   nota crua aparece direto na célula e o índice é a média do que ele deu,
+  //   sem matemática de peso escondida que confundiria quem pontuou à mão.
+  const weighted = comparison.scoringMode !== "manual";
   let points = 0;
   let maxPoints = 0;
   let scoredCriteria = 0;
@@ -83,7 +87,7 @@ export function summarizeCategoryScore(
     // O peso (%) é o da DEFINIÇÃO (fonte de verdade, slide 11) — não o do
     // scoreSetting, que sempre traz 1 por padrão e anularia a ponderação. O
     // scoreSetting controla apenas o liga/desliga ("Avaliar?") do critério.
-    const weight = definition.weight ?? 1;
+    const weight = weighted ? definition.weight ?? 1 : 1;
     points += normalizeScore(entry.score) * weight;
     maxPoints += definition.maxScore * weight;
     scoredCriteria += 1;
@@ -94,7 +98,7 @@ export function summarizeCategoryScore(
   for (const setting of adHoc) {
     const entry = scoreFor(comparison.scoreEntries, competitorId, setting.criterionKey);
     if (entry?.score == null) continue;
-    const weight = setting.weight ?? 1;
+    const weight = weighted ? setting.weight ?? 1 : 1;
     points += normalizeScore(entry.score) * weight;
     maxPoints += 10 * weight;
     scoredCriteria += 1;
