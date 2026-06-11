@@ -17,7 +17,7 @@
 | `BREVO_API_KEY` | `xkeysib-...` (do painel Brevo → Settings → SMTP & API → Chaves API) |
 | `BREVO_SENDER_NAME` | `Solar Buy-Side` |
 | `BREVO_SENDER_EMAIL` | email verificado no Brevo (ex: `contato@solarbuyside.com.br`) |
-| `BREVO_PDF_URL` | `https://solarbuyside.com.br/assets/Teaser%20C%C3%B3digo%20do%20Vendedor%20Consultivo.pdf` |
+| `BREVO_PDF_URL` | `https://solarbuyside.com.br/assets/Teaser_Codigo_Vendedor_Consultivo.pdf` |
 
 4. Save → Render redeploys automático.
 

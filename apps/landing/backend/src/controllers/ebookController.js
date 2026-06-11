@@ -3,7 +3,7 @@ const { addContact, sendTransactionalEmail, LIST_IDS, TEMPLATE_IDS } = require('
 
 const PDF_URL =
   process.env.BREVO_PDF_URL ||
-  'https://solarbuyside.com.br/assets/V2_Teaser_Codigo_Vendedor_Consultivo.pdf';
+  'https://solarbuyside.com.br/assets/Teaser_Codigo_Vendedor_Consultivo.pdf';
 
 // Save ebook lead
 exports.saveLead = async (req, res) => {

@@ -3,9 +3,12 @@
 // e envia o e-mail com o link do teaser (PDF).
 const BREVO = "https://api.brevo.com/v3";
 const EBOOK_LIST_ID = 4;
+// Teaser oficial (2026-06): "Teaser do Código do Vendedor Consultivo". Os
+// arquivos antigos (V2_/v1) foram sobrescritos com o mesmo conteúdo para que
+// links já enviados por e-mail continuem servindo o documento oficial.
 const PDF_URL =
   process.env.BREVO_PDF_URL ||
-  "https://solarbuyside.com.br/assets/V2_Teaser_Codigo_Vendedor_Consultivo.pdf";
+  "https://solarbuyside.com.br/assets/Teaser_Codigo_Vendedor_Consultivo.pdf";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
