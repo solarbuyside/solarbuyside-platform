@@ -386,7 +386,7 @@ function ScoreTable({
                                 value={effective}
                                 weight={weightOf(row.scoreKey)}
                                 auto={isAutoValue}
-                                disabled={!enabled}
+                                disabled={!enabled || autoMode}
                                 onChange={(next) => onScore(c.id, row.scoreKey!, category, next)}
                               />
                             ) : (
