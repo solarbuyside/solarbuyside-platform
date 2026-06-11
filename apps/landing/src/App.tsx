@@ -1,33 +1,15 @@
 import './App.css'
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import {
-  SolarHeader,
-  FloatingCTA,
-  HeroSectionPotato,
-  ContextSection,
-  VideoSection,
-  AudienceSection,
-  ManualStrategicSection,
-  TestimonialsSection,
-  StoryBridgeSection,
-  SellerCodeSection,
-  PricingSection,
-  BuyerWaveSection,
-  AuthoritySection,
-  LeadMagnetSection,
-  NewsletterSection,
-  FAQSection,
-  ContactSection,
-  Footer,
-  LegalPage,
-} from './components'
+import { Footer } from './components/Footer'
+import { LegalPage } from './components/LegalPage'
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
-import { trackPageView, observeSection } from './utils/analytics'
+import AppV4 from './v4/AppV4'
 
-// Redesign V4 em preview — carregado sob demanda apenas em /v4, sem afetar a LP atual.
-const AppV4 = lazy(() => import('./v4/AppV4'))
+// A LP anterior ("v1", oficial até 2026-06-11) fica preservada em /v1 — lazy
+// para o bundle da página oficial (V4) não carregar as seções antigas.
+const AppV1 = lazy(() => import('./AppV1'))
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
@@ -43,17 +25,18 @@ function App() {
     return null
   }
 
+  // /v4 era o preview do redesign; desde 2026-06-11 ele É a raiz. O redirect
+  // mantém vivos os links compartilhados durante a revisão.
   if (pathname === '/v4') {
-    return (
-      <Suspense fallback={<div className="min-h-screen bg-[#030712]" />}>
-        <AppV4 />
-      </Suspense>
-    )
+    if (typeof window !== 'undefined') {
+      window.location.replace('/')
+    }
+    return null
   }
 
   const legalPages = {
     '/politica-de-privacidade': {
-      title: 'Pol\u00EDtica de Privacidade',
+      title: 'Política de Privacidade',
       slug: 'privacidade',
       sections: privacySections,
     },
@@ -70,80 +53,6 @@ function App() {
   } as const
   const legalPage = legalPages[pathname as keyof typeof legalPages]
 
-  useEffect(() => {
-    if (legalPage) {
-      return
-    }
-
-    // Track page view
-    trackPageView()
-
-    const targets = document.querySelectorAll('section > *:not(.no-reveal)')
-    targets.forEach((target) => target.classList.add('reveal'))
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.15 }
-    )
-
-    targets.forEach((target) => observer.observe(target))
-
-    // Track section views
-    const cleanupFunctions: (() => void)[] = []
-    const sections = [
-      'hero',
-      'contexto',
-      'video-section',
-      'audiencia',
-      'manual-strategic',
-      'depoimentos',
-      'story-bridge',
-      'seller-code',
-      'oferta',
-      'buyer-wave',
-      'authority',
-      'oferta-final',
-      'lead-magnet',
-      'faq',
-      'newsletter',
-      'contact',
-    ]
-
-    sections.forEach((sectionId) => {
-      const element = document.getElementById(sectionId)
-      if (element) {
-        cleanupFunctions.push(observeSection(element, sectionId))
-      }
-    })
-
-    // Listener para mensagens do iframe do admin
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === 'scrollToSection' && event.data.hash) {
-        const element = document.getElementById(event.data.hash)
-        if (element) {
-          setTimeout(() => {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }, 100)
-        }
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('message', handleMessage)
-      cleanupFunctions.forEach((cleanup) => cleanup())
-    }
-  }, [legalPage])
-
   if (legalPage) {
     return (
       <div className="font-sans">
@@ -153,30 +62,26 @@ function App() {
     )
   }
 
+  // LP anterior, preservada para consulta/comparação.
+  if (pathname === '/v1') {
+    return (
+      <>
+        <Suspense fallback={<div className="min-h-screen bg-[#020617]" />}>
+          <AppV1 />
+        </Suspense>
+        <Analytics />
+        <SpeedInsights />
+      </>
+    )
+  }
+
+  // V4 "Solar Dawn" — LP oficial na raiz desde 2026-06-11.
   return (
-    <div className="bg-[#020617] text-slate-400 font-sans overflow-x-hidden selection:bg-[#F97316] selection:text-white">
-      <SolarHeader />
-      <FloatingCTA />
-      <div id="hero"><HeroSectionPotato /></div>
-      <div id="contexto"><ContextSection /></div>
-      <div id="video-section"><VideoSection /></div>
-      <div id="audiencia"><AudienceSection /></div>
-      <div id="manual-strategic"><ManualStrategicSection /></div>
-      <div id="depoimentos"><TestimonialsSection /></div>
-      <div id="story-bridge"><StoryBridgeSection /></div>
-      <div id="seller-code"><SellerCodeSection /></div>
-      <PricingSection id="oferta" />
-      <div id="buyer-wave"><BuyerWaveSection /></div>
-      <div id="authority"><AuthoritySection /></div>
-      <PricingSection id="oferta-final" />
-      <div id="lead-magnet"><LeadMagnetSection /></div>
-      <div id="faq"><FAQSection /></div>
-      <div id="newsletter"><NewsletterSection /></div>
-      <ContactSection />
-      <Footer />
+    <>
+      <AppV4 />
       <Analytics />
       <SpeedInsights />
-    </div>
+    </>
   )
 }
 

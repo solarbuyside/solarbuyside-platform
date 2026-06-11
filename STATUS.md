@@ -52,8 +52,12 @@ está **implementado, testado (43/43), buildado e no ar** (commit `00dc5bf`).
    (slide 6) veio não-monotônico (30 dias=0, 45=10 — invertido); garantias com faixas
    parciais; sobrecarga sem 10 definido. Implementei o sensato — confirmar com o Francis.
 
-**Landing (commit `62c0274`):** outro agente criou um **redesign V4 em preview** na rota
-`/v4` (`apps/landing/src/v4/`, lazy via `React.lazy`). NÃO afeta a LP de produção (`/`).
+**Landing:** o redesign **V4 "Solar Dawn" é a LP OFICIAL na raiz** desde 2026-06-11
+(`apps/landing/src/v4/`, eager). A LP anterior ficou preservada em **`/v1`**
+(`src/AppV1.tsx`, lazy) e `/v4` redireciona para `/`. O teaser do formulário de lead é o
+oficial "Teaser do Código do Vendedor Consultivo"
+(`assets/Teaser_Codigo_Vendedor_Consultivo.pdf`; os PDFs antigos foram sobrescritos com o
+mesmo conteúdo para links já enviados continuarem válidos).
 
 ---
 
@@ -141,8 +145,8 @@ apps/landing/   LANDING PAGE — Vite + React + funções serverless. Deploy Ver
 0b. **(2026-06-09) Confirmar rubricas sinalizadas** com o Francis (prazo de instalação
    invertido no slide 6; faixas parciais de garantia; sobrecarga). Ver `SINALIZADO` em
    `auto-scoring.ts`.
-0c. **(opcional) Promover o redesign V4 da landing** (`apps/landing/src/v4/`, hoje só em
-   `/v4`) para a LP de produção, se aprovado.
+0c. ~~**(opcional) Promover o redesign V4 da landing**~~ **FEITO (2026-06-11)**: V4 é a
+   LP oficial na raiz; a anterior vive em `/v1`; `/v4` → redirect `/`.
 
 1. **Desligar o Render** (só o usuário, no painel Render, ou via Render API token). A LP não depende mais dele.
    - ⚠️ O admin ANTIGO embutido na landing (login + aba Leads em `landing/src/components/admin`, que batiam em `/api/auth/*` e `/api/admin/leads/*` no Render) vai parar. Substituto: `/admin/landing` (conteúdo) na plataforma; leads ficam no Supabase. TODO opcional: aba "Leads" no /admin da plataforma lendo `newsletter_subscribers`/`ebook_leads`.

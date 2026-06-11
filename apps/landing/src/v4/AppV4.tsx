@@ -16,8 +16,9 @@ import { BuyerWaveV4 } from './BuyerWaveV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4, LeadMagnetV4 } from './ClosingV4'
 
-/* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP atual,
-   experiência redesenhada em 4 atos. Preview em /v4; produção intocada. */
+/* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP anterior,
+   experiência redesenhada em 4 atos. OFICIAL na raiz desde 2026-06-11;
+   a LP anterior segue preservada em /v1 (e /v4 redireciona para /). */
 
 const SECTION_IDS = [
   'hero',
@@ -70,7 +71,22 @@ export default function AppV4() {
       }
     })
 
+    // Preview do admin (plataforma) abre a LP num iframe e manda
+    // scrollToSection para navegar até a seção selecionada no editor.
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'scrollToSection' && event.data.hash) {
+        const element = document.getElementById(event.data.hash)
+        if (element) {
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 100)
+        }
+      }
+    }
+    window.addEventListener('message', handleMessage)
+
     return () => {
+      window.removeEventListener('message', handleMessage)
       cleanupFunctions.forEach((cleanup) => cleanup())
     }
   }, [])
