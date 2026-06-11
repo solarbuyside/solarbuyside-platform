@@ -28,6 +28,7 @@ export function ScoreCell({
   weight,
   auto,
   disabled,
+  readOnly,
   onChange,
 }: {
   /** Nota efetiva (0 a 10): override manual, ou a sugestão automática. */
@@ -38,6 +39,8 @@ export function ScoreCell({
   auto: boolean;
   /** Linha desligada (Avaliar? = não). */
   disabled?: boolean;
+  /** Mostra o valor mas não permite edição (modo automático). */
+  readOnly?: boolean;
   onChange: (next: number | null) => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -66,41 +69,48 @@ export function ScoreCell({
   return (
     <div ref={ref} className="relative inline-flex items-center gap-1">
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => !readOnly && setOpen((o) => !o)}
+        disabled={readOnly}
         className={cn(
           "inline-flex h-8 min-w-[3rem] items-center justify-center gap-1 rounded-md border px-2 text-sm font-bold transition-all",
-          open
-            ? "border-primary bg-primary/10 text-primary"
-            : auto
-              ? "border-slate-200 bg-white text-slate-500 hover:border-primary/40"
-              : "border-primary/40 bg-primary/5 text-primary hover:border-primary",
+          readOnly
+            ? "cursor-not-allowed border-slate-200 bg-white text-slate-400"
+            : open
+              ? "border-primary bg-primary/10 text-primary"
+              : auto
+                ? "border-slate-200 bg-white text-slate-500 hover:border-primary/40"
+                : "border-primary/40 bg-primary/5 text-primary hover:border-primary",
         )}
         title={
-          value == null
-            ? "Clique para definir a nota (0 a 10)"
-            : `Nota ${value}/10 com peso ${weight}% = ${fmt(weighted)} ponderado`
+          readOnly
+            ? `Nota ${value}/10 (modo automático — não editável)`
+            : value == null
+              ? "Clique para definir a nota (0 a 10)"
+              : `Nota ${value}/10 com peso ${weight}% = ${fmt(weighted)} ponderado`
         }
       >
         {fmt(weighted)}
         {auto && value != null && <Sparkles className="h-3 w-3 text-primary/60" />}
       </button>
 
-      <div className="flex flex-col">
-        <button
-          onClick={() => step(1)}
-          className="flex h-4 w-4 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-          tabIndex={-1}
-        >
-          <ChevronUp className="h-3 w-3" />
-        </button>
-        <button
-          onClick={() => step(-1)}
-          className="flex h-4 w-4 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-          tabIndex={-1}
-        >
-          <ChevronDown className="h-3 w-3" />
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="flex flex-col">
+          <button
+            onClick={() => step(1)}
+            className="flex h-4 w-4 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            tabIndex={-1}
+          >
+            <ChevronUp className="h-3 w-3" />
+          </button>
+          <button
+            onClick={() => step(-1)}
+            className="flex h-4 w-4 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            tabIndex={-1}
+          >
+            <ChevronDown className="h-3 w-3" />
+          </button>
+        </div>
+      )}
 
       {open && (
         <div className="absolute left-1/2 top-10 z-30 w-56 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3 shadow-xl animate-in fade-in zoom-in-95">
