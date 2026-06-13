@@ -62,6 +62,13 @@ describe("comparison workflow", () => {
     expect(sum(technicalScoreDefinitions)).toBe(100);
   });
 
+  it("RA dos fabricantes: módulo peso 10, inversor peso 5, distribuidora 15 (Francis 2026-06-12)", () => {
+    const weightOf = (key: string) => technicalScoreDefinitions.find((d) => d.key === key)?.weight;
+    expect(weightOf("technical.reputation_module_maker")).toBe(10);
+    expect(weightOf("technical.reputation_inverter_maker")).toBe(5);
+    expect(weightOf("technical.reputation_distributor")).toBe(15);
+  });
+
   it("todos os critérios técnicos pontuados nascem habilitados", () => {
     expect(technicalScoreDefinitions.filter((definition) => !definition.defaultEnabled)).toHaveLength(0);
   });

@@ -651,11 +651,13 @@ const CHOICE_OPTIONS: Record<string, { value: string; label: string }[]> = {
     { value: "gt_1000", label: "Mais de 1.000" },
     { value: "unknown", label: "Não sei" },
   ],
+  // Ordem e rótulos conforme verificação do Francis (2026-06-12): própria (10),
+  // tenho dúvida (7), terceirizada (4).
   "company.ownInstallationTeam": [
     { value: "", label: "—" },
     { value: "own", label: "Equipe própria" },
+    { value: "unknown", label: "Tenho dúvida" },
     { value: "outsourced", label: "Equipe terceirizada" },
-    { value: "unknown", label: "Não sei" },
   ],
   "financial.viabilityConfidence": [
     { value: "", label: "—" },

@@ -19,16 +19,15 @@ import type {
  * campo não preenchido, ou reputação "sem definição"), para a UI mostrar "—" em
  * vez de um 0 enganoso — e o motor renormaliza o índice sobre o que foi pontuado.
  *
- * SINALIZAÇÕES (slides com possível erro/lacuna; implementado de forma sensata e
- * monotônica — confirmar com o Francis):
- * - Empresa "Prazo de instalação": o slide 6 traz uma escala embaralhada (30
- *   dias = 0, 45 = 10). Implementado o sensato: mais rápido = melhor.
- * - Garantias de módulo/inversor: o slide define só alguns anos (10/12/15 etc.);
- *   valores abaixo do menor recebem a nota mínima.
- * - Sobrecarga: o slide não define 10 em nenhuma faixa; a faixa ideal
- *   (1,30–1,40) recebe 10 aqui.
- * - Grupos de marca: TW Solar (módulo) e Canadian/APSystems/Deye (inversor)
- *   aparecem em dois grupos no slide; usamos o grupo de maior pontuação.
+ * ESCALAS DO FRANCIS (verificação 2026-06-12 — agora escalas EXATAS, não mais
+ * "interpretação monotônica sensata"):
+ * - Empresa "Prazo de instalação": mapa dias→nota NÃO monotônico (45 dias = 10,
+ *   o ideal; 30 dias = 0). Implementado exatamente como a tabela do Francis.
+ * - Garantia defeito do inversor: <5=0, 5-7=5, 8-10=6, 11-14=8, 15-20=9.
+ * - Sobrecarga DC/AC: pico em 1,30-1,34=9, simétrica; ≤1,0 e ≥1,60=0.
+ * - Garantia defeito do módulo: 10=4, 12=7, 15=10 (abaixo de 10 = 1, mínimo).
+ * - Grupos de marca: TW Solar (módulo) e APSystems/Deye (inversor) aparecem em
+ *   dois grupos; usamos o de maior pontuação. Listas atualizadas em 2026-06-12.
  */
 
 const currentYear = new Date().getFullYear();
@@ -84,14 +83,16 @@ function scoreCompany(key: string, c: CompanyEvaluation): number | null {
       return map[c.ownInstallationTeam] ?? null;
     }
     case "company.installation_deadline": {
-      // SINALIZADO: slide embaralhado. Implementado monotônico: mais rápido,
-      // melhor (<=45 dias = 10; cada faixa de ~10 dias cai ~3 pontos).
+      // Escala EXATA do Francis (2026-06-12): mapa dias→nota não monotônico —
+      // 45 dias é o ideal (10); tanto mais rápido (30=0) quanto mais lento
+      // pontuam menos. Snap para o múltiplo de 5 mais próximo, clamp [30,80]
+      // (fora da tabela: <30 vira 30=0; >80 vira 80=3).
       if (c.installationDeadlineDays == null) return null;
-      const d = c.installationDeadlineDays;
-      if (d <= 45) return 10;
-      if (d <= 55) return 7;
-      if (d <= 70) return 4;
-      return 1;
+      const DAYS_TO_SCORE: Record<number, number> = {
+        30: 0, 35: 1, 40: 2, 45: 10, 50: 9, 55: 8, 60: 7, 65: 6, 70: 5, 75: 4, 80: 3,
+      };
+      const snapped = Math.min(80, Math.max(30, Math.round(c.installationDeadlineDays / 5) * 5));
+      return DAYS_TO_SCORE[snapped];
     }
     case "company.execution_warranty": {
       // 1 ano=2, 2=4, 3=6, 4=8, 5+=10 (slide 6): 2 pontos por ano.
@@ -135,12 +136,15 @@ const MODULE_BRAND_GROUPS: Array<{ score: number; brands: string[] }> = [
   { score: 6, brands: ["jasolar", "astroenergy", "gcl", "dmegc", "tcl"] },
 ];
 
-/** Grupos de marca de INVERSOR → pontuação (6/7/8/9). Não listada = 6. */
+/** Grupos de marca de INVERSOR → pontuação (6/7/8/9). Não listada = 6.
+ *  Lista do Francis 2026-06-12: Canadian saiu do grupo 8 para o 7; APSystems e
+ *  Deye constam em 8 e 7 → ficam no 8 (maior pontuação, conforme classifyBrand
+ *  retorna o primeiro match na ordem 9→8→7→6). */
 const INVERTER_BRAND_GROUPS: Array<{ score: number; brands: string[] }> = [
-  { score: 9, brands: ["huawei", "sungrow"] },
-  { score: 8, brands: ["fronius", "goodwe", "solaredge", "solis", "hoymiles", "enphase", "growatt", "canadian", "apsystems", "deye"] },
-  { score: 7, brands: ["foxess", "sofar", "solplanet", "saj", "solaxpower", "solax"] },
-  { score: 6, brands: ["tsuness", "must", "auxsol"] },
+  { score: 9, brands: ["huawei", "sungrow", "gridtech"] },
+  { score: 8, brands: ["fronius", "goodwe", "solaredge", "solis", "hoymiles", "enphase", "growatt", "apsystems", "deye", "voltmax", "coreenergy"] },
+  { score: 7, brands: ["foxess", "sofar", "solplanet", "saj", "solaxpower", "solax", "canadian", "ampereelectronics"] },
+  { score: 6, brands: ["tsuness", "must", "auxsol", "inversotecnologia"] },
 ];
 
 function classifyBrand(
@@ -190,33 +194,36 @@ function scoreTechnical(key: string, t: TechnicalEvaluation): number | null {
       return 2;
     }
     case "technical.inverter_defect_warranty": {
-      // 4 anos=0, 6=2, 8=4, 10=6, 12=8, 15=10 (slide 10).
+      // Escala Francis 2026-06-12: <5 anos=0, 5-7=5, 8-10=6, 11-14=8, 15-20=9
+      // (acima de 20 mantém 9, topo da escala).
       if (t.inverterDefectWarrantyYears == null) return null;
       const y = t.inverterDefectWarrantyYears;
-      if (y >= 15) return 10;
-      if (y >= 12) return 8;
-      if (y >= 10) return 6;
-      if (y >= 8) return 4;
-      if (y >= 6) return 2;
-      return 0;
+      if (y < 5) return 0;
+      if (y <= 7) return 5;
+      if (y <= 10) return 6;
+      if (y <= 14) return 8;
+      return 9;
     }
     case "technical.inverter_oversizing": {
-      // Faixa ideal 1,25–1,40; abaixo e acima pontuam menos (slide 10, 2 linhas).
+      // Escala EXATA do Francis (2026-06-12): pico em 1,30–1,34 = 9, simétrica
+      // em torno dele; ≤1,00 e ≥1,60 = 0. (O "= 1 pts" do doc na faixa
+      // 1,55–1,59 é erro de digitação: vale 2, espelhando 1,05–1,09.)
       if (t.inverterOversizingRatio == null) return null;
-      const r = t.inverterOversizingRatio;
-      if (r >= 1.3 && r <= 1.4) return 10; // SINALIZADO: ideal recebe 10
-      if (r >= 1.25 && r < 1.3) return 8;
-      if (r >= 1.2 && r < 1.25) return 5;
-      if (r >= 1.15 && r < 1.2) return 4;
-      if (r >= 1.1 && r < 1.15) return 3;
-      if (r >= 1.05 && r < 1.1) return 2;
-      if (r >= 1.0 && r < 1.05) return 1;
-      if (r < 1.0) return 0;
-      // Acima da faixa ideal (sobredimensionado): decai.
-      if (r <= 1.45) return 3;
-      if (r <= 1.5) return 2;
-      if (r <= 1.55) return 1;
-      return 0;
+      const r = Math.round(t.inverterOversizingRatio * 100) / 100;
+      if (r <= 1.0) return 0;
+      if (r < 1.05) return 1; // 1,01–1,04
+      if (r < 1.1) return 2; // 1,05–1,09
+      if (r < 1.15) return 3; // 1,10–1,14
+      if (r < 1.2) return 4; // 1,15–1,19
+      if (r < 1.25) return 5; // 1,20–1,24
+      if (r < 1.3) return 8; // 1,25–1,29
+      if (r < 1.35) return 9; // 1,30–1,34 (ideal)
+      if (r < 1.4) return 8; // 1,35–1,39
+      if (r < 1.45) return 5; // 1,40–1,44
+      if (r < 1.5) return 4; // 1,45–1,49
+      if (r < 1.55) return 3; // 1,50–1,54
+      if (r < 1.6) return 2; // 1,55–1,59
+      return 0; // ≥1,60
     }
     case "technical.reputation_distributor":
       return reputationToScore(t.distributorScore);

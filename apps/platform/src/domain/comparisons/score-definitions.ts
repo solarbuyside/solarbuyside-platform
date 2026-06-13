@@ -96,7 +96,7 @@ export const companyScoreDefinitions = [
     weight: 5,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 14,
-    rubric: "Peso 5% · Mais rápido, melhor (<=45 dias = 10).",
+    rubric: "Peso 5% · Escala Francis 2026-06-12 (dias→nota): 45=10, 50=9, 55=8, 60=7, 65=6, 70=5, 75=4, 80=3, 40=2, 35=1, 30=0.",
   },
   {
     key: "company.execution_warranty",
@@ -168,7 +168,7 @@ export const companyScoreDefinitions = [
     weight: 3,
     sourceSheet: "Avaliacao Empresas",
     sourceRow: 23,
-    rubric: "Peso 3% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (suspensa/em análise/sem reputação = —).",
+    rubric: "Peso 3% · Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (não recomendado/suspensa/em análise=0; sem reputação=—).",
   },
 ] satisfies ScoreDefinition[];
 
@@ -177,11 +177,11 @@ export const companyScoreDefinitions = [
  * marcadas "/" viraram INFORMATIVAS e saíram da pontuação; a seção de
  * Confiabilidade dos fabricantes foi eliminada por inteiro).
  *
- * PESOS DE TECNOLOGIA fecham 100% (corrigidos pelo Francis em 2026-06-10):
- * Marca módulo 10, Marca inversor 10, Geração anual 10, Sobrecarga DC/AC 10,
- * Garantia eficiência módulo 10, Garantia defeito módulo 10, Garantia defeito
- * inversor 10, Reclame Aqui distribuidora 15, RA fabricante módulo 5, RA
- * fabricante inversor 10.
+ * PESOS DE TECNOLOGIA fecham 100% (Francis 2026-06-10; RA dos fabricantes
+ * corrigido em 2026-06-12): Marca módulo 10, Marca inversor 10, Geração anual
+ * 10, Sobrecarga DC/AC 10, Garantia eficiência módulo 10, Garantia defeito
+ * módulo 10, Garantia defeito inversor 10, Reclame Aqui distribuidora 15, RA
+ * fabricante módulo 10, RA fabricante inversor 5.
  */
 export const technicalScoreDefinitions = [
   {
@@ -254,7 +254,7 @@ export const technicalScoreDefinitions = [
     weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 24,
-    rubric: "Peso 10% · 4 anos=0, 6=2, 8=4, 10=6, 12=8, 15=10.",
+    rubric: "Peso 10% · <5 anos=0, 5-7=5, 8-10=6, 11-14=8, 15-20=9.",
   },
   {
     key: "technical.inverter_oversizing",
@@ -266,7 +266,7 @@ export const technicalScoreDefinitions = [
     weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 26,
-    rubric: "Peso 10% · Faixa ideal 1,25–1,40 (=9-10); abaixo/acima pontua menos.",
+    rubric: "Peso 10% · Pico em 1,30-1,34=9 (1,25-1,29 e 1,35-1,39=8); sobe até o pico e desce; ≤1,0 e ≥1,60=0.",
   },
   {
     key: "technical.reputation_distributor",
@@ -278,7 +278,7 @@ export const technicalScoreDefinitions = [
     weight: 15,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 29,
-    rubric: "Peso 15% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
+    rubric: "Peso 15% · Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (não recomendado/suspensa/em análise=0; sem reputação=—).",
   },
   {
     key: "technical.reputation_module_maker",
@@ -287,10 +287,10 @@ export const technicalScoreDefinitions = [
     label: "Reputação do fabricante do módulo",
     defaultEnabled: true,
     maxScore: 10,
-    weight: 5,
+    weight: 10,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 30,
-    rubric: "Peso 5% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
+    rubric: "Peso 10% · Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (não recomendado/suspensa/em análise=0; sem reputação=—).",
   },
   {
     key: "technical.reputation_inverter_maker",
@@ -299,10 +299,10 @@ export const technicalScoreDefinitions = [
     label: "Reputação do fabricante do inversor",
     defaultEnabled: true,
     maxScore: 10,
-    weight: 10,
+    weight: 5,
     sourceSheet: "Avaliacao Tecnologica",
     sourceRow: 31,
-    rubric: "Peso 10% · Não recomendado=0, Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (sem reputação = —).",
+    rubric: "Peso 5% · Ruim=2, Regular=4, Bom=6, Ótimo=8, RA 1000=10 (não recomendado/suspensa/em análise=0; sem reputação=—).",
   },
 ] satisfies ScoreDefinition[];
 
