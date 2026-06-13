@@ -107,57 +107,6 @@ export const TestimonialsV4: React.FC = () => {
   )
 }
 
-/* Nota do autor — carta em 1ª pessoa do Francis. Bloco estreito, sem card,
-   só tinta sobre paper: o momento mais "à mão" da página. */
-export const FounderNoteV4: React.FC = () => {
-  const { getSection } = useContent()
-  const section = getSection('founder-note')
-
-  return (
-    <section className="bg-[#f2ece1] pb-24 pt-6 text-[#181410]">
-      <div className="mx-auto max-w-2xl px-6">
-        <Reveal>
-          <div className="border-t border-[#181410]/15 pt-12">
-            <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.22em] text-orange-700">
-              {section?.texts.kicker || 'Nota do autor'}
-            </span>
-          </div>
-        </Reveal>
-
-        <Reveal delay={100}>
-          <p className="v4-dropcap mt-8 text-lg leading-relaxed text-[#37302a] md:text-xl">
-            {section?.texts.paragraph1 ||
-              'Passei os últimos sete anos sentado dos dois lados da mesa: assessorando quem compra sistema fotovoltaico e treinando quem vende. Vi negócio bom morrer por proposta mal explicada. Vi cliente fechar errado por não ter como comparar. E vi vendedor excelente perder para um concorrente pior, porque a conversa virou leilão.'}
-          </p>
-          <p className="mt-5 text-lg leading-relaxed text-[#37302a] md:text-xl">
-            {section?.texts.paragraph2 ||
-              'Escrevi este manual para acabar com esse jogo de adivinhação. Ele não é fórmula de fechamento: é o mapa de como o comprador decide. Quem entende esse mapa para de brigar por preço e passa a conduzir a decisão.'}
-          </p>
-        </Reveal>
-
-        <Reveal delay={180}>
-          <div className="mt-10 flex items-end justify-between gap-6 border-b border-[#181410]/15 pb-12">
-            <div>
-              <p className="v4-serif text-4xl text-[#181410] md:text-5xl">
-                {section?.texts.signatureName || 'Francis Poloni'}
-              </p>
-              <p className="v4-mono mt-3 text-[11px] uppercase tracking-[0.2em] text-[#4f463c]">
-                {section?.texts.signatureRole || 'Autor do Manual Solar Buy-Side • no setor desde 2018'}
-              </p>
-            </div>
-            <img
-              src={section?.images.portrait || '/assets/Francis Poloni LP PRO.jpg.jpeg'}
-              alt="Francis Poloni"
-              loading="lazy"
-              className="h-20 w-20 shrink-0 rounded-full border-2 border-[#181410]/15 object-cover grayscale md:h-24 md:w-24"
-            />
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
 /* Ponte narrativa — manual sobre bloco paper-deep + tabela de specs estilo
    revista com hairlines colapsadas e inversão de tinta no hover. */
 export const StoryBridgeV4: React.FC = () => {

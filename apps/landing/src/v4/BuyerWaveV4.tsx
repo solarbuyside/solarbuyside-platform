@@ -159,7 +159,7 @@ export const BuyerWaveV4: React.FC = () => {
                 value={
                   section?.texts.title?.trim()
                     ? section.texts.title
-                    : 'O outro lado da mesa <span class="cms-orange">já está estudando</span>. Veja o que os compradores aprendem no Manual.'
+                    : 'Descubra o que o manual ensina aos <span class="cms-orange">compradores</span> e entenda as <span class="cms-orange">novas regras</span> do jogo'
                 }
               />
             </h2>

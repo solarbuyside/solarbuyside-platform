@@ -2,14 +2,16 @@ import './App.css'
 import { lazy, Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import { Footer } from './components/Footer'
 import { LegalPage } from './components/LegalPage'
+import { Footer } from './components/Footer'
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
-import AppV4 from './v4/AppV4'
+import AppV1 from './AppV1'
 
-// A LP anterior ("v1", oficial até 2026-06-11) fica preservada em /v1 — lazy
-// para o bundle da página oficial (V4) não carregar as seções antigas.
-const AppV1 = lazy(() => import('./AppV1'))
+// LP OFICIAL = a versão "v1" (src/AppV1.tsx), renderizada na raiz "/".
+// O redesign V4 "Solar Dawn" segue em PREVIEW na rota /v4 (lazy), sem afetar a
+// produção. (Houve uma janela em 2026-06-11 em que a V4 foi promovida à raiz;
+// revertido a pedido — V4 volta a ser preview em /v4.)
+const AppV4 = lazy(() => import('./v4/AppV4'))
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
@@ -25,13 +27,18 @@ function App() {
     return null
   }
 
-  // /v4 era o preview do redesign; desde 2026-06-11 ele É a raiz. O redirect
-  // mantém vivos os links compartilhados durante a revisão.
+  // Preview do redesign V4 — carregado sob demanda só em /v4. A LP oficial (/)
+  // não é afetada.
   if (pathname === '/v4') {
-    if (typeof window !== 'undefined') {
-      window.location.replace('/')
-    }
-    return null
+    return (
+      <>
+        <Suspense fallback={<div className="min-h-screen bg-[#07090d]" />}>
+          <AppV4 />
+        </Suspense>
+        <Analytics />
+        <SpeedInsights />
+      </>
+    )
   }
 
   const legalPages = {
@@ -62,23 +69,10 @@ function App() {
     )
   }
 
-  // LP anterior, preservada para consulta/comparação.
-  if (pathname === '/v1') {
-    return (
-      <>
-        <Suspense fallback={<div className="min-h-screen bg-[#020617]" />}>
-          <AppV1 />
-        </Suspense>
-        <Analytics />
-        <SpeedInsights />
-      </>
-    )
-  }
-
-  // V4 "Solar Dawn" — LP oficial na raiz desde 2026-06-11.
+  // LP oficial (versão v1).
   return (
     <>
-      <AppV4 />
+      <AppV1 />
       <Analytics />
       <SpeedInsights />
     </>

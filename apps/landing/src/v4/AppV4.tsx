@@ -9,16 +9,16 @@ import { VideoV4 } from './VideoV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
-import { FounderNoteV4, StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
+import { StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
 import { SellerCodeV4 } from './SellerCodeV4'
 import { PricingV4 } from './PricingV4'
 import { BuyerWaveV4 } from './BuyerWaveV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4, LeadMagnetV4 } from './ClosingV4'
 
-/* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP anterior,
-   experiência redesenhada em 4 atos. OFICIAL na raiz desde 2026-06-11;
-   a LP anterior segue preservada em /v1 (e /v4 redireciona para /). */
+/* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP oficial (v1),
+   experiência redesenhada em 4 atos. Em PREVIEW na rota /v4; a produção (/)
+   continua na v1. (Foi oficial por uma janela em 2026-06-11; revertido.) */
 
 const SECTION_IDS = [
   'hero',
@@ -29,7 +29,6 @@ const SECTION_IDS = [
   'plataforma',
   'depoimentos',
   'story-bridge',
-  'founder-note',
   'seller-code',
   'oferta',
   'buyer-wave',
@@ -122,9 +121,6 @@ export default function AppV4() {
       </div>
       <div id="story-bridge">
         <StoryBridgeV4 />
-      </div>
-      <div id="founder-note">
-        <FounderNoteV4 />
       </div>
       <div id="seller-code">
         <SellerCodeV4 />

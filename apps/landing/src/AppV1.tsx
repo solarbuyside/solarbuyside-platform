@@ -21,10 +21,10 @@ import {
 } from './components'
 import { trackPageView, observeSection } from './utils/analytics'
 
-/* LP "v1" — foi a oficial na raiz até 2026-06-11, quando a V4 "Solar Dawn"
-   assumiu o "/". Preservada aqui em /v1 para consulta e comparação, com o
-   mesmo comportamento de sempre (reveal por scroll, analytics por seção e o
-   listener do preview do admin). */
+/* LP "v1" — a versão OFICIAL, renderizada na raiz "/" (ver App.tsx). Houve uma
+   breve janela (2026-06-11) em que a V4 "Solar Dawn" assumiu a raiz; revertido,
+   a v1 voltou a ser oficial e a V4 segue em preview em /v4. Comportamento de
+   sempre: reveal por scroll, analytics por seção e listener do preview do admin. */
 export default function AppV1() {
   useEffect(() => {
     trackPageView()
