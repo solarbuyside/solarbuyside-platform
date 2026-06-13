@@ -134,7 +134,7 @@ export const VideoSection: React.FC = () => {
           >
             {!showPlayer ? (
               <>
-                <div className="absolute inset-0 bg-[url('/assets/manualdecompra1.png')] bg-cover bg-center opacity-90 transition-transform duration-700 group-hover:scale-105"></div>
+                <div className="absolute inset-0 bg-[url('/assets/capa-video-solar.jpeg')] bg-cover bg-center opacity-90 transition-transform duration-700 group-hover:scale-105"></div>
 
                 <div className="absolute inset-0 bg-slate-900/60 group-hover:bg-slate-900/30 transition-colors"></div>
 

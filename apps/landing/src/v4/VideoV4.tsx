@@ -148,12 +148,12 @@ export const VideoV4: React.FC = () => {
             >
               {!showPlayer ? (
                 <>
-                  {/* Poster: o autor em quadro (frame de fala), não a capa do livro. */}
+                  {/* Poster: capa do vídeo (imagem 16:9 da marca), sem rosto. */}
                   <div
                     className="absolute inset-0 bg-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     style={{
-                      backgroundImage: `url('${section?.images.videoPoster || '/assets/Francis Poloni LP PRO.jpg.jpeg'}')`,
-                      backgroundPosition: '50% 18%',
+                      backgroundImage: `url('${section?.images.videoPoster || '/assets/capa-video-solar.jpeg'}')`,
+                      backgroundPosition: '50% 50%',
                       filter: 'saturate(0.82) contrast(1.05)',
                     }}
                   />
