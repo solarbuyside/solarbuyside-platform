@@ -596,8 +596,13 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Conteúdo",
         fields: [
           t("badge", "Selo", { maxLength: 40 }),
-          t("title", "Título"),
-          t("titleHighlight", "Título — palavra em destaque"),
+          comp(
+            "title",
+            "Título",
+            [tx("title"), hl("titleHighlight")],
+            "cms-orange",
+            "Frase inteira numa caixa. Destaque o trecho final (ex.: “dúvidas?”).",
+          ),
           ml("subtitle", "Subtítulo"),
           t("feature1", "Item 1"),
           t("feature2", "Item 2"),
