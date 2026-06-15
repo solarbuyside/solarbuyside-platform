@@ -54,6 +54,8 @@ export type SectionSchema = {
   /** Ordem na landing (de cima pra baixo). */
   order: number;
   groups: GroupDef[];
+  /** Chaves legadas/duplicadas a ocultar do editor (não viram "Outros campos"). */
+  hiddenKeys?: string[];
 };
 
 // Atalhos de tipo para deixar o manifesto enxuto.
@@ -274,7 +276,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("description2", "Parágrafo 2"),
           ml("description3", "Parágrafo 3"),
           t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          img("manualImage", "Imagem do manual"),
+          img("manual", "Imagem do manual"),
         ],
       },
       {
@@ -424,6 +426,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
+    hiddenKeys: ["listHeader", "book"],
   },
 
   authority: {
@@ -489,30 +492,26 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
-        label: "Diferenciais (4)",
+        label: "Entregáveis (cards)",
         fields: [
           t("featuresTitle", "Título da lista"),
-          t("feature1Title", "Item 1 — título"),
-          ml("feature1Desc", "Item 1 — descrição"),
-          t("feature1Tag", "Item 1 — etiqueta", { maxLength: 30 }),
-          t("feature2Title", "Item 2 — título"),
-          ml("feature2Desc", "Item 2 — descrição"),
-          t("feature2Tag", "Item 2 — etiqueta", { maxLength: 30 }),
-          t("feature3Title", "Item 3 — título"),
-          ml("feature3Desc", "Item 3 — descrição"),
-          t("feature3Tag", "Item 3 — etiqueta", { maxLength: 30 }),
-          t("feature4Title", "Item 4 — título"),
-          ml("feature4Desc", "Item 4 — descrição"),
-          t("feature4Tag", "Item 4 — etiqueta", { maxLength: 30 }),
+          t("card1Title", "Card 1 — título"),
+          ml("card1Desc", "Card 1 — descrição"),
+          t("card1Tag", "Card 1 — etiqueta", { maxLength: 30 }),
+          img("card1Image", "Card 1 — imagem"),
+          t("card2Title", "Card 2 — título"),
+          ml("card2Desc", "Card 2 — descrição"),
+          t("card2Tag", "Card 2 — etiqueta", { maxLength: 30 }),
+          img("card2Image", "Card 2 — imagem"),
+          t("card3Title", "Card 3 — título"),
+          ml("card3Desc", "Card 3 — descrição"),
+          t("card3Tag", "Card 3 — etiqueta", { maxLength: 30 }),
+          img("card3Image", "Card 3 — imagem"),
         ],
       },
       {
         label: "Bônus",
-        fields: [
-          t("bonusBadge", "Bônus — selo", { maxLength: 40 }),
-          t("bonusTitle", "Bônus — título"),
-          ml("bonusSubtitle", "Bônus — subtítulo"),
-        ],
+        fields: [t("bonusBadge", "Bônus — selo", { maxLength: 40 })],
       },
       {
         label: "Plano e preço",
@@ -543,6 +542,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
+    hiddenKeys: ["feature1Desc"],
   },
 
   "buyer-wave": {
@@ -818,8 +818,13 @@ export function buildSectionGroups(
     }
   }
 
-  const leftoverText = textKeys.filter((k) => !known.has(k)).map((k) => t(k, humanizeKey(k)));
-  const leftoverImg = imageKeys.filter((k) => !known.has(k)).map((k) => img(k, humanizeKey(k)));
+  const hidden = new Set(schema?.hiddenKeys ?? []);
+  const leftoverText = textKeys
+    .filter((k) => !known.has(k) && !hidden.has(k))
+    .map((k) => t(k, humanizeKey(k)));
+  const leftoverImg = imageKeys
+    .filter((k) => !known.has(k) && !hidden.has(k))
+    .map((k) => img(k, humanizeKey(k)));
   const leftover = [...leftoverText, ...leftoverImg];
   if (leftover.length) groups.push({ label: "Outros campos", fields: leftover });
 
