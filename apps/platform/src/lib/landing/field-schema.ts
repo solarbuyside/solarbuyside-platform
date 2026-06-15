@@ -801,15 +801,21 @@ export function buildSectionGroups(
   const groups: GroupDef[] = [];
 
   if (schema) {
-    // Mostra TODOS os campos do manifesto, mesmo ausentes no banco: são campos
-    // reais que a LP renderiza com texto padrão; mostrar vazio deixa o cliente
-    // preencher pra sobrescrever. Campo intocado não é gravado (não polui o banco).
+    // Editor espelha o banco: mostra só os campos cujo conteúdo existe no banco.
+    // (O banco é populado com o conteúdo atual da LP — ver migration de fill.)
     for (const g of schema.groups) {
-      for (const f of g.fields) {
-        if (isComposite(f)) f.parts.forEach((p) => known.add(p.key));
-        else known.add(f.key);
-      }
-      groups.push({ label: g.label, fields: g.fields });
+      const fields = g.fields.filter((f) => {
+        if (isComposite(f)) {
+          const partKeys = f.parts.map((p) => p.key);
+          const exists = partKeys.some((k) => textKeys.includes(k));
+          if (exists) partKeys.forEach((k) => known.add(k));
+          return exists;
+        }
+        const exists = f.type === "image" ? imageKeys.includes(f.key) : textKeys.includes(f.key);
+        if (exists) known.add(f.key);
+        return exists;
+      });
+      if (fields.length) groups.push({ label: g.label, fields });
     }
   }
 
