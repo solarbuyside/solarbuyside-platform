@@ -84,8 +84,9 @@ inline com tom amigável; 69% de abandono de formulário é por UX (Baymard).
   exibir e DESMONTA de volta nas chaves originais ao salvar — landing intacta, sem
   deploy, sem perder animação (`WordReveal` do hero). Botão único "Destaque".
   `composeComposite`/`decomposeComposite` (round-trip testado). **Aplicado em:** hero,
-  context, seller-code, authority. **Fora:** lead-magnet (render v4 incerto — segue
-  com campos separados, seguro).
+  context, seller-code, authority, **lead-magnet** (ClosingV4: "Ainda com dúvidas?").
+  Todas as 5 frases fatiadas do v4 cobertas. (Badge do seller-code fica separado:
+  são blocos empilhados, não uma frase única.)
 
 **Back — JÁ ESTAVA LIGADO E VIVO (verificado):**
 - A landing lê do Supabase (`loadFromSupabase`, `override=true` → DB vence
