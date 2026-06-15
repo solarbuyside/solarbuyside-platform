@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Check,
   Loader2,
@@ -18,38 +19,26 @@ import {
   Maximize2,
   X,
   Quote,
+  Rocket,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LandingSection, LandingGlobals } from "@/lib/landing/content-admin";
-import { saveLandingSectionAction, saveLandingGlobalAction } from "./actions";
+import {
+  buildSectionGroups,
+  isComposite,
+  composeComposite,
+  decomposeComposite,
+  type FieldDef,
+  type CompositeFieldDef,
+} from "@/lib/landing/field-schema";
+import { saveLandingSectionAction, saveLandingGlobalAction, publishLandingAction } from "./actions";
 import { TestimonialsEditor } from "./testimonials-editor";
+import { RichTextEditor } from "./rich-text";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
 
 const LP_URL = "https://solarbuyside.com.br";
-
-// Ordem em que as seções aparecem na landing page.
-const LP_ORDER = [
-  "hero",
-  "context",
-  "video",
-  "audience",
-  "manual-strategic",
-  "testimonials",
-  "story-bridge",
-  "seller-code",
-  "pricing",
-  "buyer-wave",
-  "authority",
-  "lead-magnet",
-  "faq",
-  "newsletter",
-  "contact",
-  "terms-of-use",
-  "privacy-policy",
-  "antipiracy",
-];
 
 // section_id -> âncora (id) na landing, para o scroll do preview.
 const SECTION_ANCHOR: Record<string, string> = {
@@ -60,10 +49,8 @@ const SECTION_ANCHOR: Record<string, string> = {
   pricing: "oferta",
 };
 
-function orderOf(id: string) {
-  const i = LP_ORDER.indexOf(id);
-  return i === -1 ? 999 : i;
-}
+// Nas seções buyer-wave os campos testimonial* são editados na aba "Depoimentos".
+const isTestimonialKey = (k: string) => /^testimonial\d+/.test(k);
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 type Draft = { texts: Record<string, string>; images: Record<string, string> };
@@ -80,13 +67,29 @@ const GLOBAL_FIELDS: { key: string; label: string; icon: React.ComponentType<{ c
 export function LandingEditor({
   sections: rawSections,
   globals,
+  globalsPending,
 }: {
   sections: LandingSection[];
   globals: LandingGlobals;
+  globalsPending: boolean;
 }) {
+  const router = useRouter();
+  // Metadados (rótulo humano + ordem na LP) por seção, vindos do manifesto.
+  const meta = React.useMemo(() => {
+    const map = new Map<string, { label: string; order: number; mapped: boolean }>();
+    for (const s of rawSections) {
+      const b = buildSectionGroups(s.sectionId, Object.keys(s.texts), Object.keys(s.images));
+      map.set(s.sectionId, { label: b.label, order: b.order, mapped: b.mapped });
+    }
+    return map;
+  }, [rawSections]);
+
   const sections = React.useMemo(
-    () => [...rawSections].sort((a, b) => orderOf(a.sectionId) - orderOf(b.sectionId)),
-    [rawSections],
+    () =>
+      [...rawSections].sort(
+        (a, b) => (meta.get(a.sectionId)?.order ?? 999) - (meta.get(b.sectionId)?.order ?? 999),
+      ),
+    [rawSections, meta],
   );
   const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
 
@@ -101,10 +104,56 @@ export function LandingEditor({
   const modalIframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const selected = sections.find((s) => s.sectionId === selectedId);
-  const draft = drafts[selectedId] ?? { texts: {}, images: {} };
+  const draft = React.useMemo(
+    () => drafts[selectedId] ?? { texts: {}, images: {} },
+    [drafts, selectedId],
+  );
+
+  // Snapshot original p/ detectar alterações não salvas.
+  const originals = React.useMemo(
+    () => JSON.stringify(Object.fromEntries(sections.map((s) => [s.sectionId, { texts: s.texts, images: s.images }]))),
+    [sections],
+  );
+  const dirty = React.useMemo(() => JSON.stringify(drafts) !== originals, [drafts, originals]);
+
+  React.useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
 
   const [state, setState] = React.useState<SaveState>("idle");
   const [pending, start] = React.useTransition();
+
+  // Rascunho/Publicar: quais seções têm rascunho não publicado.
+  const [localPending, setLocalPending] = React.useState<Set<string>>(
+    () => new Set(rawSections.filter((s) => s.hasUnpublishedChanges).map((s) => s.sectionId)),
+  );
+  const [globalsDirty, setGlobalsDirty] = React.useState(globalsPending);
+  const [publishState, setPublishState] = React.useState<SaveState>("idle");
+  const [publishPending, startPublish] = React.useTransition();
+  const pendingTotal = localPending.size + (globalsDirty ? 1 : 0);
+
+  function publish() {
+    if (!window.confirm("Publicar as alterações na landing page ao vivo?")) return;
+    setPublishState("saving");
+    startPublish(async () => {
+      try {
+        await publishLandingAction();
+        setLocalPending(new Set());
+        setGlobalsDirty(false);
+        setPublishState("saved");
+        setTimeout(() => setPublishState("idle"), 1500);
+        router.refresh();
+      } catch {
+        setPublishState("error");
+      }
+    });
+  }
 
   // No preview, ao trocar de seção, manda o iframe rolar até a âncora.
   React.useEffect(() => {
@@ -129,6 +178,7 @@ export function LandingEditor({
     start(async () => {
       try {
         await saveLandingSectionAction(selectedId, draft.texts, draft.images);
+        setLocalPending((p) => new Set(p).add(selectedId));
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
       } catch {
@@ -139,14 +189,45 @@ export function LandingEditor({
 
   // No buyer-wave, os campos testimonial* são editados na aba "Depoimentos".
   const hideTestimonial = selectedId === "buyer-wave";
-  const textKeys = Object.keys(draft.texts).filter((k) => !(hideTestimonial && /^testimonial\d+/.test(k)));
-  const imageKeys = Object.keys(draft.images).filter((k) => !(hideTestimonial && /^testimonial\d+/.test(k)));
+  const groups = React.useMemo(() => {
+    const tKeys = Object.keys(draft.texts).filter((k) => !(hideTestimonial && isTestimonialKey(k)));
+    const iKeys = Object.keys(draft.images).filter((k) => !(hideTestimonial && isTestimonialKey(k)));
+    return buildSectionGroups(selectedId, tKeys, iKeys).groups;
+  }, [selectedId, draft, hideTestimonial]);
+  const hasFields = groups.some((g) => g.fields.length > 0);
+  const selectedLabel = meta.get(selectedId)?.label ?? selected?.name ?? selectedId;
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div className="space-y-5">
+      {/* BARRA DE PUBLICAÇÃO */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm">
+          {pendingTotal > 0 ? (
+            <>
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+              <span className="font-semibold text-slate-700">
+                {pendingTotal} {pendingTotal === 1 ? "alteração não publicada" : "alterações não publicadas"}
+              </span>
+              <span className="text-slate-400">— rascunho salvo, ainda não está no ar.</span>
+            </>
+          ) : (
+            <>
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span className="font-semibold text-slate-600">Tudo publicado.</span>
+            </>
+          )}
+        </div>
+        <PublishButton
+          state={publishPending ? "saving" : publishState}
+          disabled={pendingTotal === 0}
+          onClick={publish}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* ESQUERDA — globais + lista de seções (ordem da LP) */}
       <div className="space-y-4 lg:col-span-1">
-        <GlobalsCard globals={globals} />
+        <GlobalsCard globals={globals} onSaved={() => setGlobalsDirty(true)} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-3 text-sm font-bold text-slate-800">
             Seções ({sections.length})
@@ -176,7 +257,15 @@ export function LandingEditor({
                     active ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
                   )}
                 >
-                  <span className="truncate">{s.name || s.sectionId}</span>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    {localPending.has(s.sectionId) && (
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-full bg-amber-500"
+                        title="Rascunho não publicado"
+                      />
+                    )}
+                    <span className="truncate">{meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}</span>
+                  </span>
                   <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
                     {count}
                   </span>
@@ -195,7 +284,7 @@ export function LandingEditor({
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
             <div className="min-w-0">
-              <h3 className="truncate text-lg font-bold text-slate-900">{selected?.name || selectedId}</h3>
+              <h3 className="truncate text-lg font-bold text-slate-900">{selectedLabel}</h3>
               <span className="font-mono text-[11px] text-slate-400">{selectedId}</span>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -274,52 +363,119 @@ export function LandingEditor({
               )}
             </div>
           ) : (
-            <div className="space-y-6 p-6">
-              {textKeys.length === 0 && imageKeys.length === 0 && (
+            <div className="space-y-7 p-6">
+              {!hasFields && (
                 <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
                   Sem campos editáveis nesta seção (o texto é fixo no código da landing).
                 </p>
               )}
-              {textKeys.length > 0 && (
-                <div className="space-y-4">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-                    <Type className="h-3.5 w-3.5" /> Textos
+              {groups.map((group) => (
+                <div key={group.label} className="space-y-4">
+                  <p className="flex items-center gap-1.5 border-b border-slate-100 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <Type className="h-3.5 w-3.5" /> {group.label}
                   </p>
-                  {textKeys.map((k) => (
-                    <label key={k} className="grid gap-1.5">
-                      <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
-                      <textarea
-                        value={draft.texts[k] ?? ""}
-                        onChange={(e) => setText(k, e.target.value)}
-                        rows={(draft.texts[k]?.length ?? 0) > 90 ? 3 : 1}
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  {group.fields.map((field) =>
+                    isComposite(field) ? (
+                      <CompositeField key={field.key} field={field} texts={draft.texts} setText={setText} />
+                    ) : (
+                      <FieldInput
+                        key={field.key}
+                        field={field}
+                        value={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) ?? ""}
+                        onChange={(v) => (field.type === "image" ? setImage(field.key, v) : setText(field.key, v))}
                       />
-                    </label>
-                  ))}
+                    ),
+                  )}
                 </div>
-              )}
-              {imageKeys.length > 0 && (
-                <div className="space-y-4">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-                    <ImageIcon className="h-3.5 w-3.5" /> Imagens (URL)
-                  </p>
-                  {imageKeys.map((k) => (
-                    <label key={k} className="grid gap-1.5">
-                      <span className="font-mono text-[11px] font-semibold text-slate-500">{k}</span>
-                      <input
-                        value={draft.images[k] ?? ""}
-                        onChange={(e) => setImage(k, e.target.value)}
-                        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
-                      />
-                    </label>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
           )}
         </div>
         )}
       </div>
+      </div>
+    </div>
+  );
+}
+
+function CompositeField({
+  field,
+  texts,
+  setText,
+}: {
+  field: CompositeFieldDef;
+  texts: Record<string, string>;
+  setText: (k: string, v: string) => void;
+}) {
+  // Compõe a frase uma vez (a caixa é uncontrolled — não recompõe a cada tecla).
+  const initial = React.useMemo(() => composeComposite(field, texts), []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="grid gap-1.5">
+      <span className="text-[13px] font-semibold text-slate-700">{field.label}</span>
+      {field.help && <span className="text-[11px] leading-snug text-slate-400">{field.help}</span>}
+      <RichTextEditor
+        value={initial}
+        simpleHighlightClass={field.hlClass}
+        onChange={(html) => {
+          const parts = decomposeComposite(field, html);
+          for (const [k, v] of Object.entries(parts)) setText(k, v);
+        }}
+      />
+    </div>
+  );
+}
+
+function FieldInput({
+  field,
+  value,
+  onChange,
+}: {
+  field: FieldDef;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const len = value.length;
+  const over = field.maxLength != null && len > field.maxLength;
+  const inputCls =
+    "w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-all focus:ring-2 " +
+    (over
+      ? "border-amber-400 focus:border-amber-400 focus:ring-amber-400/15"
+      : "border-slate-200 focus:border-primary focus:ring-primary/15");
+
+  return (
+    <div className="grid gap-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[13px] font-semibold text-slate-700">{field.label}</span>
+        {field.maxLength != null && (
+          <span className={cn("text-[11px] tabular-nums", over ? "font-bold text-amber-600" : "text-slate-400")}>
+            {len}/{field.maxLength}
+          </span>
+        )}
+      </div>
+      {field.help && <span className="text-[11px] leading-snug text-slate-400">{field.help}</span>}
+
+      {field.type === "rich" ? (
+        <RichTextEditor value={value} onChange={onChange} />
+      ) : field.type === "multiline" ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={Math.min(5, Math.max(2, Math.ceil((value.length || 1) / 60)))}
+          className={inputCls}
+        />
+      ) : (
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          inputMode={field.type === "url" ? "url" : undefined}
+          className={cn(inputCls, "h-10 py-0")}
+        />
+      )}
+
+      {field.type === "image" && value && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={value} alt="" className="mt-1 max-h-24 rounded-lg border border-slate-200 object-contain" />
+      )}
     </div>
   );
 }
@@ -375,7 +531,7 @@ function DeviceBtn({
   );
 }
 
-function GlobalsCard({ globals }: { globals: LandingGlobals }) {
+function GlobalsCard({ globals, onSaved }: { globals: LandingGlobals; onSaved: () => void }) {
   const [values, setValues] = React.useState<Record<string, string>>(() => ({ ...globals }));
   const [state, setState] = React.useState<SaveState>("idle");
   const [pending, start] = React.useTransition();
@@ -385,6 +541,7 @@ function GlobalsCard({ globals }: { globals: LandingGlobals }) {
     start(async () => {
       try {
         for (const { key } of GLOBAL_FIELDS) await saveLandingGlobalAction(key, values[key] ?? "");
+        onSaved();
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
       } catch {
@@ -419,9 +576,9 @@ function GlobalsCard({ globals }: { globals: LandingGlobals }) {
 
 function SaveButton({ state, onClick }: { state: SaveState; onClick: () => void }) {
   const map = {
-    idle: { icon: <Save className="h-3.5 w-3.5" />, label: "Salvar", cls: "bg-primary text-white hover:bg-primary/95" },
+    idle: { icon: <Save className="h-3.5 w-3.5" />, label: "Salvar rascunho", cls: "bg-primary text-white hover:bg-primary/95" },
     saving: { icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />, label: "Salvando…", cls: "bg-primary/70 text-white" },
-    saved: { icon: <Check className="h-3.5 w-3.5" />, label: "Salvo", cls: "bg-emerald-500 text-white" },
+    saved: { icon: <Check className="h-3.5 w-3.5" />, label: "Rascunho salvo", cls: "bg-emerald-500 text-white" },
     error: { icon: <CircleAlert className="h-3.5 w-3.5" />, label: "Erro", cls: "bg-destructive text-white" },
   }[state];
   return (
@@ -431,6 +588,37 @@ function SaveButton({ state, onClick }: { state: SaveState; onClick: () => void 
       className={cn(
         "inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-80",
         map.cls,
+      )}
+    >
+      {map.icon}
+      {map.label}
+    </button>
+  );
+}
+
+function PublishButton({
+  state,
+  disabled,
+  onClick,
+}: {
+  state: SaveState;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  const map = {
+    idle: { icon: <Rocket className="h-4 w-4" />, label: "Publicar na LP", cls: "bg-slate-900 text-white hover:bg-slate-800" },
+    saving: { icon: <Loader2 className="h-4 w-4 animate-spin" />, label: "Publicando…", cls: "bg-slate-700 text-white" },
+    saved: { icon: <Check className="h-4 w-4" />, label: "Publicado", cls: "bg-emerald-500 text-white" },
+    error: { icon: <CircleAlert className="h-4 w-4" />, label: "Erro ao publicar", cls: "bg-destructive text-white" },
+  }[state];
+  const isDisabled = disabled || state === "saving";
+  return (
+    <button
+      onClick={onClick}
+      disabled={isDisabled}
+      className={cn(
+        "inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-5 text-sm font-bold transition-all active:scale-[0.98]",
+        isDisabled && state !== "saving" ? "cursor-not-allowed bg-slate-200 text-slate-400" : map.cls,
       )}
     >
       {map.icon}

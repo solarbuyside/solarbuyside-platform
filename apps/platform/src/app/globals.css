@@ -140,3 +140,28 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* ─── Rich-text da landing (espelha as classes cms-* da LP) ──────────────────
+   Usadas no editor /admin/landing para o destaque aparecer já colorido na caixa,
+   igual à landing. NÃO mexer nos valores sem checar apps/landing/src/index.css. */
+.cms-rich:empty::before {
+  content: "Digite o texto…";
+  color: #94a3b8;
+}
+.cms-orange { color: #f97316; }
+.cms-blue { color: #60a5fa; }
+.cms-bold { font-weight: 700; }
+.cms-gradient-blue {
+  background: linear-gradient(to right, #60a5fa, #bfdbfe, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.cms-gradient-orange {
+  background: linear-gradient(to right, #ea580c, #fb923c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}

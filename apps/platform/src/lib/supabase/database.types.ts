@@ -41,6 +41,8 @@ export type Database = {
           name: string | null;
           texts: Json;
           images: Json;
+          texts_draft: Json | null;
+          images_draft: Json | null;
           updated_at: string;
         };
         Insert: {
@@ -48,6 +50,8 @@ export type Database = {
           name?: string | null;
           texts?: Json;
           images?: Json;
+          texts_draft?: Json | null;
+          images_draft?: Json | null;
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["landing_sections"]["Insert"]>;
@@ -57,10 +61,12 @@ export type Database = {
         Row: {
           key: string;
           value: string | null;
+          value_draft: string | null;
         };
         Insert: {
           key: string;
           value?: string | null;
+          value_draft?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["landing_globals"]["Insert"]>;
         Relationships: [];

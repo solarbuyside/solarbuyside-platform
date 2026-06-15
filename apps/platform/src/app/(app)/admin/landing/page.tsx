@@ -28,12 +28,16 @@ export default async function AdminLandingPage() {
           Conteúdo da Landing
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          Edite os textos da landing page. As alterações são salvas no Supabase e refletem na LP
-          (a landing lê daqui; este conteúdo sobrescreve os textos padrão).
+          Edite os textos da landing. Tudo é salvo como <strong>rascunho</strong> — só vai pro ar
+          quando você clicar em <strong>Publicar na LP</strong>.
         </p>
       </div>
 
-      <LandingEditor sections={sections} globals={globals} />
+      <LandingEditor
+        sections={sections}
+        globals={globals.values}
+        globalsPending={globals.hasUnpublishedChanges}
+      />
     </div>
   );
 }

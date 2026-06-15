@@ -1,7 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { saveLandingSection, saveLandingGlobalValue } from "@/lib/landing/content-admin";
+import {
+  saveLandingSection,
+  saveLandingGlobalValue,
+  publishLanding,
+} from "@/lib/landing/content-admin";
 
 async function assertAdmin() {
   const user = await getCurrentUser();
@@ -20,4 +26,10 @@ export async function saveLandingSectionAction(
 export async function saveLandingGlobalAction(key: string, value: string) {
   await assertAdmin();
   await saveLandingGlobalValue(key, value);
+}
+
+export async function publishLandingAction() {
+  await assertAdmin();
+  await publishLanding();
+  revalidatePath("/admin/landing");
 }
