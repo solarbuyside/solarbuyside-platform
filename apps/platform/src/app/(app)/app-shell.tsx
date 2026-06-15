@@ -20,6 +20,7 @@ import {
   FileText,
   ShieldAlert,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/app/(auth)/actions";
@@ -31,11 +32,20 @@ type SidebarItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
+export type AppShellRole = "admin" | "writer" | "user";
+
 export type AppShellUser = {
   fullName: string | null;
   email: string | null;
+  role: AppShellRole;
   isAdmin: boolean;
 };
+
+function roleLabel(role: AppShellRole) {
+  if (role === "admin") return "Administrador";
+  if (role === "writer") return "Editor";
+  return "Comprador Solar";
+}
 
 export type SearchItem = {
   id: string;
@@ -191,7 +201,7 @@ export function AppShell({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-200 truncate leading-none">{displayName}</p>
                 <span className="text-xs text-slate-400 truncate mt-1 block">
-                  {user.isAdmin ? "Administrador" : "Comprador Solar"}
+                  {roleLabel(user.role)}
                 </span>
               </div>
             )}
@@ -268,10 +278,11 @@ export function AppShell({
             {user.isAdmin && (
               <Link
                 href="/admin"
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition-colors hover:border-primary/40 hover:text-primary"
+                title="Administração"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 text-xs font-bold text-primary transition-colors hover:border-primary/50 hover:bg-primary/15"
               >
                 <ShieldCheck className="h-4 w-4" />
-                <span className="hidden lg:inline">Admin</span>
+                <span className="hidden lg:inline">Administração</span>
               </Link>
             )}
             <Link
@@ -493,6 +504,7 @@ function breadcrumbFor(pathname: string): string[] {
     manual: "Manual Solar Buy-Side",
     configuracoes: "Configurações",
     admin: "Admin",
+    usuarios: "Usuários",
   };
   const parts = pathname.split("/").filter(Boolean);
   if (parts.length === 0) return ["Dashboard"];
@@ -846,14 +858,25 @@ function UserMenu({
               Ver tour de boas-vindas
             </button>
             {user.isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-              >
-                <ShieldCheck className="h-4 w-4 text-slate-400" />
-                Painel Admin
-              </Link>
+              <>
+                <div className="my-1 border-t border-slate-100" />
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg bg-primary/10 px-3 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/15"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Administração
+                </Link>
+                <Link
+                  href="/admin/usuarios"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                >
+                  <Users className="h-4 w-4 text-slate-400" />
+                  Gerenciar usuários
+                </Link>
+              </>
             )}
 
             {/* Documentos legais */}

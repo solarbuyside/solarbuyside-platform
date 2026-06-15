@@ -76,6 +76,14 @@ export default async function AdminPage() {
 
       {/* PLATAFORMA */}
       <Section title="Plataforma" icon={ShieldCheck}>
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <NavCard
+            href="/admin/usuarios"
+            icon={Users}
+            title="Usuários"
+            desc="Editar dados, bloquear o acesso ou remover contas da plataforma."
+          />
+        </div>
         <AdminDashboard overview={overview} />
       </Section>
     </div>

@@ -12,11 +12,13 @@ import { updateProfileAction } from "./actions";
 export function SettingsForm({
   email,
   isAdmin,
+  roleLabel,
   initialFullName,
   initialPhone,
 }: {
   email: string | null;
   isAdmin: boolean;
+  roleLabel: string;
   initialFullName: string | null;
   initialPhone: string | null;
 }) {
@@ -49,9 +51,7 @@ export function SettingsForm({
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Perfil</h3>
-          <Badge variant={isAdmin ? "orange" : "secondary"}>
-            {isAdmin ? "Administrador" : "Comprador"}
-          </Badge>
+          <Badge variant={isAdmin ? "orange" : "secondary"}>{roleLabel}</Badge>
         </div>
 
         <div className="space-y-4">

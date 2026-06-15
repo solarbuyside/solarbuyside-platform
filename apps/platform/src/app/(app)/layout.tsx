@@ -91,6 +91,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       user={{
         fullName: user?.fullName ?? null,
         email: user?.email ?? null,
+        role: user?.role ?? "user",
         isAdmin: user?.isAdmin ?? false,
       }}
       searchItems={searchItems}

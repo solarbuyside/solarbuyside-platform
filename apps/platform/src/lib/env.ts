@@ -35,12 +35,55 @@ export function getSupabaseSecretKey() {
   );
 }
 
+/**
+ * Papéis da equipe interna (staff) com acesso ao painel admin.
+ * - "admin": dono — pode tudo, inclusive remover/bloquear outros admins.
+ * - "writer": acesso total ao painel, mas NÃO pode remover/bloquear um admin.
+ */
+export type StaffRole = "admin" | "writer";
+
+/**
+ * Equipe interna padrão (e-mail → papel). É a fonte de verdade de runtime para
+ * o acesso ao painel e para as regras de proteção (writer não remove admin).
+ * Mantido em config (não no banco) de propósito: a equipe é fixa e pequena, e
+ * assim não há risco de se trancar fora por um UPDATE errado. Pode ser
+ * estendido/ajustado via env STAFF_ROLES="email:admin,email:writer".
+ */
+const DEFAULT_STAFF_ROLES: Record<string, StaffRole> = {
+  "francis_poloni@yahoo.com.br": "admin",
+  "contato@buyside.com.br": "admin",
+  "gab.feelix@gmail.com": "writer",
+};
+
+function parseStaffRolesEnv(): Record<string, StaffRole> {
+  const raw = cleanEnv(process.env.STAFF_ROLES);
+  if (!raw) return {};
+  const out: Record<string, StaffRole> = {};
+  for (const pair of raw.split(",")) {
+    const [email, role] = pair.split(":").map((s) => s?.trim().toLowerCase());
+    if (email && (role === "admin" || role === "writer")) out[email] = role;
+  }
+  return out;
+}
+
+/** Mapa efetivo de staff (defaults sobrescritos pelo env STAFF_ROLES). */
+export function getStaffRoles(): Record<string, StaffRole> {
+  return { ...DEFAULT_STAFF_ROLES, ...parseStaffRolesEnv() };
+}
+
+/** Papel de staff do e-mail ("admin"/"writer") ou null se não for da equipe. */
+export function staffRoleForEmail(email: string | null | undefined): StaffRole | null {
+  if (!email) return null;
+  return getStaffRoles()[email.trim().toLowerCase()] ?? null;
+}
+
 export function getAdminEmails() {
-  const raw = cleanEnv(process.env.ADMIN_EMAILS) ?? "gab.feelix@gmail.com";
-  return raw
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
+  const raw = cleanEnv(process.env.ADMIN_EMAILS);
+  const fromEnv = raw
+    ? raw.split(",").map((email) => email.trim().toLowerCase()).filter(Boolean)
+    : [];
+  // Todo staff (admin + writer) tem acesso ao painel; soma com o que vier do env.
+  return Array.from(new Set([...Object.keys(getStaffRoles()), ...fromEnv]));
 }
 
 export function isAdminEmail(email: string | null | undefined) {

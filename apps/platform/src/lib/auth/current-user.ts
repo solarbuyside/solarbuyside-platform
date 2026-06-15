@@ -1,10 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/env";
+import { isAdminEmail, staffRoleForEmail } from "@/lib/env";
+
+/** Papel do usuário no painel. "user" = comprador comum (sem acesso ao admin). */
+export type UserRole = "admin" | "writer" | "user";
 
 export type CurrentUser = {
   id: string;
   email: string | null;
   fullName: string | null;
+  /** "admin" | "writer" = equipe (acessa o painel); "user" = comprador. */
+  role: UserRole;
+  /** Atalho de gating: true para qualquer membro da equipe (admin ou writer). */
   isAdmin: boolean;
 };
 
@@ -19,11 +25,16 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   // full_name may live in user metadata.
   const meta = (claims.user_metadata ?? {}) as { full_name?: string };
 
+  // Papel vem do mapa de staff; e-mails listados em ADMIN_EMAILS (sem papel
+  // explícito) caem como "admin" por compatibilidade.
+  const role: UserRole = staffRoleForEmail(email) ?? (isAdminEmail(email) ? "admin" : "user");
+
   return {
     id: claims.sub,
     email,
     fullName: meta.full_name ?? null,
-    isAdmin: isAdminEmail(email),
+    role,
+    isAdmin: role !== "user",
   };
 }
 

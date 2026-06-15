@@ -19,6 +19,9 @@ export default async function ConfiguracoesPage() {
       <SettingsForm
         email={user.email}
         isAdmin={user.isAdmin}
+        roleLabel={
+          user.role === "admin" ? "Administrador" : user.role === "writer" ? "Editor" : "Comprador"
+        }
         initialFullName={profile?.fullName ?? user.fullName}
         initialPhone={profile?.phone ?? null}
       />
