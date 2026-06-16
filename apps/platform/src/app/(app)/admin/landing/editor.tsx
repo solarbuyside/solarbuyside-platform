@@ -38,7 +38,9 @@ import { RichTextEditor } from "./rich-text";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
 
-const LP_URL = "https://solarbuyside.com.br";
+// O editor alimenta o redesign v4 (Solar Dawn), que vive em /v4 enquanto a raiz
+// segue na LP oficial atual. Preview precisa apontar pro v4.
+const LP_URL = "https://solarbuyside.com.br/v4";
 
 // section_id -> âncora (id) na landing, para o scroll do preview.
 const SECTION_ANCHOR: Record<string, string> = {
