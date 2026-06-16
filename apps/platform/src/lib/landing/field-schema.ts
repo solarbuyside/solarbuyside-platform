@@ -485,8 +485,12 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           rich("title", "Título principal", {
             help: "Selecione palavras e use Laranja/Azul/Gradiente para destacar.",
           }),
-          t("titleFirst", "Título (variante A)"),
-          t("titleSecond", "Título (variante B)"),
+          rich("titleFirst", "Título (variante A)", {
+            help: "O efeito de cor/gradiente já vem aplicado. Edite o texto e use os botões para destacar.",
+          }),
+          rich("titleSecond", "Título (variante B)", {
+            help: "O efeito de cor/gradiente já vem aplicado. Edite o texto e use os botões para destacar.",
+          }),
           ml("subtitle", "Subtítulo"),
           t("subtitleFirst", "Subtítulo (variante A)"),
           t("subtitleSecond", "Subtítulo (variante B)"),
