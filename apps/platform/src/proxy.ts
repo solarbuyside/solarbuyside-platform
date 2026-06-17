@@ -13,7 +13,10 @@ const protectedPrefixes = [
   "/configuracoes",
   "/admin",
 ];
-const authPrefixes = ["/login", "/cadastro", "/reset-password", "/update-password"];
+// /update-password NÃO entra aqui: a sessão de recovery/1º acesso é autenticada
+// e PRECISA acessar essa tela pra criar/redefinir a senha. (Se entrasse, o
+// middleware mandaria pro /dashboard e o usuário nunca criaria senha.)
+const authPrefixes = ["/login", "/cadastro", "/reset-password"];
 
 export async function proxy(request: NextRequest) {
   const { url, publishableKey } = getPublicSupabaseConfig();
