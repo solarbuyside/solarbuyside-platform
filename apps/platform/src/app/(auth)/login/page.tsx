@@ -63,9 +63,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </div>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Ainda não tem conta?{" "}
-        <Link href="/cadastro" className="font-bold text-primary hover:underline">
-          Criar conta
+        É seu primeiro acesso?{" "}
+        <Link href="/primeiro-acesso" className="font-bold text-primary hover:underline">
+          Criar senha de acesso
         </Link>
       </p>
     </AuthShell>

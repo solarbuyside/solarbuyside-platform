@@ -6,9 +6,10 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminEmail } from "@/lib/env";
+import { isAdminEmail, getAppUrl } from "@/lib/env";
 import { make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 import { validatePassword } from "@/lib/auth/password-rules";
+import { sendAccessEmail } from "@/lib/email/brevo";
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -72,6 +73,51 @@ export async function signUpAction() {
     "/login",
     "message",
     "O acesso é liberado após a compra do Manual Solar Buy-Side. Use o e-mail da compra para entrar.",
+  );
+}
+
+/**
+ * 1º acesso fora do link da compra. Quem comprou (Manual/PDF) já tem conta
+ * provisionada pela Greenn, mas pode chegar ao site sem ter clicado no e-mail
+ * inicial. Aqui ele informa o e-mail da compra e reenviamos o mesmo link seguro
+ * de criação de senha (token recovery via Brevo, idêntico ao provisionamento).
+ *
+ * Anti-enumeração: a resposta é SEMPRE neutra — não revelamos se o e-mail tem
+ * acesso. Se a conta não existir, geramos silêncio (nenhum e-mail é enviado).
+ */
+async function sendFirstAccessLink(email: string): Promise<void> {
+  const admin = createAdminClient();
+  const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+    options: { redirectTo: `${getAppUrl()}/update-password` },
+  });
+  const tokenHash = linkData?.properties?.hashed_token;
+  if (linkErr || !tokenHash) return; // conta inexistente: silêncio
+
+  const actionLink = `${getAppUrl()}/auth/confirm?token_hash=${encodeURIComponent(tokenHash)}&type=recovery&next=${encodeURIComponent("/update-password")}`;
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("email", email)
+    .maybeSingle();
+
+  await sendAccessEmail({ to: email, name: profile?.full_name ?? null, actionLink });
+}
+
+export async function firstAccessAction(formData: FormData) {
+  const email = stringValue(formData, "email").toLowerCase();
+
+  if (!email) {
+    redirectWith("/primeiro-acesso", "error", "Informe seu e-mail.");
+  }
+
+  await sendFirstAccessLink(email);
+
+  redirectWith(
+    "/primeiro-acesso",
+    "message",
+    "Se este e-mail tiver acesso liberado, enviamos um link para você criar sua senha. Confira a caixa de entrada (e o spam).",
   );
 }
 
