@@ -80,7 +80,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       desc:
         section?.texts.cardPlatformDesc ||
         'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.',
-      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-avaliacao.png',
+      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-lp-oficial.png',
       imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
       variant: 'bonus',
     },
