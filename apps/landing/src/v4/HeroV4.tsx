@@ -182,7 +182,7 @@ export const HeroV4: React.FC = () => {
             {/* lado B — o Código (produto vendido, peso igual ao Manual) */}
             <div className="flex items-center gap-4 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
               <img
-                src="/assets/mockup-codigo-vendedor.png"
+                src="/assets/codigo-vendedor-consutivo-imagem-oficial.png"
                 alt=""
                 aria-hidden
                 className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"
