@@ -87,7 +87,7 @@ export const ManualStrategicV4: React.FC = () => {
               <div className="relative flex justify-center">
                 <div className="absolute -inset-12 rounded-full bg-orange-500/25 blur-[120px]" aria-hidden />
 
-                <div className="relative w-[260px] max-w-full">
+                <div className="relative w-[390px] max-w-full">
                   <div className="relative">
                     <img
                       src={manualImage}
