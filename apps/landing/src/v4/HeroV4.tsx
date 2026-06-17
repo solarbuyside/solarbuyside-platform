@@ -179,10 +179,18 @@ export const HeroV4: React.FC = () => {
             <span className="pointer-events-none absolute -left-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:left-[53.5%] md:-top-2 md:block md:-translate-x-1/2 md:translate-y-0" aria-hidden />
             <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:-bottom-2 md:left-[53.5%] md:right-auto md:top-auto md:block md:-translate-x-1/2" aria-hidden />
 
-            {/* lado B — o bônus */}
-            <div className="flex flex-col justify-center gap-1 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
-              <p className="text-base font-bold leading-tight text-white">{bonusTitle}</p>
-              <p className="mt-1 text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
+            {/* lado B — o Código (produto vendido, peso igual ao Manual) */}
+            <div className="flex items-center gap-4 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
+              <img
+                src="/assets/foto-o-codigo-do-vendedor.png"
+                alt=""
+                aria-hidden
+                className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"
+              />
+              <div className="min-w-0">
+                <p className="text-base font-bold leading-tight text-white">{bonusTitle}</p>
+                <p className="mt-1 text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
+              </div>
             </div>
           </div>
         </div>
