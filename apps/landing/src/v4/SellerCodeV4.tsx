@@ -79,22 +79,7 @@ export const SellerCodeV4: React.FC = () => {
 
             {/* Bônus */}
             <Reveal delay={180} className="mt-12">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-orange-600" aria-hidden>
-                  ✦
-                </span>
-                <span>
-                  <span className="v4-mono block text-[10px] font-bold uppercase tracking-[0.25em] text-[#4f463c]">
-                    {section?.texts.badge || 'Oferta Especial'}
-                  </span>
-                  {section?.texts.badgeHighlight ? (
-                    <span className="block text-base font-bold uppercase tracking-tight text-[#181410]">
-                      {section.texts.badgeHighlight}
-                    </span>
-                  ) : null}
-                </span>
-              </div>
-              <h3 className="mt-4 inline-block rotate-[-1.5deg] rounded-xl bg-[#181410] px-6 py-2.5 font-['Sora'] text-xl font-extrabold tracking-tight text-[#f2ece1] shadow-[6px_6px_0_0_#f97316] md:text-2xl">
+              <h3 className="inline-block rotate-[-1.5deg] rounded-xl bg-[#181410] px-6 py-2.5 font-['Sora'] text-xl font-extrabold tracking-tight text-[#f2ece1] shadow-[6px_6px_0_0_#f97316] md:text-2xl">
                 {section?.texts.bonusTitle || 'BÔNUS EXCLUSIVO'}
               </h3>
               <p className="v4-serif mt-5 text-xl leading-relaxed text-[#4f463c] md:text-2xl">

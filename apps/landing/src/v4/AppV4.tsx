@@ -8,6 +8,7 @@ import { ContextV4 } from './ContextV4'
 import { VideoV4 } from './VideoV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
+import { CodeStrategicV4 } from './CodeStrategicV4'
 import { PlatformV4 } from './PlatformV4'
 import { StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
 import { SellerCodeV4 } from './SellerCodeV4'
@@ -47,10 +48,10 @@ const MarqueeBand: React.FC<{ tone?: 'cool' | 'warm' }> = ({ tone = 'cool' }) =>
       {[0, 1, 2].map((i) => (
         <span key={i} className="flex items-center gap-14 whitespace-nowrap">
           <span className="v4-stroke font-['Sora'] text-4xl font-extrabold tracking-tight md:text-6xl">
-            Solar Buy-Side
+            Manual de Compra
           </span>
           <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
-          <span className="v4-serif text-3xl text-slate-500/80 md:text-5xl">Manual de Compra</span>
+          <span className="v4-serif text-3xl text-slate-500/80 md:text-5xl">Código do Vendedor</span>
           <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
         </span>
       ))}
@@ -112,6 +113,9 @@ export default function AppV4() {
       </div>
       <div id="manual-strategic">
         <ManualStrategicV4 />
+      </div>
+      <div id="seller-code-intro">
+        <CodeStrategicV4 />
       </div>
       <div id="plataforma">
         <PlatformV4 />

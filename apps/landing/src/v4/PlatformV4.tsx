@@ -24,8 +24,9 @@ const INVESTMENTS = [17690, 16342.8, 15900, 14500, 17325.75, 17497]
 const EMPRESAS_INDICE = [66.9, 84.5, 26.8, 55.5, 69.1, 69.3]
 const TECNOLOGIAS_INDICE = [61.1, 73.7, 57.9, 55.8, 53.7, 74.7]
 const CONFIABILIDADE = [64.1, 79.2, 41.9, 55.6, 61.6, 72.0]
-/* Finalistas do exemplo: Renova (0) e Self Solar (5) — conforme o Francis. */
-const FINALISTS = new Set([0, 5])
+/* Finalista do exemplo: só a maior nota total (Índice de Confiabilidade) —
+   Soli Brasil (1), 79.2. As demais são descartadas. */
+const FINALISTS = new Set([1])
 
 /* No mobile a tabela mostra só 4 fornecedores (os 2 finalistas + a melhor e a
    pior pontuação); TAP Solar e Fotovolta Express aparecem a partir de md. */
@@ -205,9 +206,6 @@ export const PlatformV4: React.FC = () => {
     section?.texts.bullet1 || 'Compare propostas de fornecedores lado a lado',
     section?.texts.bullet2 || 'Pontuação por reputação, tecnologia e viabilidade',
     section?.texts.bullet3 || 'Índice de Confiabilidade de 0 a 100 para cada fornecedor',
-    section?.texts.bullet4 || 'Importe a planilha e o comparativo monta sozinho',
-    section?.texts.bullet5 || 'Manual completo para ler online, com busca por tópico',
-    section?.texts.bullet6 || 'Avaliações salvas para retomar quando quiser',
   ]
   const accessNote = section?.texts.accessNote || 'Acesso por 6 meses, liberado automaticamente após a compra.'
   const ctaButton = section?.texts.ctaButton || 'Quero o Manual + Plataforma'

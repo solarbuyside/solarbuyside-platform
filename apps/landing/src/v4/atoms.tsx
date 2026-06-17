@@ -211,8 +211,19 @@ type StampProps = {
 
 export const Stamp: React.FC<StampProps> = ({ text, children, size = 130, tone = 'ink', className = '' }) => {
   const id = useId().replace(/[:]/g, '')
-  const ring = `${text.toUpperCase()} • `.repeat(4)
   const color = tone === 'ink' ? '#181410' : '#f97316'
+
+  /* Repetição adaptativa: o anel só repete o quanto cabe na circunferência do
+     caminho (r=37 no viewBox 100 → ~232.5). Repetir 4x fixo fazia textos longos
+     ("GARANTIA INCONDICIONAL", "CRESCIMENTO") transbordarem e colidirem na emenda
+     (lia-se "GARANTIAGARANTIA"/"CRESCCRIMENTO"). textLength distribui o espaço
+     restante uniformemente, garantindo um anel completo sem sobreposição. */
+  const CIRC = 2 * Math.PI * 37
+  const AVG_ADVANCE = 9.2 * 0.6 + 1.5 // fontSize*~0.6 (monospace) + letterSpacing
+  const unit = `${text.toUpperCase()} • `
+  const reps = Math.max(1, Math.floor(CIRC / (unit.length * AVG_ADVANCE)))
+  const ring = unit.repeat(reps)
+
   return (
     <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
       <svg viewBox="0 0 100 100" className="v4-spin-slower absolute inset-0 h-full w-full" aria-hidden>
@@ -220,7 +231,7 @@ export const Stamp: React.FC<StampProps> = ({ text, children, size = 130, tone =
           <path id={`stamp-${id}`} d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
         </defs>
         <circle cx="50" cy="50" r="48" fill="none" stroke={color} strokeOpacity="0.5" strokeWidth="1" strokeDasharray="2 3" />
-        <text fontSize="9.2" fontFamily="'JetBrains Mono', monospace" fontWeight="700" letterSpacing="1.5" fill={color}>
+        <text fontSize="9.2" fontFamily="'JetBrains Mono', monospace" fontWeight="700" letterSpacing="1.5" fill={color} textLength={CIRC} lengthAdjust="spacing">
           <textPath href={`#stamp-${id}`}>{ring}</textPath>
         </text>
       </svg>

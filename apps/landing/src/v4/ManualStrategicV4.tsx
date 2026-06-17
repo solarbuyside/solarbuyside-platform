@@ -71,10 +71,6 @@ export const ManualStrategicV4: React.FC = () => {
                 {section?.texts.description2 ||
                   'Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).'}
               </p>
-              <p>
-                {section?.texts.description3 ||
-                  'Ao incorporar o conceito Buy-Side, vendedores lapidam sua abordagem comercial, entregam valor real, saem da briga por preço e elevam sua credibilidade no relacionamento com os clientes.'}
-              </p>
             </Reveal>
 
             <Reveal delay={360} className="mt-10">
@@ -91,7 +87,7 @@ export const ManualStrategicV4: React.FC = () => {
               <div className="relative flex justify-center">
                 <div className="absolute -inset-12 rounded-full bg-orange-500/25 blur-[120px]" aria-hidden />
 
-                <div className="relative w-[520px] max-w-full">
+                <div className="relative w-[260px] max-w-full">
                   <div className="relative">
                     <img
                       src={manualImage}
@@ -133,7 +129,7 @@ export const ManualStrategicV4: React.FC = () => {
               value={
                 section?.texts.section2Title?.trim()
                   ? section.texts.section2Title
-                  : 'Veja os resultados <span class="cms-orange">concretos</span> que você pode alcançar ao aplicar o <span class="cms-orange">Manual Solar Buy-Side</span> no seu processo de venda.'
+                  : 'Veja os resultados <span class="cms-orange">concretos</span> que você pode alcançar ao aplicar o <span class="cms-orange">Método Solar Buy-Side</span> no seu processo de venda.'
               }
             />
           </h2>

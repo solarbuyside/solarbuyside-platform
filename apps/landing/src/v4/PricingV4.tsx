@@ -75,6 +75,16 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       variant: 'default',
     },
     {
+      tag: section?.texts.cardPlatformTag || 'BÔNUS ESPECIAL',
+      title: section?.texts.cardPlatformTitle || 'Plataforma de Avaliação de Proposta Comercial',
+      desc:
+        section?.texts.cardPlatformDesc ||
+        'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.',
+      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-avaliacao.png',
+      imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
+      variant: 'bonus',
+    },
+    {
       tag: section?.texts.card3Tag || 'BÔNUS ESPECIAL',
       title: section?.texts.card3Title || 'Turbina sua Equipe de Venda',
       desc:
@@ -239,7 +249,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
         </Reveal>
 
         {/* Entregáveis — sem cards, capas no palco */}
-        <div className="mt-14 grid gap-12 md:grid-cols-3">
+        <div className="mt-14 grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {productCards.map((card, idx) => {
             const isBonus = card.variant === 'bonus'
             return (

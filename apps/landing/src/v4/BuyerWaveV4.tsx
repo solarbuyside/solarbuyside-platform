@@ -280,14 +280,19 @@ export const BuyerWaveV4: React.FC = () => {
                           className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0e0c10]/90 to-transparent"
                           aria-hidden
                         />
-                        <div className="absolute bottom-4 left-4 pr-4">
-                          <p className="font-['Sora'] text-lg font-bold tracking-tight text-white">{t.name}</p>
-                          <div className="v4-mono mt-1 flex flex-wrap items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-slate-300">
-                            <span>{t.role}</span>
-                            <span className="h-1 w-1 rounded-full bg-white/50" aria-hidden />
-                            <span>{t.location}</span>
+                        {/* Legenda só no slide ativo: os cards do deck (offset 1/2)
+                            ficam empilhados em absolute inset-0 e suas legendas
+                            vazavam por cima da ativa (dois locais sobrepostos). */}
+                        {offset === 0 && (
+                          <div className="absolute bottom-4 left-4 pr-4">
+                            <p className="font-['Sora'] text-lg font-bold tracking-tight text-white">{t.name}</p>
+                            <div className="v4-mono mt-1 flex flex-wrap items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-slate-300">
+                              <span>{t.role}</span>
+                              <span className="h-1 w-1 rounded-full bg-white/50" aria-hidden />
+                              <span>{t.location}</span>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <div

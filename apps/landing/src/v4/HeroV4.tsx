@@ -24,11 +24,9 @@ export const HeroV4: React.FC = () => {
   const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
   const manualSubtitle =
     section?.texts.manualSubtitle || 'Construído a partir da observação real de como compradores decidem, na prática.'
-  const bonusBadge = section?.texts.bonusBadge || 'Bônus Exclusivo'
   const bonusTitle = section?.texts.bonusTitle || 'O Código do Vendedor Consultivo'
   const bonusSubtitle = section?.texts.bonusSubtitle || 'Para quem quer conduzir decisões, não concessões.'
   const ctaButton = section?.texts.ctaButton || 'Quero meu acesso agora'
-  const ctaSecondary = section?.texts.ctaSecondary || 'Ver como funciona'
   const ctaSubtext = section?.texts.ctaSubtext || 'Acesso imediato ao Manual Solar Buy-Side.'
   const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
@@ -144,9 +142,6 @@ export const HeroV4: React.FC = () => {
               {ctaButton}
               <CtaArrow />
             </Cta>
-            <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('video-section')}>
-              {ctaSecondary}
-            </Cta>
           </div>
           <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500">
             <CheckCircle2 size={14} className="text-emerald-500" />
@@ -186,12 +181,8 @@ export const HeroV4: React.FC = () => {
 
             {/* lado B — o bônus */}
             <div className="flex flex-col justify-center gap-1 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
-              <span className="v4-mono inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-orange-400">
-                <span aria-hidden>✦</span>
-                {bonusBadge}
-              </span>
-              <p className="text-sm font-bold leading-tight text-white">{bonusTitle}</p>
-              <p className="text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
+              <p className="text-base font-bold leading-tight text-white">{bonusTitle}</p>
+              <p className="mt-1 text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
             </div>
           </div>
         </div>
