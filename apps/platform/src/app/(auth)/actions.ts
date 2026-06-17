@@ -5,6 +5,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/env";
 import { make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 
@@ -116,6 +117,13 @@ export async function updatePasswordAction(formData: FormData) {
   // (evita o /verificar redundante logo após o reset / 1º acesso da Greenn).
   const userId = updated?.user?.id;
   if (userId) {
+    // Marca que o usuário já criou a própria senha (encerra o 1º acesso) e
+    // satisfaz o 2FA desta sessão (cookie) — evita o /verificar redundante.
+    await createAdminClient()
+      .from("profiles")
+      .update({ password_set_at: new Date().toISOString() })
+      .eq("id", userId);
+
     const cookieStore = await cookies();
     cookieStore.set(TWO_FA_COOKIE, make2faToken(userId), {
       httpOnly: true,

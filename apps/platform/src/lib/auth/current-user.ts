@@ -117,6 +117,29 @@ export async function needsOnboarding(): Promise<boolean> {
   return !data?.onboarded_at;
 }
 
+/**
+ * True quando o usuário ainda NÃO criou a própria senha (1º acesso Greenn).
+ * O provisionamento cria a conta com senha aleatória e password_set_at NULL;
+ * o app deve forçar /update-password até a senha ser definida. Admin nunca cai
+ * aqui (não passa pelo provisionamento).
+ */
+export async function needsPasswordSetup(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
+  const userId = claims?.claims?.sub;
+  const email = (claims?.claims?.email as string | undefined) ?? null;
+  if (!userId || isAdminEmail(email)) return false;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("password_set_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !data) return false; // não trava o app em falha de query
+  return !data.password_set_at;
+}
+
 export async function getProfileDetails(): Promise<ProfileDetails | null> {
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();

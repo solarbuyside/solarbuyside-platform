@@ -15,6 +15,7 @@ export type Database = {
           greenn_order_id: string | null;
           blocked_at: string | null;
           access_source: string | null;
+          password_set_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -29,6 +30,7 @@ export type Database = {
           greenn_order_id?: string | null;
           blocked_at?: string | null;
           access_source?: string | null;
+          password_set_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
