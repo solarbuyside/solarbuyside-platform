@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 import { isAdminEmail, staffRoleForEmail } from "@/lib/env";
 
@@ -14,25 +16,71 @@ export type CurrentUser = {
   isAdmin: boolean;
 };
 
-/** Reads the authenticated user's identity for UI (header, admin gating). */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+type SessionClaims = {
+  sub: string;
+  email: string | null;
+  fullName: string | null;
+};
+
+type GateProfile = {
+  access_expires_at: string | null;
+  blocked_at: string | null;
+  password_set_at: string | null;
+  onboarded_at: string | null;
+  full_name: string | null;
+  phone: string | null;
+  company_name: string | null;
+};
+
+/**
+ * Identidade da sessão — UMA verificação por request (memoizada com React
+ * cache()). `getClaims()` valida o JWT localmente (sem ida ao Auth server com
+ * chaves assimétricas), então é seguro e rápido. Layout, páginas e actions que
+ * chamam isto no mesmo request reusam o mesmo resultado.
+ */
+export const getSessionClaims = cache(async (): Promise<SessionClaims | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   if (error || !data?.claims?.sub) return null;
-
   const claims = data.claims;
-  const email = (claims.email as string | undefined) ?? null;
-  // full_name may live in user metadata.
   const meta = (claims.user_metadata ?? {}) as { full_name?: string };
+  return {
+    sub: claims.sub,
+    email: (claims.email as string | undefined) ?? null,
+    fullName: meta.full_name ?? null,
+  };
+});
+
+/**
+ * Perfil de gating — UMA query por request (memoizada). Traz todas as colunas
+ * que o portão do app + telas precisam, evitando N consultas separadas. Null se
+ * não logado ou se a query falhar (o portão não trava o app em falha).
+ */
+export const getGateProfile = cache(async (): Promise<GateProfile | null> => {
+  const claims = await getSessionClaims();
+  if (!claims) return null;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("access_expires_at,blocked_at,password_set_at,onboarded_at,full_name,phone,company_name")
+    .eq("id", claims.sub)
+    .maybeSingle();
+  return data ?? null;
+});
+
+/** Reads the authenticated user's identity for UI (header, admin gating). */
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  const claims = await getSessionClaims();
+  if (!claims) return null;
 
   // Papel vem do mapa de staff; e-mails listados em ADMIN_EMAILS (sem papel
   // explícito) caem como "admin" por compatibilidade.
-  const role: UserRole = staffRoleForEmail(email) ?? (isAdminEmail(email) ? "admin" : "user");
+  const role: UserRole = staffRoleForEmail(claims.email) ?? (isAdminEmail(claims.email) ? "admin" : "user");
 
   return {
     id: claims.sub,
-    email,
-    fullName: meta.full_name ?? null,
+    email: claims.email,
+    fullName: claims.fullName,
     role,
     isAdmin: role !== "user",
   };
@@ -46,18 +94,10 @@ export type AccessGate = { allowed: boolean; reason: "ok" | "expired" | "blocked
  * (banner de contagem regressiva nos últimos dias).
  */
 export async function getAccessExpiry(): Promise<{ expiresAt: string; daysLeft: number } | null> {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  const email = (claims?.claims?.email as string | undefined) ?? null;
-  if (!userId || isAdminEmail(email)) return null;
+  const claims = await getSessionClaims();
+  if (!claims || isAdminEmail(claims.email)) return null;
 
-  const { data } = await supabase
-    .from("profiles")
-    .select("access_expires_at")
-    .eq("id", userId)
-    .maybeSingle();
-  const exp = data?.access_expires_at;
+  const exp = (await getGateProfile())?.access_expires_at;
   if (!exp) return null;
   const daysLeft = Math.ceil((new Date(exp).getTime() - Date.now()) / 86_400_000);
   return { expiresAt: exp, daysLeft };
@@ -69,20 +109,12 @@ export async function getAccessExpiry(): Promise<{ expiresAt: string; daysLeft: 
  * access_expires_at (antigas/admin/manuais) e admins passam sempre.
  */
 export async function getAccessGate(): Promise<AccessGate> {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  const email = (claims?.claims?.email as string | undefined) ?? null;
-  if (!userId) return { allowed: true, reason: "ok" }; // não logado → middleware trata
-  if (isAdminEmail(email)) return { allowed: true, reason: "ok" };
+  const claims = await getSessionClaims();
+  if (!claims) return { allowed: true, reason: "ok" }; // não logado → middleware trata
+  if (isAdminEmail(claims.email)) return { allowed: true, reason: "ok" };
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("access_expires_at,blocked_at")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error || !data) return { allowed: true, reason: "ok" }; // não trava o app em falha de query
+  const data = await getGateProfile();
+  if (!data) return { allowed: true, reason: "ok" }; // não trava o app em falha de query
   if (data.blocked_at) return { allowed: false, reason: "blocked" };
   if (data.access_expires_at && new Date(data.access_expires_at).getTime() < Date.now()) {
     return { allowed: false, reason: "expired" };
@@ -96,25 +128,14 @@ export type ProfileDetails = {
   companyName: string | null;
 };
 
-/** Reads the editable profile row for the current user. */
 /**
  * True quando o usuário ainda NÃO concluiu o onboarding (primeiro acesso).
  * Se não houver linha de perfil ainda, tratamos como primeiro acesso.
  */
 export async function needsOnboarding(): Promise<boolean> {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  if (!userId) return false;
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("onboarded_at")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error) return false; // não bloqueia o app se a query falhar
-  return !data?.onboarded_at;
+  const claims = await getSessionClaims();
+  if (!claims) return false;
+  return !(await getGateProfile())?.onboarded_at;
 }
 
 /**
@@ -124,35 +145,19 @@ export async function needsOnboarding(): Promise<boolean> {
  * aqui (não passa pelo provisionamento).
  */
 export async function needsPasswordSetup(): Promise<boolean> {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  const email = (claims?.claims?.email as string | undefined) ?? null;
-  if (!userId || isAdminEmail(email)) return false;
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("password_set_at")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error || !data) return false; // não trava o app em falha de query
+  const claims = await getSessionClaims();
+  if (!claims || isAdminEmail(claims.email)) return false;
+  const data = await getGateProfile();
+  if (!data) return false; // não trava o app em falha de query
   return !data.password_set_at;
 }
 
+/** Reads the editable profile row for the current user. */
 export async function getProfileDetails(): Promise<ProfileDetails | null> {
-  const supabase = await createClient();
-  const { data: claims } = await supabase.auth.getClaims();
-  const userId = claims?.claims?.sub;
-  if (!userId) return null;
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("full_name,phone,company_name")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error || !data) return { fullName: null, phone: null, companyName: null };
+  const claims = await getSessionClaims();
+  if (!claims) return null;
+  const data = await getGateProfile();
+  if (!data) return { fullName: null, phone: null, companyName: null };
   return {
     fullName: data.full_name,
     phone: data.phone,
