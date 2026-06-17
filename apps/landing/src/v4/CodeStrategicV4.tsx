@@ -12,7 +12,7 @@ export const CodeStrategicV4: React.FC = () => {
   const section = getSection('seller-code')
 
   const codeImage =
-    section?.images.codeImage || section?.images.book || '/assets/foto-o-codigo-do-vendedor.png'
+    section?.images.codeImage || section?.images.book || '/assets/mockup-codigo-vendedor.png'
 
   return (
     <section className="relative overflow-hidden bg-[#0b0907] text-slate-100 antialiased">

@@ -151,7 +151,7 @@ export const HeroV4: React.FC = () => {
 
         {/* ticket de acesso: manual + bônus com picote central */}
         <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '820ms' }}>
-          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-[1.15fr_1fr]">
+          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-2">
             {/* lado A — o manual (capa real, não ícone) */}
             <div className="flex items-center gap-4 p-6 text-left">
               <img
@@ -175,14 +175,14 @@ export const HeroV4: React.FC = () => {
             </div>
 
             {/* picote do ticket */}
-            <div className="pointer-events-none absolute inset-x-6 top-1/2 border-t border-dashed border-white/15 md:inset-x-auto md:inset-y-6 md:left-[53.5%] md:border-l md:border-t-0" aria-hidden />
-            <span className="pointer-events-none absolute -left-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:left-[53.5%] md:-top-2 md:block md:-translate-x-1/2 md:translate-y-0" aria-hidden />
-            <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:-bottom-2 md:left-[53.5%] md:right-auto md:top-auto md:block md:-translate-x-1/2" aria-hidden />
+            <div className="pointer-events-none absolute inset-x-6 top-1/2 border-t border-dashed border-white/15 md:inset-x-auto md:inset-y-6 md:left-1/2 md:border-l md:border-t-0" aria-hidden />
+            <span className="pointer-events-none absolute -left-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:left-1/2 md:-top-2 md:block md:-translate-x-1/2 md:translate-y-0" aria-hidden />
+            <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:-bottom-2 md:left-1/2 md:right-auto md:top-auto md:block md:-translate-x-1/2" aria-hidden />
 
             {/* lado B — o Código (produto vendido, peso igual ao Manual) */}
             <div className="flex items-center gap-4 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
               <img
-                src="/assets/foto-o-codigo-do-vendedor.png"
+                src="/assets/mockup-codigo-vendedor.png"
                 alt=""
                 aria-hidden
                 className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"

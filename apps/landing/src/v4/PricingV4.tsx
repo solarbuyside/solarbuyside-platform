@@ -70,7 +70,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
         section?.texts.card2Desc ||
         section?.texts.bonusSubtitle ||
         '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.',
-      image: section?.images.card2Image || section?.images.codeImage || '/assets/foto-o-codigo-do-vendedor.png',
+      image: section?.images.card2Image || section?.images.codeImage || '/assets/mockup-codigo-vendedor.png',
       imageAlt: 'Capa do Código do Vendedor Consultivo',
       variant: 'default',
     },
