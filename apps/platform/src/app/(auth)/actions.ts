@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/env";
 import { make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
+import { validatePassword } from "@/lib/auth/password-rules";
 
 function stringValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -101,8 +102,15 @@ export async function updatePasswordAction(formData: FormData) {
   const password = stringValue(formData, "password");
   const confirmPassword = stringValue(formData, "confirmPassword");
 
-  if (password.length < 8 || password !== confirmPassword) {
-    redirectWith("/update-password", "error", "As senhas precisam ser iguais e ter pelo menos 8 caracteres.");
+  if (password !== confirmPassword) {
+    redirectWith("/update-password", "error", "As senhas precisam ser iguais.");
+  }
+  if (!validatePassword(password).ok) {
+    redirectWith(
+      "/update-password",
+      "error",
+      "A senha precisa ter pelo menos 8 caracteres, uma letra maiúscula, um número e um símbolo.",
+    );
   }
 
   const supabase = await createClient();

@@ -1,7 +1,6 @@
 import { updatePasswordAction } from "../actions";
 import { AuthShell, AuthAlert } from "../_components/auth-shell";
-import { PasswordField } from "../_components/auth-fields";
-import { SubmitButton } from "../_components/submit-button";
+import { PasswordCreateFields } from "../_components/password-create-fields";
 import { needsPasswordSetup } from "@/lib/auth/current-user";
 
 type UpdatePasswordPageProps = {
@@ -31,25 +30,11 @@ export default async function UpdatePasswordPage({ searchParams }: UpdatePasswor
       <AuthAlert error={params.error} />
 
       <form action={updatePasswordAction} className="grid gap-4">
-        <PasswordField
-          label={firstAccess ? "Senha" : "Nova senha"}
-          name="password"
-          autoComplete="new-password"
-          placeholder="Mínimo de 8 caracteres"
-          minLength={8}
-          required
+        <PasswordCreateFields
+          passwordLabel={firstAccess ? "Senha" : "Nova senha"}
+          submitLabel={firstAccess ? "Criar senha e acessar" : "Atualizar senha"}
+          pendingLabel={firstAccess ? "Criando…" : "Atualizando…"}
         />
-        <PasswordField
-          label="Confirmar senha"
-          name="confirmPassword"
-          autoComplete="new-password"
-          placeholder="Repita a senha"
-          minLength={8}
-          required
-        />
-        <SubmitButton pendingLabel={firstAccess ? "Criando…" : "Atualizando…"}>
-          {firstAccess ? "Criar senha e acessar" : "Atualizar senha"}
-        </SubmitButton>
       </form>
     </AuthShell>
   );
