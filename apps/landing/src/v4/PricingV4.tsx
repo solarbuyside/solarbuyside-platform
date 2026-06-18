@@ -89,7 +89,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
     },
     {
       tag: section?.texts.card3Tag || 'BÔNUS ESPECIAL',
-      title: section?.texts.card3Title || 'Turbina sua Equipe de Venda',
+      title: section?.texts.card3Title || 'Turbine sua Equipe de Venda',
       desc:
         section?.texts.card3Desc ||
         'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.',

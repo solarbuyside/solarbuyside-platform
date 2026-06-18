@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 22
+export const CONTENT_VERSION = 23
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -172,7 +172,7 @@ export const initialContent: SectionContent[] = [
             "bonusTitle": "Código do Vendedor Consultivo",
             "card1Title": "Manual Solar Buy-Side",
             "card2Title": "Código do Vendedor Consultivo (26 páginas)",
-            "card3Title": "Turbina sua Equipe de Venda",
+            "card3Title": "Turbine sua Equipe de Venda",
             "priceCents": ",23",
             "priceValue": "92",
             "timerLabel": "Sua oferta expira em:",

@@ -53,7 +53,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ id }) => {
     },
     {
       tag: section?.texts.card3Tag || 'BÔNUS ESPECIAL',
-      title: section?.texts.card3Title || 'Turbina sua Equipe de Venda',
+      title: section?.texts.card3Title || 'Turbine sua Equipe de Venda',
       desc:
         section?.texts.card3Desc ||
         'Licença de Uso Coletiva: até 10 cópias por CNPJ. Distribua para todo o time comercial com máxima economia.',
