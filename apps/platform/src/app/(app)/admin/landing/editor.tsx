@@ -235,43 +235,49 @@ export function LandingEditor({
             Seções ({sections.length})
           </div>
           <div className="max-h-[460px] overflow-y-auto p-2">
-            {buyerWave && (
-              <button
-                onClick={() => setSelectedId(TESTIMONIALS_VIEW)}
-                className={cn(
-                  "mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                  selectedId === TESTIMONIALS_VIEW ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
-                )}
-              >
-                <Quote className="h-3.5 w-3.5 shrink-0" />
-                Depoimentos (cards)
-              </button>
-            )}
             {sections.map((s) => {
               const count = Object.keys(drafts[s.sectionId]?.texts ?? {}).length;
               const active = s.sectionId === selectedId;
-              return (
-                <button
-                  key={s.sectionId}
-                  onClick={() => setSelectedId(s.sectionId)}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                    active ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
-                  )}
-                >
-                  <span className="flex min-w-0 items-center gap-1.5">
-                    {localPending.has(s.sectionId) && (
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full bg-amber-500"
-                        title="Rascunho não publicado"
-                      />
+              // "Depoimentos (cards)" edita os cards do carrossel (parte da
+              // seção buyer-wave). Renderiza junto da buyer-wave p/ a lista
+              // seguir exatamente a ordem da LP, em vez de fixado no topo.
+              const cardsBtn =
+                s.sectionId === "buyer-wave" && buyerWave ? (
+                  <button
+                    onClick={() => setSelectedId(TESTIMONIALS_VIEW)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+                      selectedId === TESTIMONIALS_VIEW ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
                     )}
-                    <span className="truncate">{meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}</span>
-                  </span>
-                  <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                    {count}
-                  </span>
-                </button>
+                  >
+                    <Quote className="h-3.5 w-3.5 shrink-0" />
+                    Depoimentos (cards)
+                  </button>
+                ) : null;
+              return (
+                <React.Fragment key={s.sectionId}>
+                  {cardsBtn}
+                  <button
+                    onClick={() => setSelectedId(s.sectionId)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+                      active ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
+                    )}
+                  >
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      {localPending.has(s.sectionId) && (
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full bg-amber-500"
+                          title="Rascunho não publicado"
+                        />
+                      )}
+                      <span className="truncate">{meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}</span>
+                    </span>
+                    <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+                      {count}
+                    </span>
+                  </button>
+                </React.Fragment>
               );
             })}
           </div>
