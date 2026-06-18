@@ -44,6 +44,8 @@ type ProductCard = {
   image: string
   imageAlt: string
   variant: 'default' | 'bonus'
+  /** Capa em paisagem (notebook): preenche a altura dos livros, largura cresce. */
+  wide?: boolean
 }
 
 export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
@@ -83,6 +85,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-notebook.png',
       imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
       variant: 'bonus',
+      wide: true,
     },
     {
       tag: section?.texts.card3Tag || 'BÔNUS ESPECIAL',
@@ -274,9 +277,12 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     src={card.image}
                     alt={card.imageAlt}
                     loading={idx === 0 ? 'eager' : 'lazy'}
-                    // box uniforme p/ os 4 entregáveis; object-bottom alinha as
-                    // bases numa mesma linha (notebook é paisagem, mais baixo)
-                    className="h-[230px] w-[200px] object-contain object-bottom drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
+                    // todos com 230px de altura (mesma do Manual). Livros têm
+                    // largura fixa 200; o notebook (wide/paisagem) deixa a
+                    // largura crescer p/ igualar a altura dos livros.
+                    className={`h-[230px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04] ${
+                      card.wide ? 'w-auto max-w-none' : 'w-[200px] object-contain object-bottom'
+                    }`}
                   />
                   <div
                     className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
