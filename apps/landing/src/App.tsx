@@ -1,17 +1,15 @@
 import './App.css'
-import { lazy, Suspense } from 'react'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { LegalPage } from './components/LegalPage'
 import { Footer } from './components/Footer'
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
 import AppV1 from './AppV1'
+import AppV4 from './v4/AppV4'
 
-// LP OFICIAL = a versão "v1" (src/AppV1.tsx), renderizada na raiz "/".
-// O redesign V4 "Solar Dawn" segue em PREVIEW na rota /v4 (lazy), sem afetar a
-// produção. (Houve uma janela em 2026-06-11 em que a V4 foi promovida à raiz;
-// revertido a pedido — V4 volta a ser preview em /v4.)
-const AppV4 = lazy(() => import('./v4/AppV4'))
+// LP OFICIAL = o redesign V4 "Solar Dawn" (src/v4/AppV4.tsx), renderizado na
+// raiz "/". A versão antiga "v1" (src/AppV1.tsx) fica acessível em /v1 para
+// referência/rollback. (/v4 continua válido — cai no mesmo default da raiz.)
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
@@ -27,14 +25,11 @@ function App() {
     return null
   }
 
-  // Preview do redesign V4 — carregado sob demanda só em /v4. A LP oficial (/)
-  // não é afetada.
-  if (pathname === '/v4') {
+  // LP antiga (v1) preservada em /v1 para referência/rollback.
+  if (pathname === '/v1') {
     return (
       <>
-        <Suspense fallback={<div className="min-h-screen bg-[#07090d]" />}>
-          <AppV4 />
-        </Suspense>
+        <AppV1 />
         <Analytics />
         <SpeedInsights />
       </>
@@ -69,10 +64,10 @@ function App() {
     )
   }
 
-  // LP oficial (versão v1).
+  // LP oficial = V4 "Solar Dawn" (raiz e qualquer rota não especial, ex.: /v4).
   return (
     <>
-      <AppV1 />
+      <AppV4 />
       <Analytics />
       <SpeedInsights />
     </>
