@@ -37,6 +37,7 @@ export const ManualStrategicV4: React.FC = () => {
   const section = getSection('manual-strategic')
 
   const manualImage = section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'
+  const codeImage = section?.images.codeImage || '/assets/codigo-oficial-norm.png'
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
@@ -62,7 +63,7 @@ export const ManualStrategicV4: React.FC = () => {
               </p>
             </Reveal>
 
-            <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-slate-400">
+            <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
               <p>
                 {section?.texts.description1 ||
                   'O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.'}
@@ -71,13 +72,6 @@ export const ManualStrategicV4: React.FC = () => {
                 {section?.texts.description2 ||
                   'Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).'}
               </p>
-            </Reveal>
-
-            <Reveal delay={360} className="mt-10">
-              <Cta size="lg" onClick={() => scrollToId('oferta')}>
-                {section?.texts.ctaButton || 'Quero vender com estratégia'}
-                <CtaArrow size={20} />
-              </Cta>
             </Reveal>
           </div>
 
@@ -119,6 +113,63 @@ export const ManualStrategicV4: React.FC = () => {
             </Reveal>
           </div>
         </div>
+
+        {/* ── Código do Vendedor: vem logo após o Manual (ordem do Francis) ─ */}
+        <div className="mt-24 grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
+          <div className="relative z-10 flex flex-col lg:col-span-7">
+            <Reveal>
+              <Kicker tone="dark">Diferencial estratégico</Kicker>
+            </Reveal>
+            <Reveal delay={90}>
+              <h2 className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
+                Código do Vendedor Consultivo
+              </h2>
+            </Reveal>
+            <Reveal delay={180} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
+              <p>
+                Como complemento ao Manual de Compra Solar Buy-Side, o{' '}
+                <strong className="font-semibold text-slate-100">Código do Vendedor Consultivo</strong>{' '}
+                funciona como uma chave de acesso prática ao universo Buy-Side para profissionais de
+                vendas. Ele capacita o profissional a compreender como o cliente avalia risco, compara
+                propostas e toma decisões de investimento.
+              </p>
+              <p>
+                Ao aplicar o método, o profissional deixa de competir apenas por preço e passa a
+                conduzir decisões com mais segurança e credibilidade. O resultado é mais conversões,
+                margens mais saudáveis e clientes que encerram a negociação confiantes na escolha
+                realizada.
+              </p>
+            </Reveal>
+          </div>
+
+          <div className="lg:col-span-5">
+            <Reveal delay={180}>
+              <div className="relative flex justify-center">
+                <div className="absolute -inset-10 rounded-full bg-orange-500/20 blur-[110px]" aria-hidden />
+                <div className="relative w-[300px] max-w-full">
+                  <img
+                    src={codeImage}
+                    alt="O Código do Vendedor Consultivo"
+                    className="v4-float relative h-auto w-full drop-shadow-[0_30px_50px_rgba(0,0,0,0.6)]"
+                    loading="lazy"
+                  />
+                  <div
+                    className="absolute -bottom-8 left-1/2 h-14 w-[70%] -translate-x-1/2 rounded-[100%] bg-orange-500/20 blur-2xl"
+                    aria-hidden
+                  />
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* CTA — depois do Código, antes dos resultados (ordem do Francis) */}
+        <Reveal delay={120} className="mt-12">
+          <Cta size="lg" onClick={() => scrollToId('oferta')}>
+            {section?.texts.ctaButton || 'Quero vender com estratégia'}
+            <CtaArrow size={20} />
+          </Cta>
+        </Reveal>
 
         <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
 
