@@ -287,7 +287,10 @@ export function LandingEditor({
       {/* DIREITA — editor / preview / depoimentos */}
       <div className="lg:col-span-2">
         {selectedId === TESTIMONIALS_VIEW && buyerWave ? (
-          <TestimonialsEditor section={buyerWave} />
+          <TestimonialsEditor
+            section={buyerWave}
+            onSaved={() => setLocalPending((p) => new Set(p).add("buyer-wave"))}
+          />
         ) : (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">

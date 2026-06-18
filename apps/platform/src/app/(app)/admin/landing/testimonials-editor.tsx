@@ -41,7 +41,13 @@ function parseCards(section: LandingSection): Card[] {
 
 const blank: Card = { name: "", role: "", location: "", reviewTitle: "", quote: "", highlight: "", objectPosition: "50% 50%", avatar: "" };
 
-export function TestimonialsEditor({ section }: { section: LandingSection }) {
+export function TestimonialsEditor({
+  section,
+  onSaved,
+}: {
+  section: LandingSection;
+  onSaved?: () => void;
+}) {
   const [cards, setCards] = React.useState<Card[]>(() => {
     const c = parseCards(section);
     return c.length ? c : [{ ...blank }];
@@ -80,6 +86,7 @@ export function TestimonialsEditor({ section }: { section: LandingSection }) {
           images[`testimonial${i}Avatar`] = c.avatar;
         });
         await saveLandingSectionAction("buyer-wave", texts, images);
+        onSaved?.();
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
       } catch {
