@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 21
+export const CONTENT_VERSION = 22
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -206,9 +206,9 @@ export const initialContent: SectionContent[] = [
             "visa": "/assets/Visa.png",
             "boleto": "/assets/Boleto.png",
             "guarantee": "/assets/Garantia.png",
-            "card1Image": "/assets/livro-de-frente.png",
-            "card2Image": "/assets/segunda-img-sem-fundo.png",
-            "card3Image": "/assets/img-coletiva-frente.png",
+            "card1Image": "/assets/manual-norm.png",
+            "card2Image": "/assets/codigo-norm.png",
+            "card3Image": "/assets/coletiva-norm.png",
             "mastercard": "/assets/Mastercard.png",
             "securePurchase": "/assets/Compra segura.png"
         }
