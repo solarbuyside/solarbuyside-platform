@@ -274,8 +274,9 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     src={card.image}
                     alt={card.imageAlt}
                     loading={idx === 0 ? 'eager' : 'lazy'}
-                    // box uniforme p/ os 4 entregáveis (mesma medida + alinhados)
-                    className="h-[230px] w-[200px] object-contain drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
+                    // box uniforme p/ os 4 entregáveis; object-bottom alinha as
+                    // bases numa mesma linha (notebook é paisagem, mais baixo)
+                    className="h-[230px] w-[200px] object-contain object-bottom drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
                   />
                   <div
                     className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
