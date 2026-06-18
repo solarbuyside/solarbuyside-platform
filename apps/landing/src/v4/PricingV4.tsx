@@ -280,7 +280,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     // Todas as capas recortadas justas no conteúdo + altura fixa
                     // 230px e largura automática → MESMA ALTURA VISUAL nos 4
                     // entregáveis (livros e notebook).
-                    className="h-[230px] w-auto max-w-none drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
+                    className="h-[184px] w-auto max-w-none drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
                   />
                   <div
                     className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
