@@ -48,7 +48,7 @@ export const ManualStrategicV4: React.FC = () => {
         {/* ── Parte 1: spotlight do produto ─────────────────────────────── */}
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           {/* Texto */}
-          <div className="relative z-10 flex flex-col lg:col-span-6">
+          <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
               <Kicker tone="dark">{section?.texts.badge || 'A ferramenta estratégica'}</Kicker>
             </Reveal>
@@ -76,7 +76,7 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
 
           {/* Pedestal de luz: glow + capa flutuando + elipse no chão + reflexo */}
-          <div className="lg:sticky lg:top-24 lg:col-span-6">
+          <div className="lg:sticky lg:top-24 lg:col-span-5">
             <Reveal delay={180}>
               <div className="relative flex justify-center">
                 <div className="absolute -inset-12 rounded-full bg-orange-500/25 blur-[120px]" aria-hidden />
