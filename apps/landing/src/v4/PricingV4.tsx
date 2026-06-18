@@ -61,7 +61,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       desc:
         section?.texts.card1Desc ||
         'Acesso vitalício: 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato.',
-      image: section?.images.card1Image || section?.images.manualImage || '/assets/livro-de-frente.png',
+      image: section?.images.card1Image || section?.images.manualImage || '/assets/manual-norm.png',
       imageAlt: 'Capa do Manual Solar Buy-Side',
       variant: 'default',
     },
@@ -72,7 +72,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
         section?.texts.card2Desc ||
         section?.texts.bonusSubtitle ||
         '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.',
-      image: section?.images.card2Image || section?.images.codeImage || '/assets/codigo-oficial-norm.png',
+      image: section?.images.card2Image || section?.images.codeImage || '/assets/codigo-norm.png',
       imageAlt: 'Capa do Código do Vendedor Consultivo',
       variant: 'default',
     },
@@ -93,7 +93,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       desc:
         section?.texts.card3Desc ||
         'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.',
-      image: section?.images.card3Image || '/assets/img-coletiva-frente.png',
+      image: section?.images.card3Image || '/assets/coletiva-norm.png',
       imageAlt: 'Licença de Uso Coletiva',
       variant: 'bonus',
     },
@@ -277,12 +277,10 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     src={card.image}
                     alt={card.imageAlt}
                     loading={idx === 0 ? 'eager' : 'lazy'}
-                    // todos com 230px de altura (mesma do Manual). Livros têm
-                    // largura fixa 200; o notebook (wide/paisagem) deixa a
-                    // largura crescer p/ igualar a altura dos livros.
-                    className={`h-[230px] drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04] ${
-                      card.wide ? 'w-auto max-w-none' : 'w-[200px] object-contain object-bottom'
-                    }`}
+                    // Todas as capas recortadas justas no conteúdo + altura fixa
+                    // 230px e largura automática → MESMA ALTURA VISUAL nos 4
+                    // entregáveis (livros e notebook).
+                    className="h-[230px] w-auto max-w-none drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
                   />
                   <div
                     className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
