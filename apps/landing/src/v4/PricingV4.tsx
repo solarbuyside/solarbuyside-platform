@@ -277,10 +277,14 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     src={card.image}
                     alt={card.imageAlt}
                     loading={idx === 0 ? 'eager' : 'lazy'}
-                    // Todas as capas recortadas justas no conteúdo + altura fixa
-                    // 230px e largura automática → MESMA ALTURA VISUAL nos 4
-                    // entregáveis (livros e notebook).
-                    className="h-[184px] w-auto max-w-none drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04]"
+                    // Capas recortadas justas + altura fixa 184px → mesma altura
+                    // visual nos 4. A capa "wide" (tablet) ganha um halo claro
+                    // extra p/ descolar do fundo escuro da seção.
+                    className={`h-[184px] w-auto max-w-none transition duration-700 ease-out group-hover:-translate-y-3 group-hover:scale-[1.04] ${
+                      card.wide
+                        ? '[filter:drop-shadow(0_30px_40px_rgba(0,0,0,0.55))_drop-shadow(0_0_42px_rgba(165,185,220,0.32))]'
+                        : 'drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]'
+                    }`}
                   />
                   <div
                     className="mt-2 h-8 w-3/4 rounded-[100%] bg-orange-500/15 blur-xl transition duration-700 group-hover:scale-110"
