@@ -315,9 +315,45 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  plataforma: {
+    label: "Plataforma de avaliação",
+    order: 5,
+    groups: [
+      {
+        label: "Topo",
+        fields: [
+          t("badge", "Selo", { maxLength: 40 }),
+          comp(
+            "title",
+            "Título",
+            [tx("title"), hl("titleHighlight")],
+            "cms-orange",
+            "Frase inteira numa caixa. Destaque o trecho final (o que aparece em laranja).",
+          ),
+          ml("lead", "Texto de apoio"),
+        ],
+      },
+      {
+        label: "Itens (3)",
+        fields: [
+          t("bullet1", "Item 1"),
+          t("bullet2", "Item 2"),
+          t("bullet3", "Item 3"),
+        ],
+      },
+      {
+        label: "Botão",
+        fields: [
+          t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
+          t("accessNote", "Nota abaixo do botão", { maxLength: 80 }),
+        ],
+      },
+    ],
+  },
+
   testimonials: {
     label: "Depoimento (destaque)",
-    order: 5,
+    order: 6,
     groups: [
       {
         label: "Cabeçalho",
@@ -358,7 +394,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "story-bridge": {
     label: "Ponte / Narrativa",
-    order: 6,
+    order: 7,
     groups: [
       {
         label: "Topo",
@@ -387,7 +423,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "seller-code": {
     label: "Código do vendedor (bônus)",
-    order: 7,
+    order: 8,
     groups: [
       {
         label: "Topo",
@@ -432,7 +468,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   authority: {
     label: "Autoridade (autores)",
-    order: 10,
+    order: 11,
     groups: [
       {
         label: "Topo",
@@ -476,7 +512,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   pricing: {
     label: "Oferta / Preço",
-    order: 8,
+    order: 9,
     groups: [
       {
         label: "Cabeçalho",
@@ -552,7 +588,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "buyer-wave": {
     label: "Onda do comprador",
-    order: 9,
+    order: 10,
     groups: [
       {
         label: "Topo",
@@ -595,7 +631,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "lead-magnet": {
     label: "Isca (ebook)",
-    order: 11,
+    order: 12,
     groups: [
       {
         label: "Conteúdo",
@@ -632,7 +668,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   faq: {
     label: "Perguntas frequentes",
-    order: 12,
+    order: 13,
     groups: [
       {
         label: "Cabeçalho",
@@ -666,7 +702,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   newsletter: {
     label: "Newsletter",
-    order: 13,
+    order: 14,
     groups: [
       {
         label: "Campos",
@@ -685,7 +721,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   contact: {
     label: "Contato / Rodapé",
-    order: 14,
+    order: 15,
     groups: [
       {
         label: "Cabeçalho",

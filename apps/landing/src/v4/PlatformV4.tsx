@@ -199,6 +199,9 @@ export const PlatformV4: React.FC = () => {
   const section = getSection('plataforma')
 
   const badge = section?.texts.badge || 'Bônus Exclusivo'
+  const title = section?.texts.title || 'No Buy-Side sua proposta comercial tem nota.'
+  const titleHighlight =
+    section?.texts.titleHighlight || 'Teste suas propostas antes que o mercado as teste.'
   const lead =
     section?.texts.lead ||
     'A Plataforma de Avaliação Solar Buy-Side revela as forças e fraquezas das suas ofertas, ajudando sua empresa a entregar propostas mais competitivas, confiáveis e persuasivas.'
@@ -222,8 +225,8 @@ export const PlatformV4: React.FC = () => {
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-4 font-['Sora'] text-[clamp(2.1rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-              No Buy-Side sua proposta comercial tem nota.{' '}
-              <span className="v4-serif text-orange-400">Teste suas propostas antes que o mercado as teste.</span>
+              {title}{' '}
+              <span className="v4-serif text-orange-400">{titleHighlight}</span>
             </h2>
           </Reveal>
           <Reveal delay={170}>
