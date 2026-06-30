@@ -2,7 +2,6 @@ import { z } from "zod";
 
 import { buildInitialDraftComparisonStructure } from "@/domain/comparisons/draft-structure";
 import { comparisonWorkflowSummary } from "@/domain/comparisons/workflow";
-import { autoScoreFor } from "@/domain/comparisons/auto-scoring";
 import { scoreDefinitions } from "@/domain/comparisons/score-definitions";
 import {
   comparisonInputSchema,
@@ -790,40 +789,15 @@ export async function saveScoringMode(comparisonId: string, mode: "auto" | "manu
 }
 
 /**
- * Aplica as notas automáticas a TODOS os critérios pontuáveis (grava como
- * override), para o comprador partir das sugestões. Usado pelo botão
- * "Pontuar tudo automaticamente".
+ * NÃO persistir auto-scores. A nota automática é DADO DERIVADO — função pura de
+ * (dados da proposta + rubrica em auto-scoring.ts). Gravá-la em `score_entries`
+ * a congela: quando a rubrica muda (ex.: verificação Francis 2026-06-12), o
+ * índice continua mostrando o valor velho, porque `applyAutoScores` trata todo
+ * `score != null` como override manual e não recalcula.
+ *
+ * Por isso o antigo botão "Pontuar tudo automaticamente" (applyAutoScoresToAll)
+ * foi removido: em modo auto as células já mostram a nota ao vivo via
+ * `calculateComparisonResult(applyAutoScores(...))`; em modo manual o comprador
+ * digita as notas. `score_entries` só guarda o que um humano de fato decidiu
+ * (override pontual em auto, ou as notas em manual) — nunca o derivado.
  */
-export async function applyAutoScoresToAll(comparisonId: string) {
-  const input = await loadComparisonInput(comparisonId);
-  if (!input) throw new Error("Comparison not found.");
-
-  const { supabase } = await ownedComparisonOrThrow(comparisonId);
-  const rows: Array<{
-    comparison_id: string;
-    competitor_id: string;
-    criterion_key: string;
-    category: ScoreCategory;
-    score: number | null;
-  }> = [];
-
-  for (const competitor of input.competitors) {
-    for (const def of scoreDefinitions) {
-      const score = autoScoreFor(def.key, def.category, competitor);
-      if (score == null) continue; // mantém manuais/subjetivos vazios
-      rows.push({
-        comparison_id: comparisonId,
-        competitor_id: competitor.id,
-        criterion_key: def.key,
-        category: def.category,
-        score,
-      });
-    }
-  }
-
-  if (rows.length === 0) return;
-  const { error } = await supabase
-    .from("score_entries")
-    .upsert(rows, { onConflict: "competitor_id,criterion_key" });
-  if (error) throw new Error(error.message);
-}
