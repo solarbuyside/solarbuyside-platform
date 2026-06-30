@@ -378,7 +378,7 @@ function ScoreTable({
                       return (
                         <React.Fragment key={c.id}>
                           <td className="border-l border-slate-100 px-3 py-2 text-center text-slate-600">
-                            {formatAnswer(answer, row.kind)}
+                            {formatAnswer(answer, row.kind, row.prop)}
                           </td>
                           <td className="px-2 py-2 text-center">
                             {row.scoreKey ? (

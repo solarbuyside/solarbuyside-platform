@@ -35,6 +35,11 @@ import type {
   TechnicalEvaluation,
 } from "@/domain/comparisons/types";
 import { REPUTATION_OPTIONS } from "@/domain/comparisons/reputation";
+import {
+  oversizingRatio,
+  oversizingRatioLabel,
+  oversizingStoredValue,
+} from "@/domain/comparisons/oversizing";
 import { cn } from "@/lib/utils";
 import {
   addCompetitorAction,
@@ -922,7 +927,8 @@ export function FieldRow({
  * Campo de sobrecarga do inversor calculado automaticamente (slide 11).
  * - Razão = Potência do sistema (kWp) / Potência do inversor (kW).
  * - Armazena a razão (ex.: 1,28) para a pontuação automática.
- * - Exibe a sobrecarga em % = (razão - 1) * 100 (ex.: 1,28 → 28%).
+ * - Exibe a RAZÃO (ex.: 6,43/8 = 0,80), não a sobrecarga em % (verificação
+ *   Francis 2026-06-12). Lógica pura em domain/comparisons/oversizing.ts.
  */
 function OverloadField({
   field,
@@ -937,15 +943,12 @@ function OverloadField({
   storedRatio: unknown;
   onCommit: (value: unknown) => void;
 }) {
-  const ratio =
-    systemKwp != null && inverterKw != null && inverterKw > 0
-      ? systemKwp / inverterKw
-      : null;
+  const ratio = oversizingRatio(systemKwp, inverterKw);
 
   // Mantém o valor armazenado (razão) em sincronia com o cálculo.
   React.useEffect(() => {
     const current = typeof storedRatio === "number" ? storedRatio : null;
-    const next = ratio != null ? Math.round(ratio * 1000) / 1000 : null;
+    const next = oversizingStoredValue(ratio);
     if (current !== next) {
       onCommit(next);
     }
@@ -953,21 +956,17 @@ function OverloadField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ratio, storedRatio]);
 
-  const overloadPct = ratio != null ? Math.round((ratio - 1) * 100) : null;
-
   return (
     <label className="grid gap-1.5">
       <span className="text-sm font-medium text-slate-700">{field.label}</span>
       <div className="flex h-11 w-full items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-sm text-slate-800 shadow-sm">
-        <span className={overloadPct == null ? "text-slate-400" : "font-semibold"}>
-          {overloadPct == null ? "—" : `${overloadPct}%`}
+        <span className={ratio == null ? "text-slate-400" : "font-semibold"}>
+          {oversizingRatioLabel(ratio)}
         </span>
         <span className="text-[11px] text-slate-400">
           {ratio == null
             ? "Preencha potência do sistema e do inversor"
-            : `${systemKwp} / ${inverterKw} = ${(Math.round(ratio * 100) / 100)
-                .toString()
-                .replace(".", ",")}`}
+            : `${systemKwp} / ${inverterKw} = ${oversizingRatioLabel(ratio)}`}
         </span>
       </div>
     </label>

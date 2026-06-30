@@ -129,9 +129,12 @@ function normalizeBrand(value: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-/** Grupos de marca de MÓDULO → pontuação (5/6/8/10). Não listada = 5. */
+/** Grupos de marca de MÓDULO → pontuação (5/6/8/10). Não listada = 5.
+ *  Aliases de grafia real adicionados na verificação Francis 2026-06-30:
+ *  "zshine" (≈ ZNShine), "hsaee" (≈ H-SAAE), "canadian" (≈ Canadian Solar) —
+ *  todos grupo 10. Ver brandMatches para a tolerância de grafia. */
 const MODULE_BRAND_GROUPS: Array<{ score: number; brands: string[] }> = [
-  { score: 10, brands: ["jinko", "longi", "phono", "znshine", "hsaae", "canadiansolar", "aiko", "twsolar"] },
+  { score: 10, brands: ["jinko", "longi", "phono", "znshine", "zshine", "hsaae", "hsaee", "canadiansolar", "canadian", "aiko", "twsolar"] },
   { score: 8, brands: ["trina", "qcells", "yingli"] },
   { score: 6, brands: ["jasolar", "astroenergy", "gcl", "dmegc", "tcl"] },
 ];
@@ -147,6 +150,23 @@ const INVERTER_BRAND_GROUPS: Array<{ score: number; brands: string[] }> = [
   { score: 6, brands: ["tsuness", "must", "auxsol", "inversotecnologia"] },
 ];
 
+/**
+ * Casa a marca digitada (normalizada) com um keyword do grupo. Bidirecional,
+ * para tolerar grafias reais do mercado:
+ *  1. a marca digitada CONTÉM o keyword — ex.: "tclsolar" ⊇ "tcl" (comportamento
+ *     original, pega "Marca Solar" quando o keyword é o miolo);
+ *  2. o keyword COMEÇA com a marca digitada (≥4 chars) — ex.: "canadian" →
+ *     "canadiansolar". Usa startsWith (não includes) na volta para NÃO casar
+ *     tokens genéricos no meio do keyword (ex.: "solar" ⊄ início de nada).
+ * Variações que não são prefixo nem substring (ex.: "zshine" vs "znshine",
+ * "hsaee" vs "hsaae") são resolvidas por alias explícito na lista do grupo.
+ */
+function brandMatches(brand: string, keyword: string): boolean {
+  if (brand.includes(keyword)) return true;
+  if (brand.length >= 4 && keyword.startsWith(brand)) return true;
+  return false;
+}
+
 function classifyBrand(
   value: string | null | undefined,
   groups: Array<{ score: number; brands: string[] }>,
@@ -154,8 +174,9 @@ function classifyBrand(
 ): number | null {
   if (!value || !value.trim()) return null;
   const brand = normalizeBrand(value);
+  if (!brand) return null;
   for (const group of groups) {
-    if (group.brands.some((b) => brand.includes(b))) return group.score;
+    if (group.brands.some((b) => brandMatches(brand, b))) return group.score;
   }
   return fallback;
 }

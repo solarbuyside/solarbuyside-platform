@@ -137,14 +137,36 @@ const CHOICE_LABEL: Record<string, string> = {
   ...REPUTATION_LABEL,
 };
 
+/**
+ * Overrides de label POR CAMPO: quando o mesmo valor enum significa coisas
+ * diferentes em campos distintos. Ex.: `unknown` é "Não sei" em quase todos,
+ * mas em "instalações por funcionário próprio" o rótulo é "Tenho dúvida"
+ * (espelha o formulário de preenchimento). Sem isso, o comparativo cairia no
+ * label genérico ("Não sei"). A chave é o `prop` camelCase (= row.prop).
+ */
+const FIELD_VALUE_LABEL: Record<string, Record<string, string>> = {
+  ownInstallationTeam: {
+    own: "Equipe própria",
+    unknown: "Tenho dúvida",
+    outsourced: "Equipe terceirizada",
+  },
+};
+
 const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
-/** Formata a resposta do fornecedor para o texto exibido na célula. */
+/**
+ * Formata a resposta do fornecedor para o texto exibido na célula. `prop`
+ * (camelCase do campo) é opcional e só usado para overrides por campo
+ * (FIELD_VALUE_LABEL), p/ desambiguar valores enum compartilhados.
+ */
 export function formatAnswer(
   value: unknown,
   kind: EvaluationFieldDefinition["kind"],
+  prop?: string,
 ): string {
   if (value === null || value === undefined || value === "") return "—";
+  const override = prop ? FIELD_VALUE_LABEL[prop]?.[String(value)] : undefined;
+  if (override) return override;
   if (kind === "tri_state") return TRI_STATE_LABEL[String(value)] ?? String(value);
   if (kind === "choice") return CHOICE_LABEL[String(value)] ?? TRI_STATE_LABEL[String(value)] ?? String(value);
   if (kind === "currency" && typeof value === "number") return BRL.format(value);

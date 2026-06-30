@@ -278,7 +278,7 @@ export const technicalFormFields = [
   },
   {
     key: "technical.inverterOversizingRatio",
-    label: "Sobrecarga calculada (kWp / kW) em %",
+    label: "Sobrecarga calculada (kWp/kW)",
     kind: "number",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 32,
@@ -318,7 +318,7 @@ export const technicalFormFields = [
   },
   {
     key: "technical.inverterMakerName",
-    label: "Fabricante de inversor de corrente (String, Microinversor ou Híbrido)",
+    label: "Reclame Aqui - fabricante de inversor de corrente (String, Microinversor ou Híbrido)",
     kind: "text",
     sourceSheet: "Form. Tecnologico",
     sourceRow: 36,
