@@ -27,6 +27,9 @@ export const companyEvaluationSchema = z.object({
     .enum(["own", "outsourced", "unknown"])
     .nullable()
     .optional(),
+  // Sede física da empresa (Francis 2026-07-11): apenas Sim/Não (sem "não sei").
+  // Pontua Sim=10, Não=5 (peso 8). Ver auto-scoring.ts / score-definitions.ts.
+  hasPhysicalHeadquarters: z.enum(["yes", "no"]).nullable().optional(),
   installationDeadlineDays: z.number().min(0).nullable().optional(),
   projectExecutionWarrantyYears: z.number().min(0).nullable().optional(),
   hasMaintenanceSupport: triStateAnswerSchema.nullable().optional(),

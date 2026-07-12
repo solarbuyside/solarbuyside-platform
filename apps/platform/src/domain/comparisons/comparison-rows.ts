@@ -30,13 +30,14 @@ import type {
  * fora do mapa são INFORMATIVOS (sem nota canônica). PPTX 2026-06-09.
  */
 const FIELD_TO_SCORE: Record<string, string> = {
-  // Empresa (13 critérios — slide 11).
+  // Empresa (14 critérios — slide 11 + sede física Francis 2026-07-11).
   "company.solarSinceYear": "company.solar_since_year",
   "company.companyFoundedYear": "company.founded_year",
   "company.hasElectricalEngineeringCrea": "company.crea_registration",
   "company.engineerGraduationYear": "company.engineer_graduation_year",
   "company.installedSystemsRange": "company.installed_systems",
   "company.ownInstallationTeam": "company.own_installation_team",
+  "company.hasPhysicalHeadquarters": "company.physical_headquarters",
   "company.installationDeadlineDays": "company.installation_deadline",
   "company.projectExecutionWarrantyYears": "company.execution_warranty",
   "company.hasMaintenanceSupport": "company.maintenance_support",

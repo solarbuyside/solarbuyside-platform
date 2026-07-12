@@ -39,20 +39,21 @@ describe("comparison workflow", () => {
   });
 
   it("keeps field and scoring counts aligned with the PPTX 2026-06-09", () => {
-    expect(companyFormFields).toHaveLength(13);
+    // 13 -> 14: sede física adicionada (Francis 2026-07-11).
+    expect(companyFormFields).toHaveLength(14);
     // 26 -> 23 campos: a seção Confiabilidade (3 campos) foi eliminada.
     expect(technicalFormFields).toHaveLength(23);
     expect(financialFormFields).toHaveLength(15);
 
-    expect(companyScoreDefinitions).toHaveLength(13);
+    expect(companyScoreDefinitions).toHaveLength(14);
     // Tecnologia: só 10 critérios pontuam (slides 8/10); o resto é informativo
     // e a Confiabilidade foi eliminada.
     expect(technicalScoreDefinitions).toHaveLength(10);
     // Viabilidade voltou a ser INFORMATIVA (slides 4-5): 0 critérios financeiros.
-    expect(comparisonWorkflowSummary.enabledCompanyCriteriaCount).toBe(13);
+    expect(comparisonWorkflowSummary.enabledCompanyCriteriaCount).toBe(14);
     expect(comparisonWorkflowSummary.enabledTechnicalCriteriaCount).toBe(10);
     expect(comparisonWorkflowSummary.enabledFinancialCriteriaCount).toBe(0);
-    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(23);
+    expect(comparisonWorkflowSummary.totalCriteriaCount).toBe(24);
     expect(comparisonWorkflowSummary.financialAffectsScore).toBe(false);
   });
 

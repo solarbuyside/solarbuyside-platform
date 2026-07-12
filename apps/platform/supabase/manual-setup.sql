@@ -66,6 +66,7 @@ create table if not exists public.company_evaluations (
   own_installation_team text check (
     own_installation_team in ('own', 'outsourced', 'unknown')
   ),
+  has_physical_headquarters text check (has_physical_headquarters in ('yes', 'no')),
   installation_deadline_days numeric,
   project_execution_warranty_years numeric,
   has_maintenance_support text check (has_maintenance_support in ('yes', 'no', 'unknown')),

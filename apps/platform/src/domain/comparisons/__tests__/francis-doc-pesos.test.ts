@@ -114,7 +114,7 @@ describe("Doc Francis — Marca módulo (peso 10, nomes reais paramentados)", ()
   const T: Array<[string, number]> = [
     ["Jinko Solar", 10], ["LONGI", 10], ["Canadian Solar", 10], ["AIKO", 10],
     ["Trina Solar", 8], ["QCELLS", 8], ["Yingli Solar", 8],
-    ["JA Solar", 6], ["DMEGC", 6], ["TCL Solar", 6],
+    ["JA Solar", 6], ["DMEGC", 6], ["TCL Solar", 6], ["Astronergy", 6],
     ["Risen", 5], ["Sunova", 5], ["Marca Fora da Lista", 5],
   ];
   it.each(T)("%s → %i pts", (brand, deveSer) => {

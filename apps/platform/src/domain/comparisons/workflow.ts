@@ -90,6 +90,14 @@ export const companyFormFields = [
     section: "A empresa",
   },
   {
+    key: "company.hasPhysicalHeadquarters",
+    label: "A empresa possui uma sede física (sim/não)",
+    kind: "choice",
+    sourceSheet: "Form. Empresa",
+    sourceRow: 17,
+    section: "A empresa",
+  },
+  {
     key: "company.installationDeadlineDays",
     label: "Prazo máximo de instalação do sistema solar (dias)",
     kind: "number",
@@ -494,7 +502,7 @@ export const comparisonWorkflow = [
     title: "Tabela 1 - Avaliacao das empresas",
     sourceSheet: "Avaliacao Empresas",
     sequence: 4,
-    purpose: "Pontuar os 13 criterios empresariais e recalcular o denominador quando itens forem desligados.",
+    purpose: "Pontuar os 14 criterios empresariais e recalcular o denominador quando itens forem desligados.",
     fields: companyScoreDefinitions.map((definition) => ({
       key: definition.key,
       label: definition.label,

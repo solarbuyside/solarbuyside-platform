@@ -82,6 +82,11 @@ function scoreCompany(key: string, c: CompanyEvaluation): number | null {
       const map: Record<string, number> = { own: 10, unknown: 7, outsourced: 4 };
       return map[c.ownInstallationTeam] ?? null;
     }
+    case "company.physical_headquarters":
+      // Sede física (Francis 2026-07-11): Sim=10, Não=5. Só SIM/NÃO (sem "não sei").
+      if (c.hasPhysicalHeadquarters === "yes") return 10;
+      if (c.hasPhysicalHeadquarters === "no") return 5;
+      return null;
     case "company.installation_deadline": {
       // Escala EXATA do Francis (2026-06-12): mapa dias→nota não monotônico —
       // 45 dias é o ideal (10); tanto mais rápido (30=0) quanto mais lento
@@ -136,7 +141,7 @@ function normalizeBrand(value: string): string {
 const MODULE_BRAND_GROUPS: Array<{ score: number; brands: string[] }> = [
   { score: 10, brands: ["jinko", "longi", "phono", "znshine", "zshine", "hsaae", "hsaee", "canadiansolar", "canadian", "aiko", "twsolar"] },
   { score: 8, brands: ["trina", "qcells", "yingli"] },
-  { score: 6, brands: ["jasolar", "astroenergy", "gcl", "dmegc", "tcl"] },
+  { score: 6, brands: ["jasolar", "astronergy", "gcl", "dmegc", "tcl"] },
 ];
 
 /** Grupos de marca de INVERSOR → pontuação (6/7/8/9). Não listada = 6.

@@ -664,6 +664,12 @@ const CHOICE_OPTIONS: Record<string, { value: string; label: string }[]> = {
     { value: "unknown", label: "Tenho dúvida" },
     { value: "outsourced", label: "Equipe terceirizada" },
   ],
+  // Sede física (Francis 2026-07-11): só Sim/Não, sem "Não sei".
+  "company.hasPhysicalHeadquarters": [
+    { value: "", label: "—" },
+    { value: "yes", label: "Sim" },
+    { value: "no", label: "Não" },
+  ],
   "financial.viabilityConfidence": [
     { value: "", label: "—" },
     { value: "high", label: "Alta" },

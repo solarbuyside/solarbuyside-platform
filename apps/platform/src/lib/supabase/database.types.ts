@@ -246,6 +246,7 @@ export type Database = {
           engineer_graduation_year: number | null;
           installed_systems_range: "lt_10" | "10_49" | "50_100" | "gt_100" | "gt_500" | "gt_1000" | "unknown" | null;
           own_installation_team: "own" | "outsourced" | "unknown" | null;
+          has_physical_headquarters: "yes" | "no" | null;
           installation_deadline_days: number | null;
           project_execution_warranty_years: number | null;
           has_maintenance_support: "yes" | "no" | "unknown" | null;
@@ -267,6 +268,7 @@ export type Database = {
           engineer_graduation_year?: number | null;
           installed_systems_range?: "lt_10" | "10_49" | "50_100" | "gt_100" | "gt_500" | "gt_1000" | "unknown" | null;
           own_installation_team?: "own" | "outsourced" | "unknown" | null;
+          has_physical_headquarters?: "yes" | "no" | null;
           installation_deadline_days?: number | null;
           project_execution_warranty_years?: number | null;
           has_maintenance_support?: "yes" | "no" | "unknown" | null;
