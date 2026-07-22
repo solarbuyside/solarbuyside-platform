@@ -147,7 +147,7 @@ export const HeaderV4: React.FC = () => {
   )
 }
 
-const BLOCKING_SELECTORS = ['#oferta', '#oferta-final', '#faq', '#contact', 'footer']
+const BLOCKING_SELECTORS = ['#oferta', '#faq', '#contact', 'footer']
 
 /* Visibilidade compartilhada dos CTAs persistentes: aparece depois do hero,
    some quando uma seção de conversão/encerramento já está na viewport. */

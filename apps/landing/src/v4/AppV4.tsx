@@ -12,9 +12,8 @@ import { PlatformV4 } from './PlatformV4'
 import { StoryBridgeV4, TestimonialsV4 } from './SocialProofV4'
 import { SellerCodeV4 } from './SellerCodeV4'
 import { PricingV4 } from './PricingV4'
-import { BuyerWaveV4 } from './BuyerWaveV4'
 import { AuthorityV4 } from './AuthorityV4'
-import { ContactV4, FAQV4, FooterV4, LeadMagnetV4 } from './ClosingV4'
+import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
 
 /* V4 "SOLAR DAWN" — mesma copy e mesma ordem narrativa da LP oficial (v1),
    experiência redesenhada em 4 atos. Em PREVIEW na rota /v4; a produção (/)
@@ -30,13 +29,9 @@ const SECTION_IDS = [
   'depoimentos',
   'story-bridge',
   'seller-code',
-  'oferta',
-  'buyer-wave',
   'authority',
-  'oferta-final',
-  'lead-magnet',
+  'oferta',
   'faq',
-  'newsletter',
   'contact',
 ] as const
 
@@ -123,18 +118,10 @@ export default function AppV4() {
       <div id="seller-code">
         <SellerCodeV4 />
       </div>
-      <PricingV4 id="oferta" />
-      <div id="buyer-wave">
-        <BuyerWaveV4 />
-      </div>
-      <MarqueeBand tone="warm" />
       <div id="authority">
         <AuthorityV4 />
       </div>
-      <PricingV4 id="oferta-final" />
-      <div id="lead-magnet">
-        <LeadMagnetV4 />
-      </div>
+      <PricingV4 id="oferta" />
       <div id="faq">
         <FAQV4 />
       </div>

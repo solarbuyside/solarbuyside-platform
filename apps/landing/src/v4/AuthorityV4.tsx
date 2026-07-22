@@ -69,7 +69,7 @@ const DuelSide: React.FC<DuelSideProps> = ({
       <Reveal
         delay={baseDelay + 90}
         as="figure"
-        className="group relative aspect-[3/4] w-full max-w-[360px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
+        className="group relative aspect-[3/4] w-full max-w-[288px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
       >
         <img
           src={image}
