@@ -6,10 +6,15 @@ import { Footer } from './components/Footer'
 import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
 import AppV1 from './AppV1'
 import AppV4 from './v4/AppV4'
+import AppV4Full from './v4-full/AppV4'
 
 // LP OFICIAL = o redesign V4 "Solar Dawn" (src/v4/AppV4.tsx), renderizado na
 // raiz "/". A versão antiga "v1" (src/AppV1.tsx) fica acessível em /v1 para
 // referência/rollback. (/v4 continua válido — cai no mesmo default da raiz.)
+//
+// /1 = cópia CONGELADA da LP atual completa (src/v4-full/, snapshot 2026-07-22).
+// A raiz "/" vai perder algumas seções; /1 preserva a versão íntegra. As duas
+// pastas são independentes de propósito — editar/remover em v4/ não afeta /1.
 
 function App() {
   const pathname = window.location.pathname.replace(/\/$/, '') || '/'
@@ -30,6 +35,17 @@ function App() {
     return (
       <>
         <AppV1 />
+        <Analytics />
+        <SpeedInsights />
+      </>
+    )
+  }
+
+  // /1 = snapshot congelado da LP atual completa (antes de remover seções na raiz).
+  if (pathname === '/1') {
+    return (
+      <>
+        <AppV4Full />
         <Analytics />
         <SpeedInsights />
       </>
