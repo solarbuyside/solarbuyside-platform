@@ -10,6 +10,7 @@ import {
   X,
 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics'
 import { Cta, GrainOverlay, Reveal } from './atoms'
 
@@ -502,7 +503,12 @@ export const ContactV4: React.FC = () => {
         <div className="text-center">
           <Reveal>
             <h2 className="font-['Sora'] text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-              {section?.texts.title || (
+              {/* Via CMSText p/ o cliente poder editar mantendo o destaque
+                  laranja (campo "rich" no admin). Sem valor no CMS, cai no
+                  markup original — nada muda. */}
+              {section?.texts.title ? (
+                <CMSText value={section.texts.title} />
+              ) : (
                 <>
                   Dados e <span className="text-orange-500">contato</span>
                 </>
@@ -526,7 +532,9 @@ export const ContactV4: React.FC = () => {
                 {section?.texts.companyLabel || 'Empresa'}
               </p>
               <h3 className="mt-4 font-['Sora'] text-xl font-bold tracking-tight text-white">
-                {section?.texts.companyName || (
+                {section?.texts.companyName ? (
+                  <CMSText value={section.texts.companyName} />
+                ) : (
                   <>
                     <span className="text-orange-500">Buy-Side</span> Soluções
                   </>

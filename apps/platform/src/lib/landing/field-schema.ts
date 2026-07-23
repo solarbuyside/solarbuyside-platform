@@ -110,7 +110,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       {
         label: "Bônus",
         fields: [
-          t("bonusBadge", "Bônus — selo", { maxLength: 40 }),
+          // bonusBadge saiu: o bloco do bônus no Hero não tem selo (só imagem +
+          // título + subtítulo). Ficava no editor sem efeito nenhum na LP.
           t("bonusTitle", "Bônus — título"),
           ml("bonusSubtitle", "Bônus — subtítulo"),
         ],
@@ -125,6 +126,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
+    // Chaves que existem no banco mas a LP não usa — não vale expor no editor.
+    hiddenKeys: ["bonusBadge"],
   },
 
   context: {
@@ -575,8 +578,17 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
-        label: "Bônus",
-        fields: [t("bonusBadge", "Bônus — selo", { maxLength: 40 })],
+        // Card bônus "Plataforma de Avaliação" — a LP já lia estas chaves, mas
+        // elas não estavam no manifesto nem no banco: era um card de produto
+        // inteiro impossível de editar. (O antigo grupo "Bônus" tinha só
+        // bonusBadge, que a LP nunca leu — virou hiddenKeys.)
+        label: "Card bônus — Plataforma",
+        fields: [
+          t("cardPlatformTag", "Etiqueta", { maxLength: 30 }),
+          t("cardPlatformTitle", "Título"),
+          ml("cardPlatformDesc", "Descrição"),
+          img("cardPlatformImage", "Imagem"),
+        ],
       },
       {
         label: "Plano e preço",
@@ -593,6 +605,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("benefit1", "Garantia 1", { maxLength: 40 }),
           t("benefit2", "Garantia 2", { maxLength: 40 }),
           t("benefit3", "Garantia 3", { maxLength: 40 }),
+          t("secureNote", "Nota abaixo dos selos de pagamento", { maxLength: 60 }),
         ],
       },
       {
@@ -607,7 +620,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
-    hiddenKeys: ["feature1Desc"],
+    // feature1Desc/bonusBadge existem no banco mas a LP não usa (bonusBadge
+    // nunca foi lido; feature1Desc é resquício do fallback card1Desc).
+    hiddenKeys: ["feature1Desc", "bonusBadge"],
   },
 
   "buyer-wave": {
@@ -753,21 +768,28 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       {
         label: "Cabeçalho",
         fields: [
-          t("title", "Título"),
+          rich("title", "Título", {
+            help: "Selecione uma palavra e clique em Laranja para destacar.",
+          }),
           ml("subtitle", "Subtítulo"),
         ],
       },
       {
         label: "Dados da empresa",
         fields: [
-          t("companyName", "Nome da empresa"),
+          t("companyLabel", "Rótulo da coluna", { maxLength: 20 }),
+          rich("companyName", "Nome da empresa", {
+            help: "Selecione uma palavra e clique em Laranja para destacar.",
+          }),
           t("cnpjLabel", "Rótulo do CNPJ", { maxLength: 20 }),
           t("cnpjValue", "CNPJ", { maxLength: 30 }),
+          t("addressLabel", "Rótulo do endereço", { maxLength: 20 }),
           t("addressLine1", "Endereço — linha 1"),
           t("addressLine2", "Endereço — linha 2"),
           t("addressLine3", "Endereço — linha 3"),
           t("emailLabel", "Rótulo do e-mail", { maxLength: 20 }),
           t("emailAddress", "E-mail"),
+          t("emailNote", "Observação abaixo do e-mail", { maxLength: 60 }),
         ],
       },
     ],
