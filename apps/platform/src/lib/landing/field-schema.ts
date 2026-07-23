@@ -56,6 +56,14 @@ export type SectionSchema = {
   groups: GroupDef[];
   /** Chaves legadas/duplicadas a ocultar do editor (não viram "Outros campos"). */
   hiddenKeys?: string[];
+  /**
+   * Seção que NÃO é mais renderizada na LP oficial ("/") — só sobrevive na /1,
+   * a cópia-salvaguarda da LP completa (remoções pedidas pelo Francis em
+   * 2026-07-22). Continua editável de propósito: se ele voltar atrás, o
+   * conteúdo está lá. O editor marca essas com um selo "V1" para ninguém
+   * editar achando que muda a LP oficial.
+   */
+  onlyOnV1?: boolean;
 };
 
 // Atalhos de tipo para deixar o manifesto enxuto.
@@ -280,6 +288,20 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
+        // Bloco "Código do Vendedor" que aparece DENTRO do Manual na LP
+        // oficial. Não confundir com a seção "Código do vendedor (bônus)",
+        // que hoje só existe na /1.
+        label: "Código do Vendedor (dentro do Manual)",
+        fields: [
+          t("codeBadge", "Selo", { maxLength: 40 }),
+          t("codeTitle", "Título"),
+          ml("codeDesc1", "Parágrafo 1"),
+          ml("codeDesc2", "Parágrafo 2"),
+          ml("codeDesc3", "Parágrafo 3", { help: "Deixe vazio para não exibir." }),
+          ml("codeDesc4", "Parágrafo 4", { help: "Deixe vazio para não exibir." }),
+        ],
+      },
+      {
         label: "Bloco 2",
         fields: [
           rich("section2Title", "Bloco 2 — título", {
@@ -395,6 +417,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   "story-bridge": {
     label: "Ponte / Narrativa",
     order: 7,
+    onlyOnV1: true,
     groups: [
       {
         label: "Topo",
@@ -424,6 +447,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   "seller-code": {
     label: "Código do vendedor (bônus)",
     order: 8,
+    onlyOnV1: true,
     groups: [
       {
         label: "Topo",
@@ -589,6 +613,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   "buyer-wave": {
     label: "Onda do comprador",
     order: 10,
+    onlyOnV1: true,
     groups: [
       {
         label: "Topo",
@@ -632,6 +657,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   "lead-magnet": {
     label: "Isca (ebook)",
     order: 12,
+    onlyOnV1: true,
     groups: [
       {
         label: "Conteúdo",
@@ -703,6 +729,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   newsletter: {
     label: "Newsletter",
     order: 14,
+    onlyOnV1: true,
     groups: [
       {
         label: "Campos",
@@ -835,7 +862,7 @@ export function buildSectionGroups(
   sectionId: string,
   textKeys: string[],
   imageKeys: string[],
-): { label: string; order: number; groups: GroupDef[]; mapped: boolean } {
+): { label: string; order: number; groups: GroupDef[]; mapped: boolean; onlyOnV1: boolean } {
   const schema = LANDING_SCHEMA[sectionId];
   const known = new Set<string>();
   const groups: GroupDef[] = [];
@@ -872,6 +899,7 @@ export function buildSectionGroups(
   return {
     label: schema?.label ?? humanizeKey(sectionId),
     order: schema?.order ?? 999,
+    onlyOnV1: Boolean(schema?.onlyOnV1),
     groups,
     mapped: Boolean(schema),
   };

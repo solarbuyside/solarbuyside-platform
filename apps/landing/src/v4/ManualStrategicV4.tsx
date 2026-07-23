@@ -39,6 +39,20 @@ export const ManualStrategicV4: React.FC = () => {
   const manualImage = section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'
   const codeImage = section?.images.codeImage || '/assets/codigo-oficial-norm.png'
 
+  /* Bloco "Código do Vendedor" (dentro do Manual, na LP oficial): era texto
+     fixo no código e por isso não aparecia no editor do admin — reportado pelo
+     Francis em 2026-07-23. Agora vem do CMS, com 4 parágrafos; os vazios não
+     renderizam. Destaque em negrito usa <span class="cms-bold"> (o CMSText
+     remove <strong>). */
+  const codeParagraphs = [
+    section?.texts.codeDesc1 ??
+      'Como complemento ao Manual de Compra Solar Buy-Side, o <span class="cms-bold">Código do Vendedor Consultivo</span> funciona como uma chave de acesso prática ao universo Buy-Side para profissionais de vendas. Ele capacita o profissional a compreender como o cliente avalia risco, compara propostas e toma decisões de investimento.',
+    section?.texts.codeDesc2 ??
+      'Ao aplicar o método, o profissional deixa de competir apenas por preço e passa a conduzir decisões com mais segurança e credibilidade. O resultado é mais conversões, margens mais saudáveis e clientes que encerram a negociação confiantes na escolha realizada.',
+    section?.texts.codeDesc3 ?? '',
+    section?.texts.codeDesc4 ?? '',
+  ].filter((paragraph) => paragraph.trim().length > 0)
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
       <GrainOverlay />
@@ -72,6 +86,9 @@ export const ManualStrategicV4: React.FC = () => {
                 {section?.texts.description2 ||
                   'Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).'}
               </p>
+              {/* Parágrafo 3: existe no CMS/admin desde sempre, mas nunca era
+                  renderizado (bug reportado pelo Francis em 2026-07-23). */}
+              {section?.texts.description3?.trim() && <p>{section.texts.description3}</p>}
             </Reveal>
           </div>
 
@@ -118,27 +135,19 @@ export const ManualStrategicV4: React.FC = () => {
         <div className="mt-24 grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
-              <Kicker tone="dark">Diferencial estratégico</Kicker>
+              <Kicker tone="dark">{section?.texts.codeBadge || 'Diferencial estratégico'}</Kicker>
             </Reveal>
             <Reveal delay={90}>
               <h2 className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
-                Código do Vendedor Consultivo
+                <CMSText value={section?.texts.codeTitle || 'Código do Vendedor Consultivo'} />
               </h2>
             </Reveal>
             <Reveal delay={180} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
-              <p>
-                Como complemento ao Manual de Compra Solar Buy-Side, o{' '}
-                <strong className="font-semibold text-slate-100">Código do Vendedor Consultivo</strong>{' '}
-                funciona como uma chave de acesso prática ao universo Buy-Side para profissionais de
-                vendas. Ele capacita o profissional a compreender como o cliente avalia risco, compara
-                propostas e toma decisões de investimento.
-              </p>
-              <p>
-                Ao aplicar o método, o profissional deixa de competir apenas por preço e passa a
-                conduzir decisões com mais segurança e credibilidade. O resultado é mais conversões,
-                margens mais saudáveis e clientes que encerram a negociação confiantes na escolha
-                realizada.
-              </p>
+              {codeParagraphs.map((paragraph, i) => (
+                <p key={i}>
+                  <CMSText value={paragraph} />
+                </p>
+              ))}
             </Reveal>
           </div>
 

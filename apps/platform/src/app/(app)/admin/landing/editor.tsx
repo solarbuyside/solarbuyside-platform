@@ -78,10 +78,10 @@ export function LandingEditor({
   const router = useRouter();
   // Metadados (rótulo humano + ordem na LP) por seção, vindos do manifesto.
   const meta = React.useMemo(() => {
-    const map = new Map<string, { label: string; order: number; mapped: boolean }>();
+    const map = new Map<string, { label: string; order: number; mapped: boolean; onlyOnV1: boolean }>();
     for (const s of rawSections) {
       const b = buildSectionGroups(s.sectionId, Object.keys(s.texts), Object.keys(s.images));
-      map.set(s.sectionId, { label: b.label, order: b.order, mapped: b.mapped });
+      map.set(s.sectionId, { label: b.label, order: b.order, mapped: b.mapped, onlyOnV1: b.onlyOnV1 });
     }
     return map;
   }, [rawSections]);
@@ -234,6 +234,17 @@ export function LandingEditor({
           <div className="border-b border-slate-100 px-5 py-3 text-sm font-bold text-slate-800">
             Seções ({sections.length})
           </div>
+          {/* Legenda do selo V1 — só aparece se houver seção fora da LP oficial. */}
+          {sections.some((s) => meta.get(s.sectionId)?.onlyOnV1) && (
+            <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-2 text-[11px] leading-snug text-slate-500">
+              <span className="mr-1 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500">
+                V1
+              </span>
+              Seção que saiu da LP oficial e hoje só aparece em{" "}
+              <span className="font-semibold">solarbuyside.com.br/1</span>. Editar aqui não altera a
+              LP principal — fica guardada caso queira voltar atrás.
+            </div>
+          )}
           <div className="max-h-[460px] overflow-y-auto p-2">
             {sections.map((s) => {
               const count = Object.keys(drafts[s.sectionId]?.texts ?? {}).length;
@@ -252,6 +263,12 @@ export function LandingEditor({
                   >
                     <Quote className="h-3.5 w-3.5 shrink-0" />
                     Depoimentos (cards)
+                    <span
+                      className="shrink-0 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500"
+                      title="Só aparece na LP /1 (cópia de salvaguarda). Editar aqui NÃO altera a LP oficial."
+                    >
+                      V1
+                    </span>
                   </button>
                 ) : null;
               return (
@@ -272,6 +289,16 @@ export function LandingEditor({
                         />
                       )}
                       <span className="truncate">{meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}</span>
+                      {/* Seção que saiu da LP oficial e só existe na /1: edita,
+                          mas não muda o site principal. Ver onlyOnV1. */}
+                      {meta.get(s.sectionId)?.onlyOnV1 && (
+                        <span
+                          className="shrink-0 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500"
+                          title="Só aparece na LP /1 (cópia de salvaguarda). Editar aqui NÃO altera a LP oficial."
+                        >
+                          V1
+                        </span>
+                      )}
                     </span>
                     <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
                       {count}

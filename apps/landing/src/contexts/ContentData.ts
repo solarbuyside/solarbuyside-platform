@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 23
+export const CONTENT_VERSION = 24
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -19,6 +19,12 @@ export const initialContent: SectionContent[] = [
             "description1": "O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.",
             "description2": "Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).",
             "description3": "Ao incorporar o conceito Buy-Side, vendedores lapidam sua abordagem comercial, entregam valor real, saem da briga por preço e elevam sua credibilidade no relacionamento com os clientes.",
+            "codeBadge": "Diferencial estratégico",
+            "codeTitle": "Código do Vendedor Consultivo",
+            "codeDesc1": "Como complemento ao Manual de Compra Solar Buy-Side, o <span class=\"cms-bold\">Código do Vendedor Consultivo</span> funciona como uma chave de acesso prática ao universo Buy-Side para profissionais de vendas. Ele capacita o profissional a compreender como o cliente avalia risco, compara propostas e toma decisões de investimento.",
+            "codeDesc2": "Ao aplicar o método, o profissional deixa de competir apenas por preço e passa a conduzir decisões com mais segurança e credibilidade. O resultado é mais conversões, margens mais saudáveis e clientes que encerram a negociação confiantes na escolha realizada.",
+            "codeDesc3": "",
+            "codeDesc4": "",
             "section2Title": "",
             "sellCard1Desc": "Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.",
             "sellCard2Desc": "Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.",
