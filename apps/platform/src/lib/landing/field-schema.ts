@@ -298,10 +298,20 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         fields: [
           t("codeBadge", "Selo", { maxLength: 40 }),
           t("codeTitle", "Título"),
+          rich("codeSubtitle", "Subtítulo", {
+            help: "Frase de destaque abaixo do título. Deixe vazio para não exibir.",
+          }),
           ml("codeDesc1", "Parágrafo 1"),
           ml("codeDesc2", "Parágrafo 2"),
           ml("codeDesc3", "Parágrafo 3", { help: "Deixe vazio para não exibir." }),
           ml("codeDesc4", "Parágrafo 4", { help: "Deixe vazio para não exibir." }),
+          t("codeListTitle", "Lista — título", { help: 'Ex.: "O que você leva com o Código:"' }),
+          ml("codeItem1", "Lista — item 1"),
+          ml("codeItem2", "Lista — item 2"),
+          ml("codeItem3", "Lista — item 3"),
+          ml("codeItem4", "Lista — item 4"),
+          ml("codeItem5", "Lista — item 5", { help: "Deixe vazio para não exibir." }),
+          ml("codeItem6", "Lista — item 6", { help: "Deixe vazio para não exibir." }),
         ],
       },
       {

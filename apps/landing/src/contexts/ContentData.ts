@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 24
+export const CONTENT_VERSION = 25
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -25,6 +25,14 @@ export const initialContent: SectionContent[] = [
             "codeDesc2": "Ao aplicar o método, o profissional deixa de competir apenas por preço e passa a conduzir decisões com mais segurança e credibilidade. O resultado é mais conversões, margens mais saudáveis e clientes que encerram a negociação confiantes na escolha realizada.",
             "codeDesc3": "",
             "codeDesc4": "",
+            "codeSubtitle": "",
+            "codeListTitle": "O que você leva com o Código:",
+            "codeItem1": "Índice de Confiabilidade para fortalecer suas propostas.",
+            "codeItem2": "Checklist de Precisão baseado no que compradores realmente avaliam.",
+            "codeItem3": "Estratégia Anti-Leilão para proteger sua margem de lucro.",
+            "codeItem4": "Postura Consultiva de Elite para conquistar clientes técnicos e criteriosos.",
+            "codeItem5": "E muito mais.",
+            "codeItem6": "",
             "section2Title": "",
             "sellCard1Desc": "Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.",
             "sellCard2Desc": "Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.",

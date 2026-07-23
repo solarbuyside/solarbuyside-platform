@@ -53,6 +53,20 @@ export const ManualStrategicV4: React.FC = () => {
     section?.texts.codeDesc4 ?? '',
   ].filter((paragraph) => paragraph.trim().length > 0)
 
+  /* Lista "O que você leva com o Código" (Francis 2026-07-23): mesma anatomia
+     da lista que existia na seção Código (rótulo mono + item numerado + fio),
+     adaptada à paleta escura deste bloco. Itens vazios não renderizam. */
+  const codeItems = [
+    section?.texts.codeItem1,
+    section?.texts.codeItem2,
+    section?.texts.codeItem3,
+    section?.texts.codeItem4,
+    section?.texts.codeItem5,
+    section?.texts.codeItem6,
+  ]
+    .map((item) => item ?? '')
+    .filter((item) => item.trim().length > 0)
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
       <GrainOverlay />
@@ -142,6 +156,13 @@ export const ManualStrategicV4: React.FC = () => {
                 <CMSText value={section?.texts.codeTitle || 'Código do Vendedor Consultivo'} />
               </h2>
             </Reveal>
+            {section?.texts.codeSubtitle?.trim() && (
+              <Reveal delay={130}>
+                <p className="v4-serif mt-5 max-w-xl border-l-2 border-orange-500 pl-5 text-2xl leading-snug text-amber-200/90">
+                  <CMSText value={section.texts.codeSubtitle} />
+                </p>
+              </Reveal>
+            )}
             <Reveal delay={180} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
               {codeParagraphs.map((paragraph, i) => (
                 <p key={i}>
@@ -149,6 +170,32 @@ export const ManualStrategicV4: React.FC = () => {
                 </p>
               ))}
             </Reveal>
+            {codeItems.length > 0 && (
+              <Reveal delay={240} className="mt-10 max-w-2xl">
+                {section?.texts.codeListTitle?.trim() && (
+                  <h4 className="border-b border-white/[0.08] pb-3">
+                    <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">
+                      {section.texts.codeListTitle}
+                    </span>
+                  </h4>
+                )}
+                <ul>
+                  {codeItems.map((item, i) => (
+                    <li
+                      key={i}
+                      className="grid grid-cols-[48px_1fr] gap-5 border-b border-white/[0.08] py-5"
+                    >
+                      <span className="v4-mono text-xl font-bold leading-none text-white/25" aria-hidden>
+                        {`0${i + 1}`}
+                      </span>
+                      <p className="leading-relaxed text-slate-300">
+                        <CMSText value={item} />
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            )}
           </div>
 
           <div className="lg:col-span-5">
