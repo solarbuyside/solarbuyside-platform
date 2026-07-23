@@ -203,7 +203,7 @@ export const AudienceV4: React.FC = () => {
               </div>
               <h3 className="max-w-4xl text-2xl font-bold leading-snug text-white md:text-3xl">
                 {section?.texts.bottomTitle ||
-                  'Não importa em qual ponto da cadeia você está, o Manual Solar Buy-Side não é apenas um guia, mas uma imersão completa na perspectiva do comprador.'}
+                  'Mais do que dois guias, o Manual Solar Buy-Side e o Código do Vendedor Consultivo representam uma nova forma de compreender o processo de compra: uma imersão na perspectiva do cliente que muda a maneira de vender sistemas fotovoltaicos.'}
               </h3>
             </div>
           </div>

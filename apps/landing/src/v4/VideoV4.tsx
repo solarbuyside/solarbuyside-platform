@@ -221,13 +221,28 @@ export const VideoV4: React.FC = () => {
           </div>
         </Reveal>
 
-        <Reveal delay={160} className="mt-12 flex justify-center">
-          <Cta size="lg" variant="ghost-dark" href="#oferta">
-            {section?.texts.ctaButton || 'Quero sair na frente e vender mais'}
-            <CtaArrow size={20} />
-          </Cta>
-        </Reveal>
+        {/* CTA movido para depois da seção "Apoiadores Institucionais"
+            (Francis, slide 2) — ver VideoCtaV4 em AppV4. */}
       </div>
     </section>
+  )
+}
+
+/* CTA da seção de vídeo, renderizado DEPOIS de "Apoiadores Institucionais"
+   (Francis, slide 2: "transferir o CTA abaixo da nova seção"). Continua lendo
+   video.ctaButton, então o campo do admin não muda de lugar. Fundo claro para
+   emendar com a seção de apoiadores, que é clara. */
+export const VideoCtaV4: React.FC = () => {
+  const { getSection } = useContent()
+  const section = getSection('video')
+  return (
+    <div className="bg-[#f2ece1] px-6 pb-20 md:pb-24">
+      <Reveal className="flex justify-center">
+        <Cta size="lg" href="#oferta">
+          {section?.texts.ctaButton || 'Quero sair na frente e vender mais'}
+          <CtaArrow size={20} />
+        </Cta>
+      </Reveal>
+    </div>
   )
 }

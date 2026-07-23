@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import './v4.css'
 import { trackPageView, observeSection } from '../utils/analytics'
-import { Marquee } from './atoms'
 import { FloatingCTAV4, HeaderV4, MobileCtaBarV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
-import { VideoV4 } from './VideoV4'
+import { VideoV4, VideoCtaV4 } from './VideoV4'
+import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
@@ -22,6 +22,7 @@ const SECTION_IDS = [
   'hero',
   'contexto',
   'video-section',
+  'apoiadores',
   'audiencia',
   'manual-strategic',
   'plataforma',
@@ -31,22 +32,6 @@ const SECTION_IDS = [
   'faq',
   'contact',
 ] as const
-
-/* Banda tipográfica da marca entre atos — só wordmark, nenhuma copy nova. */
-const MarqueeBand: React.FC<{ tone?: 'cool' | 'warm' }> = ({ tone = 'cool' }) => (
-  <div className="relative overflow-hidden border-y border-white/[0.06] bg-[#06080b] py-5" aria-hidden>
-    <Marquee speed={42} reverse={tone === 'warm'}>
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="flex items-center gap-14 whitespace-nowrap">
-          <span className="v4-serif text-3xl text-slate-400/90 md:text-5xl">Manual de Compra</span>
-          <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
-          <span className="v4-serif text-3xl text-slate-400/90 md:text-5xl">Código do Vendedor</span>
-          <span className={tone === 'warm' ? 'text-orange-500/80' : 'text-orange-500/50'}>✦</span>
-        </span>
-      ))}
-    </Marquee>
-  </div>
-)
 
 export default function AppV4() {
   useEffect(() => {
@@ -96,7 +81,14 @@ export default function AppV4() {
       <div id="video-section">
         <VideoV4 />
       </div>
-      <MarqueeBand />
+      {/* Apoiadores institucionais (Francis, slides 1-3): a seção completa
+          entra logo após o vídeo, o CTA do vídeo desce para depois dela e a
+          faixa de logos ocupa o lugar da antiga faixa "Manual ✦ Código". */}
+      <div id="apoiadores">
+        <ApoiadoresV4 />
+      </div>
+      <VideoCtaV4 />
+      <ApoiadoresBandV4 />
       <div id="audiencia">
         <AudienceV4 />
       </div>

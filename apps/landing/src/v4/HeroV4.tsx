@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { CheckCircle2 } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, WordReveal } from './atoms'
 import { scrollToId } from './scroll'
@@ -27,7 +26,6 @@ export const HeroV4: React.FC = () => {
   const bonusTitle = section?.texts.bonusTitle || 'O Código do Vendedor Consultivo'
   const bonusSubtitle = section?.texts.bonusSubtitle || 'Para quem quer conduzir decisões, não concessões.'
   const ctaButton = section?.texts.ctaButton || 'Quero meu acesso agora'
-  const ctaSubtext = section?.texts.ctaSubtext || 'Acesso imediato ao Manual Solar Buy-Side.'
   const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
   const isDefaultSubtitle = !subtitle || subtitle.startsWith('O método Buy-Side')
@@ -143,10 +141,10 @@ export const HeroV4: React.FC = () => {
               <CtaArrow />
             </Cta>
           </div>
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500">
-            <CheckCircle2 size={14} className="text-emerald-500" />
-            {ctaSubtext}
-          </p>
+          {/* Linha "Acesso imediato ao Manual…" removida a pedido do Francis
+              (2026-07-22, slide 1: "eliminar essas duas frases de letras
+              miúdas"). Removida no código porque o campo tinha texto padrão —
+              apagar no admin fazia o texto voltar. */}
         </div>
 
         {/* ticket de acesso: manual + bônus com picote central */}
@@ -203,9 +201,9 @@ export const HeroV4: React.FC = () => {
         aria-label={scrollHint}
         className="group absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
       >
-        <span className="v4-mono text-[9px] font-bold uppercase tracking-[0.4em] text-slate-500 transition-colors group-hover:text-orange-400">
-          {scrollHint}
-        </span>
+        {/* Texto "Veja o panorama 2026" removido (Francis, slide 1). O botão
+            segue existindo só como indicador de rolagem; scrollHint continua
+            no aria-label para leitor de tela. */}
         <span className="block h-10 w-px overflow-hidden bg-white/10">
           <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-400 to-transparent" />
         </span>

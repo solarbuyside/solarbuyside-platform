@@ -82,6 +82,16 @@ const comp = (
   help?: string,
 ): CompositeFieldDef => ({ kind: "composite", key, label, parts, hlClass, help });
 
+/** Máximo de logos de apoiadores (espelha MAX_LOGOS em ApoiadoresV4.tsx). */
+export const MAX_LOGOS = 30;
+/** Chaves geradas dos logos — ocultas do editor genérico (têm editor próprio). */
+const LOGO_KEYS = Array.from({ length: MAX_LOGOS }, (_, i) => i + 1).flatMap((i) => [
+  `logo${i}Src`,
+  `logo${i}Name`,
+  `logo${i}Desc`,
+  `logo${i}Cat`,
+]);
+
 export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   hero: {
     label: "Topo (Hero)",
@@ -120,14 +130,15 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Botão e imagem",
         fields: [
           t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          t("ctaSubtext", "Texto abaixo do botão", { maxLength: 60 }),
-          t("scrollHint", "Dica de rolagem", { maxLength: 40 }),
           img("heroImage", "Imagem do topo"),
         ],
       },
     ],
     // Chaves que existem no banco mas a LP não usa — não vale expor no editor.
-    hiddenKeys: ["bonusBadge"],
+    // ctaSubtext e scrollHint saíram do Hero em 2026-07-23 (Francis, slide 1:
+    // "eliminar essas duas frases de letras miúdas"); scrollHint sobrevive só
+    // como aria-label do botão de rolagem, sem texto visível.
+    hiddenKeys: ["bonusBadge", "ctaSubtext", "scrollHint"],
   },
 
   context: {
@@ -228,6 +239,32 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  apoiadores: {
+    label: "Apoiadores institucionais",
+    // 2.5: entra entre Vídeo (2) e Público (3) sem renumerar o resto.
+    order: 2.5,
+    groups: [
+      {
+        label: "Seção",
+        fields: [
+          t("title", "Título"),
+          ml("subtitle", "Subtítulo"),
+        ],
+      },
+      {
+        label: "Faixa de logos",
+        fields: [
+          t("bandTitle", "Faixa — título"),
+          ml("bandSubtitle", "Faixa — texto abaixo dos logos"),
+        ],
+      },
+    ],
+    // Os logos têm editor próprio ("Logos dos apoiadores"), com upload de
+    // imagem, categoria e texto do card por item — não faz sentido expô-los
+    // como dezenas de campos soltos aqui.
+    hiddenKeys: LOGO_KEYS,
+  },
+
   audience: {
     label: "Público (para quem é)",
     order: 3,
@@ -237,7 +274,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         fields: [
           t("title", "Título"),
           ml("subtitle", "Subtítulo"),
-          t("bottomTitle", "Título de rodapé da seção"),
         ],
       },
       {
@@ -268,6 +304,17 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("profile3Bullet1", "Perfil 3 — item 1"),
           t("profile3Bullet2", "Perfil 3 — item 2"),
           t("profile3Tag", "Perfil 3 — etiqueta", { maxLength: 30 }),
+        ],
+      },
+      {
+        // Estava como "Título de rodapé da seção" dentro do grupo "Topo" — o
+        // Francis não achou o campo (2026-07-23). É a caixa destacada que
+        // fecha a seção, então virou grupo próprio, no fim, com nome claro.
+        label: "Frase de fechamento",
+        fields: [
+          ml("bottomTitle", "Frase da caixa destacada", {
+            help: "Caixa em destaque no fim da seção, logo abaixo dos perfis.",
+          }),
         ],
       },
     ],
@@ -616,6 +663,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("benefit2", "Garantia 2", { maxLength: 40 }),
           t("benefit3", "Garantia 3", { maxLength: 40 }),
           t("secureNote", "Nota abaixo dos selos de pagamento", { maxLength: 60 }),
+        ],
+      },
+      {
+        // Campanha promocional entre o preço e o botão de compra. Apagar o
+        // título tira o bloco inteiro da LP — é assim que a campanha se
+        // liga/desliga sem precisar de deploy.
+        label: "Promoção (parceiro)",
+        fields: [
+          rich("promoTitle", "Título", {
+            help: "Deixe VAZIO para esconder o bloco da promoção na LP.",
+          }),
+          ml("promoSubtitle", "Subtítulo"),
+          t("promoCtaLabel", "Texto do botão", { maxLength: 30 }),
+          t("promoUrl", "Link do botão", { type: "url" }),
+          img("promoLogo", "Logo do parceiro"),
         ],
       },
       {

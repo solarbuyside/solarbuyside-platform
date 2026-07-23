@@ -485,3 +485,31 @@
     background-position: -60% 0;
   }
 }
+
+/* Promo Belenergy (Francis, slide 7: "criar alguns efeitos para destacar").
+   Halo laranja que respira + varredura de brilho suave. Respeita
+   prefers-reduced-motion. */
+.v4-promo-glow {
+  animation: v4-promo-breathe 3.2s ease-in-out infinite;
+}
+.v4-promo-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.12) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: v4-promo-sweep 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes v4-promo-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.28); }
+  50%      { box-shadow: 0 0 26px 3px rgba(249, 115, 22, 0.28); }
+}
+@keyframes v4-promo-sweep {
+  0%, 55%  { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v4-promo-glow { animation: none; }
+  .v4-promo-glow::after { animation: none; opacity: 0; }
+}

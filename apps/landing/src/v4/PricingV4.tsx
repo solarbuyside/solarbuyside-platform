@@ -338,6 +338,41 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 {section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'}
               </p>
 
+              {/* Promo Belenergy (Francis, slide 7). Só aparece se houver
+                  título — assim o cliente liga/desliga a campanha pelo admin,
+                  sem deploy. Destaque: anel laranja pulsante + brilho. */}
+              {section?.texts.promoTitle?.trim() && (
+                <div className="v4-promo-glow relative mt-8 overflow-hidden rounded-2xl border border-orange-500/40 bg-orange-500/[0.07] px-5 py-5 text-center">
+                  <p className="font-['Sora'] text-xl font-extrabold tracking-tight text-white md:text-2xl">
+                    <CMSText value={section.texts.promoTitle} />
+                  </p>
+                  {section?.texts.promoSubtitle?.trim() && (
+                    <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-slate-300">
+                      {section.texts.promoSubtitle}
+                    </p>
+                  )}
+                  {section?.texts.promoUrl?.trim() && (
+                    <a
+                      href={section.texts.promoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-3 rounded-xl bg-white/95 px-4 py-2.5 transition-transform duration-300 hover:-translate-y-0.5"
+                    >
+                      <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#181410]">
+                        {section?.texts.promoCtaLabel || 'Clique aqui'}
+                      </span>
+                      <ArrowRight size={14} className="shrink-0 text-[#181410]" />
+                      <img
+                        src={section?.images.promoLogo || '/assets/apoiadores/belenergy.png'}
+                        alt="Belenergy"
+                        loading="lazy"
+                        className="h-6 w-auto"
+                      />
+                    </a>
+                  )}
+                </div>
+              )}
+
               <a
                 href={globalSettings.purchaseLink || '#oferta'}
                 target={globalSettings.purchaseLink ? '_blank' : undefined}

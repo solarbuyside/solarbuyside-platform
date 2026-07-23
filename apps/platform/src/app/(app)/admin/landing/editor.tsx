@@ -34,9 +34,11 @@ import {
 } from "@/lib/landing/field-schema";
 import { saveLandingSectionAction, saveLandingGlobalAction, publishLandingAction } from "./actions";
 import { TestimonialsEditor } from "./testimonials-editor";
+import { LogosEditor } from "./logos-editor";
 import { RichTextEditor } from "./rich-text";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
+const LOGOS_VIEW = "__logos__";
 
 // O editor alimenta o redesign v4 (Solar Dawn), que vive em /v4 enquanto a raiz
 // segue na LP oficial atual. Preview precisa apontar pro v4.
@@ -94,6 +96,7 @@ export function LandingEditor({
     [rawSections, meta],
   );
   const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
+  const apoiadores = rawSections.find((s) => s.sectionId === "apoiadores");
 
   const [drafts, setDrafts] = React.useState<Record<string, Draft>>(() =>
     Object.fromEntries(sections.map((s) => [s.sectionId, { texts: { ...s.texts }, images: { ...s.images } }])),
@@ -271,6 +274,23 @@ export function LandingEditor({
                     </span>
                   </button>
                 ) : null;
+              // "Logos dos apoiadores": editor próprio (imagem + categoria +
+              // texto do card por logo), aninhado sob a seção Apoiadores.
+              const logosBtn =
+                s.sectionId === "apoiadores" && apoiadores ? (
+                  <button
+                    onClick={() => setSelectedId(LOGOS_VIEW)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+                      selectedId === LOGOS_VIEW
+                        ? "bg-primary/10 font-bold text-primary"
+                        : "text-slate-700 hover:bg-slate-50",
+                    )}
+                  >
+                    <ImageIcon className="h-3.5 w-3.5 shrink-0" />
+                    Logos dos apoiadores
+                  </button>
+                ) : null;
               return (
                 <React.Fragment key={s.sectionId}>
                   {cardsBtn}
@@ -304,6 +324,7 @@ export function LandingEditor({
                       {count}
                     </span>
                   </button>
+                  {logosBtn}
                 </React.Fragment>
               );
             })}
@@ -317,6 +338,11 @@ export function LandingEditor({
           <TestimonialsEditor
             section={buyerWave}
             onSaved={() => setLocalPending((p) => new Set(p).add("buyer-wave"))}
+          />
+        ) : selectedId === LOGOS_VIEW && apoiadores ? (
+          <LogosEditor
+            section={apoiadores}
+            onSaved={() => setLocalPending((p) => new Set(p).add("apoiadores"))}
           />
         ) : (
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
