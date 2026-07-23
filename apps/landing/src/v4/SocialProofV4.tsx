@@ -11,7 +11,7 @@ export const TestimonialsV4: React.FC = () => {
   const rodrigoImage = section?.images.testimonialImage || '/assets/Integrador_Rodrigo_SP.png'
 
   return (
-    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f2ece1] pb-20 pt-24 text-[#181410] md:rounded-t-[4.5rem] md:pt-32">
+    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] pb-20 pt-24 text-slate-900 md:rounded-t-[4.5rem] md:pt-32">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-start gap-14 lg:grid-cols-12">
           {/* Figura: foto arch + selo girando + legenda */}
@@ -28,10 +28,10 @@ export const TestimonialsV4: React.FC = () => {
                 </div>
                 <figcaption className="mt-8">
                   <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
-                  <p className="font-['Sora'] text-lg font-bold text-[#181410]">
+                  <p className="font-['Sora'] text-lg font-bold text-slate-900">
                     {section?.texts.authorName || 'Rodrigo'}
                   </p>
-                  <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-[#4f463c]">
+                  <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
                     {section?.texts.authorRole || 'Integrador Solar, SP'}
                   </p>
                 </figcaption>
@@ -39,10 +39,10 @@ export const TestimonialsV4: React.FC = () => {
 
               <div className="absolute right-0 -top-6 origin-top-right scale-[0.8] md:-right-8 md:-top-8 md:scale-100">
                 <Stamp text={section?.texts.statLabel || 'Crescimento'} tone="ink" size={140}>
-                  <p className="font-['Sora'] text-base font-extrabold leading-tight text-[#181410]">
+                  <p className="font-['Sora'] text-base font-extrabold leading-tight text-slate-900">
                     {section?.texts.statValue || '+5 Sistemas'}
                   </p>
-                  <p className="v4-mono mt-1 text-[8px] uppercase tracking-[0.18em] text-[#181410]">
+                  <p className="v4-mono mt-1 text-[8px] uppercase tracking-[0.18em] text-slate-900">
                     {section?.texts.statSubtext || 'Fechados em 30 dias'}
                   </p>
                 </Stamp>
@@ -54,40 +54,40 @@ export const TestimonialsV4: React.FC = () => {
           <div className="lg:col-span-7">
             <Reveal>
               <Quote size={44} className="mb-4 fill-current text-orange-500" aria-hidden />
-              <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-[#181410]">
+              <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-slate-900">
                 <span className="v4-serif">
                   {section?.texts.title || '"Em um mês fechei 5 sistemas novos"'}
                 </span>
               </h2>
             </Reveal>
             <Reveal delay={90}>
-              <p className="mt-5 text-xl font-semibold text-[#4f463c]">
+              <p className="mt-5 text-xl font-semibold text-slate-600">
                 {section?.texts.subtitle || 'Os benefícios são claros, e a prática comprova.'}
               </p>
             </Reveal>
             <Reveal delay={150}>
-              <p className="v4-mono mt-2 text-[10px] uppercase tracking-[0.3em] text-[#4f463c]/70">
+              <p className="v4-mono mt-2 text-[10px] uppercase tracking-[0.3em] text-slate-500">
                 {section?.texts.intro || 'Veja a experiência de Rodrigo, Integrador de São Paulo'}
               </p>
             </Reveal>
 
             <Reveal delay={220}>
-              <p className="v4-dropcap mt-8 text-lg leading-relaxed text-[#4f463c] md:text-xl">
+              <p className="v4-dropcap mt-8 text-lg leading-relaxed text-slate-600 md:text-xl">
                 {section?.texts.quote1 ||
                   '"Eu sofria com a concorrência acirrada e a baixa conversão. O Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e isso mudou o jogo."'}
               </p>
-              <p className="mt-5 text-lg leading-relaxed text-[#4f463c] md:text-xl">
+              <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
                 {section?.texts.quote2 ||
                   '"Em um mês, fechei 5 sistemas novos. O mais gratificante, porém, foi a conexão. Deixei de ser apenas um vendedor e me tornei um verdadeiro parceiro para meus clientes."'}
               </p>
             </Reveal>
 
             <Reveal delay={300}>
-              <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white/50 p-6">
-                <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-[#181410]">
+              <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white p-6">
+                <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-slate-900">
                   {section?.texts.ctaTitle || 'Faça como ele'}
                 </p>
-                <p className="mt-2 text-lg font-semibold leading-relaxed text-[#181410]">
+                <p className="mt-2 text-lg font-semibold leading-relaxed text-slate-900">
                   {section?.texts.ctaText ||
                     'Imersão no Manual de Compra Solar Buy-Side: pense como seu cliente e torne-se um Vendedor de Alta Performance!'}
                 </p>

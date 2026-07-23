@@ -230,13 +230,14 @@ export const VideoV4: React.FC = () => {
 
 /* CTA da seção de vídeo, renderizado DEPOIS de "Apoiadores Institucionais"
    (Francis, slide 2: "transferir o CTA abaixo da nova seção"). Continua lendo
-   video.ctaButton, então o campo do admin não muda de lugar. Fundo claro para
-   emendar com a seção de apoiadores, que é clara. */
+   video.ctaButton, então o campo do admin não muda de lugar. Mesmo fundo da
+   seção de apoiadores (branco-gelo neutro), para os dois lerem como um bloco
+   só. */
 export const VideoCtaV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('video')
   return (
-    <div className="bg-[#f2ece1] px-6 pb-20 md:pb-24">
+    <div className="bg-[#f7f8fa] px-6 pb-20 md:pb-24">
       <Reveal className="flex justify-center">
         <Cta size="lg" href="#oferta">
           {section?.texts.ctaButton || 'Quero sair na frente e vender mais'}

@@ -6,11 +6,14 @@ import { Marquee, Reveal } from './atoms'
 
    Dois blocos, alimentados pela MESMA lista de logos (seção CMS "apoiadores"):
 
-   1) ApoiadoresBandV4 — faixa contínua de logos. Substitui a antiga faixa
-      "Manual de Compra ✦ Código do Vendedor" (confirmado por ele em 23/07).
-      Fundo CLARO de propósito: boa parte dos logos é texto escuro sobre branco
-      (Huawei, LONGi, SolarView, Unipower…) e sumiria numa faixa escura — é
-      também como ele desenhou no slide 1.
+   1) ApoiadoresBandV4 — faixa contínua de logos, logo abaixo do Hero (slide 1).
+      Substitui a antiga faixa "Manual de Compra ✦ Código do Vendedor"
+      (confirmado por ele em 23/07).
+
+   PALETA: branco-gelo NEUTRO (#f7f8fa), não o bege/creme que a LP usava — o
+   creme puxava para entardecer e brigava com a ideia de painel solar. Claro
+   (e não escuro) porque boa parte dos logos é texto escuro sobre branco
+   (Huawei, LONGi, SolarView, Unipower) e sumiria no fundo escuro.
 
    2) ApoiadoresV4 — seção completa, com os logos agrupados por categoria e um
       card de descrição que abre no hover (desktop) ou no toque (mobile).
@@ -57,8 +60,8 @@ export const ApoiadoresBandV4: React.FC = () => {
     '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento'
 
   return (
-    <section className="border-y border-black/[0.06] bg-[#f4f5f7] py-10 text-[#181410]">
-      <p className="v4-mono mb-6 px-6 text-center text-[10px] font-bold uppercase tracking-[0.28em] text-[#181410]/55">
+    <section className="border-y border-slate-200/70 bg-[#f7f8fa] py-10 text-slate-700">
+      <p className="v4-mono mb-6 px-6 text-center text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">
         {bandTitle}
       </p>
 
@@ -78,7 +81,7 @@ export const ApoiadoresBandV4: React.FC = () => {
       </Marquee>
 
       {bandSubtitle && (
-        <p className="mx-auto mt-7 max-w-3xl px-6 text-center text-xs leading-relaxed text-[#4f463c] md:text-sm">
+        <p className="mx-auto mt-7 max-w-3xl px-6 text-center text-xs leading-relaxed text-slate-500 md:text-sm">
           {bandSubtitle}
         </p>
       )}
@@ -103,7 +106,7 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
         onClick={() => temCard && setOpen((v) => !v)}
         aria-expanded={temCard ? open : undefined}
         aria-label={logo.name}
-        className="flex h-20 w-full items-center justify-center rounded-xl border border-black/[0.06] bg-white px-4 transition-all duration-300 hover:border-orange-500/40 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+        className="flex h-20 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-500/60 hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)]"
       >
         <img src={logo.src} alt={logo.name} loading="lazy" className="max-h-10 w-auto object-contain" />
       </button>
@@ -111,12 +114,12 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
       {temCard && open && (
         <div
           role="tooltip"
-          className="absolute bottom-[calc(100%+10px)] left-1/2 z-30 w-60 -translate-x-1/2 rounded-xl border border-black/10 bg-white p-3.5 text-left shadow-[0_18px_45px_rgba(0,0,0,0.18)]"
+          className="absolute bottom-[calc(100%+10px)] left-1/2 z-30 w-60 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3.5 text-left shadow-[0_18px_45px_rgba(0,0,0,0.18)]"
         >
-          <p className="font-['Sora'] text-sm font-bold text-[#181410]">{logo.name}</p>
-          <p className="mt-1 text-xs leading-relaxed text-[#4f463c]">{logo.desc}</p>
+          <p className="font-['Sora'] text-sm font-bold text-slate-900">{logo.name}</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">{logo.desc}</p>
           <span
-            className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-black/10 bg-white"
+            className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-slate-200 bg-white"
             aria-hidden
           />
         </div>
@@ -137,21 +140,21 @@ export const ApoiadoresV4: React.FC = () => {
     'Empresas nacionais e internacionais que apoiam a missão de tornar a compra e a venda de sistemas fotovoltaicos mais profissionais, transparentes e seguras.'
 
   return (
-    <section className="bg-[#f2ece1] px-6 py-20 text-[#181410] md:py-24">
+    <section className="bg-[#f7f8fa] px-6 py-20 text-slate-700 md:py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight">
+          <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-slate-900">
             {title}
           </h2>
         </Reveal>
         <Reveal delay={90}>
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-[#4f463c]">{subtitle}</p>
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-600">{subtitle}</p>
         </Reveal>
 
         <div className="mt-12 space-y-10">
           {categorias.map((cat, ci) => (
             <Reveal key={cat} delay={120 + ci * 60}>
-              <h3 className="v4-mono border-b border-[#181410]/12 pb-2.5 text-[10px] font-bold uppercase tracking-[0.28em] text-[#181410]/60">
+              <h3 className="v4-mono border-b border-slate-200 pb-2.5 text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">
                 {cat}
               </h3>
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

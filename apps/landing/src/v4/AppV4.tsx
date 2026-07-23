@@ -75,20 +75,21 @@ export default function AppV4() {
       <div id="hero">
         <HeroV4 />
       </div>
+      {/* Faixa de logos logo abaixo do Hero, como no slide 1 do Francis. Ela
+          substitui a antiga faixa "Manual ✦ Código" (resposta dele em 23/07). */}
+      <ApoiadoresBandV4 />
       <div id="contexto">
         <ContextV4 />
       </div>
       <div id="video-section">
         <VideoV4 />
       </div>
-      {/* Apoiadores institucionais (Francis, slides 1-3): a seção completa
-          entra logo após o vídeo, o CTA do vídeo desce para depois dela e a
-          faixa de logos ocupa o lugar da antiga faixa "Manual ✦ Código". */}
+      {/* Seção completa dos apoiadores entra depois do vídeo e o CTA do vídeo
+          desce para baixo dela (Francis, slide 2). */}
       <div id="apoiadores">
         <ApoiadoresV4 />
       </div>
       <VideoCtaV4 />
-      <ApoiadoresBandV4 />
       <div id="audiencia">
         <AudienceV4 />
       </div>
