@@ -68,8 +68,8 @@ export const ApoiadoresBandV4: React.FC = () => {
       </p>
 
       {/* reverse: desfile da direita para a esquerda (seta do slide 1) */}
-      <Marquee speed={46} reverse>
-        <span className="flex items-center gap-6 whitespace-nowrap pr-6">
+      <Marquee speed={46} reverse className="v4-marquee-tight">
+        <span className="flex items-center gap-6 whitespace-nowrap">
           {logos.map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
             // SolarView) e sumiriam no escuro. Filtro monocromático não serve

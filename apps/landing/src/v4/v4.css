@@ -168,8 +168,13 @@
     transparent 0.4deg,
     transparent 5.2deg
   );
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 22%, black 32%, transparent 60%);
-  mask-image: radial-gradient(circle at 50% 50%, transparent 22%, black 32%, transparent 60%);
+  /* O buraco central da máscara era 22%: os raios só nasciam bem longe do
+     centro, ou seja, nos flancos — nunca por cima do arco. Como o flanco
+     esquerdo cai no campo azul do hero e o direito no âmbar, dava a impressão
+     de que o sol só tinha raios do lado direito. Buraco menor = leque
+     contínuo cobrindo o globo inteiro. */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 7%, black 19%, transparent 62%);
+  mask-image: radial-gradient(circle at 50% 50%, transparent 7%, black 19%, transparent 62%);
   animation: v4-rotate 140s linear infinite;
 }
 
@@ -512,4 +517,13 @@
 @media (prefers-reduced-motion: reduce) {
   .v4-promo-glow { animation: none; }
   .v4-promo-glow::after { animation: none; opacity: 0; }
+}
+
+/* Faixa de logos (apoiadores): a emenda entre as duas cópias da trilha usava
+   o padding padrão de 3.5rem, muito maior que o gap entre os logos — abria um
+   buraco visível a cada volta. Aqui os dois valores são iguais, então o laço
+   não tem costura aparente. */
+.v4-marquee-tight .v4-marquee-track {
+  gap: 1.5rem;
+  padding-right: 1.5rem;
 }
