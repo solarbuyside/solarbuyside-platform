@@ -60,28 +60,32 @@ export const ApoiadoresBandV4: React.FC = () => {
     '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento'
 
   return (
-    <section className="border-y border-slate-200/70 bg-[#f7f8fa] py-10 text-slate-700">
-      <p className="v4-mono mb-6 px-6 text-center text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">
+    // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
+    // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
+    <section className="bg-transparent py-12">
+      <p className="v4-mono mb-7 px-6 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400">
         {bandTitle}
       </p>
 
       {/* reverse: desfile da direita para a esquerda (seta do slide 1) */}
       <Marquee speed={46} reverse>
-        <span className="flex items-center gap-14 whitespace-nowrap pr-14">
+        <span className="flex items-center gap-6 whitespace-nowrap pr-6">
           {logos.map((logo, i) => (
-            <img
+            // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
+            // SolarView) e sumiriam no escuro. Filtro monocromático não serve
+            // porque BelEnergy/Fluke/Energy Channel já vêm com caixa sólida.
+            <span
               key={i}
-              src={logo.src}
-              alt={logo.name}
-              loading="lazy"
-              className="h-9 w-auto shrink-0 object-contain md:h-11"
-            />
+              className="flex h-12 shrink-0 items-center justify-center rounded-lg bg-white/95 px-5 md:h-14 md:px-6"
+            >
+              <img src={logo.src} alt={logo.name} loading="lazy" className="h-6 w-auto object-contain md:h-7" />
+            </span>
           ))}
         </span>
       </Marquee>
 
       {bandSubtitle && (
-        <p className="mx-auto mt-7 max-w-3xl px-6 text-center text-xs leading-relaxed text-slate-500 md:text-sm">
+        <p className="mx-auto mt-8 max-w-2xl px-6 text-center text-[13px] leading-relaxed text-slate-400">
           {bandSubtitle}
         </p>
       )}
