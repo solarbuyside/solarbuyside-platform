@@ -98,7 +98,9 @@ export const ApoiadoresBandV4: React.FC = () => {
           na emenda entre uma cópia e a outra. Dobrando a lista, o conteúdo
           sempre passa da largura do viewport, o min-width nunca entra em ação
           e a emenda fica com o mesmo respiro dos demais logos. */}
-      <Marquee speed={46} className="v4-marquee-tight relative z-10">
+      {/* speed = duração de um ciclo, então número maior = desfile mais lento.
+          46s -> 58s a pedido do Gabriel (26/07). */}
+      <Marquee speed={58} className="v4-marquee-tight relative z-10">
         <span className="flex items-center gap-6 whitespace-nowrap">
           {[...logos, ...logos].map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
