@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
+﻿import React, { useEffect, useRef } from 'react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, WordReveal } from './atoms'
+import { WordReveal } from './atoms'
 import { scrollToId } from './scroll'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
@@ -17,19 +17,16 @@ export const HeroV4: React.FC = () => {
   const titlePrefix = section?.texts.titlePrefix || section?.texts.title1 || 'Saia da Disputa de Preço e Passe a'
   const titleHighlight = section?.texts.titleHighlight || section?.texts.title2 || 'Vender Decisões'
   const titleSuffix = section?.texts.titleSuffix || 'em Sistema Solar'
-  const subtitle =
-    section?.texts.subtitle ||
-    `${section?.texts.subtitle1 || 'O método Buy-Side ensina você a pensar como o cliente e conduzir decisões de compra, não disputas de preço.'} ${section?.texts.subtitle2 || ''}`.trim()
+  // Subfrase única do Hero (Francis, slide 2). O texto antigo ("O método
+  // Buy-Side ensina você a pensar como o cliente...") é tratado como legado:
+  // se o banco ainda tiver ele, cai no novo. Assim a LP não depende do seed
+  // para mostrar a frase certa.
+  const subtitleCms = section?.texts.subtitle || section?.texts.subtitle1 || ''
+  const subtitle = !subtitleCms || subtitleCms.startsWith('O método Buy-Side')
+    ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do comprador'
+    : subtitleCms
   const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
-  const manualSubtitle =
-    section?.texts.manualSubtitle || 'Construído a partir da observação real de como compradores decidem, na prática.'
-  const bonusTitle = section?.texts.bonusTitle || 'O Código do Vendedor Consultivo'
-  const bonusSubtitle = section?.texts.bonusSubtitle || 'Para quem quer conduzir decisões, não concessões.'
-  const ctaButton = section?.texts.ctaButton || 'Quero meu acesso agora'
   const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
-
-  const isDefaultSubtitle = !subtitle || subtitle.startsWith('O método Buy-Side')
-  const isDefaultManualTitle = !manualTitle || manualTitle === 'Manual Solar Buy-Side'
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {
@@ -120,78 +117,19 @@ export const HeroV4: React.FC = () => {
           <WordReveal trigger="load" text={titleSuffix} baseDelay={470} step={40} wordClassName="text-white" />
         </h1>
 
-        {/* subtítulo */}
-        <p className="v4-rise mt-7 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg md:text-xl" style={{ ['--d' as string]: '560ms' }}>
-          {!isDefaultSubtitle ? (
-            subtitle
-          ) : (
-            <>
-              O método <strong className="font-semibold text-slate-100">Buy-Side</strong> ensina você a pensar como o
-              cliente e conduzir decisões de compra, não disputas de preço.
-            </>
-          )}
+        {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
+            seção "limpa e com espaço entre cada frase" (slide 2). */}
+        <p
+          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-300 sm:text-xl md:mt-16 md:text-2xl"
+          style={{ ['--d' as string]: '560ms' }}
+        >
+          {subtitle}
         </p>
 
-        {/* CTAs: compra para o tráfego quente, vídeo para quem ainda não
-            conhece o produto — o hero vende antes da página explicar */}
-        <div className="v4-rise mt-10" style={{ ['--d' as string]: '700ms' }}>
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Cta size="lg" onClick={() => scrollToId('oferta')}>
-              {ctaButton}
-              <CtaArrow />
-            </Cta>
-          </div>
-          {/* Linha "Acesso imediato ao Manual…" removida a pedido do Francis
-              (2026-07-22, slide 1: "eliminar essas duas frases de letras
-              miúdas"). Removida no código porque o campo tinha texto padrão —
-              apagar no admin fazia o texto voltar. */}
-        </div>
-
-        {/* ticket de acesso: manual + bônus com picote central */}
-        <div className="v4-rise mt-12 w-full max-w-3xl" style={{ ['--d' as string]: '820ms' }}>
-          <div className="relative grid overflow-hidden rounded-3xl border border-white/10 bg-[#0a0e18]/80 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] backdrop-blur-xl md:grid-cols-2">
-            {/* lado A — o manual (capa real, não ícone) */}
-            <div className="flex items-center gap-4 p-6 text-left">
-              <img
-                src="/assets/livro-de-frente.png"
-                alt=""
-                aria-hidden
-                className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"
-              />
-              <div className="min-w-0">
-                <p className="text-base font-bold tracking-tight text-white">
-                  {!isDefaultManualTitle ? (
-                    manualTitle
-                  ) : (
-                    <>
-                      Manual Solar <span className="text-orange-400">Buy-Side</span>
-                    </>
-                  )}
-                </p>
-                <p className="mt-1 text-xs leading-snug text-slate-300">{manualSubtitle}</p>
-              </div>
-            </div>
-
-            {/* picote do ticket */}
-            <div className="pointer-events-none absolute inset-x-6 top-1/2 border-t border-dashed border-white/15 md:inset-x-auto md:inset-y-6 md:left-1/2 md:border-l md:border-t-0" aria-hidden />
-            <span className="pointer-events-none absolute -left-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:left-1/2 md:-top-2 md:block md:-translate-x-1/2 md:translate-y-0" aria-hidden />
-            <span className="pointer-events-none absolute -right-2 top-1/2 hidden h-4 w-4 -translate-y-1/2 rounded-full bg-[#07090d] md:-bottom-2 md:left-1/2 md:right-auto md:top-auto md:block md:-translate-x-1/2" aria-hidden />
-
-            {/* lado B — o Código (produto vendido, peso igual ao Manual) */}
-            <div className="flex items-center gap-4 border-t border-dashed border-white/15 p-6 text-left md:border-t-0">
-              <img
-                src="/assets/codigo-oficial-norm.png"
-                alt=""
-                aria-hidden
-                className="h-16 w-auto shrink-0 drop-shadow-[0_10px_18px_rgba(0,0,0,0.6)]"
-              />
-              <div className="min-w-0">
-                <p className="text-base font-bold leading-tight text-white">{bonusTitle}</p>
-                <p className="mt-1 text-xs leading-snug text-slate-300">{bonusSubtitle}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* CTA principal e o "ticket" com as capas do Manual e do Código foram
+            removidos (Francis, slide 2 + confirmacao do Gabriel 2026-07-26): o
+            Hero fica so com a headline e a subfrase. O primeiro botao da pagina
+            passa a ser o CTA 1, no fim da secao de Autores. */}
       </div>
 
       {/* scroll hint sobre o horizonte */}

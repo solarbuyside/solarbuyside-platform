@@ -80,6 +80,21 @@ export const ManualStrategicV4: React.FC = () => {
 
       {/* pb-44: a próxima seção (paper) sobrepõe este ato com um arco */}
       <div className="relative mx-auto max-w-7xl px-6 py-24 pb-44 md:py-32 md:pb-44">
+        {/* ── Título da seção (Francis, slide 11: "criar este título da seção
+            MANUAL ESTRATÉGICO"). Cobre o bloco inteiro: Manual, Código e os
+            resultados, que são as duas ferramentas do "kit". ───────────── */}
+        <Reveal>
+          <h2 className="font-['Sora'] text-[clamp(2rem,4.4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
+            {section?.texts.kitTitle || 'Kit Completo Solar Buy-Side'}
+          </h2>
+        </Reveal>
+        <Reveal delay={90}>
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-400 md:text-xl">
+            {section?.texts.kitSubtitle || 'Para conduzir decisões, você precisa dominar dois lados da conversa.'}
+          </p>
+        </Reveal>
+        <div className="my-14 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
+
         {/* ── Parte 1: spotlight do produto ─────────────────────────────── */}
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           {/* Texto */}
@@ -235,10 +250,15 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
         </div>
 
-        {/* CTA — depois do Código, antes dos resultados (ordem do Francis) */}
+        {/* CTA 3 — depois do Código, antes dos resultados (ordem do Francis).
+            Texto novo na revisão de 25/07, slide 12. O valor antigo ("Quero
+            vender com estratégia") é tratado como legado para a LP não
+            depender do seed. */}
         <Reveal delay={120} className="mt-12">
           <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {section?.texts.ctaButton || 'Quero vender com estratégia'}
+            {!section?.texts.ctaButton || section.texts.ctaButton === 'Quero vender com estratégia'
+              ? 'Quero vender mais e com estratégia'
+              : section.texts.ctaButton}
             <CtaArrow size={20} />
           </Cta>
         </Reveal>

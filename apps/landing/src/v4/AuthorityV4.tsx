@@ -1,10 +1,11 @@
-import React from 'react'
+﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
-import { Reveal, SolarCells } from './atoms'
+import { Cta, CtaArrow, Reveal, SolarCells } from './atoms'
+import { scrollToId } from './scroll'
 
 /* "O DUELO" — Francis (azul, buy-side) à esquerda vs. Ovídio (laranja,
    sell-side) à direita, divididos por uma linha vertical que funde as
-   duas cores. Fotos em duotone que revelam a cor real no hover. */
+   duas cores. Fotos sempre em cor real (o duotone saiu em 26/07). */
 
 type DuelSideProps = {
   image: string
@@ -21,13 +22,11 @@ type DuelSideProps = {
 const TONES = {
   blue: {
     accent: 'text-blue-400',
-    duotone: 'bg-blue-600/25',
     tag: 'border-blue-500/30 bg-blue-900/25 text-blue-400',
     wash: 'radial-gradient(70% 55% at 50% 0%, rgba(59,130,246,0.06), transparent 72%)',
   },
   orange: {
     accent: 'text-orange-400',
-    duotone: 'bg-orange-600/25',
     tag: 'border-orange-500/30 bg-orange-900/25 text-orange-400',
     wash: 'radial-gradient(70% 55% at 50% 0%, rgba(249,115,22,0.06), transparent 72%)',
   },
@@ -65,21 +64,22 @@ const DuelSide: React.FC<DuelSideProps> = ({
         </span>
       </Reveal>
 
-      {/* Foto duotone → cor no hover */}
+      {/* Foto sempre em cor real. O tratamento duotone (preto e branco +
+          camada azul/laranja em mix-blend-overlay, que abria no hover) saiu a
+          pedido do Gabriel (26/07). */}
       <Reveal
         delay={baseDelay + 90}
         as="figure"
-        className="group relative aspect-[3/4] w-full max-w-[288px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
+        // 288 -> 224px: segunda redução pedida pelo Francis (slide 3,
+        // "reduzir o tamanho das fotos"). A seção subiu para o topo da página
+        // e o peso agora tem que estar no texto, não no retrato.
+        className="group relative aspect-[3/4] w-full max-w-[224px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
       >
         <img
           src={image}
           alt={name}
           loading="lazy"
-          className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-center grayscale transition duration-[900ms] group-hover:grayscale-0"
-        />
-        <div
-          className={`absolute inset-0 mix-blend-overlay transition duration-[900ms] group-hover:opacity-0 ${t.duotone}`}
-          aria-hidden
+          className="absolute inset-0 h-full w-full scale-[1.02] object-cover object-center"
         />
         <div
           className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#07090d]/85 to-transparent"
@@ -113,7 +113,10 @@ export const AuthorityV4: React.FC = () => {
 
   return (
     <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
-      <SolarCells fade="center" />
+      {/* fade "top" (era "center"): a grade entra cheia, emendando na faixa de
+          logos logo acima, e vai apagando até sumir no meio da seção. É a
+          continuação do crepúsculo do Hero, não uma textura isolada. */}
+      <SolarCells fade="top" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-6">
         {/* Header */}
@@ -135,9 +138,12 @@ export const AuthorityV4: React.FC = () => {
 
         {/* O duelo */}
         <div className="relative mt-16">
-          {/* Linha central: azul (buy-side) funde no laranja (sell-side) */}
+          {/* Linha central: azul (buy-side) funde no laranja (sell-side).
+              bottom-16: termina na altura das duas etiquetas ("Especialista
+              Visão Buy-Side / Sell-Side") em vez de descer até encostar no
+              CTA (Gabriel, 26/07). */}
           <div
-            className="absolute bottom-0 left-1/2 top-0 hidden w-px bg-gradient-to-b from-blue-500/40 via-white/10 to-orange-500/40 lg:block"
+            className="absolute bottom-16 left-1/2 top-0 hidden w-px bg-gradient-to-b from-blue-500/40 via-white/10 to-orange-500/40 lg:block"
             aria-hidden
           />
 
@@ -176,6 +182,16 @@ export const AuthorityV4: React.FC = () => {
             />
           </div>
         </div>
+
+        {/* CTA 1 (Francis, slide 3: "CTA para inserir"). É o primeiro botão da
+            página: o Hero deixou de ter CTA nesta revisão. Fica FORA do bloco
+            do duelo para a linha central não descer até ele. */}
+        <Reveal delay={220} className="mt-16 flex justify-center">
+          <Cta size="lg" onClick={() => scrollToId('oferta')}>
+            {section?.texts.ctaButton || 'Quero vender pela perspectiva do comprador'}
+            <CtaArrow size={20} />
+          </Cta>
+        </Reveal>
       </div>
     </section>
   )

@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { Trophy, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, Kicker, Reveal, SolarCells } from './atoms'
@@ -81,7 +81,7 @@ const fin = (i: number, extra = '') =>
   `px-3 py-2.5 text-center ${colCls(i)} ${FINALISTS.has(i) ? `bg-orange-500/[0.04] ${extra}` : extra}`
 
 const ScoreTableExample: React.FC = () => (
-  <Window title="Plataforma · Pontuação Geral — exemplo real">
+  <Window title="Plataforma · Pontuação Geral · exemplo real">
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-left">
         <thead>
@@ -114,7 +114,7 @@ const ScoreTableExample: React.FC = () => (
 
           {/* Empresas — Índice */}
           <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Empresas — Índice</td>
+            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Empresas · Índice</td>
             {EMPRESAS_INDICE.map((v, i) => (
               <td key={i} className={fin(i, 'text-slate-300')}>
                 {v}
@@ -125,7 +125,7 @@ const ScoreTableExample: React.FC = () => (
 
           {/* Tecnologias — Índice */}
           <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Tecnologias — Índice</td>
+            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Tecnologias · Índice</td>
             {TECNOLOGIAS_INDICE.map((v, i) => (
               <td key={i} className={fin(i, 'text-slate-300')}>
                 {v}
@@ -138,7 +138,7 @@ const ScoreTableExample: React.FC = () => (
           <tr className="border-b border-white/[0.05]">
             <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5">
               <span className="font-medium text-slate-300">Viabilidade</span>
-              <span className="block text-[9px] text-slate-600">informativa — não pontua</span>
+              <span className="block text-[9px] text-slate-600">informativa, não pontua</span>
             </td>
             {COMPANIES.map((_, i) => (
               <td key={i} className={fin(i, 'text-slate-500')}>
@@ -211,7 +211,13 @@ export const PlatformV4: React.FC = () => {
     section?.texts.bullet3 || 'Índice de Confiabilidade de 0 a 100 para cada fornecedor',
   ]
   const accessNote = section?.texts.accessNote || 'Acesso por 6 meses, liberado automaticamente após a compra.'
-  const ctaButton = section?.texts.ctaButton || 'Quero o Manual + Plataforma'
+  // CTA 5 (Francis, slide 15: "criar CTA 5"). O botão já existia aqui, o que
+  // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
+  // é tratado como legado para a LP não depender do seed.
+  const ctaCms = section?.texts.ctaButton || ''
+  const ctaButton = !ctaCms || ctaCms === 'Quero o Manual + Plataforma'
+    ? 'Quero o Manual + o Código + acesso à Plataforma'
+    : ctaCms
 
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-slate-100 antialiased">

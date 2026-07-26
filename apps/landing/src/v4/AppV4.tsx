@@ -4,12 +4,12 @@ import { trackPageView, observeSection } from '../utils/analytics'
 import { FloatingCTAV4, HeaderV4, MobileCtaBarV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
-import { VideoV4, VideoCtaV4 } from './VideoV4'
 import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
-import { TestimonialsV4 } from './SocialProofV4'
+import { TestimonialLucasV4, TestimonialsV4 } from './SocialProofV4'
+import { TransformacaoV4 } from './TransformacaoV4'
 import { PricingV4 } from './PricingV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
@@ -18,16 +18,22 @@ import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
    experiência redesenhada em 4 atos. Em PREVIEW na rota /v4; a produção (/)
    continua na v1. (Foi oficial por uma janela em 2026-06-11; revertido.) */
 
+/* Ordem das seções = ordem dos slides da revisão do Francis de 25/07/2026
+   ("Nova ordem das seções", arquivo F). Os dois movimentos grandes: a seção
+   de Autores subiu do 12º para o 3º lugar, e a de Apoiadores desceu do 6º
+   para depois da Plataforma. */
 const SECTION_IDS = [
   'hero',
+  'authority',
   'contexto',
   'video-section',
-  'apoiadores',
+  'depoimento-lucas',
+  'transformacao',
   'audiencia',
   'manual-strategic',
-  'plataforma',
   'depoimentos',
-  'authority',
+  'plataforma',
+  'apoiadores',
   'oferta',
   'faq',
   'contact',
@@ -78,32 +84,37 @@ export default function AppV4() {
       {/* Faixa de logos logo abaixo do Hero, como no slide 1 do Francis. Ela
           substitui a antiga faixa "Manual ✦ Código" (resposta dele em 23/07). */}
       <ApoiadoresBandV4 />
+      {/* Autores logo depois da faixa de logos (slide 3): quem assina o método
+          aparece antes de qualquer argumento, e leva o primeiro CTA da página. */}
+      <div id="authority">
+        <AuthorityV4 />
+      </div>
+      {/* O vídeo e o bloco das duas frases que o fecha vivem DENTRO do
+          Panorama, então não aparecem mais aqui. Ver ContextV4. */}
       <div id="contexto">
         <ContextV4 />
       </div>
-      <div id="video-section">
-        <VideoV4 />
+      <div id="depoimento-lucas">
+        <TestimonialLucasV4 />
       </div>
-      {/* Seção completa dos apoiadores entra depois do vídeo e o CTA do vídeo
-          desce para baixo dela (Francis, slide 2). */}
-      <div id="apoiadores">
-        <ApoiadoresV4 />
+      <div id="transformacao">
+        <TransformacaoV4 />
       </div>
-      <VideoCtaV4 />
       <div id="audiencia">
         <AudienceV4 />
       </div>
       <div id="manual-strategic">
         <ManualStrategicV4 />
       </div>
-      <div id="plataforma">
-        <PlatformV4 />
-      </div>
       <div id="depoimentos">
         <TestimonialsV4 />
       </div>
-      <div id="authority">
-        <AuthorityV4 />
+      <div id="plataforma">
+        <PlatformV4 />
+      </div>
+      {/* Apoiadores desceu para depois da Plataforma (slide 16). */}
+      <div id="apoiadores">
+        <ApoiadoresV4 />
       </div>
       <PricingV4 id="oferta" />
       <div id="faq">

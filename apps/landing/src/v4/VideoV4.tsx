@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
+﻿import React, { useEffect, useState } from 'react'
 import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Reveal } from './atoms'
+import { GrainOverlay, Reveal } from './atoms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -34,92 +33,27 @@ export const VideoV4: React.FC = () => {
     setTimeout(() => setPlayerReady(true), 800)
   }, [showPlayer])
 
-  const cards = [
-    {
-      id: '01',
-      title: section?.texts.card1Title || 'Os 3 grandes RISCOS',
-      desc:
-        section?.texts.card1Desc ||
-        'Risco integrador (engenharia e suporte), técnico (equipamentos e garantias) e financeiro (payback e custo proprietário).',
-      tag: section?.texts.card1Tag || 'Proteção',
-    },
-    {
-      id: '02',
-      title: section?.texts.card2Title || 'Comprador Informado',
-      desc: section?.texts.card2Desc || 'Como identificar promessas exageradas e indício de risco em propostas comerciais.',
-      tag: section?.texts.card2Tag || 'Análise',
-    },
-    {
-      id: '03',
-      title: section?.texts.card3Title || 'Jornada Planejada',
-      desc: section?.texts.card3Desc || 'As 4 fases da decisão de compra e os momentos exatos nos quais o vendedor perde a venda.',
-      tag: section?.texts.card3Tag || 'Estratégia',
-    },
-  ]
 
+  /* O cabeçalho "Descubra o que o Manual ensina..." e os 3 cards (Os 3 grandes
+     RISCOS / Comprador Informado / Jornada Planejada) foram removidos a pedido
+     do Gabriel (26/07). Sobrou o alerta + o player.
+
+     E o bloco deixou de ser uma <section> própria: agora ele é renderizado
+     DENTRO do Panorama 2026, entre o 3º tópico e a faixa "Quem não entender
+     essa nova jornada vai perder vendas". Por isso não tem mais fundo, largura
+     máxima nem padding próprios: quem dá isso é o ContextV4. */
   return (
-    <section className="relative overflow-hidden bg-[#050608] text-white antialiased">
-      {/* Vinheta de transição vindo do ato I (#07090d) */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#07090d] to-transparent" aria-hidden />
+    <div className="relative">
       {/* Luz baixa da sala de projeção */}
       <div
-        className="pointer-events-none absolute left-1/2 top-[62%] h-[480px] w-[720px] -translate-x-1/2 blur-[140px]"
+        className="pointer-events-none absolute left-1/2 top-[55%] h-[480px] w-[720px] -translate-x-1/2 blur-[140px]"
         style={{ background: 'radial-gradient(closest-side, rgba(249,115,22,0.1), transparent 70%)' }}
         aria-hidden
       />
-      <GrainOverlay />
 
-      <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
-        {/* Título + número fantasma do ato */}
-        <Reveal as="header" className="relative">
-          <span
-            className="v4-stroke pointer-events-none absolute -top-10 right-0 hidden select-none font-['Sora'] text-[9rem] font-extrabold leading-none md:block"
-            aria-hidden
-          >
-            02
-          </span>
-          <h2 className="relative max-w-4xl font-['Sora'] text-[clamp(2.2rem,4.5vw,3.6rem)] font-extrabold leading-[1.12] tracking-tight">
-            <CMSText
-              value={
-                section?.texts.title?.trim()
-                  ? section.texts.title
-                  : 'Descubra o que o <span class="cms-orange">Manual</span> ensina aos compradores e entenda as <span class="cms-orange">novas regras do jogo.</span>'
-              }
-            />
-          </h2>
-        </Reveal>
-
-        {/* Índice editorial dos 3 riscos */}
-        <div className="mt-16">
-          {cards.map((card, idx) => (
-            <Reveal
-              key={card.id}
-              delay={idx * 90}
-              className="group grid items-start gap-8 border-t border-white/[0.08] py-10 transition-colors duration-500 hover:border-white/[0.16] md:grid-cols-[150px_1fr]"
-            >
-              <span className="relative inline-block w-fit leading-none">
-                <span className="v4-stroke font-['Sora'] text-7xl font-extrabold md:text-8xl">{card.id}</span>
-                <span
-                  className="absolute inset-0 font-['Sora'] text-7xl font-extrabold text-orange-500 opacity-0 transition-opacity duration-500 group-hover:opacity-100 md:text-8xl"
-                  aria-hidden
-                >
-                  {card.id}
-                </span>
-              </span>
-
-              <div className="min-w-0">
-                <span className="v4-mono inline-block rounded-full border border-orange-500/25 bg-orange-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-orange-400">
-                  {card.tag}
-                </span>
-                <h3 className="mt-3 font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">{card.title}</h3>
-                <p className="mt-2 max-w-2xl text-lg leading-relaxed text-slate-400">{card.desc}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
+      <div className="relative">
         {/* Alerta central */}
-        <Reveal className="mt-24 text-center">
+        <Reveal className="mt-20 text-center">
           <div className="inline-flex items-center gap-2.5 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-1.5 text-red-400">
             <span className="v4-dot relative h-2 w-2 rounded-full bg-red-500 text-red-500" aria-hidden />
             <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em]">
@@ -221,29 +155,64 @@ export const VideoV4: React.FC = () => {
           </div>
         </Reveal>
 
-        {/* CTA movido para depois da seção "Apoiadores Institucionais"
-            (Francis, slide 2) — ver VideoCtaV4 em AppV4. */}
+        {/* Sem CTA aqui: a revisão de 25/07 tirou o botão do fim do vídeo e
+            pôs no lugar um subtítulo. Ver VideoSubtitleV4 logo abaixo. */}
       </div>
-    </section>
+    </div>
   )
 }
 
-/* CTA da seção de vídeo, renderizado DEPOIS de "Apoiadores Institucionais"
-   (Francis, slide 2: "transferir o CTA abaixo da nova seção"). Continua lendo
-   video.ctaButton, então o campo do admin não muda de lugar. Mesmo fundo da
-   seção de apoiadores (branco-gelo neutro), para os dois lerem como um bloco
-   só. */
-export const VideoCtaV4: React.FC = () => {
+/* Subtítulo que fecha o ato do vídeo (Francis, slide 6: "Após a seção VÍDEO,
+   inserir este texto como sub-título").
+
+   Substitui o antigo VideoCtaV4 ("Quero sair na frente e vender mais"): a
+   revisão de 25/07 numera exatamente 6 CTAs na página e nenhum deles fica
+   aqui. Depois do vídeo vem só texto, e o próximo botão é o CTA 2, no fim do
+   depoimento do Lucas.
+
+   Duas frases em contraste: a primeira é o diagnóstico (cinza), a segunda é a
+   virada (branca). Fundo escuro para emendar com a sala de cinema acima. */
+export const VideoSubtitleV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('video')
+
+  const linha1 =
+    section?.texts.outroLine1 || 'A maioria dos vendedores solares continua tentando convencer o cliente.'
+  const linha2 =
+    section?.texts.outroLine2 || 'Os vendedores Buy-Side aprendem primeiro como o comprador decide.'
+
+  /* Painel "amanhecer": herda a moldura do bloco que ele substituiu (a faixa
+     de alerta + o painel "Ainda há tempo para reverter"), para o ritmo da
+     seção não quebrar. As duas frases são uma virada, então o desenho separa
+     o antes do depois: a primeira fica apagada, um ornamento marca o corte, e
+     a segunda vem grande, em serif, com o gradiente do amanhecer. */
   return (
-    <div className="bg-[#f7f8fa] px-6 pb-20 md:pb-24">
-      <Reveal className="flex justify-center">
-        <Cta size="lg" href="#oferta">
-          {section?.texts.ctaButton || 'Quero sair na frente e vender mais'}
-          <CtaArrow size={20} />
-        </Cta>
-      </Reveal>
-    </div>
+    <Reveal delay={100}>
+      <div className="relative mt-20 overflow-hidden rounded-[2.5rem] border border-white/[0.08] bg-[#0a0c12] px-8 py-14 md:px-14 md:py-20">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+          style={{ background: 'radial-gradient(90% 100% at 50% 100%, rgba(251,191,36,0.11), transparent 70%)' }}
+          aria-hidden
+        />
+        <GrainOverlay />
+
+        <div className="relative mx-auto max-w-3xl text-center">
+          {/* o hábito antigo */}
+          <p className="text-xl leading-relaxed text-slate-500 md:text-2xl">{linha1}</p>
+
+          {/* o corte entre um e outro */}
+          <div className="my-9 flex items-center justify-center gap-4" aria-hidden>
+            <span className="h-px w-16 bg-gradient-to-r from-transparent to-orange-500/40 md:w-24" />
+            <span className="h-1.5 w-1.5 rotate-45 rounded-[1px] bg-orange-500" />
+            <span className="h-px w-16 bg-gradient-to-l from-transparent to-orange-500/40 md:w-24" />
+          </div>
+
+          {/* a virada */}
+          <p className="v4-serif text-[clamp(1.7rem,3.8vw,2.9rem)] leading-[1.18]">
+            <span className="v4-grad-text">{linha2}</span>
+          </p>
+        </div>
+      </div>
+    </Reveal>
   )
 }

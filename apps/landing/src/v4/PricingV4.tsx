@@ -53,6 +53,31 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   const section = getSection('pricing')
   const isFirstSection = id === 'oferta'
   const featuresTitle = section?.texts.featuresTitle || 'VEJA TUDO QUE VOCÊ RECEBE:'
+  // Frase de payback, logo abaixo das quatro capas. Apagar o campo no admin
+  // esconde a caixa; campo ausente cai no padrão. Aceita marcação do CMS
+  // (<span class="cms-orange">) para destacar o fecho.
+  const paybackNote =
+    section?.texts.paybackNote ??
+    'Apenas uma venda fechada usando o Método Buy-Side já paga 100% do seu investimento. <span class="cms-orange">Todo o resto é lucro.</span>'
+
+  /* Promo Belenergy, três linhas do slide 18. Os valores anteriores são
+     tratados como legado: enquanto o banco não for atualizado pelo seed, ele
+     sobrescreveria a copy nova. Assim a LP mostra o texto certo já. */
+  // Só cai no padrão quando a chave NÃO EXISTE. Se o admin apagar o campo
+  // (string vazia), o bloco inteiro some: é o liga/desliga da campanha.
+  const promoTitleCms = section?.texts.promoTitle
+  const promoTitle =
+    promoTitleCms === undefined || promoTitleCms.includes('<span class="cms-orange">Belenergy</span>')
+      ? '15% OFF para Integradores cadastrados na'
+      : promoTitleCms
+  const promoSubtitleCms = section?.texts.promoSubtitle ?? ''
+  const promoSubtitle = promoSubtitleCms.startsWith('Cadastre-se agora')
+    ? 'Você está sem cupom Belenergy?'
+    : promoSubtitleCms
+  const promoNote =
+    section?.texts.promoNote ??
+    'Compra agora e reembolsamos a diferença de <span class="cms-orange">R$ 119,55</span> sob apresentação do cupom!'
+  const promoLogo = section?.images.promoLogo || '/assets/apoiadores/belenergy.png'
 
   const productCards: ProductCard[] = [
     {
@@ -306,6 +331,18 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           })}
         </div>
 
+        {/* Frase de payback logo abaixo das quatro capas (Francis, slide 17:
+            "acrescentar a frase e a destacar"). Sem travessão: o original dele
+            usava um, e a LP não usa travessão em lugar nenhum. Some do ar se o
+            campo for apagado no admin. */}
+        {paybackNote && (
+          <Reveal delay={160}>
+            <p className="mx-auto mt-16 max-w-3xl rounded-2xl border border-orange-500/25 bg-orange-500/[0.06] px-7 py-6 text-center font-['Sora'] text-xl font-bold leading-snug text-white md:text-2xl">
+              <CMSText value={paybackNote} />
+            </p>
+          </Reveal>
+        )}
+
         {/* Preço — center stage */}
         <Reveal delay={120} className="mx-auto mt-24 max-w-2xl">
           <div className="v4-conic-frame rounded-[2.5rem] p-px">
@@ -341,35 +378,34 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               {/* Promo Belenergy (Francis, slide 7). Só aparece se houver
                   título — assim o cliente liga/desliga a campanha pelo admin,
                   sem deploy. Destaque: anel laranja pulsante + brilho. */}
-              {section?.texts.promoTitle?.trim() && (
+              {promoTitle.trim() && (
                 <div className="v4-promo-glow relative mt-8 overflow-hidden rounded-2xl border border-orange-500/40 bg-orange-500/[0.07] px-5 py-5 text-center">
-                  <p className="font-['Sora'] text-xl font-extrabold tracking-tight text-white md:text-2xl">
-                    <CMSText value={section.texts.promoTitle} />
+                  {/* Linha 1: a frase termina no LOGO da Belenergy, inline,
+                      como no slide. O logo vem com caixa sólida na arte, então
+                      não precisa de chip branco atrás. */}
+                  <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 font-['Sora'] text-xl font-extrabold tracking-tight text-white md:text-2xl">
+                    <CMSText value={promoTitle} />
+                    <img
+                      src={promoLogo}
+                      alt="Belenergy"
+                      loading="lazy"
+                      className="h-11 w-auto shrink-0 md:h-14"
+                    />
                   </p>
-                  {section?.texts.promoSubtitle?.trim() && (
-                    <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-slate-300">
-                      {section.texts.promoSubtitle}
+                  {promoSubtitle.trim() && (
+                    <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-slate-200">{promoSubtitle}</p>
+                  )}
+                  {/* Linha 3 (Francis, slide 18): o reembolso da diferença para
+                      quem ainda não tem cupom. Sem travessão. Aceita marcação
+                      do CMS para destacar o valor. */}
+                  {promoNote.trim() && (
+                    <p className="mx-auto mt-2.5 max-w-md text-base font-semibold leading-relaxed text-orange-300">
+                      <CMSText value={promoNote} />
                     </p>
                   )}
-                  {section?.texts.promoUrl?.trim() && (
-                    <a
-                      href={section.texts.promoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-3 rounded-xl bg-white/95 px-4 py-2.5 transition-transform duration-300 hover:-translate-y-0.5"
-                    >
-                      <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#181410]">
-                        {section?.texts.promoCtaLabel || 'Clique aqui'}
-                      </span>
-                      <ArrowRight size={14} className="shrink-0 text-[#181410]" />
-                      <img
-                        src={section?.images.promoLogo || '/assets/apoiadores/belenergy.png'}
-                        alt="Belenergy"
-                        loading="lazy"
-                        className="h-6 w-auto"
-                      />
-                    </a>
-                  )}
+                  {/* O botão "Clique aqui" saiu (Gabriel, 26/07): o único
+                      botão deste bloco é o CTA 6 de compra, logo abaixo. Dois
+                      botões colados competiam entre si. */}
                 </div>
               )}
 

@@ -87,6 +87,7 @@ export const MAX_LOGOS = 30;
 /** Chaves geradas dos logos — ocultas do editor genérico (têm editor próprio). */
 const LOGO_KEYS = Array.from({ length: MAX_LOGOS }, (_, i) => i + 1).flatMap((i) => [
   `logo${i}Src`,
+  `logo${i}Url`,
   `logo${i}Name`,
   `logo${i}Desc`,
   `logo${i}Cat`,
@@ -107,38 +108,35 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
             "cms-gradient-orange",
             "Frase inteira numa caixa. Selecione o trecho e clique em Destaque (o miolo da frase é o destacado).",
           ),
-          ml("subtitle", "Subtítulo"),
+          ml("subtitle", "Subtítulo", {
+            help: 'Única frase abaixo do título. Revisão 25/07: "O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do comprador".',
+          }),
         ],
       },
       {
-        label: "Bloco do manual",
-        fields: [
-          t("manualTitle", "Manual — título"),
-          ml("manualSubtitle", "Manual — subtítulo"),
-        ],
-      },
-      {
-        label: "Bônus",
-        fields: [
-          // bonusBadge saiu: o bloco do bônus no Hero não tem selo (só imagem +
-          // título + subtítulo). Ficava no editor sem efeito nenhum na LP.
-          t("bonusTitle", "Bônus — título"),
-          ml("bonusSubtitle", "Bônus — subtítulo"),
-        ],
-      },
-      {
-        label: "Botão e imagem",
-        fields: [
-          t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          img("heroImage", "Imagem do topo"),
-        ],
+        label: "Selo do produto",
+        fields: [t("manualTitle", "Selo acima do título")],
       },
     ],
     // Chaves que existem no banco mas a LP não usa — não vale expor no editor.
     // ctaSubtext e scrollHint saíram do Hero em 2026-07-23 (Francis, slide 1:
     // "eliminar essas duas frases de letras miúdas"); scrollHint sobrevive só
     // como aria-label do botão de rolagem, sem texto visível.
-    hiddenKeys: ["bonusBadge", "ctaSubtext", "scrollHint"],
+    //
+    // Revisão 25/07: o Hero perdeu o botão (ctaButton) e o "ticket" com as
+    // capas do Manual e do Código (manualSubtitle, bonusTitle, bonusSubtitle,
+    // heroImage). Agora o topo é só título + subfrase, e o primeiro botão da
+    // página é o CTA 1, na seção de Autores.
+    hiddenKeys: [
+      "bonusBadge",
+      "ctaSubtext",
+      "scrollHint",
+      "ctaButton",
+      "manualSubtitle",
+      "bonusTitle",
+      "bonusSubtitle",
+      "heroImage",
+    ],
   },
 
   context: {
@@ -170,26 +168,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("card3Desc", "Card 3 — descrição"),
         ],
       },
-      {
-        label: "Faixa de alerta",
-        fields: [
-          t("alertTitle", "Alerta — título"),
-          t("alertSubtitle", "Alerta — subtítulo"),
-        ],
-      },
-      {
-        label: "Solução + botão",
-        fields: [
-          t("solutionBadge", "Solução — selo", { maxLength: 40 }),
-          t("solutionTitle", "Solução — título"),
-          ml("solutionDesc", "Solução — descrição"),
-          t("check1", "Selo 1", { maxLength: 30 }),
-          t("check2", "Selo 2", { maxLength: 30 }),
-          t("check3", "Selo 3", { maxLength: 30 }),
-          t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          t("ctaSubtext", "Texto abaixo do botão", { maxLength: 60 }),
-        ],
-      },
+    ],
+    // A faixa "Quem não entender essa nova jornada" e o painel "Ainda há tempo
+    // para reverter" foram removidos em 2026-07-26: no lugar deles entrou o
+    // bloco das duas frases, que é editado na seção "Vídeo" (outroLine1/2).
+    hiddenKeys: [
+      "alertTitle",
+      "alertSubtitle",
+      "solutionBadge",
+      "solutionTitle",
+      "solutionDesc",
+      "check1",
+      "check2",
+      "check3",
+      "ctaButton",
+      "ctaSubtext",
     ],
   },
 
@@ -197,28 +190,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Vídeo",
     order: 2,
     groups: [
-      {
-        label: "Título",
-        fields: [
-          rich("title", "Título da seção", {
-            help: "Selecione uma palavra e clique em Laranja para destacar.",
-          }),
-        ],
-      },
-      {
-        label: "Cards (3)",
-        fields: [
-          t("card1Title", "Card 1 — título"),
-          ml("card1Desc", "Card 1 — descrição"),
-          t("card1Tag", "Card 1 — etiqueta", { maxLength: 30 }),
-          t("card2Title", "Card 2 — título"),
-          ml("card2Desc", "Card 2 — descrição"),
-          t("card2Tag", "Card 2 — etiqueta", { maxLength: 30 }),
-          t("card3Title", "Card 3 — título"),
-          ml("card3Desc", "Card 3 — descrição"),
-          t("card3Tag", "Card 3 — etiqueta", { maxLength: 30 }),
-        ],
-      },
       {
         label: "Faixa de alerta",
         fields: [
@@ -233,16 +204,44 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("videoBadge", "Vídeo — selo", { maxLength: 40 }),
           t("videoTitle", "Vídeo — título"),
           t("videoDuration", "Duração", { maxLength: 20 }),
-          t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
         ],
       },
+      {
+        // Francis, slide 6: "após a seção VÍDEO, inserir este texto como
+        // sub-título". Duas frases em contraste, uma por campo.
+        label: "Frase de fechamento",
+        fields: [
+          ml("outroLine1", "Linha 1 (diagnóstico)"),
+          ml("outroLine2", "Linha 2 (a virada)"),
+        ],
+      },
+    ],
+    // ctaButton: o botão do fim do vídeo saiu na revisão de 25/07. A página
+    // passou a ter 6 CTAs numerados e nenhum deles fica aqui.
+    //
+    // title + card1/2/3: o cabeçalho "Descubra o que o Manual ensina..." e os
+    // três cards (Os 3 grandes RISCOS / Comprador Informado / Jornada
+    // Planejada) foram removidos em 2026-07-26. Sobrou o alerta + o player,
+    // que agora vivem dentro do Panorama 2026.
+    hiddenKeys: [
+      "ctaButton",
+      "title",
+      "card1Title",
+      "card1Desc",
+      "card1Tag",
+      "card2Title",
+      "card2Desc",
+      "card2Tag",
+      "card3Title",
+      "card3Desc",
+      "card3Tag",
     ],
   },
 
   apoiadores: {
     label: "Apoiadores institucionais",
-    // 2.5: entra entre Vídeo (2) e Público (3) sem renumerar o resto.
-    order: 2.5,
+    // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
+    order: 6.5,
     groups: [
       {
         label: "Seção",
@@ -310,10 +309,19 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         // Estava como "Título de rodapé da seção" dentro do grupo "Topo" — o
         // Francis não achou o campo (2026-07-23). É a caixa destacada que
         // fecha a seção, então virou grupo próprio, no fim, com nome claro.
+        // Revisão 25/07 (slide 10): o texto desta caixa foi substituído e
+        // virou um bloco de cinco partes, terminando na ponte para a seção do
+        // Manual. bottomTitle continua sendo a primeira linha.
         label: "Frase de fechamento",
         fields: [
-          ml("bottomTitle", "Frase da caixa destacada", {
+          ml("bottomTitle", "Linha 1 (título)", {
             help: "Caixa em destaque no fim da seção, logo abaixo dos perfis.",
+          }),
+          ml("bottomHighlight", "Linha 2 (destaque em laranja)"),
+          ml("bottomText", "Parágrafo"),
+          ml("bottomEmphasis", "Frase em negrito"),
+          ml("bottomOutro", "Ponte para a próxima seção", {
+            help: "Aparece depois de um fio, com a seta para baixo.",
           }),
         ],
       },
@@ -324,6 +332,15 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Manual estratégico",
     order: 4,
     groups: [
+      {
+        // Francis, slide 11: "criar este título da seção MANUAL ESTRATÉGICO".
+        // Abre o bloco inteiro (Manual + Código + resultados).
+        label: "Título da seção",
+        fields: [
+          t("kitTitle", "Título"),
+          ml("kitSubtitle", "Subtítulo"),
+        ],
+      },
       {
         label: "Bloco 1",
         fields: [
@@ -399,7 +416,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   plataforma: {
     label: "Plataforma de avaliação",
-    order: 5,
+    // Revisão 25/07: trocou de lugar com o depoimento do Rodrigo (slide 15).
+    order: 6,
     groups: [
       {
         label: "Topo",
@@ -433,9 +451,90 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  // Depoimento do Lucas (Francis, slide 7). Mesmo modelo do Rodrigo, sem o
+  // selo girando e com foto retangular. Entra logo depois do vídeo.
+  "testimonial-lucas": {
+    label: "Depoimento do Lucas",
+    order: 2.6,
+    groups: [
+      {
+        label: "Cabeçalho",
+        fields: [
+          t("kicker", "Rótulo acima do título"),
+          ml("title", "Citação em destaque"),
+        ],
+      },
+      {
+        label: "Autor",
+        fields: [
+          t("authorName", "Nome do autor"),
+          t("authorRole", "Cargo / perfil do autor"),
+          img("testimonialImage", "Foto do autor"),
+        ],
+      },
+      {
+        label: "Citações",
+        fields: [
+          ml("quote1", "Parágrafo 1"),
+          ml("quote2", "Parágrafo 2"),
+          ml("quote3", "Parágrafo 3"),
+        ],
+      },
+      {
+        label: "Caixa + botão",
+        fields: [
+          t("ctaTitle", "Caixa — rótulo", { maxLength: 30 }),
+          ml("ctaText", "Caixa — frase"),
+          t("ctaButton", "Botão (CTA 2)", { maxLength: 48 }),
+        ],
+      },
+    ],
+  },
+
+  // Transformação (Francis, slide 8). Textos dele, visual redesenhado.
+  transformacao: {
+    label: "Transformação",
+    order: 2.8,
+    groups: [
+      {
+        label: "Topo",
+        fields: [
+          t("kicker", "Rótulo", { maxLength: 30 }),
+          t("title1", "Título — parte 1"),
+          t("title2", "Título — parte 2 (cinza)"),
+          t("title3", "Título — parte 3 (laranja)"),
+          ml("bullet1", "Afirmação 1"),
+          ml("bullet2", "Afirmação 2"),
+          ml("bullet3", "Afirmação 3"),
+        ],
+      },
+      {
+        label: "Comparação hoje x depois",
+        fields: [
+          t("tableTitle", "Título da comparação"),
+          t("hojeLabel", "Rótulo da coluna 1", { maxLength: 20 }),
+          t("depoisLabel", "Rótulo da coluna 2", { maxLength: 20 }),
+          t("row1Hoje", "Linha 1 — hoje"),
+          t("row1Depois", "Linha 1 — depois"),
+          t("row2Hoje", "Linha 2 — hoje"),
+          t("row2Depois", "Linha 2 — depois"),
+          t("row3Hoje", "Linha 3 — hoje"),
+          t("row3Depois", "Linha 3 — depois"),
+          t("row4Hoje", "Linha 4 — hoje"),
+          t("row4Depois", "Linha 4 — depois"),
+          t("row5Hoje", "Linha 5 — hoje"),
+          t("row5Depois", "Linha 5 — depois"),
+          t("row6Hoje", "Linha 6 — hoje"),
+          t("row6Depois", "Linha 6 — depois"),
+        ],
+      },
+    ],
+  },
+
   testimonials: {
-    label: "Depoimento (destaque)",
-    order: 6,
+    label: "Depoimento do Rodrigo",
+    // Revisão 25/07: trocou de lugar com a Plataforma (slide 14).
+    order: 5,
     groups: [
       {
         label: "Cabeçalho",
@@ -552,7 +651,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   authority: {
     label: "Autoridade (autores)",
-    order: 11,
+    // Revisão 25/07 (slide 3): a seção subiu para logo depois da faixa de
+    // logos, e passou a levar o primeiro botão da página.
+    order: 0.5,
     groups: [
       {
         label: "Topo",
@@ -565,6 +666,15 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
             "cms-orange",
             "Frase inteira numa caixa. Destaque o trecho final.",
           ),
+        ],
+      },
+      {
+        label: "Botão",
+        fields: [
+          t("ctaButton", "Botão (CTA 1)", {
+            maxLength: 48,
+            help: "Primeiro botão da página: o topo (Hero) deixou de ter CTA nesta revisão.",
+          }),
         ],
       },
       {
@@ -632,6 +742,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("card3Desc", "Card 3 — descrição"),
           t("card3Tag", "Card 3 — etiqueta", { maxLength: 30 }),
           img("card3Image", "Card 3 — imagem"),
+          // Francis, slide 17: "acrescentar a frase e a destacar". Fica na
+          // caixa laranja logo abaixo das capas. Apagar esconde a caixa.
+          rich("paybackNote", "Frase destacada abaixo das capas", {
+            help: "Deixe VAZIO para esconder a caixa. Selecione o fecho e clique em Laranja para destacar.",
+          }),
         ],
       },
       {
@@ -675,9 +790,14 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
             help: "Deixe VAZIO para esconder o bloco da promoção na LP.",
           }),
           ml("promoSubtitle", "Subtítulo"),
-          t("promoCtaLabel", "Texto do botão", { maxLength: 30 }),
-          t("promoUrl", "Link do botão", { type: "url" }),
-          img("promoLogo", "Logo do parceiro"),
+          // Terceira linha da promo (Francis, slide 18): o reembolso da
+          // diferença para quem ainda não tem cupom.
+          rich("promoNote", "Linha de reembolso", {
+            help: "Terceira linha do bloco. Selecione o valor e clique em Laranja para destacar.",
+          }),
+          img("promoLogo", "Logo do parceiro", {
+            help: "Aparece grande, no fim da primeira linha.",
+          }),
         ],
       },
       {
@@ -694,7 +814,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
     // feature1Desc/bonusBadge existem no banco mas a LP não usa (bonusBadge
     // nunca foi lido; feature1Desc é resquício do fallback card1Desc).
-    hiddenKeys: ["feature1Desc", "bonusBadge"],
+    // promoUrl/promoCtaLabel: o botão "Clique aqui" saiu do bloco da promo em
+    // 2026-07-26. As chaves continuam no banco, mas a LP não lê mais.
+    hiddenKeys: ["feature1Desc", "bonusBadge", "promoUrl", "promoCtaLabel"],
   },
 
   "buyer-wave": {

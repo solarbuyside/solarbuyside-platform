@@ -107,6 +107,102 @@ export const TestimonialsV4: React.FC = () => {
   )
 }
 
+/* DEPOIMENTO DO LUCAS (Francis, slide 7: "criar uma nova seção DEPOIMENTO no
+   mesmo modelo do que do integrador RODRIGO").
+
+   Duas diferenças pedidas em cima do modelo do Rodrigo:
+   - sem o selo girando (o X vermelho do slide cai em cima dele);
+   - foto retangular vertical, não o arco: o arco "parece uma portinha"
+     (Gabriel, 26/07). Mesma proporção 3:4 do arquivo que veio no PPTX.
+
+   A foto saiu do próprio PPTX do Francis (media/image17.png), tratada para
+   800px de largura. O selo do Rodrigo continua onde está: o slide 14 não pede
+   para tirar. */
+export const TestimonialLucasV4: React.FC = () => {
+  const { getSection } = useContent()
+  const section = getSection('testimonial-lucas')
+  const foto = section?.images.testimonialImage || '/assets/Integrador_Lucas_BH.jpg'
+
+  return (
+    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] pb-20 pt-24 text-slate-900 md:rounded-t-[4.5rem] md:pt-32">
+      <div className="mx-auto max-w-7xl px-6">
+        <Reveal>
+          <p className="v4-mono mb-12 text-[10px] font-bold uppercase tracking-[0.3em] text-orange-600">
+            {section?.texts.kicker || 'Relato de caso: a história do integrador Lucas'}
+          </p>
+        </Reveal>
+
+        <div className="grid items-start gap-14 lg:grid-cols-12">
+          {/* Figura: retângulo vertical, sem selo */}
+          <Reveal className="lg:col-span-5">
+            <figure className="mx-auto max-w-[420px]">
+              <div className="v4-hard-shadow aspect-[3/4] w-full overflow-hidden rounded-2xl">
+                <img src={foto} alt="Lucas de Freitas" className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <figcaption className="mt-8">
+                <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
+                <p className="font-['Sora'] text-lg font-bold text-slate-900">
+                  {section?.texts.authorName || 'Lucas de Freitas'}
+                </p>
+                <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
+                  {section?.texts.authorRole || 'Integrador Solar, BH'}
+                </p>
+              </figcaption>
+            </figure>
+          </Reveal>
+
+          {/* Citação editorial */}
+          <div className="lg:col-span-7">
+            <Reveal>
+              <Quote size={44} className="mb-4 fill-current text-orange-500" aria-hidden />
+              <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-slate-900">
+                <span className="v4-serif">
+                  {section?.texts.title || '"Deixei de competir por preço e passei a ser vendedor consultivo"'}
+                </span>
+              </h2>
+            </Reveal>
+
+            <Reveal delay={220}>
+              <p className="v4-dropcap mt-8 text-lg leading-relaxed text-slate-600 md:text-xl">
+                {section?.texts.quote1 ||
+                  'Com o Método Solar Buy-Side, aprendi a ancorar o valor do projeto na perspectiva de investimento do cliente e isso mudou o jogo.'}
+              </p>
+              <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
+                {section?.texts.quote2 ||
+                  'Hoje eu entro numa reunião muito mais tranquilo. Não preciso convencer ninguém. Meu papel é educar e ajudar o cliente a decidir.'}
+              </p>
+              <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
+                {section?.texts.quote3 ||
+                  'Quando o cliente compara três orçamentos, ele volta pra mim. Não vendo mais o sistema mais barato, vendo a decisão mais segura, e isso pesa muito mais na hora de fechar.'}
+              </p>
+            </Reveal>
+
+            <Reveal delay={300}>
+              <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white p-6">
+                <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-slate-900">
+                  {section?.texts.ctaTitle || 'Para quem é'}
+                </p>
+                <p className="mt-2 text-lg font-semibold leading-relaxed text-slate-900">
+                  {section?.texts.ctaText ||
+                    'Se tornar vendedor consultivo Buy-Side significa reduzir risco, insegurança e arrependimento do comprador, e não pressionar por fechamento.'}
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+
+        {/* CTA 2 */}
+        <Reveal delay={140} className="mt-14 flex justify-center">
+          <Cta size="lg" variant="ghost-paper" href="#oferta">
+            {section?.texts.ctaButton || 'Quero parar de perder venda por preço'}
+            <CtaArrow size={20} />
+          </Cta>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
 /* Ponte narrativa — manual sobre bloco paper-deep + tabela de specs estilo
    revista com hairlines colapsadas e inversão de tinta no hover. */
 export const StoryBridgeV4: React.FC = () => {

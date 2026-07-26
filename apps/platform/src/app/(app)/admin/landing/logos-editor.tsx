@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { Check, Loader2, CircleAlert, Save, Plus, Trash2, ArrowUp, ArrowDown, Images } from "lucide-react";
@@ -20,9 +20,9 @@ import { saveLandingSectionAction } from "./actions";
  */
 
 type SaveState = "idle" | "saving" | "saved" | "error";
-type Logo = { src: string; name: string; cat: string; desc: string };
+type Logo = { src: string; name: string; cat: string; desc: string; url: string };
 
-const blank: Logo = { src: "", name: "", cat: "", desc: "" };
+const blank: Logo = { src: "", name: "", cat: "", desc: "", url: "" };
 
 function parseLogos(section: LandingSection): Logo[] {
   const t = section.texts;
@@ -35,6 +35,7 @@ function parseLogos(section: LandingSection): Logo[] {
       name: t[`logo${i}Name`] ?? "",
       cat: t[`logo${i}Cat`] ?? "",
       desc: t[`logo${i}Desc`] ?? "",
+      url: t[`logo${i}Url`] ?? "",
     });
   }
   return logos;
@@ -85,6 +86,7 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
             texts[`logo${i}Name`] = l.name.trim();
             texts[`logo${i}Cat`] = l.cat.trim();
             texts[`logo${i}Desc`] = l.desc.trim();
+            texts[`logo${i}Url`] = l.url.trim();
           });
         await saveLandingSectionAction("apoiadores", texts, images);
         onSaved?.();
@@ -172,6 +174,12 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
                   value={logo.desc}
                   onChange={(v) => update(i, "desc", v)}
                   area
+                />
+                <Field
+                  label="Link do site (opcional)"
+                  value={logo.url}
+                  onChange={(v) => update(i, "url", v)}
+                  placeholder="https://exemplo.com.br"
                 />
               </div>
             </div>

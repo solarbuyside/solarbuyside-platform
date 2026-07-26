@@ -2,7 +2,7 @@ import type { SectionContent } from './ContentContext'
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 28
+export const CONTENT_VERSION = 29
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -13,7 +13,7 @@ export const initialContent: SectionContent[] = [
             "texts": {
                     "title": "Apoiadores Institucionais Solar Buy-Side",
                     "subtitle": "Empresas nacionais e internacionais que apoiam a missão de tornar a compra e a venda de sistemas fotovoltaicos mais profissionais, transparentes e seguras.",
-                    "bandTitle": "Empresas líderes que apoiam o Movimento Solar Buy-Side",
+                    "bandTitle": "Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side",
                     "bandSubtitle": "+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento",
                     "logo1Name": "BelEnergy",
                     "logo1Cat": "Distribuidora Âncora Solar Buy-Side",
@@ -62,7 +62,10 @@ export const initialContent: SectionContent[] = [
                     "logo15Desc": "Financiamento para projetos de energia solar.",
                     "logo16Name": "Energy Channel",
                     "logo16Cat": "Mídia Solar",
-                    "logo16Desc": "Canal de mídia e conteúdo especializado no setor de energia solar."
+                    "logo16Desc": "Canal de mídia e conteúdo especializado no setor de energia solar.",
+                    "logo17Name": "Stäubli",
+                    "logo17Cat": "Fabricantes",
+                    "logo17Desc": "Fabricante suíça de conectores fotovoltaicos e soluções de conexão elétrica."
             },
             "images": {
                     "logo1Src": "/assets/apoiadores/belenergy.png",
@@ -80,7 +83,8 @@ export const initialContent: SectionContent[] = [
                     "logo13Src": "/assets/apoiadores/solergo.png",
                     "logo14Src": "/assets/apoiadores/eletron-seguro-solar.png",
                     "logo15Src": "/assets/apoiadores/santander.png",
-                    "logo16Src": "/assets/apoiadores/energy-channel.png"
+                    "logo16Src": "/assets/apoiadores/energy-channel.png",
+                    "logo17Src": "/assets/apoiadores/staubli.png"
             }
     },
     {
@@ -242,8 +246,10 @@ export const initialContent: SectionContent[] = [
         "id": "pricing",
         "name": "Oferta",
         "texts": {
-            "promoTitle": "15% OFF para Integradores <span class=\"cms-orange\">Belenergy</span>",
-            "promoSubtitle": "Cadastre-se agora e receba seu cupom exclusivo com 15% OFF",
+            "paybackNote": "Apenas uma venda fechada usando o Método Buy-Side já paga 100% do seu investimento. <span class=\"cms-orange\">Todo o resto é lucro.</span>",
+            "promoTitle": "15% OFF para Integradores cadastrados na",
+            "promoSubtitle": "Você está sem cupom Belenergy?",
+            "promoNote": "Compra agora e reembolsamos a diferença de <span class=\"cms-orange\">R$ 119,55</span> sob apresentação do cupom!",
             "promoCtaLabel": "Clique aqui",
             "promoUrl": "https://belenergy.com.br/seja-um-integrador-credenciado/",
             "badge": "Condição de pré-venda • antes do lançamento oficial",

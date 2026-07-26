@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Building2, CheckCircle2, Rocket, Users } from 'lucide-react'
+import { ArrowDown, Building2, Rocket, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { GrainOverlay, Reveal, WordReveal } from './atoms'
 
@@ -197,14 +197,47 @@ export const AudienceV4: React.FC = () => {
               aria-hidden
             />
             <GrainOverlay />
-            <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:gap-8">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-500">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
-              <h3 className="max-w-4xl text-2xl font-bold leading-snug text-white md:text-3xl">
-                {section?.texts.bottomTitle ||
-                  'Mais do que dois guias, o Manual Solar Buy-Side e o Código do Vendedor Consultivo representam uma nova forma de compreender o processo de compra: uma imersão na perspectiva do cliente que muda a maneira de vender sistemas fotovoltaicos.'}
+            {/* Texto substituído pelo do slide 10 ("este texto é uma
+                substituição a este texto"). Virou um bloco de cinco partes,
+                terminando na ponte para a seção do Manual. O bottomTitle
+                continua sendo a primeira linha, então o campo que já existe no
+                admin não muda de lugar. */}
+            <div className="relative max-w-4xl">
+              <h3 className="text-2xl font-bold leading-snug text-white md:text-3xl">
+                {/* Os dois textos anteriores desta caixa são tratados como
+                    legado: o banco ainda os tem e sobrescreveria a linha nova,
+                    deixando o bloco com a 1ª linha velha e as 4 novas embaixo.
+                    Cai no texto do slide 10 até o seed rodar. */}
+                {!section?.texts.bottomTitle ||
+                section.texts.bottomTitle.startsWith('Mais do que dois guias') ||
+                section.texts.bottomTitle.startsWith('Não importa em qual ponto')
+                  ? 'O futuro das vendas solares não pertence aos melhores argumentadores.'
+                  : section.texts.bottomTitle}
               </h3>
+              <p className="v4-serif mt-4 text-2xl leading-snug text-orange-400 md:text-3xl">
+                {section?.texts.bottomHighlight || 'Pertence aos profissionais que sabem conduzir a decisão de compra.'}
+              </p>
+              <p className="mt-7 text-lg leading-relaxed text-slate-400 md:text-xl">
+                {section?.texts.bottomText ||
+                  'Os melhores vendedores solares do futuro serão aqueles que entendem como o comprador pensa, reduzem sua insegurança e conduzem a decisão com confiança.'}
+              </p>
+              <p className="mt-5 text-lg font-semibold leading-relaxed text-white md:text-xl">
+                {section?.texts.bottomEmphasis ||
+                  'O Método Solar Buy-Side foi criado para formar exatamente esse profissional.'}
+              </p>
+
+              <div className="mt-9 flex items-center gap-4 border-t border-white/[0.08] pt-7">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-500"
+                  aria-hidden
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </span>
+                <p className="v4-serif text-lg text-slate-300 md:text-xl">
+                  {section?.texts.bottomOutro ||
+                    'A seguir, conheça as ferramentas que tornam essa transformação possível.'}
+                </p>
+              </div>
             </div>
           </div>
         </Reveal>

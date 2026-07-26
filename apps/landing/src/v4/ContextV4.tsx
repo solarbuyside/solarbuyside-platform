@@ -1,8 +1,7 @@
-import React from 'react'
-import { AlertCircle } from 'lucide-react'
+﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
-import { scrollToId } from './scroll'
+import { Kicker, Reveal, SolarCells } from './atoms'
+import { VideoSubtitleV4, VideoV4 } from './VideoV4'
 
 export const ContextV4: React.FC = () => {
   const { getSection } = useContent()
@@ -21,12 +20,6 @@ export const ContextV4: React.FC = () => {
       title: section?.texts.card3Title || 'Avaliarão risco',
       desc: section?.texts.card3Desc || 'A confiabilidade da sua empresa será o fator decisivo antes de qualquer preço.',
     },
-  ]
-
-  const checks = [
-    section?.texts.check1 || 'Visão do Cliente',
-    section?.texts.check2 || 'Gatilhos de Compra',
-    section?.texts.check3 || 'Confiabilidade',
   ]
 
   return (
@@ -79,72 +72,19 @@ export const ContextV4: React.FC = () => {
           ))}
         </div>
 
-        {/* Alerta — faixa entre hairlines */}
-        <Reveal delay={120}>
-          <div
-            className="mt-20 border-y border-white/[0.08] py-12"
-            style={{ background: 'radial-gradient(70% 140% at 50% 50%, rgba(220,80,40,0.06), transparent 75%)' }}
-          >
-            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-              <div className="flex items-start gap-5">
-                <AlertCircle size={26} className="mt-1.5 shrink-0 text-orange-500" />
-                <h3 className="max-w-3xl font-['Sora'] text-2xl font-extrabold leading-tight tracking-tight text-white md:text-4xl">
-                  {section?.texts.alertTitle || 'Quem não entender essa nova jornada vai perder vendas.'}
-                </h3>
-              </div>
-              <p className="v4-mono shrink-0 text-[10px] uppercase tracking-[0.3em] text-amber-500/80 md:text-right">
-                {section?.texts.alertSubtitle || 'O cenário está evoluindo. Você está pronto?'}
-              </p>
-            </div>
-          </div>
-        </Reveal>
+        {/* Vídeo (Gabriel, 26/07): entra aqui, logo depois do 3º tópico do
+            Panorama e antes da faixa "Quem não entender essa nova jornada".
+            O id fica nele para o menu "Vídeo" do cabeçalho continuar rolando
+            para o lugar certo. */}
+        <div id="video-section">
+          <VideoV4 />
+        </div>
 
-        {/* Solução — painel "amanhecer" */}
-        <Reveal delay={100}>
-          <div className="relative mt-20 overflow-hidden rounded-[2.5rem] border border-white/[0.08] bg-[#0a0c12] p-10 md:p-14">
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
-              style={{ background: 'radial-gradient(90% 100% at 50% 100%, rgba(251,191,36,0.10), transparent 70%)' }}
-              aria-hidden
-            />
-            <GrainOverlay />
-            <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-5">
-              <div className="lg:col-span-3">
-                <Kicker tone="dark">{section?.texts.solutionBadge || 'A Solução Definitiva'}</Kicker>
-                <h3 className="mt-5 font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-                  {section?.texts.solutionTitle || 'Ainda há tempo para reverter essa situação.'}
-                </h3>
-                <p className="mt-4 max-w-xl leading-relaxed text-slate-400">
-                  {section?.texts.solutionDesc ||
-                    'O Manual de Compra Solar Buy-Side mapeia os novos gatilhos de decisão do cliente moderno, garantindo que você esteja do lado certo da venda.'}
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  {checks.map((item) => (
-                    <div key={item} className="rounded-full border border-white/10 px-4 py-2">
-                      <span className="flex items-center gap-2.5">
-                        <span
-                          className="h-2 w-2 shrink-0 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-500 to-amber-400"
-                          aria-hidden
-                        />
-                        <span className="text-sm font-semibold text-slate-200">{item}</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center gap-4 lg:col-span-2 lg:items-end">
-                <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
-                  {section?.texts.ctaButton || 'Garantir meu acesso agora'}
-                  <CtaArrow />
-                </Cta>
-                <p className="v4-mono text-[9px] uppercase tracking-[0.25em] text-slate-500">
-                  {section?.texts.ctaSubtext || 'Download Imediato • PDF Interativo'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Reveal>
+        {/* A faixa "Quem não entender essa nova jornada" e o painel "Ainda há
+            tempo para reverter" foram substituídos pelo bloco das duas frases
+            (Gabriel, 26/07). Ele fecha o ato do vídeo e emenda direto no
+            depoimento do Lucas. Ver VideoSubtitleV4. */}
+        <VideoSubtitleV4 />
       </div>
     </section>
   )

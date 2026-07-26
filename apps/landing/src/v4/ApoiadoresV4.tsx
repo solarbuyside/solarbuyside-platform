@@ -1,6 +1,7 @@
 import React from 'react'
+import { ArrowUpRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Marquee, Reveal } from './atoms'
+import { Marquee, Reveal, SolarCells } from './atoms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
@@ -22,7 +23,7 @@ import { Marquee, Reveal } from './atoms'
    Um logo só entra na lista se tiver imagem — assim o cliente adiciona e
    remove pelo admin sem tocar no código. */
 
-export type Apoiador = { src: string; name: string; desc: string; cat: string }
+export type Apoiador = { src: string; name: string; desc: string; cat: string; url: string }
 
 const MAX_LOGOS = 30
 
@@ -39,6 +40,8 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
       name: section?.texts?.[`logo${i}Name`] || '',
       desc: section?.texts?.[`logo${i}Desc`] || '',
       cat: section?.texts?.[`logo${i}Cat`] || '',
+      // Link opcional para o site do apoiador. Vazio = o card não mostra link.
+      url: section?.texts?.[`logo${i}Url`] || '',
     })
   }
   // Ordem das categorias = ordem de aparição na lista (o admin controla).
@@ -54,23 +57,50 @@ export const ApoiadoresBandV4: React.FC = () => {
   const { logos } = useApoiadores()
   if (logos.length === 0) return null
 
-  const bandTitle = section?.texts.bandTitle || 'Empresas líderes que apoiam o Movimento Solar Buy-Side'
+  // Título da faixa (Francis, slide 2). O texto anterior ("Empresas líderes
+  // que apoiam...") é tratado como legado: se o banco ainda tiver ele, cai no
+  // novo, para a LP não depender do seed.
+  const bandTitleCms = section?.texts.bandTitle || ''
+  const bandTitle = !bandTitleCms || bandTitleCms.startsWith('Empresas líderes')
+    ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
+    : bandTitleCms
   const bandSubtitle =
     section?.texts.bandSubtitle ||
     '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento'
 
+  // A frase dos segmentos é quebrada em duas linhas no ":": a chamada em cima
+  // e os cinco segmentos juntos embaixo (Gabriel, 26/07). Sem o ":" o texto
+  // sai numa linha só, como antes.
+  const [bandLead, bandSegmentos] = (() => {
+    const i = bandSubtitle.indexOf(':')
+    if (i === -1) return [bandSubtitle, '']
+    return [bandSubtitle.slice(0, i + 1).trim(), bandSubtitle.slice(i + 1).trim()]
+  })()
+
   return (
     // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
     // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
-    <section className="bg-transparent py-12">
-      <p className="v4-mono mb-7 px-6 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-orange-400">
+    <section className="relative bg-transparent py-12">
+      {/* Ponte do crepúsculo: a grade do Hero atravessa esta faixa inteira e
+          só começa a sumir na seção de Autores, logo abaixo. Como o v4-cells
+          é background-attachment:fixed, a fase casa sem emenda. */}
+      <SolarCells fade="full" />
+
+      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[12px] font-bold uppercase tracking-[0.3em] text-orange-400">
         {bandTitle}
       </p>
 
-      {/* reverse: desfile da direita para a esquerda (seta do slide 1) */}
-      <Marquee speed={46} reverse className="v4-marquee-tight">
+      {/* Sem reverse: sentido do desfile invertido a pedido do Gabriel (26/07).
+
+          A lista vai DUPLICADA dentro de cada trilha de propósito. A trilha
+          tem `min-width: 100%`: quando a soma dos logos é menor que a largura
+          da tela (monitor largo), ela estica e a sobra inteira vira um buraco
+          na emenda entre uma cópia e a outra. Dobrando a lista, o conteúdo
+          sempre passa da largura do viewport, o min-width nunca entra em ação
+          e a emenda fica com o mesmo respiro dos demais logos. */}
+      <Marquee speed={46} className="v4-marquee-tight relative z-10">
         <span className="flex items-center gap-6 whitespace-nowrap">
-          {logos.map((logo, i) => (
+          {[...logos, ...logos].map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
             // SolarView) e sumiriam no escuro. Filtro monocromático não serve
             // porque BelEnergy/Fluke/Energy Channel já vêm com caixa sólida.
@@ -85,8 +115,12 @@ export const ApoiadoresBandV4: React.FC = () => {
       </Marquee>
 
       {bandSubtitle && (
-        <p className="mx-auto mt-8 max-w-2xl px-6 text-center text-[13px] leading-relaxed text-slate-400">
-          {bandSubtitle}
+        <p className="relative z-10 mx-auto mt-8 max-w-3xl px-6 text-center text-[15px] leading-relaxed text-slate-400">
+          {bandLead}
+          {bandSegmentos && (
+            // block: os cinco segmentos ficam sempre numa linha só, embaixo.
+            <span className="mt-1 block">{bandSegmentos}</span>
+          )}
         </p>
       )}
     </section>
@@ -94,9 +128,16 @@ export const ApoiadoresBandV4: React.FC = () => {
 }
 
 /* ── 2) Seção completa, por categoria, com card no hover/toque ──────────── */
+/* Card do apoiador (Francis, slide 16: "quando o visitante passa o mouse
+   (desktop) ou toca (mobile), abrir um pequeno card").
+
+   O card é horizontal: miniatura do logo à esquerda, categoria + nome +
+   descrição à direita, e o link do site no rodapé quando existe. No desktop
+   ele ancora acima do tile; no mobile vira uma barra fixa no pé da tela, que
+   é onde dá para ler sem tapar o próprio logo que a pessoa tocou. */
 const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
   const [open, setOpen] = React.useState(false)
-  const temCard = logo.desc.trim().length > 0
+  const temCard = logo.desc.trim().length > 0 || logo.url.trim().length > 0
 
   return (
     <div
@@ -116,17 +157,51 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
       </button>
 
       {temCard && open && (
-        <div
-          role="tooltip"
-          className="absolute bottom-[calc(100%+10px)] left-1/2 z-30 w-60 -translate-x-1/2 rounded-xl border border-slate-200 bg-white p-3.5 text-left shadow-[0_18px_45px_rgba(0,0,0,0.18)]"
-        >
-          <p className="font-['Sora'] text-sm font-bold text-slate-900">{logo.name}</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-600">{logo.desc}</p>
+        <>
+          {/* Véu só no mobile: fecha ao tocar fora e destaca a barra. */}
           <span
-            className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-slate-200 bg-white"
+            className="fixed inset-0 z-40 bg-slate-900/20 md:hidden"
+            onClick={() => setOpen(false)}
             aria-hidden
           />
-        </div>
+          <div
+            role="tooltip"
+            /* Sem v4-rise aqui: a animação define `transform` e atropelava o
+               -translate-x-1/2, jogando o card para a direita do logo. */
+            className="fixed inset-x-3 bottom-3 z-50 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-[0_24px_60px_rgba(0,0,0,0.28)] md:absolute md:inset-x-auto md:bottom-[calc(100%+12px)] md:left-1/2 md:w-[330px] md:-translate-x-1/2 md:p-4"
+          >
+            <div className="flex items-start gap-4">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white p-2">
+                <img src={logo.src} alt="" aria-hidden className="max-h-full w-auto object-contain" />
+              </span>
+              <div className="min-w-0">
+                {logo.cat && (
+                  <p className="v4-mono text-[9px] font-bold uppercase tracking-[0.22em] text-orange-600">{logo.cat}</p>
+                )}
+                <p className="mt-1 font-['Sora'] text-sm font-bold leading-tight text-slate-900">{logo.name}</p>
+                {logo.desc && <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{logo.desc}</p>}
+              </div>
+            </div>
+
+            {logo.url && (
+              <a
+                href={logo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="v4-mono mt-3.5 flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-700 transition-colors hover:border-orange-500/60 hover:text-orange-600"
+              >
+                Visitar site
+                <ArrowUpRight size={13} aria-hidden />
+              </a>
+            )}
+
+            {/* Bico do balão só no desktop */}
+            <span
+              className="absolute left-1/2 top-full hidden h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-slate-200 bg-white md:block"
+              aria-hidden
+            />
+          </div>
+        </>
       )}
     </div>
   )
