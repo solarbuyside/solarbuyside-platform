@@ -252,6 +252,12 @@ button, a[role="button"], [role="button"] {
   font-weight: bold;
 }
 
+/* Destaque mais leve que o .cms-bold, para texto corrido onde o negrito
+   cheio pesa demais (subfrase do Hero). */
+.cms-semibold {
+  font-weight: 600;
+}
+
 /* Animações de fade-in para componentes */
 @keyframes fadeInUp {
   from {

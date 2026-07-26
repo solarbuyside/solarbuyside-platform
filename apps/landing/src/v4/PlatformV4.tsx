@@ -210,7 +210,6 @@ export const PlatformV4: React.FC = () => {
     section?.texts.bullet2 || 'Pontuação por reputação, tecnologia e viabilidade',
     section?.texts.bullet3 || 'Índice de Confiabilidade de 0 a 100 para cada fornecedor',
   ]
-  const accessNote = section?.texts.accessNote || 'Acesso por 6 meses, liberado automaticamente após a compra.'
   // CTA 5 (Francis, slide 15: "criar CTA 5"). O botão já existia aqui, o que
   // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
   // é tratado como legado para a LP não depender do seed.
@@ -261,12 +260,13 @@ export const PlatformV4: React.FC = () => {
           </ul>
         </Reveal>
 
-        <Reveal delay={200} className="mt-12 flex flex-col items-center gap-4">
-          <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
+        {/* Botão laranja cheio (era ghost-dark, apagado demais) e sem a nota
+            "Acesso por 6 meses..." embaixo. Gabriel, 26/07. */}
+        <Reveal delay={200} className="mt-12 flex justify-center">
+          <Cta size="lg" onClick={() => scrollToId('oferta')}>
             {ctaButton}
             <CtaArrow size={20} />
           </Cta>
-          <p className="v4-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">{accessNote}</p>
         </Reveal>
       </div>
     </section>

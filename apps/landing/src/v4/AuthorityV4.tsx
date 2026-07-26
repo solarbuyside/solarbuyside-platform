@@ -56,7 +56,8 @@ const DuelSide: React.FC<DuelSideProps> = ({
 
       {/* Experiência editorial: número gigante + label mono */}
       <Reveal delay={baseDelay} className="relative flex items-end gap-4">
-        <span className={`font-['Sora'] text-6xl font-extrabold leading-none tracking-tight md:text-7xl ${t.accent}`}>
+        {/* 60/72px -> 56/68px: 4px a menos, só no número (Gabriel, 26/07). */}
+        <span className={`font-['Sora'] text-[56px] font-extrabold leading-none tracking-tight md:text-[68px] ${t.accent}`}>
           {experience}
         </span>
         <span className="v4-mono mb-3 text-[10px] uppercase tracking-[0.3em] text-slate-500">

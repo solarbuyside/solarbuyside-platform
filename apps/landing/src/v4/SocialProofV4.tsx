@@ -126,10 +126,12 @@ export const TestimonialLucasV4: React.FC = () => {
   return (
     <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] pb-20 pt-24 text-slate-900 md:rounded-t-[4.5rem] md:pt-32">
       <div className="mx-auto max-w-7xl px-6">
+        {/* Era um rótulo mono de 10px e o Gabriel apontou (26/07) que isto é um
+            título de seção, não uma etiqueta. Virou título de verdade. */}
         <Reveal>
-          <p className="v4-mono mb-12 text-[10px] font-bold uppercase tracking-[0.3em] text-orange-600">
+          <h2 className="mb-14 max-w-4xl font-['Sora'] text-[clamp(1.8rem,3.6vw,2.9rem)] font-extrabold leading-[1.12] tracking-tight text-slate-900">
             {section?.texts.kicker || 'Relato de caso: a história do integrador Lucas'}
-          </p>
+          </h2>
         </Reveal>
 
         <div className="grid items-start gap-14 lg:grid-cols-12">
@@ -178,11 +180,10 @@ export const TestimonialLucasV4: React.FC = () => {
             </Reveal>
 
             <Reveal delay={300}>
+              {/* Sem o rótulo "Para quem é" (Gabriel, 26/07): a frase se
+                  sustenta sozinha e o rótulo só empurrava o texto para baixo. */}
               <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white p-6">
-                <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-slate-900">
-                  {section?.texts.ctaTitle || 'Para quem é'}
-                </p>
-                <p className="mt-2 text-lg font-semibold leading-relaxed text-slate-900">
+                <p className="text-lg font-semibold leading-relaxed text-slate-900">
                   {section?.texts.ctaText ||
                     'Se tornar vendedor consultivo Buy-Side significa reduzir risco, insegurança e arrependimento do comprador, e não pressionar por fechamento.'}
                 </p>

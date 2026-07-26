@@ -6,6 +6,9 @@ const ALLOWED_CMS_CLASSES = [
   'cms-gradient-blue',
   'cms-gradient-orange',
   'cms-bold',
+  // Peso 600: destaque mais leve que o cms-bold (700), pedido para a subfrase
+  // do Hero, onde o negrito cheio ficava pesado demais.
+  'cms-semibold',
 ]
 
 function sanitizeCmsHtml(html: string): string {

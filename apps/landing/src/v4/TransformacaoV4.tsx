@@ -52,12 +52,16 @@ export const TransformacaoV4: React.FC = () => {
           </p>
         </Reveal>
 
-        {/* Headline: as três linhas do slide, com a virada em serif */}
+        {/* Headline em TRÊS linhas, uma por parte (Gabriel, 26/07): corrida,
+            os três "você" ficavam empilhados no meio da frase e a virada se
+            perdia. Cada linha é um bloco. */}
         <Reveal delay={80}>
-          <h2 className="mt-5 max-w-3xl font-['Sora'] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-[1.12] tracking-tight text-slate-900">
-            {section?.texts.title1 || 'Com o Método Buy-Side,'}{' '}
-            <span className="text-slate-500">{section?.texts.title2 || 'você deixa de disputar preço,'}</span>{' '}
-            <span className="v4-serif font-normal text-orange-600">
+          <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-[1.18] tracking-tight text-slate-900">
+            <span className="block">{section?.texts.title1 || 'Com o Método Buy-Side,'}</span>
+            <span className="block text-slate-500">
+              {section?.texts.title2 || 'você deixa de disputar preço,'}
+            </span>
+            <span className="v4-serif block font-normal text-orange-600">
               {section?.texts.title3 || 'você passa a conduzir decisões.'}
             </span>
           </h2>

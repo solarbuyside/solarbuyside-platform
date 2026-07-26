@@ -86,7 +86,7 @@ export const ApoiadoresBandV4: React.FC = () => {
           é background-attachment:fixed, a fase casa sem emenda. */}
       <SolarCells fade="full" />
 
-      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[12px] font-bold uppercase tracking-[0.3em] text-orange-400">
+      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[14px] font-bold uppercase tracking-[0.3em] text-orange-400">
         {bandTitle}
       </p>
 
@@ -216,9 +216,14 @@ export const ApoiadoresV4: React.FC = () => {
   if (logos.length === 0) return null
 
   const title = section?.texts.title || 'Apoiadores Institucionais Solar Buy-Side'
+  // Subtítulo do slide 16. As duas redações anteriores ("Empresas nacionais e
+  // internacionais..." e "Players nacionais e internacionais...") são tratadas
+  // como legado para o banco não sobrescrever o texto certo.
+  const subtitleCms = section?.texts.subtitle || ''
   const subtitle =
-    section?.texts.subtitle ||
-    'Empresas nacionais e internacionais que apoiam a missão de tornar a compra e a venda de sistemas fotovoltaicos mais profissionais, transparentes e seguras.'
+    !subtitleCms || /^(Empresas nacionais|Players nacionais)/.test(subtitleCms)
+      ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side e contribuem para um novo padrão de profissionalismo, transparência e geração de valor no setor.'
+      : subtitleCms
 
   return (
     <section className="bg-[#f7f8fa] px-6 py-20 text-slate-700 md:py-24">

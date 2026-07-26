@@ -88,6 +88,21 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
             texts[`logo${i}Desc`] = l.desc.trim();
             texts[`logo${i}Url`] = l.url.trim();
           });
+
+        // Zera as posições que sobraram. Apagar a chave não basta: a landing
+        // usa o ContentData versionado como base e o banco por cima, então uma
+        // posição AUSENTE no banco faz o logo antigo do código reaparecer na
+        // página (foi o que duplicou a Stäubli em 26/07). String vazia
+        // sobrescreve de verdade e o hook ignora item sem imagem.
+        const usados = logos.filter((l) => l.src.trim() || l.name.trim()).length;
+        for (let i = usados + 1; i <= MAX_LOGOS; i++) {
+          images[`logo${i}Src`] = "";
+          texts[`logo${i}Name`] = "";
+          texts[`logo${i}Cat`] = "";
+          texts[`logo${i}Desc`] = "";
+          texts[`logo${i}Url`] = "";
+        }
+
         await saveLandingSectionAction("apoiadores", texts, images);
         onSaved?.();
         setState("saved");

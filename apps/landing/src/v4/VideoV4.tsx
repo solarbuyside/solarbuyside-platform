@@ -198,7 +198,7 @@ export const VideoSubtitleV4: React.FC = () => {
 
         <div className="relative mx-auto max-w-3xl text-center">
           {/* o hábito antigo */}
-          <p className="text-xl leading-relaxed text-slate-500 md:text-2xl">{linha1}</p>
+          <p className="text-xl leading-relaxed text-slate-400 md:text-2xl">{linha1}</p>
 
           {/* o corte entre um e outro */}
           <div className="my-9 flex items-center justify-center gap-4" aria-hidden>

@@ -443,12 +443,12 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       },
       {
         label: "Botão",
-        fields: [
-          t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          t("accessNote", "Nota abaixo do botão", { maxLength: 80 }),
-        ],
+        fields: [t("ctaButton", "Botão (CTA 5)", { maxLength: 60 })],
       },
     ],
+    // accessNote: a nota "Acesso por 6 meses..." saiu de baixo do botão em
+    // 2026-07-26.
+    hiddenKeys: ["accessNote"],
   },
 
   // Depoimento do Lucas (Francis, slide 7). Mesmo modelo do Rodrigo, sem o

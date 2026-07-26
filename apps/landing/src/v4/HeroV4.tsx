@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useRef } from 'react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { WordReveal } from './atoms'
 import { scrollToId } from './scroll'
 
@@ -23,8 +24,16 @@ export const HeroV4: React.FC = () => {
   // para mostrar a frase certa.
   const subtitleCms = section?.texts.subtitle || section?.texts.subtitle1 || ''
   const subtitle = !subtitleCms || subtitleCms.startsWith('O método Buy-Side')
-    ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do comprador'
+    ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do <span class="cms-semibold">comprador</span>'
     : subtitleCms
+
+  // Quebra no dois-pontos: a chamada em cima e "pela perspectiva do comprador"
+  // inteiro na linha de baixo. Sem isso o "pela" ficava órfão na 1ª linha.
+  const [subLead, subVirada] = (() => {
+    const i = subtitle.indexOf(':')
+    if (i === -1) return [subtitle, '']
+    return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
+  })()
   const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
   const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
@@ -120,10 +129,15 @@ export const HeroV4: React.FC = () => {
         {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
             seção "limpa e com espaço entre cada frase" (slide 2). */}
         <p
-          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-300 sm:text-xl md:mt-16 md:text-2xl"
+          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-16 md:text-2xl"
           style={{ ['--d' as string]: '560ms' }}
         >
-          {subtitle}
+          <CMSText value={subLead} />
+          {subVirada && (
+            <span className="mt-1.5 block">
+              <CMSText value={subVirada} />
+            </span>
+          )}
         </p>
 
         {/* CTA principal e o "ticket" com as capas do Manual e do Código foram

@@ -167,8 +167,10 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Código do Vendedor: vem logo após o Manual (ordem do Francis) ─ */}
-        <div className="mt-24 grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
+        {/* ── Código do Vendedor: vem logo após o Manual (ordem do Francis) ─
+            items-start (era items-center): a capa ficava centralizada na
+            vertical enquanto a do Manual alinha pelo topo, com o título. */}
+        <div className="mt-24 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
               <Kicker tone="dark">{section?.texts.codeBadge || 'Diferencial estratégico'}</Kicker>

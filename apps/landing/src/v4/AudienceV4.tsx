@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { ArrowDown, Building2, Rocket, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { GrainOverlay, Reveal, WordReveal } from './atoms'
@@ -188,57 +188,56 @@ export const AudienceV4: React.FC = () => {
           })}
         </div>
 
-        {/* ── Painel de fechamento (bottomTitle) ───────────────────────── */}
-        <Reveal delay={120}>
-          <div className="relative mt-16 overflow-hidden rounded-[2.5rem] border border-white/[0.08] p-10 md:p-14">
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 115%, rgba(251,191,36,0.14), transparent 70%)' }}
-              aria-hidden
-            />
-            <GrainOverlay />
-            {/* Texto substituído pelo do slide 10 ("este texto é uma
-                substituição a este texto"). Virou um bloco de cinco partes,
-                terminando na ponte para a seção do Manual. O bottomTitle
-                continua sendo a primeira linha, então o campo que já existe no
-                admin não muda de lugar. */}
-            <div className="relative max-w-4xl">
-              <h3 className="text-2xl font-bold leading-snug text-white md:text-3xl">
-                {/* Os dois textos anteriores desta caixa são tratados como
-                    legado: o banco ainda os tem e sobrescreveria a linha nova,
-                    deixando o bloco com a 1ª linha velha e as 4 novas embaixo.
-                    Cai no texto do slide 10 até o seed rodar. */}
-                {!section?.texts.bottomTitle ||
-                section.texts.bottomTitle.startsWith('Mais do que dois guias') ||
-                section.texts.bottomTitle.startsWith('Não importa em qual ponto')
-                  ? 'O futuro das vendas solares não pertence aos melhores argumentadores.'
-                  : section.texts.bottomTitle}
-              </h3>
-              <p className="v4-serif mt-4 text-2xl leading-snug text-orange-400 md:text-3xl">
-                {section?.texts.bottomHighlight || 'Pertence aos profissionais que sabem conduzir a decisão de compra.'}
-              </p>
-              <p className="mt-7 text-lg leading-relaxed text-slate-400 md:text-xl">
-                {section?.texts.bottomText ||
-                  'Os melhores vendedores solares do futuro serão aqueles que entendem como o comprador pensa, reduzem sua insegurança e conduzem a decisão com confiança.'}
-              </p>
-              <p className="mt-5 text-lg font-semibold leading-relaxed text-white md:text-xl">
-                {section?.texts.bottomEmphasis ||
-                  'O Método Solar Buy-Side foi criado para formar exatamente esse profissional.'}
-              </p>
+        {/* ── Fechamento: transição para a seção do Manual ────────────────
+            Era um painel arredondado com cinco parágrafos empilhados. Ficava
+            pesado: três cards logo acima, esta caixa, e o título "Kit Completo
+            Solar Buy-Side" logo abaixo, tudo competindo. Além disso repetia a
+            moldura do painel que fecha o vídeo.
 
-              <div className="mt-9 flex items-center gap-4 border-t border-white/[0.08] pt-7">
-                <span
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-500"
-                  aria-hidden
-                >
-                  <ArrowDown className="h-4 w-4" />
-                </span>
-                <p className="v4-serif text-lg text-slate-300 md:text-xl">
-                  {section?.texts.bottomOutro ||
-                    'A seguir, conheça as ferramentas que tornam essa transformação possível.'}
-                </p>
-              </div>
+            Agora é uma transição centralizada, sem caixa: a virada grande em
+            serif, o apoio pequeno, e a ponte num rodapé fino entre fios. Cria
+            respiro entre os cards e o próximo título em vez de disputar com
+            eles. (Gabriel, 26/07: "você que é profissional de interface".) */}
+        <Reveal delay={120}>
+          <div className="relative mx-auto mt-24 max-w-3xl text-center">
+            <p className="text-lg leading-relaxed text-slate-400 md:text-xl">
+              {/* Os dois textos anteriores desta caixa são legado: o banco
+                  ainda os tem e sobrescreveria a linha nova. */}
+              {!section?.texts.bottomTitle ||
+              section.texts.bottomTitle.startsWith('Mais do que dois guias') ||
+              section.texts.bottomTitle.startsWith('Não importa em qual ponto')
+                ? 'O futuro das vendas solares não pertence aos melhores argumentadores.'
+                : section.texts.bottomTitle}
+            </p>
+
+            <p className="v4-serif mt-4 text-[clamp(1.7rem,3.6vw,2.7rem)] leading-[1.18] text-white">
+              {section?.texts.bottomHighlight || 'Pertence aos profissionais que sabem conduzir a decisão de compra.'}
+            </p>
+
+            <p className="mx-auto mt-8 max-w-2xl leading-relaxed text-slate-500">
+              {section?.texts.bottomText ||
+                'Os melhores vendedores solares do futuro serão aqueles que entendem como o comprador pensa, reduzem sua insegurança e conduzem a decisão com confiança.'}
+            </p>
+            <p className="mt-3 font-semibold leading-relaxed text-slate-200">
+              {section?.texts.bottomEmphasis ||
+                'O Método Solar Buy-Side foi criado para formar exatamente esse profissional.'}
+            </p>
+
+            {/* Ponte para o Manual: fio + seta, sem caixa */}
+            <div className="mt-12 flex items-center gap-5">
+              <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/[0.12]" aria-hidden />
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-orange-500/30 text-orange-500"
+                aria-hidden
+              >
+                <ArrowDown className="h-4 w-4" />
+              </span>
+              <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/[0.12]" aria-hidden />
             </div>
+            <p className="v4-serif mt-5 text-lg text-slate-400 md:text-xl">
+              {section?.texts.bottomOutro ||
+                'A seguir, conheça as ferramentas que tornam essa transformação possível.'}
+            </p>
           </div>
         </Reveal>
       </div>
