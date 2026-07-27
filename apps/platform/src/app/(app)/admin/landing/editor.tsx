@@ -202,25 +202,36 @@ export function LandingEditor({
     return () => window.clearTimeout(id);
   }, [mode, selectedId, iframeKey, device]);
 
+  // Chaves que o usuário realmente mexeu nesta sessão. Ver pruneUntouched: é o
+  // que distingue "campo que ele esvaziou de propósito" de "campo que nasceu
+  // vazio porque o manifesto declara e o banco nunca teve".
+  const [touched, setTouched] = React.useState<Set<string>>(() => new Set());
+  const markTouched = (k: string) => setTouched((t) => (t.has(k) ? t : new Set(t).add(k)));
+
   function setText(k: string, v: string) {
+    markTouched(k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
   }
   function setImage(k: string, v: string) {
+    markTouched(k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], images: { ...d[selectedId].images, [k]: v } } }));
   }
   /**
-   * Não grava campo que continua vazio E que não existia no banco.
+   * Grava só o que existe no banco ou o que ele realmente mexeu.
    *
    * O manifesto mostra campos que a LP lê mas que nunca foram gravados (a capa
    * do manual, o liga/desliga da promo). Se o primeiro "Salvar" escrevesse ""
-   * neles, o banco passaria a vencer o ContentData da landing com vazio e o
-   * conteúdo sumiria da página sem ninguém ter pedido. Limpar um campo que JÁ
-   * existe continua gravando "" — é assim que se desliga a promo.
+   * em todos, o banco passaria a vencer o ContentData da landing com vazio e o
+   * conteúdo sumiria da página sem ninguém ter pedido.
+   *
+   * O critério é INTENÇÃO, não "está vazio": um campo que ele abriu, digitou e
+   * depois limpou precisa ir para o banco como "" — é assim que se desliga o
+   * bloco da promo Belenergy, cuja chave ainda não existe lá.
    */
   function pruneUntouched(next: Record<string, string>, original: Record<string, string>) {
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(next)) {
-      if (v === "" && !(k in original)) continue;
+      if (!(k in original) && !touched.has(k)) continue;
       out[k] = v;
     }
     return out;
