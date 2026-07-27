@@ -97,6 +97,7 @@ const LOGO_KEYS = Array.from({ length: MAX_LOGOS }, (_, i) => i + 1).flatMap((i)
   `logo${i}Desc`,
   `logo${i}Cat`,
   `logo${i}Hidden`,
+  `logo${i}BandOff`,
 ]);
 
 export const LANDING_SCHEMA: Record<string, SectionSchema> = {

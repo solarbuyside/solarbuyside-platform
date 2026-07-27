@@ -23,11 +23,28 @@ import { Marquee, Reveal, SolarCells } from './atoms'
    Um logo só entra na lista se tiver imagem — assim o cliente adiciona e
    remove pelo admin sem tocar no código. */
 
-export type Apoiador = { src: string; name: string; desc: string; cat: string; url: string }
+export type Apoiador = {
+  src: string
+  name: string
+  desc: string
+  cat: string
+  url: string
+  /** Fora da faixa do topo, mas ainda na seção. Ver logoNBandOff. */
+  bandOff: boolean
+}
 
 const MAX_LOGOS = 30
 
-/** Lê a lista de logos do CMS (logo1…logoN). Para no primeiro sem imagem. */
+/**
+ * Lê a lista de logos do CMS (logo1…logoN).
+ *
+ * Dois níveis de visibilidade, controlados no admin:
+ *  - `logoNHidden = "1"`  → guardado, fora dos DOIS lugares (marca sem
+ *    autorização de uso, por exemplo). Nem entra nesta lista.
+ *  - `logoNBandOff = "1"` → aparece na seção de apoiadores mas NÃO na faixa
+ *    que rola no topo. Ausente significa "vai na faixa", que é o que sempre
+ *    valeu — nenhum conteúdo existente muda de comportamento.
+ */
 export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
@@ -35,8 +52,6 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
   for (let i = 1; i <= MAX_LOGOS; i++) {
     const src = section?.images?.[`logo${i}Src`]
     if (!src) continue
-    // Ocultado no admin: o cadastro continua salvo (imagem, categoria, texto do
-    // card), só não vai pro ar. É o caso de marca sem autorização de uso ainda.
     if (section?.texts?.[`logo${i}Hidden`] === '1') continue
     logos.push({
       src,
@@ -45,6 +60,7 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
       cat: section?.texts?.[`logo${i}Cat`] || '',
       // Link opcional para o site do apoiador. Vazio = o card não mostra link.
       url: section?.texts?.[`logo${i}Url`] || '',
+      bandOff: section?.texts?.[`logo${i}BandOff`] === '1',
     })
   }
   // Ordem das categorias = ordem de aparição na lista (o admin controla).
@@ -57,7 +73,10 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
 export const ApoiadoresBandV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
-  const { logos } = useApoiadores()
+  const { logos: todos } = useApoiadores()
+  // A faixa tem seleção própria: o admin escolhe quais dos apoiadores sobem
+  // para cá, sem tirá-los da seção lá embaixo.
+  const logos = todos.filter((l) => !l.bandOff)
   if (logos.length === 0) return null
 
   // Título da faixa (Francis, slide 2). O texto anterior ("Empresas líderes

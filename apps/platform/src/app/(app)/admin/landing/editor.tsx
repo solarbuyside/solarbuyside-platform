@@ -22,6 +22,8 @@ import {
   Rocket,
   Archive,
   ChevronDown,
+  GalleryHorizontalEnd,
+  Tag,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -36,12 +38,16 @@ import {
 } from "@/lib/landing/field-schema";
 import { saveLandingSectionAction, saveLandingGlobalAction, publishLandingAction } from "./actions";
 import { TestimonialsEditor } from "./testimonials-editor";
-import { LogosEditor } from "./logos-editor";
+import { LogosEditor, categoriasDe, type LogosView } from "./logos-editor";
 import { RichTextEditor } from "./rich-text";
 import { ImageField } from "./image-field";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
+/** Logos: "__logos__" = todos; "__logos__:<categoria>" = uma categoria. */
 const LOGOS_VIEW = "__logos__";
+const LOGOS_CAT_PREFIX = "__logos__:";
+/** Escolha de quem sobe para a faixa do topo (vive junto do Hero na lista). */
+const BAND_VIEW = "__faixa__";
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
@@ -127,6 +133,11 @@ export function LandingEditor({
   const [showArchived, setShowArchived] = React.useState(false);
   const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
   const apoiadores = rawSections.find((s) => s.sectionId === "apoiadores");
+  // Categorias dos apoiadores saem dos próprios dados, na ordem da página.
+  const categoriasApoiadores = React.useMemo(
+    () => (apoiadores ? categoriasDe(apoiadores) : []),
+    [apoiadores],
+  );
 
   const [drafts, setDrafts] = React.useState<Record<string, Draft>>(() =>
     Object.fromEntries(sections.map((s) => [s.sectionId, { texts: { ...s.texts }, images: { ...s.images } }])),
@@ -137,6 +148,16 @@ export function LandingEditor({
   const [iframeKey, setIframeKey] = React.useState(0);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
   const modalIframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  /** Qual visão do editor de logos está aberta (null = nenhuma). */
+  const logosView: LogosView | null = React.useMemo(() => {
+    if (selectedId === BAND_VIEW) return { kind: "band" };
+    if (selectedId === LOGOS_VIEW) return { kind: "cat", cat: null };
+    if (selectedId.startsWith(LOGOS_CAT_PREFIX)) {
+      return { kind: "cat", cat: selectedId.slice(LOGOS_CAT_PREFIX.length) };
+    }
+    return null;
+  }, [selectedId]);
 
   const selected = sections.find((s) => s.sectionId === selectedId);
   const draft = React.useMemo(
@@ -315,15 +336,39 @@ export function LandingEditor({
                 pending={localPending.has(s.sectionId)}
                 onSelect={() => setSelectedId(s.sectionId)}
               >
-                {/* "Logos dos apoiadores": editor próprio (imagem + categoria +
-                    texto do card por logo), aninhado sob a seção Apoiadores. */}
-                {s.sectionId === "apoiadores" && apoiadores ? (
+                {/* A faixa de logos é renderizada logo abaixo do Hero, então a
+                    escolha de quem sobe para ela mora aqui em cima, junto do
+                    Hero — e não lá na posição 11, onde ninguém a encontrava. */}
+                {s.sectionId === "hero" && apoiadores ? (
                   <SubRow
-                    icon={ImageIcon}
-                    label="Logos (faixa do topo + seção)"
-                    active={selectedId === LOGOS_VIEW}
-                    onSelect={() => setSelectedId(LOGOS_VIEW)}
+                    icon={GalleryHorizontalEnd}
+                    label="Faixa de apoiadores (rolagem)"
+                    active={selectedId === BAND_VIEW}
+                    onSelect={() => setSelectedId(BAND_VIEW)}
                   />
+                ) : null}
+                {/* Cadastro dos logos, um subitem por categoria. As categorias
+                    saem dos próprios dados: criar uma nova é digitar o nome no
+                    campo "Categoria" de um logo. */}
+                {s.sectionId === "apoiadores" && apoiadores ? (
+                  <>
+                    <SubRow
+                      icon={ImageIcon}
+                      label="Todos os logos"
+                      active={selectedId === LOGOS_VIEW}
+                      onSelect={() => setSelectedId(LOGOS_VIEW)}
+                    />
+                    {categoriasApoiadores.map((c) => (
+                      <SubRow
+                        key={c}
+                        icon={Tag}
+                        label={c}
+                        indent
+                        active={selectedId === LOGOS_CAT_PREFIX + c}
+                        onSelect={() => setSelectedId(LOGOS_CAT_PREFIX + c)}
+                      />
+                    ))}
+                  </>
                 ) : null}
               </SectionRow>
             ))}
@@ -388,9 +433,13 @@ export function LandingEditor({
             section={buyerWave}
             onSaved={() => setLocalPending((p) => new Set(p).add("buyer-wave"))}
           />
-        ) : selectedId === LOGOS_VIEW && apoiadores ? (
+        ) : logosView && apoiadores ? (
+          // Mesma posição na árvore para todas as visões: trocar de categoria
+          // (ou ir para a faixa) não remonta o editor, então edição ainda não
+          // salva numa categoria não se perde ao olhar outra.
           <LogosEditor
             section={apoiadores}
+            view={logosView}
             onSaved={() => setLocalPending((p) => new Set(p).add("apoiadores"))}
           />
         ) : (
@@ -586,19 +635,23 @@ function SubRow({
   label,
   active,
   muted,
+  indent,
   onSelect,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   active: boolean;
   muted?: boolean;
+  /** Segundo nível: categoria dentro do editor de logos. */
+  indent?: boolean;
   onSelect: () => void;
 }) {
   return (
     <button
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-2 rounded-lg py-2 pl-9 pr-3 text-left text-[13px] transition-colors",
+        "flex w-full items-center gap-2 rounded-lg py-2 pr-3 text-left text-[13px] transition-colors",
+        indent ? "pl-14" : "pl-9",
         active
           ? "bg-primary/10 font-bold text-primary"
           : muted
@@ -765,13 +818,30 @@ function GlobalsCard({ globals, onSaved }: { globals: LandingGlobals; onSaved: (
     });
   }
 
+  // Fechado por padrão: são 4 campos que quase nunca mudam (checkout, WhatsApp,
+  // logo, favicon) e, abertos, empurravam a lista de seções para baixo da
+  // dobra — que é o que ele usa o tempo todo.
+  const [open, setOpen] = React.useState(false);
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-bold text-slate-800">Configurações globais</h2>
-        <SaveButton state={pending ? "saving" : state} onClick={save} />
+      <div className="flex items-center justify-between gap-2">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex min-w-0 flex-1 items-center gap-1.5 text-left text-sm font-bold text-slate-800 transition-colors hover:text-primary"
+        >
+          <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")} />
+          <span className="truncate">Configurações globais</span>
+          {!open && (
+            <span className="shrink-0 text-[11px] font-normal text-slate-400">
+              checkout, WhatsApp, logo
+            </span>
+          )}
+        </button>
+        {open && <SaveButton state={pending ? "saving" : state} onClick={save} />}
       </div>
-      <div className="space-y-3">
+      <div className={cn("space-y-3", open ? "mt-3" : "hidden")}>
         {GLOBAL_FIELDS.map(({ key, label, icon: Icon, image }) => (
           <label key={key} className="grid gap-1.5">
             <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
