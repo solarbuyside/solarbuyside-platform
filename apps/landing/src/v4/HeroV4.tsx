@@ -112,7 +112,7 @@ export const HeroV4: React.FC = () => {
           empurrava tudo para o meio da tela virou o espaço da faixa. Isso
           também tira a subfrase de cima do disco escuro, que era a queixa do
           print em 100% de zoom. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[7vh] pt-16 text-center md:pb-[10vh] md:pt-28">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[4vh] pt-24 text-center md:pb-[10vh] md:pt-28">
         {/* chip do produto */}
         <div className="v4-rise mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
@@ -162,7 +162,7 @@ export const HeroV4: React.FC = () => {
       {/* A máscara circular é ancorada pela BASE deste bloco, que coincide com
           a base do Hero — por isso ela consegue reproduzir o mesmo círculo do
           disco sem tirar a faixa do fluxo. Ver .v4-band-sphere-mask. */}
-      <div className="v4-band-sphere-mask relative z-10 w-full pb-[10vh] md:pb-[3vh]">
+      <div className="v4-band-sphere-mask relative z-10 w-full pb-[7vh] md:pb-[3vh]">
         <ApoiadoresBandV4 compact />
       </div>
 

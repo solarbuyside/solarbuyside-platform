@@ -532,48 +532,39 @@
    logos das pontas vazam para fora da esfera — a curva desce nos cantos e os
    chips continuam retos, o que denuncia que são dois elementos independentes.
 
+   SÓ NO DESKTOP. No celular a esfera é ordens de grandeza mais larga que a
+   tela na altura da faixa, então a máscara não tem o que cortar; a única coisa
+   que ela alcançava era o TÍTULO, que fica perto do topo do disco, onde a
+   circunferência é estreita — e sumia em telas mais altas. Lá o degradê
+   horizontal, sozinho, já dá o acabamento.
+
    A máscara reproduz o MESMO círculo do disco (raio 130vmax). O centro é
    medido a partir da BASE deste bloco, que é a base do Hero:
 
      centro = altura deste bloco + 130vmax - (100svh - topo do disco)
 
    O respiro inferior NÃO entra na conta: ele é padding deste mesmo bloco, e o
-   100% já o inclui. Somá-lo de novo empurrava o círculo para baixo e a máscara
-   comia o título da faixa no celular.
+   100% já o inclui. Somá-lo de novo empurrava o círculo para baixo.
 
    Ancorar pela base é o que permite manter a faixa no fluxo do flex. Numa
    tentativa anterior ela virou camada absoluta para herdar a caixa do Hero, e
    no celular passou a sobrepor a subfrase, porque deixou de empurrar layout.
 
    O corte é quase duro (99.2%) de propósito: a suavidade vem do degradê
-   horizontal, que vale só para a trilha de logos. Com uma transição larga
-   aqui, a zona de fade tinha mais de 100px de raio e alcançava as pontas do
-   TÍTULO da faixa, que ficava apagado nas laterais.
+   horizontal. Com uma transição larga, a zona de fade passava de 100px de raio
+   e alcançava as pontas do título.
 
-   Os topos espelham top-[62%] / md:top-[70%] do disco em HeroV4 — mexeu num,
-   mexe no outro. */
-.v4-band-sphere-mask {
-  -webkit-mask-image: radial-gradient(
-    130vmax 130vmax at 50% calc(100% + 130vmax - 38svh),
-    #000 99.2%,
-    transparent 100%
-  );
-  mask-image: radial-gradient(
-    130vmax 130vmax at 50% calc(100% + 130vmax - 38svh),
-    #000 99.2%,
-    transparent 100%
-  );
-}
+   O topo espelha md:top-[70%] do disco em HeroV4 — mexeu num, mexe no outro. */
 @media (min-width: 768px) {
   .v4-band-sphere-mask {
     -webkit-mask-image: radial-gradient(
       130vmax 130vmax at 50% calc(100% + 130vmax - 30svh),
-      #000 94%,
+      #000 99.2%,
       transparent 100%
     );
     mask-image: radial-gradient(
       130vmax 130vmax at 50% calc(100% + 130vmax - 30svh),
-      #000 94%,
+      #000 99.2%,
       transparent 100%
     );
   }
