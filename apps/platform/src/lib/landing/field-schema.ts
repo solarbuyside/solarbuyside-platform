@@ -7,8 +7,7 @@
  *
  * `type: "rich"` SÓ pode ser usado em campos que a landing renderiza via o
  * componente <CMSText> (HTML inline sanitizado). Caso contrário a LP mostraria
- * a tag literal. Hoje são: video.title, manual-strategic.section2Title,
- * buyer-wave.title, pricing.title.
+ * a tag literal.
  */
 
 export type FieldType = "text" | "multiline" | "rich" | "url" | "image";
@@ -251,11 +250,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   apoiadores: {
     // A MESMA lista de logos alimenta dois lugares da página: a faixa que rola
     // logo abaixo do Hero e esta seção, lá embaixo. O rótulo diz isso porque a
-    // faixa aparece no topo e o editor dela mora aqui, na posição 10 — sem a
+    // faixa aparece no topo e o editor dela mora aqui, na posição 11 — sem a
     // pista ninguém liga uma coisa na outra.
     label: "Apoiadores (faixa do topo + seção)",
     // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
-    order: 10,
+    order: 11,
     groups: [
       {
         label: "Faixa que rola no topo (abaixo do Hero)",
@@ -453,7 +452,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   plataforma: {
     label: "Plataforma de avaliação",
     // Revisão 25/07: trocou de lugar com o depoimento do Rodrigo (slide 15).
-    order: 9,
+    order: 10,
     groups: [
       {
         label: "Topo",
@@ -567,10 +566,71 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  // Nova seção (Francis, 27/07): projeção de resultados do método, entre o
+  // Manual estratégico e o depoimento do Rodrigo. Tabela de três colunas em
+  // que a Buy-Side fica destacada; linhas 5 e 6 são reserva (vazias = ocultas).
+  retorno: {
+    label: "Retorno do método (projeção)",
+    order: 8,
+    groups: [
+      {
+        label: "Topo",
+        fields: [
+          t("kicker", "Rótulo", { maxLength: 30 }),
+          rich("title", "Título", {
+            help: "Selecione palavras e clique em Laranja para destacar.",
+          }),
+          rich("intro", "Parágrafo de abertura", {
+            help: "Selecione o trecho dos números e use Negrito para destacar.",
+          }),
+        ],
+      },
+      {
+        label: "Tabela de impacto",
+        fields: [
+          t("tableTitle", "Título da tabela"),
+          t("colScenario", "Coluna 1 — rótulo", { maxLength: 30 }),
+          t("colTrad", "Coluna 2 — rótulo", { maxLength: 30 }),
+          t("colBuy", "Coluna 3 — rótulo", { maxLength: 30 }),
+          t("colBuyTag", "Coluna 3 — etiqueta", {
+            maxLength: 20,
+            help: "Selo pequeno ao lado do rótulo (ex.: estimativa). Deixe vazio para não exibir.",
+          }),
+          t("row1Label", "Linha 1 — cenário"),
+          t("row1Trad", "Linha 1 — tradicional", { maxLength: 40 }),
+          t("row1Buy", "Linha 1 — Buy-Side", { maxLength: 40 }),
+          t("row2Label", "Linha 2 — cenário"),
+          t("row2Trad", "Linha 2 — tradicional", { maxLength: 40 }),
+          t("row2Buy", "Linha 2 — Buy-Side", { maxLength: 40 }),
+          t("row3Label", "Linha 3 — cenário"),
+          t("row3Trad", "Linha 3 — tradicional", { maxLength: 40 }),
+          t("row3Buy", "Linha 3 — Buy-Side", { maxLength: 40 }),
+          t("row4Label", "Linha 4 — cenário"),
+          t("row4Trad", "Linha 4 — tradicional", { maxLength: 40 }),
+          t("row4Buy", "Linha 4 — Buy-Side", { maxLength: 40 }),
+          t("row5Label", "Linha 5 — cenário", { help: "Deixe vazio para não exibir a linha." }),
+          t("row5Trad", "Linha 5 — tradicional", { maxLength: 40 }),
+          t("row5Buy", "Linha 5 — Buy-Side", { maxLength: 40 }),
+          t("row6Label", "Linha 6 — cenário", { help: "Deixe vazio para não exibir a linha." }),
+          t("row6Trad", "Linha 6 — tradicional", { maxLength: 40 }),
+          t("row6Buy", "Linha 6 — Buy-Side", { maxLength: 40 }),
+        ],
+      },
+      {
+        label: "Fechamento",
+        fields: [
+          rich("outro", "Frase de fechamento", {
+            help: "Caixa destacada abaixo da tabela. Selecione o começo e clique em Laranja para destacar.",
+          }),
+        ],
+      },
+    ],
+  },
+
   testimonials: {
     label: "Depoimento do Rodrigo",
     // Revisão 25/07: trocou de lugar com a Plataforma (slide 14).
-    order: 8,
+    order: 9,
     groups: [
       {
         label: "Cabeçalho",
@@ -742,7 +802,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   pricing: {
     label: "Oferta / Preço",
-    order: 11,
+    order: 12,
     groups: [
       {
         label: "Cabeçalho",
@@ -950,7 +1010,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   faq: {
     label: "Perguntas frequentes",
-    order: 12,
+    order: 13,
     groups: [
       {
         label: "Topo da seção",
@@ -992,7 +1052,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   contact: {
     label: "Contato / Rodapé",
-    order: 13,
+    order: 14,
     groups: [
       {
         label: "Cabeçalho",

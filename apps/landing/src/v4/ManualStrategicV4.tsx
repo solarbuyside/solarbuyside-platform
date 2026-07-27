@@ -99,8 +99,9 @@ export const ManualStrategicV4: React.FC = () => {
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
       <GrainOverlay />
 
-      {/* pb-44: a próxima seção (paper) sobrepõe este ato com um arco */}
-      <div className="relative mx-auto max-w-7xl px-6 py-24 pb-44 md:py-32 md:pb-44">
+      {/* O pb-44 do arco "paper" mudou de dono: quem fecha o ato escuro agora
+          é a seção Retorno (RetornoV4), logo abaixo. */}
+      <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32">
         {/* ── Título da seção (Francis, slide 11: "criar este título da seção
             MANUAL ESTRATÉGICO"). Cobre o bloco inteiro: Manual, Código e os
             resultados, que são as duas ferramentas do "kit". ───────────── */}

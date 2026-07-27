@@ -8,6 +8,7 @@ import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
+import { RetornoV4 } from './RetornoV4'
 import { TestimonialLucasV4, TestimonialsV4 } from './SocialProofV4'
 import { TransformacaoV4 } from './TransformacaoV4'
 import { PricingV4 } from './PricingV4'
@@ -31,6 +32,7 @@ const SECTION_IDS = [
   'transformacao',
   'audiencia',
   'manual-strategic',
+  'retorno',
   'depoimentos',
   'plataforma',
   'apoiadores',
@@ -105,6 +107,11 @@ export default function AppV4() {
       </div>
       <div id="manual-strategic">
         <ManualStrategicV4 />
+      </div>
+      {/* Retorno do método (Francis, 27/07): a projeção de resultados fecha o
+          ato escuro; o arco "paper" do Rodrigo agora sobrepõe ELA. */}
+      <div id="retorno">
+        <RetornoV4 />
       </div>
       <div id="depoimentos">
         <TestimonialsV4 />

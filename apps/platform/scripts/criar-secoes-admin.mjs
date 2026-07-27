@@ -115,6 +115,39 @@ const TRANSFORMACAO = {
   images: {},
 }
 
+// Seção nova (Francis, 27/07): "O verdadeiro retorno do Método Solar Buy-Side",
+// entre o Manual estratégico e o depoimento do Rodrigo. Textos = os padrões
+// que o componente RetornoV4 já usa.
+const RETORNO = {
+  nome: 'Retorno do método (projeção)',
+  texts: {
+    kicker: 'Projeção de resultados',
+    title: 'O <span class="cms-orange">verdadeiro retorno</span> do Método Solar Buy-Side',
+    intro:
+      'Com base em cinco anos de pesquisa de campo, estimamos que vendedores que apliquem o Método Solar Buy-Side possam elevar sua taxa média atual de fechamento de <span class="cms-bold">20% para 25% a 30%</span>, conforme sua capacidade de execução e isso sem aumentar o número de propostas apresentadas.',
+    tableTitle: 'Veja o impacto real considerando uma base de 20 propostas por mês:',
+    colScenario: 'Cenário',
+    colTrad: 'Método Tradicional',
+    colBuy: 'Método Buy-Side',
+    colBuyTag: 'estimativa',
+    row1Label: 'Propostas apresentadas por mês',
+    row1Trad: '20',
+    row1Buy: '20',
+    row2Label: 'Taxa média de fechamento',
+    row2Trad: '20%',
+    row2Buy: '25% a 30%',
+    row3Label: 'Vendas por mês',
+    row3Trad: '4',
+    row3Buy: '5 a 6',
+    row4Label: 'Vendas adicionais por ano',
+    row4Trad: '—',
+    row4Buy: '12 a 24 sistemas adicionais',
+    outro:
+      '<span class="cms-orange">E tem mais:</span> ao aplicar o Método Buy-Side em vendas consultivas B2B, você amplia sua capacidade de conquistar projetos de maior porte, aumentando seu potencial de faturamento e lucro.',
+  },
+  images: {},
+}
+
 // Logos dos apoiadores. Só entram se a chave ainda não existir.
 const LOGOS = [
   ['belenergy', 'BelEnergy', 'Distribuidora Âncora Solar Buy-Side', 'Distribuidora de equipamentos fotovoltaicos e parceira âncora do movimento Solar Buy-Side.'],
@@ -254,6 +287,7 @@ console.log('Regra: cria seção que falta e chave que falta. Nunca sobrescreve 
 
 await criar('testimonial-lucas', LUCAS.nome, LUCAS.texts, LUCAS.images)
 await criar('transformacao', TRANSFORMACAO.nome, TRANSFORMACAO.texts, TRANSFORMACAO.images)
+await criar('retorno', RETORNO.nome, RETORNO.texts, RETORNO.images)
 await criar('apoiadores', 'Apoiadores Institucionais', apoiadoresTexts, apoiadoresImages)
 for (const [id, s] of Object.entries(CAMPOS_NOVOS)) await criar(id, s.nome, s.texts, s.images ?? {})
 

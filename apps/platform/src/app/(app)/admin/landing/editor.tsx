@@ -71,6 +71,7 @@ const SECTION_ANCHOR: Record<string, string> = {
   transformacao: "transformacao",
   audience: "audiencia",
   "manual-strategic": "manual-strategic",
+  retorno: "retorno",
   testimonials: "depoimentos",
   plataforma: "plataforma",
   apoiadores: "apoiadores",
