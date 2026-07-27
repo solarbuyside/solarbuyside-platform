@@ -3,7 +3,6 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { WordReveal } from './atoms'
 import { ApoiadoresBandV4 } from './ApoiadoresV4'
-import { scrollToId } from './scroll'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
    gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
@@ -36,7 +35,6 @@ export const HeroV4: React.FC = () => {
     return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
   })()
   const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
-  const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {
@@ -162,25 +160,15 @@ export const HeroV4: React.FC = () => {
       {/* A máscara circular é ancorada pela BASE deste bloco, que coincide com
           a base do Hero — por isso ela consegue reproduzir o mesmo círculo do
           disco sem tirar a faixa do fluxo. Ver .v4-band-sphere-mask. */}
-      <div className="v4-band-sphere-mask relative z-10 w-full pb-[3vh] md:pb-[3vh]">
+      <div className="v4-band-sphere-mask relative z-10 w-full pb-[3vh]">
         <ApoiadoresBandV4 compact />
       </div>
 
-      {/* Indicador de rolagem: some no desktop, onde a faixa agora ocupa o
-          rodapé do Hero e já sinaliza que a página continua. */}
-      <button
-        onClick={() => scrollToId('contexto')}
-        type="button"
-        aria-label={scrollHint}
-        className="group absolute bottom-2 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-3 md:hidden"
-      >
-        {/* Texto "Veja o panorama 2026" removido (Francis, slide 1). O botão
-            segue existindo só como indicador de rolagem; scrollHint continua
-            no aria-label para leitor de tela. */}
-        <span className="block h-10 w-px overflow-hidden bg-white/10">
-          <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-400 to-transparent" />
-        </span>
-      </button>
+      {/* O indicador de rolagem (fio vertical com o gotejar laranja) foi
+          removido: desde que a faixa de apoiadores passou a ocupar o rodapé do
+          Hero, ele caía POR CIMA da legenda "+15 empresas apoiadoras" no
+          celular. No desktop já estava escondido, e a própria faixa em
+          movimento é o sinal de que a página continua abaixo. */}
     </section>
   )
 }
