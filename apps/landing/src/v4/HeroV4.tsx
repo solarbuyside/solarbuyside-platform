@@ -131,7 +131,7 @@ export const HeroV4: React.FC = () => {
         {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
             seção "limpa e com espaço entre cada frase" (slide 2). */}
         <p
-          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-[62px] md:text-2xl"
+          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-[60px] md:text-2xl"
           style={{ ['--d' as string]: '560ms' }}
         >
           <CMSText value={subLead} />
