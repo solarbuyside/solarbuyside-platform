@@ -48,17 +48,38 @@ export const ManualStrategicV4: React.FC = () => {
      lista "O que você leva", depois os parágrafos 3-4 de fechamento. Por isso
      os parágrafos vêm em dois grupos, não numa lista só. */
   const notEmpty = (value: string) => value.trim().length > 0
-  const codeParagraphsTop = [
+
+  /* Os parágrafos deixaram de ser 2 fixos de cada lado (Francis, 27/07: "é
+     preciso criar um outro parágrafo para separar em 2 o primeiro"). Agora são
+     listas: codeTop1..N antes da lista e codeBottom1..N depois, editáveis no
+     admin com adicionar/remover.
+
+     As chaves antigas (codeDesc1-4) continuam valendo como fallback nas duas
+     primeiras posições de cada grupo — o banco ainda guarda o texto ali, e
+     migrar sem isso apagaria o conteúdo publicado até o primeiro salvamento. */
+  const MAX_PARAGRAFOS = 8
+  const lerParagrafos = (prefixo: string, legado: (string | undefined)[]) => {
+    const out: string[] = []
+    for (let i = 1; i <= MAX_PARAGRAFOS; i++) {
+      const novo = section?.texts[`${prefixo}${i}`]
+      const valor = novo ?? legado[i - 1]
+      if (valor === undefined) continue
+      out.push(valor)
+    }
+    return out.filter(notEmpty)
+  }
+
+  const codeParagraphsTop = lerParagrafos('codeTop', [
     section?.texts.codeDesc1 ??
       'Como extensão prática do Manual de Compra Solar Buy-Side, o <span class="cms-bold">Código do Vendedor Consultivo</span> ensina você a pensar como um comprador para conduzir negociações com mais estratégia, segurança e autoridade.',
     section?.texts.codeDesc2 ??
       'Ao aplicar o método, você compreende como o cliente avalia riscos, compara propostas e toma decisões de investimento. Em vez de disputar vendas pelo menor preço, passa a construir valor, conduzir a decisão de compra e posicionar sua proposta como a escolha mais segura.',
-  ].filter(notEmpty)
-  const codeParagraphsBottom = [
+  ])
+  const codeParagraphsBottom = lerParagrafos('codeBottom', [
     section?.texts.codeDesc3 ??
       'Se o Manual Solar Buy-Side mostra como o comprador decide, o Código do Vendedor Consultivo ensina a transformar esse conhecimento em negociações mais estratégicas, vendas mais lucrativas e clientes mais confiantes.',
     section?.texts.codeDesc4 ?? 'Resultado: você deixa de competir por preço e passa a vender por valor.',
-  ].filter(notEmpty)
+  ])
 
   /* Lista "O que você leva com o Código" (Francis 2026-07-23): mesma anatomia
      da lista que existia na seção Código (rótulo mono + item numerado + fio),

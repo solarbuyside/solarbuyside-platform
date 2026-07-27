@@ -56,8 +56,9 @@ const DuelSide: React.FC<DuelSideProps> = ({
 
       {/* Experiência editorial: número gigante + label mono */}
       <Reveal delay={baseDelay} className="relative flex items-end gap-4">
-        {/* 60/72px -> 56/68px: 4px a menos, só no número (Gabriel, 26/07). */}
-        <span className={`font-['Sora'] text-[56px] font-extrabold leading-none tracking-tight md:text-[68px] ${t.accent}`}>
+        {/* 60/72 -> 56/68 (26/07) -> 45/54: menos 20%, pedido do Francis em
+            27/07 — o número competia com o nome do especialista. */}
+        <span className={`font-['Sora'] text-[45px] font-extrabold leading-none tracking-tight md:text-[54px] ${t.accent}`}>
           {experience}
         </span>
         <span className="v4-mono mb-3 text-[10px] uppercase tracking-[0.3em] text-slate-500">
@@ -113,7 +114,7 @@ export const AuthorityV4: React.FC = () => {
   const section = getSection('authority')
 
   return (
-    <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
+    <section id="autor" className="relative overflow-hidden bg-[#07090d] pb-24 pt-12 text-white md:py-32 md:pb-32">
       {/* fade "top" (era "center"): a grade entra cheia, emendando na faixa de
           logos logo acima, e vai apagando até sumir no meio da seção. É a
           continuação do crepúsculo do Hero, não uma textura isolada. */}
@@ -171,7 +172,7 @@ export const AuthorityV4: React.FC = () => {
               image={section?.images.ovidio || '/assets/Ovídio2.png'}
               name={section?.texts.person2Name || 'Ovídio Collesi'}
               badge={section?.texts.person2Badge || 'Especialista'}
-              experience={section?.texts.person2Experience || '+5 Anos'}
+              experience={section?.texts.person2Experience || '+6 Anos'}
               experienceLabel={section?.texts.person2ExperienceLabel || 'de experiência'}
               description={
                 section?.texts.person2Desc ||

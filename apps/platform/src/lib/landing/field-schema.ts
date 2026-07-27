@@ -385,10 +385,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           rich("codeSubtitle", "Subtítulo", {
             help: "Frase de destaque abaixo do título. Deixe vazio para não exibir.",
           }),
-          ml("codeDesc1", "Parágrafo 1"),
-          ml("codeDesc2", "Parágrafo 2"),
-          ml("codeDesc3", "Parágrafo 3", { help: "Deixe vazio para não exibir." }),
-          ml("codeDesc4", "Parágrafo 4", { help: "Deixe vazio para não exibir." }),
           t("codeListTitle", "Lista — título", { help: 'Ex.: "O que você leva com o Código:"' }),
           ml("codeItem1", "Lista — item 1"),
           ml("codeItem2", "Lista — item 2"),
@@ -437,7 +433,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
     // `manual`: chave antiga da capa, substituída por `manualImage` (a que a LP
     // realmente lê). Continua no banco, mas não é mais oferecida no editor.
-    hiddenKeys: ["manual"],
+    //
+    // codeDesc1-4 e codeTop*/codeBottom*: os parágrafos do Código viraram lista
+    // no subitem "Parágrafos do Código". codeDesc* seguem no banco como
+    // fallback da landing até o primeiro salvamento por lá.
+    hiddenKeys: [
+      "manual",
+      "codeDesc1",
+      "codeDesc2",
+      "codeDesc3",
+      "codeDesc4",
+      ...Array.from({ length: 8 }, (_, i) => i + 1).flatMap((i) => [
+        `codeTop${i}`,
+        `codeBottom${i}`,
+      ]),
+    ],
   },
 
   plataforma: {
@@ -943,33 +953,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     order: 12,
     groups: [
       {
-        label: "Cabeçalho",
+        label: "Topo da seção",
         fields: [
-          t("sectionTitle", "Selo da seção", { maxLength: 40 }),
+          t("sectionTitle", "Selo acima do título", { maxLength: 40 }),
           t("title", "Título"),
           t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
         ],
       },
-      {
-        label: "Perguntas",
-        fields: [
-          t("faq1Question", "Pergunta 1"),
-          ml("faq1Answer", "Resposta 1"),
-          t("faq2Question", "Pergunta 2"),
-          ml("faq2Answer", "Resposta 2"),
-          t("faq3Question", "Pergunta 3"),
-          ml("faq3Answer", "Resposta 3"),
-          t("faq4Question", "Pergunta 4"),
-          ml("faq4Answer", "Resposta 4"),
-          t("faq5Question", "Pergunta 5"),
-          ml("faq5Answer", "Resposta 5"),
-          t("faq6Question", "Pergunta 6"),
-          ml("faq6Answer", "Resposta 6"),
-          t("faq7Question", "Pergunta 7"),
-          ml("faq7Answer", "Resposta 7"),
-        ],
-      },
     ],
+    // As perguntas viraram lista com adicionar/remover/reordenar, no subitem
+    // "Perguntas e respostas" — expor faq1Question…faq20Answer aqui daria 40
+    // campos soltos e ainda assim sem como criar a pergunta 8.
+    hiddenKeys: Array.from({ length: 20 }, (_, i) => i + 1).flatMap((i) => [
+      `faq${i}Question`,
+      `faq${i}Answer`,
+    ]),
   },
 
   newsletter: {

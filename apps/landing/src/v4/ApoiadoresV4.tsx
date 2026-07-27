@@ -75,7 +75,7 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
 }
 
 /* ── 1) Faixa contínua ──────────────────────────────────────────────────── */
-export const ApoiadoresBandV4: React.FC = () => {
+export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
   const { logos: todos } = useApoiadores()
@@ -89,9 +89,21 @@ export const ApoiadoresBandV4: React.FC = () => {
   // que apoiam...") é tratado como legado: se o banco ainda tiver ele, cai no
   // novo, para a LP não depender do seed.
   const bandTitleCms = section?.texts.bandTitle || ''
-  const bandTitle = !bandTitleCms || bandTitleCms.startsWith('Empresas líderes')
-    ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
-    : bandTitleCms
+  // Encurtado para 'Empresas apoiadoras' (Gabriel, 27/07): a faixa passou a
+  // viver DENTRO do Hero, e a frase longa ocupava duas linhas na primeira
+  // dobra do celular. O banco guarda o texto legado, que cai aqui — editar em
+  // "Apoiadores > Faixa que rola no topo" continua valendo por cima.
+  // Casamento EXATO com os dois textos legados que já passaram pelo banco.
+  // Prefixo não serve: pegaria uma frase futura do Francis que comece igual, e
+  // qualquer coisa que ele escrever no admin tem que vencer.
+  const BAND_TITLES_LEGADOS = [
+    'Empresas líderes que apoiam o Movimento Solar Buy-Side',
+    'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side',
+  ]
+  const bandTitle =
+    !bandTitleCms || BAND_TITLES_LEGADOS.includes(bandTitleCms.trim())
+      ? 'Empresas apoiadoras'
+      : bandTitleCms
   const bandSubtitle =
     section?.texts.bandSubtitle ||
     '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento'
@@ -108,13 +120,23 @@ export const ApoiadoresBandV4: React.FC = () => {
   return (
     // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
     // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
-    <section className="relative bg-transparent py-12">
+    //
+    // `compact` = renderizada DENTRO do Hero, na primeira dobra (Francis,
+    // 27/07: "90% dos profissionais do solar conhecem essas marcas, isso
+    // desperta curiosidade pelo movimento"). Aí o respiro é menor e a grade de
+    // células não se repete — o Hero já tem a dele.
+    <section className={compact ? 'relative bg-transparent' : 'relative bg-transparent py-12'}>
       {/* Ponte do crepúsculo: a grade do Hero atravessa esta faixa inteira e
           só começa a sumir na seção de Autores, logo abaixo. Como o v4-cells
           é background-attachment:fixed, a fase casa sem emenda. */}
-      <SolarCells fade="full" />
+      {!compact && <SolarCells fade="full" />}
 
-      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[14px] font-bold uppercase tracking-[0.3em] text-orange-400">
+      <p
+        className={
+          'v4-mono relative z-10 px-6 text-center font-bold uppercase tracking-[0.3em] text-orange-400 ' +
+          (compact ? 'mb-4 text-[11px] md:text-[12px]' : 'mb-7 text-[14px]')
+        }
+      >
         {bandTitle}
       </p>
 
@@ -145,7 +167,12 @@ export const ApoiadoresBandV4: React.FC = () => {
       </Marquee>
 
       {bandSubtitle && (
-        <p className="relative z-10 mx-auto mt-8 max-w-3xl px-6 text-center text-[15px] leading-relaxed text-slate-400">
+        <p
+          className={
+            'relative z-10 mx-auto max-w-3xl px-6 text-center leading-relaxed text-slate-300 ' +
+            (compact ? 'mt-4 text-[12px] md:text-[13px]' : 'mt-8 text-[15px]')
+          }
+        >
           {bandLead}
           {bandSegmentos && (
             // block: os cinco segmentos ficam sempre numa linha só, embaixo.

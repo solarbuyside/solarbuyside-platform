@@ -68,7 +68,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   const promoTitleCms = section?.texts.promoTitle
   const promoTitle =
     promoTitleCms === undefined || promoTitleCms.includes('<span class="cms-orange">Belenergy</span>')
-      ? '15% OFF para Integradores cadastrados na'
+      ? '15% OFF para Integradores credenciados'
       : promoTitleCms
   const promoSubtitleCms = section?.texts.promoSubtitle ?? ''
   const promoSubtitle = promoSubtitleCms.startsWith('Cadastre-se agora')

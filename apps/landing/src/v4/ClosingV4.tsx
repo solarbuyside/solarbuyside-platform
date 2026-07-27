@@ -256,55 +256,38 @@ const WhatsAppIcon: React.FC<{ size?: number; className?: string }> = ({ size = 
   </svg>
 )
 
+/** Teto de perguntas do FAQ (espelha MAX_FAQ no editor do admin). */
+const MAX_FAQ = 20
+
+/** Conteúdo publicado hoje — usado só se o banco não trouxer pergunta nenhuma. */
+const FAQ_PADRAO: { question: string; answer: string }[] = [
+  { question: 'Como acessar meu produto?', answer: 'Após a confirmação do pagamento, você receberá um e-mail automático com o acesso ao Manual Solar Buy-Side em até alguns minutos. Caso não localize o e-mail na caixa de entrada, verifique também as pastas de spam e promoções. Em caso de dúvida, fale diretamente com nossa equipe pelo WhatsApp.' },
+  { question: 'Como funciona o prazo de garantia e a solicitação de devolução?', answer: 'Você tem até 7 dias corridos após a confirmação do pagamento para solicitar o reembolso integral, sem necessidade de justificativa, conforme prevê o Código de Defesa do Consumidor (art. 49). Esse é o nosso compromisso de garantia incondicional: se o conteúdo não for o que você esperava, basta nos avisar dentro do prazo.' },
+  { question: 'Política de devolução: como proceder para o reembolso?', answer: 'Para solicitar o reembolso dentro do prazo de 7 dias, entre em contato com nossa equipe pelo WhatsApp informando o e-mail utilizado na compra e o motivo (opcional). O estorno é processado em até 7 dias úteis, na mesma forma de pagamento utilizada: cartão, PIX ou boleto.' },
+  { question: 'Preciso ter conhecimento técnico para aproveitar o Manual?', answer: 'Não. O Manual foi escrito para orientar decisões, não para formar engenheiros. Os 160 tópicos são organizados para consulta rápida, em linguagem direta, e os anexos técnicos aprofundam quem quiser ir além. Vendedores iniciantes e compradores leigos acompanham sem dificuldade.' },
+  { question: 'Em que formato recebo o material?', answer: 'O Manual Solar Buy-Side e o Código do Vendedor Consultivo chegam em PDF interativo, com índice navegável. Você lê no celular, tablet ou computador, online ou offline. O link de acesso chega no e-mail cadastrado logo após a confirmação do pagamento.' },
+  { question: 'Como funciona o acesso à Plataforma de Avaliação de Propostas?', answer: 'A compra do Manual libera automaticamente o acesso à plataforma por 6 meses. Nela você compara propostas de fornecedores lado a lado, com pontuação por reputação, tecnologia e viabilidade e o Índice de Confiabilidade de 0 a 100.' },
+  { question: 'Posso comprar para a minha equipe comercial?', answer: 'Sim. A oferta inclui a Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ, pagando uma única vez. É o formato pensado para integradoras que querem padronizar a abordagem do time inteiro.' },
+]
+
 export const FAQV4: React.FC = () => {
   const { getSection, globalSettings } = useContent()
   const section = getSection('faq')
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
-  const faqData = [
-    {
-      question: section?.texts.faq1Question || 'Como acessar meu produto?',
-      answer:
-        section?.texts.faq1Answer ||
-        'Após a confirmação do pagamento, você receberá um e-mail automático com o acesso ao Manual Solar Buy-Side em até alguns minutos. Caso não localize o e-mail na caixa de entrada, verifique também as pastas de spam e promoções. Em caso de dúvida, fale diretamente com nossa equipe pelo WhatsApp.',
-    },
-    {
-      question: section?.texts.faq2Question || 'Como funciona o prazo de garantia e a solicitação de devolução?',
-      answer:
-        section?.texts.faq2Answer ||
-        'Você tem até 7 dias corridos após a confirmação do pagamento para solicitar o reembolso integral, sem necessidade de justificativa, conforme prevê o Código de Defesa do Consumidor (art. 49). Esse é o nosso compromisso de garantia incondicional: se o conteúdo não for o que você esperava, basta nos avisar dentro do prazo.',
-    },
-    {
-      question: section?.texts.faq3Question || 'Política de devolução: como proceder para o reembolso?',
-      answer:
-        section?.texts.faq3Answer ||
-        'Para solicitar o reembolso dentro do prazo de 7 dias, entre em contato com nossa equipe pelo WhatsApp informando o e-mail utilizado na compra e o motivo (opcional). O estorno é processado em até 7 dias úteis, na mesma forma de pagamento utilizada: cartão, PIX ou boleto.',
-    },
-    {
-      question: section?.texts.faq4Question || 'Preciso ter conhecimento técnico para aproveitar o Manual?',
-      answer:
-        section?.texts.faq4Answer ||
-        'Não. O Manual foi escrito para orientar decisões, não para formar engenheiros. Os 160 tópicos são organizados para consulta rápida, em linguagem direta, e os anexos técnicos aprofundam quem quiser ir além. Vendedores iniciantes e compradores leigos acompanham sem dificuldade.',
-    },
-    {
-      question: section?.texts.faq5Question || 'Em que formato recebo o material?',
-      answer:
-        section?.texts.faq5Answer ||
-        'O Manual Solar Buy-Side e o Código do Vendedor Consultivo chegam em PDF interativo, com índice navegável. Você lê no celular, tablet ou computador, online ou offline. O link de acesso chega no e-mail cadastrado logo após a confirmação do pagamento.',
-    },
-    {
-      question: section?.texts.faq6Question || 'Como funciona o acesso à Plataforma de Avaliação de Propostas?',
-      answer:
-        section?.texts.faq6Answer ||
-        'A compra do Manual libera automaticamente o acesso à plataforma por 6 meses. Nela você compara propostas de fornecedores lado a lado, com pontuação por reputação, tecnologia e viabilidade e o Índice de Confiabilidade de 0 a 100.',
-    },
-    {
-      question: section?.texts.faq7Question || 'Posso comprar para a minha equipe comercial?',
-      answer:
-        section?.texts.faq7Answer ||
-        'Sim. A oferta inclui a Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ, pagando uma única vez. É o formato pensado para integradoras que querem padronizar a abordagem do time inteiro.',
-    },
-  ]
+  // Perguntas vêm do CMS: faq1Question/faq1Answer, faq2… até MAX_FAQ. O admin
+  // adiciona, remove e reordena (editor "Perguntas e respostas"), então a lista
+  // não pode mais ser fixa em 7. Se o banco não trouxer nenhuma, cai no padrão
+  // abaixo — que é o conteúdo publicado hoje.
+  const faqData = (() => {
+    const doCms: { question: string; answer: string }[] = []
+    for (let i = 1; i <= MAX_FAQ; i++) {
+      const q = (section?.texts[`faq${i}Question`] || '').trim()
+      if (!q) continue
+      doCms.push({ question: q, answer: section?.texts[`faq${i}Answer`] || '' })
+    }
+    return doCms.length ? doCms : FAQ_PADRAO
+  })()
 
   const getWhatsAppLink = () => {
     const number = globalSettings.whatsappNumber || ''

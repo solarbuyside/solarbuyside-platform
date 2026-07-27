@@ -420,7 +420,7 @@ export const termsSections: LegalSection[] = [
 
 export const antipiracySections: LegalSection[] = [
   {
-    heading: 'CLÁUSULA DE PROPRIEDADE E CONFIDENCIALIDADE',
+    heading: 'CLÁUSULA DE PROPRIEDADE',
     paragraphs: [
       <>
         O Manual de Compra Profissional Solar Buy-Side e o Guia do Vendedor são de propriedade exclusiva da{' '}

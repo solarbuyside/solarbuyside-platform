@@ -24,6 +24,8 @@ import {
   ChevronDown,
   GalleryHorizontalEnd,
   Tag,
+  ListOrdered,
+  Pilcrow,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -41,6 +43,7 @@ import { TestimonialsEditor } from "./testimonials-editor";
 import { LogosEditor, categoriasDe, type LogosView } from "./logos-editor";
 import { RichTextEditor } from "./rich-text";
 import { ImageField } from "./image-field";
+import { ListEditor, type ListGroup } from "./list-editor";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
 /** Logos: "__logos__" = todos; "__logos__:<categoria>" = uma categoria. */
@@ -48,6 +51,9 @@ const LOGOS_VIEW = "__logos__";
 const LOGOS_CAT_PREFIX = "__logos__:";
 /** Escolha de quem sobe para a faixa do topo (vive junto do Hero na lista). */
 const BAND_VIEW = "__faixa__";
+/** Blocos repetíveis com editor próprio (adicionar/remover/reordenar). */
+const FAQ_VIEW = "__faq__";
+const CODE_PARAGRAFOS_VIEW = "__code-paragrafos__";
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
@@ -92,6 +98,44 @@ const GLOBAL_FIELDS: {
   { key: "favicon", label: "Favicon (ícone da aba)", icon: ImageIcon, image: true },
 ];
 
+/** FAQ: um par pergunta/resposta por item. Teto espelha MAX_FAQ na landing. */
+const FAQ_GROUPS: ListGroup[] = [
+  {
+    prefix: "faq",
+    label: "Perguntas",
+    itemLabel: "Pergunta",
+    max: 20,
+    fields: [
+      { suffix: "Question", label: "Pergunta", kind: "text" },
+      { suffix: "Answer", label: "Resposta", kind: "area" },
+    ],
+  },
+];
+
+/**
+ * Parágrafos do bloco "Código do Vendedor", em dois grupos: a lista "O que você
+ * leva" fica ENTRE eles, então não dá para ser uma lista só.
+ * `legacyKeys` traz o texto publicado hoje (codeDesc1-4) na primeira abertura.
+ */
+const CODE_GROUPS: ListGroup[] = [
+  {
+    prefix: "codeTop",
+    label: "Antes da lista “O que você leva”",
+    itemLabel: "Parágrafo",
+    max: 8,
+    legacyKeys: ["codeDesc1", "codeDesc2"],
+    fields: [{ suffix: "", label: "Texto", kind: "rich" }],
+  },
+  {
+    prefix: "codeBottom",
+    label: "Depois da lista",
+    itemLabel: "Parágrafo",
+    max: 8,
+    legacyKeys: ["codeDesc3", "codeDesc4"],
+    fields: [{ suffix: "", label: "Texto", kind: "rich" }],
+  },
+];
+
 export function LandingEditor({
   sections: rawSections,
   globals,
@@ -133,6 +177,8 @@ export function LandingEditor({
   const [showArchived, setShowArchived] = React.useState(false);
   const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
   const apoiadores = rawSections.find((s) => s.sectionId === "apoiadores");
+  const faqSection = rawSections.find((s) => s.sectionId === "faq");
+  const manualSection = rawSections.find((s) => s.sectionId === "manual-strategic");
   // Categorias dos apoiadores saem dos próprios dados, na ordem da página.
   const categoriasApoiadores = React.useMemo(
     () => (apoiadores ? categoriasDe(apoiadores) : []),
@@ -347,6 +393,26 @@ export function LandingEditor({
                     onSelect={() => setSelectedId(BAND_VIEW)}
                   />
                 ) : null}
+                {/* O FAQ deixou de ser 7 perguntas fixas: pergunta, resposta,
+                    adicionar, remover e reordenar (Francis, 27/07). */}
+                {s.sectionId === "faq" && faqSection ? (
+                  <SubRow
+                    icon={ListOrdered}
+                    label="Perguntas e respostas"
+                    active={selectedId === FAQ_VIEW}
+                    onSelect={() => setSelectedId(FAQ_VIEW)}
+                  />
+                ) : null}
+                {/* Parágrafos do bloco "Código do Vendedor", que antes eram 4
+                    slots fixos — não havia como quebrar um em dois. */}
+                {s.sectionId === "manual-strategic" && manualSection ? (
+                  <SubRow
+                    icon={Pilcrow}
+                    label="Parágrafos do Código"
+                    active={selectedId === CODE_PARAGRAFOS_VIEW}
+                    onSelect={() => setSelectedId(CODE_PARAGRAFOS_VIEW)}
+                  />
+                ) : null}
                 {/* Cadastro dos logos, um subitem por categoria. As categorias
                     saem dos próprios dados: criar uma nova é digitar o nome no
                     campo "Categoria" de um logo. */}
@@ -432,6 +498,22 @@ export function LandingEditor({
           <TestimonialsEditor
             section={buyerWave}
             onSaved={() => setLocalPending((p) => new Set(p).add("buyer-wave"))}
+          />
+        ) : selectedId === FAQ_VIEW && faqSection ? (
+          <ListEditor
+            section={faqSection}
+            title="Perguntas e respostas"
+            icon={ListOrdered}
+            groups={FAQ_GROUPS}
+            onSaved={() => setLocalPending((p) => new Set(p).add("faq"))}
+          />
+        ) : selectedId === CODE_PARAGRAFOS_VIEW && manualSection ? (
+          <ListEditor
+            section={manualSection}
+            title="Parágrafos do Código do Vendedor"
+            icon={Pilcrow}
+            groups={CODE_GROUPS}
+            onSaved={() => setLocalPending((p) => new Set(p).add("manual-strategic"))}
           />
         ) : logosView && apoiadores ? (
           // Mesma posição na árvore para todas as visões: trocar de categoria
