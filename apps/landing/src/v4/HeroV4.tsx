@@ -114,7 +114,9 @@ export const HeroV4: React.FC = () => {
         </div>
 
         {/* headline massiva */}
-        <h1 className="max-w-5xl text-[clamp(2.5rem,6.6vw,5.6rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
+        {/* clamp: mobile 44px (era 40) e desktop 81.6px (era 89.6) — ajuste do
+            Gabriel 27/07: headline menor no desktop, maior no celular. */}
+        <h1 className="max-w-5xl text-[clamp(2.75rem,6.6vw,5.1rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
           <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />{' '}
           <WordReveal
             trigger="load"
@@ -129,7 +131,7 @@ export const HeroV4: React.FC = () => {
         {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
             seção "limpa e com espaço entre cada frase" (slide 2). */}
         <p
-          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-16 md:text-2xl"
+          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-[62px] md:text-2xl"
           style={{ ['--d' as string]: '560ms' }}
         >
           <CMSText value={subLead} />
