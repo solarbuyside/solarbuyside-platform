@@ -229,7 +229,9 @@ export const ApoiadoresV4: React.FC = () => {
       : subtitleCms
 
   return (
-    <section className="bg-[#f7f8fa] px-6 py-20 text-slate-700 md:py-24">
+    // Respiro maior embaixo: com py simétrico a última fileira de logos
+    // encostava na seção seguinte (Gabriel, 27/07).
+    <section className="bg-[#f7f8fa] px-6 pb-28 pt-20 text-slate-700 md:pb-36 md:pt-24">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-slate-900">

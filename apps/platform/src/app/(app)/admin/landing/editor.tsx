@@ -320,7 +320,7 @@ export function LandingEditor({
                 {s.sectionId === "apoiadores" && apoiadores ? (
                   <SubRow
                     icon={ImageIcon}
-                    label="Logos dos apoiadores"
+                    label="Logos (faixa do topo + seção)"
                     active={selectedId === LOGOS_VIEW}
                     onSelect={() => setSelectedId(LOGOS_VIEW)}
                   />

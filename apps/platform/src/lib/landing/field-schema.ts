@@ -248,22 +248,28 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   },
 
   apoiadores: {
-    label: "Apoiadores institucionais",
+    // A MESMA lista de logos alimenta dois lugares da página: a faixa que rola
+    // logo abaixo do Hero e esta seção, lá embaixo. O rótulo diz isso porque a
+    // faixa aparece no topo e o editor dela mora aqui, na posição 10 — sem a
+    // pista ninguém liga uma coisa na outra.
+    label: "Apoiadores (faixa do topo + seção)",
     // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
     order: 10,
     groups: [
       {
-        label: "Seção",
+        label: "Faixa que rola no topo (abaixo do Hero)",
         fields: [
-          t("title", "Título"),
-          ml("subtitle", "Subtítulo"),
+          t("bandTitle", "Título acima dos logos"),
+          ml("bandSubtitle", "Texto abaixo dos logos", {
+            help: "Quebra em duas linhas no “:” — a chamada em cima, os segmentos embaixo.",
+          }),
         ],
       },
       {
-        label: "Faixa de logos",
+        label: "Seção completa (mais abaixo na página)",
         fields: [
-          t("bandTitle", "Faixa — título"),
-          ml("bandSubtitle", "Faixa — texto abaixo dos logos"),
+          t("title", "Título"),
+          ml("subtitle", "Subtítulo"),
         ],
       },
     ],

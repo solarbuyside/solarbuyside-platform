@@ -135,6 +135,13 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
             {logos.some((l) => l.hidden) && `, ${logos.filter((l) => l.hidden).length} oculto(s)`}. A
             ordem define a ordem das categorias.
           </p>
+          {/* A faixa fica no topo da página e esta tela mora na posição 10 da
+              lista — sem dizer isso, ninguém liga uma coisa na outra. */}
+          <p className="mt-1.5 text-[11px] leading-snug text-slate-400">
+            Esta lista alimenta <span className="font-semibold text-slate-500">os dois lugares</span>:
+            a faixa que rola logo abaixo do topo e a seção de apoiadores mais embaixo. Ocultar tira
+            dos dois.
+          </p>
         </div>
         <SaveButton state={state} onClick={save} />
       </div>
