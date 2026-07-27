@@ -89,20 +89,12 @@ export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = fa
   // que apoiam...") é tratado como legado: se o banco ainda tiver ele, cai no
   // novo, para a LP não depender do seed.
   const bandTitleCms = section?.texts.bandTitle || ''
-  // Encurtado para 'Empresas apoiadoras' (Gabriel, 27/07): a faixa passou a
-  // viver DENTRO do Hero, e a frase longa ocupava duas linhas na primeira
-  // dobra do celular. O banco guarda o texto legado, que cai aqui — editar em
-  // "Apoiadores > Faixa que rola no topo" continua valendo por cima.
-  // Casamento EXATO com os dois textos legados que já passaram pelo banco.
-  // Prefixo não serve: pegaria uma frase futura do Francis que comece igual, e
-  // qualquer coisa que ele escrever no admin tem que vencer.
-  const BAND_TITLES_LEGADOS = [
-    'Empresas líderes que apoiam o Movimento Solar Buy-Side',
-    'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side',
-  ]
+  // Casamento EXATO com o texto legado do banco. Prefixo não serve: pegaria uma
+  // frase futura do Francis que comece igual, e o que ele escrever no admin
+  // ("Apoiadores > Faixa que rola no topo") tem que vencer.
   const bandTitle =
-    !bandTitleCms || BAND_TITLES_LEGADOS.includes(bandTitleCms.trim())
-      ? 'Empresas apoiadoras'
+    !bandTitleCms || bandTitleCms.trim() === 'Empresas líderes que apoiam o Movimento Solar Buy-Side'
+      ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
       : bandTitleCms
   const bandSubtitle =
     section?.texts.bandSubtitle ||
@@ -150,7 +142,10 @@ export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = fa
           e a emenda fica com o mesmo respiro dos demais logos. */}
       {/* speed = duração de um ciclo, então número maior = desfile mais lento.
           46s -> 58s a pedido do Gabriel (26/07). */}
-      <Marquee speed={58} className="v4-marquee-tight relative z-10">
+      <Marquee
+        speed={58}
+        className={'v4-marquee-tight relative z-10' + (compact ? ' v4-band-edge-fade' : '')}
+      >
         <span className="flex items-center gap-6 whitespace-nowrap">
           {[...logos, ...logos].map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,

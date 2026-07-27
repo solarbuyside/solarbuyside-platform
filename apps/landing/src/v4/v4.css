@@ -527,3 +527,58 @@
   gap: 1.5rem;
   padding-right: 1.5rem;
 }
+
+/* A faixa de apoiadores vive DENTRO do disco solar do Hero. Sem máscara, os
+   logos das pontas vazam para fora da esfera — a curva desce nos cantos e os
+   chips continuam retos, o que denuncia que são dois elementos independentes.
+
+   A máscara reproduz o MESMO círculo do disco (raio 130vmax). O centro é
+   medido a partir da BASE deste bloco, que é a base do Hero:
+
+     centro = altura deste bloco + 130vmax - (100svh - topo do disco)
+
+   O respiro inferior NÃO entra na conta: ele é padding deste mesmo bloco, e o
+   100% já o inclui. Somá-lo de novo empurrava o círculo para baixo e a máscara
+   comia o título da faixa no celular.
+
+   Ancorar pela base é o que permite manter a faixa no fluxo do flex. Numa
+   tentativa anterior ela virou camada absoluta para herdar a caixa do Hero, e
+   no celular passou a sobrepor a subfrase, porque deixou de empurrar layout.
+
+   Os topos espelham top-[66%] / md:top-[70%] do disco em HeroV4 — mexeu num,
+   mexe no outro. */
+.v4-band-sphere-mask {
+  -webkit-mask-image: radial-gradient(
+    130vmax 130vmax at 50% calc(100% + 130vmax - 34svh),
+    #000 94%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    130vmax 130vmax at 50% calc(100% + 130vmax - 34svh),
+    #000 94%,
+    transparent 100%
+  );
+}
+@media (min-width: 768px) {
+  .v4-band-sphere-mask {
+    -webkit-mask-image: radial-gradient(
+      130vmax 130vmax at 50% calc(100% + 130vmax - 30svh),
+      #000 94%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      130vmax 130vmax at 50% calc(100% + 130vmax - 30svh),
+      #000 94%,
+      transparent 100%
+    );
+  }
+}
+
+/* Degradê nas duas pontas da faixa: junto com a máscara circular, dá a leitura
+   de que os logos entram e saem POR DENTRO da esfera, em vez de simplesmente
+   serem cortados na borda da tela. Aplicado só na trilha de logos — o título e
+   a legenda ficam fora, senão sumiriam nas laterais. */
+.v4-band-edge-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+}
