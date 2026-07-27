@@ -66,8 +66,13 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   // Só cai no padrão quando a chave NÃO EXISTE. Se o admin apagar o campo
   // (string vazia), o bloco inteiro some: é o liga/desliga da campanha.
   const promoTitleCms = section?.texts.promoTitle
+  // "cadastrados na" -> "credenciados" (Francis, 27/07). O texto antigo entra
+  // na lista de legados porque vinha do ContentData e do banco de instalações
+  // anteriores; sem isso, o novo default nunca apareceria.
   const promoTitle =
-    promoTitleCms === undefined || promoTitleCms.includes('<span class="cms-orange">Belenergy</span>')
+    promoTitleCms === undefined ||
+    promoTitleCms.includes('<span class="cms-orange">Belenergy</span>') ||
+    promoTitleCms.trim() === '15% OFF para Integradores cadastrados na'
       ? '15% OFF para Integradores credenciados'
       : promoTitleCms
   const promoSubtitleCms = section?.texts.promoSubtitle ?? ''

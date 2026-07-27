@@ -2,7 +2,7 @@
 
 // Bump this version whenever ContentData defaults change.
 // It invalidates stale localStorage caches so users see updated text.
-export const CONTENT_VERSION = 30
+export const CONTENT_VERSION = 31
 
 // ContentData is the source of truth. Backend CMS only contributes keys
 // missing from these defaults — never overrides. Edit here to change copy.
@@ -247,7 +247,7 @@ export const initialContent: SectionContent[] = [
         "name": "Oferta",
         "texts": {
             "paybackNote": "Apenas uma venda fechada usando o Método Buy-Side já paga 100% do seu investimento. <span class=\"cms-orange\">Todo o resto é lucro.</span>",
-            "promoTitle": "15% OFF para Integradores cadastrados na",
+            "promoTitle": "15% OFF para Integradores credenciados",
             "promoSubtitle": "Você está sem cupom Belenergy?",
             "promoNote": "Compra agora e reembolsamos a diferença de <span class=\"cms-orange\">R$ 119,55</span> sob apresentação do cupom!",
             "promoCtaLabel": "Clique aqui",

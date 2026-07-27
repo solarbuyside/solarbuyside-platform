@@ -545,17 +545,22 @@
    tentativa anterior ela virou camada absoluta para herdar a caixa do Hero, e
    no celular passou a sobrepor a subfrase, porque deixou de empurrar layout.
 
-   Os topos espelham top-[66%] / md:top-[70%] do disco em HeroV4 — mexeu num,
+   O corte é quase duro (99.2%) de propósito: a suavidade vem do degradê
+   horizontal, que vale só para a trilha de logos. Com uma transição larga
+   aqui, a zona de fade tinha mais de 100px de raio e alcançava as pontas do
+   TÍTULO da faixa, que ficava apagado nas laterais.
+
+   Os topos espelham top-[62%] / md:top-[70%] do disco em HeroV4 — mexeu num,
    mexe no outro. */
 .v4-band-sphere-mask {
   -webkit-mask-image: radial-gradient(
-    130vmax 130vmax at 50% calc(100% + 130vmax - 34svh),
-    #000 94%,
+    130vmax 130vmax at 50% calc(100% + 130vmax - 38svh),
+    #000 99.2%,
     transparent 100%
   );
   mask-image: radial-gradient(
-    130vmax 130vmax at 50% calc(100% + 130vmax - 34svh),
-    #000 94%,
+    130vmax 130vmax at 50% calc(100% + 130vmax - 38svh),
+    #000 99.2%,
     transparent 100%
   );
 }

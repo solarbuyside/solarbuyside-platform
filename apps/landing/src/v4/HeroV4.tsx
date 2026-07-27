@@ -77,7 +77,7 @@ export const HeroV4: React.FC = () => {
         {/* brilho central do amanhecer (com parallax) */}
         <div ref={glowRef} className="absolute inset-0 will-change-transform">
           <div
-            className="absolute left-1/2 top-[60%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 md:top-[64%]"
+            className="absolute left-1/2 top-[56%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 md:top-[64%]"
             style={{
               background:
                 'radial-gradient(circle at 50% 62%, rgba(253,186,116,0.32) 0%, rgba(249,115,22,0.16) 22%, transparent 52%)',
@@ -85,10 +85,10 @@ export const HeroV4: React.FC = () => {
           />
         </div>
         {/* raios cônicos girando muito devagar */}
-        <div className="v4-rays absolute left-1/2 top-[66%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10] md:top-[70%]" />
+        <div className="v4-rays absolute left-1/2 top-[62%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10] md:top-[70%]" />
         {/* o disco solar: silhueta gigante com aresta incandescente */}
         <div
-          className="absolute left-1/2 top-[66%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d] md:top-[70%]"
+          className="absolute left-1/2 top-[62%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d] md:top-[70%]"
           style={{
             boxShadow:
               '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
@@ -112,7 +112,7 @@ export const HeroV4: React.FC = () => {
           empurrava tudo para o meio da tela virou o espaço da faixa. Isso
           também tira a subfrase de cima do disco escuro, que era a queixa do
           print em 100% de zoom. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-4 pt-24 text-center md:pb-[10vh] md:pt-28">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[7vh] pt-16 text-center md:pb-[10vh] md:pt-28">
         {/* chip do produto */}
         <div className="v4-rise mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
@@ -162,7 +162,7 @@ export const HeroV4: React.FC = () => {
       {/* A máscara circular é ancorada pela BASE deste bloco, que coincide com
           a base do Hero — por isso ela consegue reproduzir o mesmo círculo do
           disco sem tirar a faixa do fluxo. Ver .v4-band-sphere-mask. */}
-      <div className="v4-band-sphere-mask relative z-10 w-full pb-[6vh] md:pb-[3vh]">
+      <div className="v4-band-sphere-mask relative z-10 w-full pb-[10vh] md:pb-[3vh]">
         <ApoiadoresBandV4 compact />
       </div>
 
