@@ -57,11 +57,16 @@ export type SectionSchema = {
   /** Chaves legadas/duplicadas a ocultar do editor (não viram "Outros campos"). */
   hiddenKeys?: string[];
   /**
-   * Seção que NÃO é mais renderizada na LP oficial ("/") — só sobrevive na /1,
-   * a cópia-salvaguarda da LP completa (remoções pedidas pelo Francis em
-   * 2026-07-22). Continua editável de propósito: se ele voltar atrás, o
-   * conteúdo está lá. O editor marca essas com um selo "V1" para ninguém
-   * editar achando que muda a LP oficial.
+   * Seção ARQUIVADA: não é renderizada em nenhuma página.
+   *
+   * Ela saiu da LP oficial ("/") nas remoções do Francis em 2026-07-22 e
+   * sobrevivia na /1. Só que a /1 virou salvaguarda de verdade — conteúdo
+   * congelado em `apps/landing/src/v4-full/content-snapshot.json`, fora do
+   * banco. Logo, editar estas seções aqui não muda mais nada em lugar nenhum.
+   *
+   * Continuam no manifesto (e no banco) de propósito: se um dia a seção voltar
+   * para a LP, o conteúdo está lá. O editor as separa numa gaveta "Arquivadas",
+   * fechada por padrão, com aviso explícito.
    */
   onlyOnV1?: boolean;
 };
@@ -91,6 +96,7 @@ const LOGO_KEYS = Array.from({ length: MAX_LOGOS }, (_, i) => i + 1).flatMap((i)
   `logo${i}Name`,
   `logo${i}Desc`,
   `logo${i}Cat`,
+  `logo${i}Hidden`,
 ]);
 
 export const LANDING_SCHEMA: Record<string, SectionSchema> = {
@@ -141,7 +147,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   context: {
     label: "Contexto / Panorama",
-    order: 1,
+    order: 2,
     groups: [
       {
         label: "Topo",
@@ -188,7 +194,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   video: {
     label: "Vídeo",
-    order: 2,
+    order: 3,
     groups: [
       {
         label: "Faixa de alerta",
@@ -241,7 +247,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   apoiadores: {
     label: "Apoiadores institucionais",
     // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
-    order: 6.5,
+    order: 10,
     groups: [
       {
         label: "Seção",
@@ -266,7 +272,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   audience: {
     label: "Público (para quem é)",
-    order: 3,
+    order: 6,
     groups: [
       {
         label: "Topo",
@@ -330,7 +336,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "manual-strategic": {
     label: "Manual estratégico",
-    order: 4,
+    order: 7,
     groups: [
       {
         // Francis, slide 11: "criar este título da seção MANUAL ESTRATÉGICO".
@@ -417,7 +423,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   plataforma: {
     label: "Plataforma de avaliação",
     // Revisão 25/07: trocou de lugar com o depoimento do Rodrigo (slide 15).
-    order: 6,
+    order: 9,
     groups: [
       {
         label: "Topo",
@@ -455,7 +461,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // selo girando e com foto retangular. Entra logo depois do vídeo.
   "testimonial-lucas": {
     label: "Depoimento do Lucas",
-    order: 2.6,
+    order: 4,
     groups: [
       {
         label: "Cabeçalho",
@@ -494,7 +500,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // Transformação (Francis, slide 8). Textos dele, visual redesenhado.
   transformacao: {
     label: "Transformação",
-    order: 2.8,
+    order: 5,
     groups: [
       {
         label: "Topo",
@@ -534,7 +540,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   testimonials: {
     label: "Depoimento do Rodrigo",
     // Revisão 25/07: trocou de lugar com a Plataforma (slide 14).
-    order: 5,
+    order: 8,
     groups: [
       {
         label: "Cabeçalho",
@@ -575,7 +581,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "story-bridge": {
     label: "Ponte / Narrativa",
-    order: 7,
+    order: 90,
     onlyOnV1: true,
     groups: [
       {
@@ -605,7 +611,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "seller-code": {
     label: "Código do vendedor (bônus)",
-    order: 8,
+    order: 91,
     onlyOnV1: true,
     groups: [
       {
@@ -653,7 +659,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Autoridade (autores)",
     // Revisão 25/07 (slide 3): a seção subiu para logo depois da faixa de
     // logos, e passou a levar o primeiro botão da página.
-    order: 0.5,
+    order: 1,
     groups: [
       {
         label: "Topo",
@@ -706,7 +712,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   pricing: {
     label: "Oferta / Preço",
-    order: 9,
+    order: 11,
     groups: [
       {
         label: "Cabeçalho",
@@ -821,7 +827,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "buyer-wave": {
     label: "Onda do comprador",
-    order: 10,
+    order: 92,
     onlyOnV1: true,
     groups: [
       {
@@ -865,7 +871,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "lead-magnet": {
     label: "Isca (ebook)",
-    order: 12,
+    order: 93,
     onlyOnV1: true,
     groups: [
       {
@@ -903,7 +909,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   faq: {
     label: "Perguntas frequentes",
-    order: 13,
+    order: 12,
     groups: [
       {
         label: "Cabeçalho",
@@ -937,7 +943,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   newsletter: {
     label: "Newsletter",
-    order: 14,
+    order: 94,
     onlyOnV1: true,
     groups: [
       {
@@ -957,7 +963,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   contact: {
     label: "Contato / Rodapé",
-    order: 15,
+    order: 13,
     groups: [
       {
         label: "Cabeçalho",

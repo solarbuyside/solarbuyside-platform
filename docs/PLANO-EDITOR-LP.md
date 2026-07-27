@@ -47,7 +47,62 @@ inline com tom amigável; 69% de abandono de formulário é por UX (Baymard).
 
 - **Fase 1 — COMPLETA** (front 100%; back já estava ligado e vivo). Ver "Feito".
 - **Fase 2 — COMPLETA** (rascunho/publicar). Ver "Fase 2" abaixo.
-- Fase 3 — não iniciada.
+- **Fase 3 — parcial**: upload de imagem FEITO. Live preview do rascunho e
+  blocos repetíveis genéricos seguem pendentes.
+
+### Feito (2026-07-27 — /1 congelada, ordem, upload, ocultar logo)
+
+**A /1 virou salvaguarda de verdade.** Ela renderizava de `src/v4-full/` mas
+lia as MESMAS linhas de `landing_sections` que a LP oficial (`section_id` é
+primary key, sem noção de versão) — estava congelada no código e não no
+conteúdo: toda edição do admin na oficial mudava a /1 junto, sem aviso.
+Agora:
+
+- `scripts/snapshot-v4-full.mjs` tira um retrato do conteúdo **publicado** das
+  16 seções que a /1 usa → `apps/landing/src/v4-full/content-snapshot.json`
+  (16 seções, 346 chaves). Rodar de novo só para re-sincronizar de propósito.
+- `ContentProvider` ganhou `frozen`: sem Supabase e sem localStorage (o storage
+  é compartilhado pelas duas rotas na mesma origem e vazaria o conteúdo da
+  oficial pra dentro da salvaguarda). `main.tsx` liga pelo pathname `/1`.
+- Consequência: **o admin edita só a LP oficial**. Foi a decisão do Gabriel
+  frente à alternativa de duplicar as linhas por `variant` — que funcionaria,
+  mas cobraria manifesto e ordem em dobro para sempre.
+
+**Ordem e seções mortas.** `order` de cada seção passou a espelhar a ordem de
+render de `v4/AppV4.tsx` (hero 0 → contact 13). As 5 seções `onlyOnV1`
+(story-bridge, seller-code, buyer-wave, lead-magnet, newsletter) não são
+renderizadas em página nenhuma desde o congelamento: saíram da lista principal
+para uma gaveta "Arquivadas" fechada, com aviso em âmbar no painel. O selo "V1"
+morreu (dizia que a edição valia na /1 — não vale mais). A lista numera as
+seções pela posição na página. `LP_URL` do preview foi de `/v4` para a raiz e o
+`SECTION_ANCHOR` passou a cobrir todas as âncoras reais.
+
+**Upload de imagem** (pendência 2.3 do handoff de 23/07 — pedido do Francis):
+
+- Migration `0021_landing_images_bucket.sql`: bucket `landing-images`, público
+  para leitura, 5 MB, mime restrito. Escrita só pelo service role (sem policy
+  de insert para anon/authenticated). **Já aplicada** em produção.
+- `src/lib/landing/images.ts` + rota `POST /api/admin/landing/upload`
+  (route handler, não server action: o teto de body das actions é menor que os
+  5 MB do bucket). Gate de admin na rota.
+- `image-field.tsx`: arrastar-e-soltar ou clicar, preview, trocar, remover, e o
+  caminho por URL escondido atrás de "usar um endereço" (as imagens atuais são
+  `/assets/...` do repo e precisam continuar editáveis, mas não podem ser a
+  primeira coisa que ele vê). Ligado em todo campo `type: "image"`, no logo/
+  favicon dos globais e em cada logo de apoiador.
+- Verificado contra o bucket real: service role grava, leitura pública sem auth
+  responde 200, upload anônimo é recusado.
+- `scripts/apply-migration.mjs`: aplica um .sql pela Management API (o CLI do
+  Supabase não está ligado neste repo).
+
+**Ocultar logo sem apagar.** `logo{i}Hidden` (jsonb, sem migration): botão
+Exibindo/Oculto por logo no editor, cadastro preservado, contador "N na página,
+M oculto(s)"; `useApoiadores` na landing pula os ocultos. Serve para marca sem
+autorização de uso ainda — caso dos logos da BelEnergy (pendência 2.2).
+
+**Bug de dados:** o banco guardava 25 slots vazios (`logo7Name: ""`) de
+salvamentos antigos, e o editor listava os 30 — 25 cards em branco. `parseLogos`
+passou a exigir imagem ou nome.
 
 ### Feito (Fase 2 — rascunho/publicar)
 

@@ -35,6 +35,9 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
   for (let i = 1; i <= MAX_LOGOS; i++) {
     const src = section?.images?.[`logo${i}Src`]
     if (!src) continue
+    // Ocultado no admin: o cadastro continua salvo (imagem, categoria, texto do
+    // card), só não vai pro ar. É o caso de marca sem autorização de uso ainda.
+    if (section?.texts?.[`logo${i}Hidden`] === '1') continue
     logos.push({
       src,
       name: section?.texts?.[`logo${i}Name`] || '',

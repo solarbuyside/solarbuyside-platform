@@ -1,12 +1,13 @@
 ﻿"use client";
 
 import * as React from "react";
-import { Check, Loader2, CircleAlert, Save, Plus, Trash2, ArrowUp, ArrowDown, Images } from "lucide-react";
+import { Check, Loader2, CircleAlert, Save, Plus, Trash2, ArrowUp, ArrowDown, Images, Eye, EyeOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LandingSection } from "@/lib/landing/content-admin";
 import { MAX_LOGOS } from "@/lib/landing/field-schema";
 import { saveLandingSectionAction } from "./actions";
+import { ImageField } from "./image-field";
 
 /**
  * Editor dos logos de "Apoiadores institucionais" (Francis, revisão 22-23/07).
@@ -20,22 +21,29 @@ import { saveLandingSectionAction } from "./actions";
  */
 
 type SaveState = "idle" | "saving" | "saved" | "error";
-type Logo = { src: string; name: string; cat: string; desc: string; url: string };
+type Logo = { src: string; name: string; cat: string; desc: string; url: string; hidden: boolean };
 
-const blank: Logo = { src: "", name: "", cat: "", desc: "", url: "" };
+const blank: Logo = { src: "", name: "", cat: "", desc: "", url: "", hidden: false };
 
 function parseLogos(section: LandingSection): Logo[] {
   const t = section.texts;
   const img = section.images;
   const logos: Logo[] = [];
   for (let i = 1; i <= MAX_LOGOS; i++) {
-    if (img[`logo${i}Src`] === undefined && t[`logo${i}Name`] === undefined) continue;
+    // Só entra quem tem conteúdo. O banco guarda slots vazios (`logo7Name: ""`)
+    // de salvamentos anteriores; listá-los enchia o editor de cards em branco.
+    const src = (img[`logo${i}Src`] ?? "").trim();
+    const name = (t[`logo${i}Name`] ?? "").trim();
+    if (!src && !name) continue;
     logos.push({
       src: img[`logo${i}Src`] ?? "",
       name: t[`logo${i}Name`] ?? "",
       cat: t[`logo${i}Cat`] ?? "",
       desc: t[`logo${i}Desc`] ?? "",
       url: t[`logo${i}Url`] ?? "",
+      // Logo guardado mas fora do ar. Serve pra quem ainda não autorizou o uso
+      // da marca, ou pra deixar pronto e ligar depois — sem perder o cadastro.
+      hidden: t[`logo${i}Hidden`] === "1",
     });
   }
   return logos;
@@ -56,7 +64,7 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
     [logos],
   );
 
-  const update = (i: number, key: keyof Logo, value: string) =>
+  const update = <K extends keyof Logo>(i: number, key: K, value: Logo[K]) =>
     setLogos((ls) => ls.map((l, idx) => (idx === i ? { ...l, [key]: value } : l)));
   const add = () => setLogos((ls) => [...ls, { ...blank }]);
   const remove = (i: number) => setLogos((ls) => ls.filter((_, idx) => idx !== i));
@@ -87,6 +95,7 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
             texts[`logo${i}Cat`] = l.cat.trim();
             texts[`logo${i}Desc`] = l.desc.trim();
             texts[`logo${i}Url`] = l.url.trim();
+            texts[`logo${i}Hidden`] = l.hidden ? "1" : "";
           });
         await saveLandingSectionAction("apoiadores", texts, images);
         onSaved?.();
@@ -107,7 +116,9 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
             Logos dos apoiadores
           </h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            {logos.length} logo(s). A ordem define a ordem das categorias na página.
+            {logos.filter((l) => !l.hidden).length} na página
+            {logos.some((l) => l.hidden) && `, ${logos.filter((l) => l.hidden).length} oculto(s)`}. A
+            ordem define a ordem das categorias.
           </p>
         </div>
         <SaveButton state={state} onClick={save} />
@@ -121,12 +132,44 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
 
       <div className="space-y-4 p-6">
         {logos.map((logo, i) => (
-          <div key={i} className="rounded-xl border border-slate-200 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <div
+            key={i}
+            className={cn(
+              "rounded-xl border p-4 transition-colors",
+              logo.hidden ? "border-slate-200 bg-slate-50/70" : "border-slate-200",
+            )}
+          >
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Logo {i + 1}
+                {logo.hidden && (
+                  <span className="rounded bg-slate-200 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500">
+                    Oculto
+                  </span>
+                )}
               </span>
               <div className="flex items-center gap-1">
+                {/* Ocultar em vez de remover: o cadastro fica salvo (imagem,
+                    categoria, texto do card) e some da página com um clique.
+                    É o caso de marca sem autorização de uso ainda. */}
+                <button
+                  onClick={() => update(i, "hidden", !logo.hidden)}
+                  aria-pressed={logo.hidden}
+                  className={cn(
+                    "inline-flex h-7 items-center gap-1 rounded-md px-2 text-[11px] font-bold transition-colors",
+                    logo.hidden
+                      ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                      : "text-slate-500 hover:bg-slate-100",
+                  )}
+                  title={
+                    logo.hidden
+                      ? "Está oculto — clique para exibir na página"
+                      : "Ocultar da página sem apagar o cadastro"
+                  }
+                >
+                  {logo.hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  {logo.hidden ? "Oculto" : "Exibindo"}
+                </button>
                 <IconBtn label="Subir" onClick={() => move(i, -1)} disabled={i === 0}>
                   <ArrowUp className="h-3.5 w-3.5" />
                 </IconBtn>
@@ -143,45 +186,35 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
-              <div className="flex items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-2">
-                {logo.src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logo.src} alt="" className="max-h-14 w-auto object-contain" />
-                ) : (
-                  <span className="text-[10px] text-slate-400">sem imagem</span>
-                )}
-              </div>
-              <div className="grid gap-3">
+            <div className={cn("grid gap-3", logo.hidden && "opacity-60")}>
+              <ImageField
+                value={logo.src}
+                onChange={(v) => update(i, "src", v)}
+                folder="apoiadores"
+                compact
+              />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Nome da empresa" value={logo.name} onChange={(v) => update(i, "name", v)} />
                 <Field
-                  label="Imagem (caminho)"
-                  value={logo.src}
-                  onChange={(v) => update(i, "src", v)}
-                  placeholder="/assets/apoiadores/nome-da-marca.png"
-                />
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Nome da empresa" value={logo.name} onChange={(v) => update(i, "name", v)} />
-                  <Field
-                    label="Categoria"
-                    value={logo.cat}
-                    onChange={(v) => update(i, "cat", v)}
-                    list="categorias-apoiadores"
-                    placeholder="Ex.: Fabricantes"
-                  />
-                </div>
-                <Field
-                  label="Texto do card (aparece ao passar o mouse)"
-                  value={logo.desc}
-                  onChange={(v) => update(i, "desc", v)}
-                  area
-                />
-                <Field
-                  label="Link do site (opcional)"
-                  value={logo.url}
-                  onChange={(v) => update(i, "url", v)}
-                  placeholder="https://exemplo.com.br"
+                  label="Categoria"
+                  value={logo.cat}
+                  onChange={(v) => update(i, "cat", v)}
+                  list="categorias-apoiadores"
+                  placeholder="Ex.: Fabricantes"
                 />
               </div>
+              <Field
+                label="Texto do card (aparece ao passar o mouse)"
+                value={logo.desc}
+                onChange={(v) => update(i, "desc", v)}
+                area
+              />
+              <Field
+                label="Link do site (opcional)"
+                value={logo.url}
+                onChange={(v) => update(i, "url", v)}
+                placeholder="https://exemplo.com.br"
+              />
             </div>
           </div>
         ))}
