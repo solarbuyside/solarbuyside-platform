@@ -4,6 +4,7 @@ import * as React from "react";
 import { Loader2, Upload, Trash2, Link2, ImageOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { previewSrc } from "@/lib/landing/preview-url";
 
 /**
  * Campo de imagem do editor da landing.
@@ -89,7 +90,7 @@ export function ImageField({
           {value && !broken ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={value}
+              src={previewSrc(value)}
               alt=""
               onError={() => setBrokenSrc(value)}
               className="h-full w-full object-contain"

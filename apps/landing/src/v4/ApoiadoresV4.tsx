@@ -31,6 +31,8 @@ export type Apoiador = {
   url: string
   /** Fora da faixa do topo, mas ainda na seção. Ver logoNBandOff. */
   bandOff: boolean
+  /** Posição na faixa. A faixa tem ordem PRÓPRIA — ver ApoiadoresBandV4. */
+  bandPos: number
 }
 
 const MAX_LOGOS = 30
@@ -61,6 +63,9 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
       // Link opcional para o site do apoiador. Vazio = o card não mostra link.
       url: section?.texts?.[`logo${i}Url`] || '',
       bandOff: section?.texts?.[`logo${i}BandOff`] === '1',
+      // Sem valor gravado, cai na posição da própria lista — que é como a
+      // faixa sempre se comportou, antes de ganhar ordem própria.
+      bandPos: Number(section?.texts?.[`logo${i}BandPos`]) || i,
     })
   }
   // Ordem das categorias = ordem de aparição na lista (o admin controla).
@@ -74,9 +79,10 @@ export const ApoiadoresBandV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
   const { logos: todos } = useApoiadores()
-  // A faixa tem seleção própria: o admin escolhe quais dos apoiadores sobem
-  // para cá, sem tirá-los da seção lá embaixo.
-  const logos = todos.filter((l) => !l.bandOff)
+  // A faixa tem seleção E ordem próprias: o admin escolhe quais apoiadores
+  // sobem para cá e em que sequência desfilam, sem mexer na seção lá embaixo —
+  // onde a ordem da lista é o que define o agrupamento por categoria.
+  const logos = todos.filter((l) => !l.bandOff).sort((a, b) => a.bandPos - b.bandPos)
   if (logos.length === 0) return null
 
   // Título da faixa (Francis, slide 2). O texto anterior ("Empresas líderes
