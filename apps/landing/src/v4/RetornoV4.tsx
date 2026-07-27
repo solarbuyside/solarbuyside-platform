@@ -2,7 +2,7 @@ import React from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { DarkBackdrop, Kicker, Reveal } from './atoms'
+import { GrainOverlay, Kicker, Reveal } from './atoms'
 
 /* RETORNO (Francis, revisão 27/07: nova seção "O verdadeiro retorno do Método
    Solar Buy-Side", entre os resultados do Manual estratégico e o depoimento
@@ -79,7 +79,13 @@ export const RetornoV4: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#0b0907] to-[#07090d] text-slate-100">
-      <DarkBackdrop orbs="orange" />
+      {/* Brilho no MEIO da seção, nunca encostado na borda: o DarkBackdrop
+          punha o orbe em -top-[15%] e o overflow-hidden cortava o blur numa
+          linha reta, marcando a emenda com a seção de cima (Gabriel, 27/07). */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute right-[-8%] top-[32%] h-[480px] w-[480px] rounded-full bg-orange-500/[0.06] blur-[130px]" />
+        <GrainOverlay />
+      </div>
 
       {/* pb-44: a próxima seção (paper) sobrepõe este ato com um arco */}
       <div className="relative mx-auto max-w-5xl px-6 py-24 pb-44 md:py-32 md:pb-44">
