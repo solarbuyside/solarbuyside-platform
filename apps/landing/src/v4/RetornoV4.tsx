@@ -1,4 +1,5 @@
 import React from 'react'
+import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { DarkBackdrop, Kicker, Reveal } from './atoms'
@@ -7,13 +8,19 @@ import { DarkBackdrop, Kicker, Reveal } from './atoms'
    Solar Buy-Side", entre os resultados do Manual estratégico e o depoimento
    do Rodrigo).
 
-   Os textos são os do slide. O visual segue o ato escuro que a seção fecha:
-   a projeção é apresentada como uma tabela comparativa de três colunas em que
-   a coluna Buy-Side fica acesa (tinta laranja + valores em peso cheio) — o
-   mesmo contraste apagado/aceso da comparação "hoje × depois" da seção
-   Transformação, adaptado à paleta escura. No celular o cabeçalho some e cada
-   linha vira: cenário em cima, os dois valores lado a lado embaixo, com uma
-   mini-etiqueta de coluna por célula.
+   Os textos são os do slide; a encenação é em três tempos:
+   1. O NÚMERO é a história: a taxa de fechamento vira o protagonista, num
+      "de 20% → para 25 a 30%" gigante em Sora, do apagado ao gradiente
+      laranja, com um fio-seta ligando os dois. Nada de tabela genérica
+      escondendo o dado que importa.
+   2. A conta inteira vem numa lista editorial com hairlines — a mesma
+      anatomia das listas do Manual (número mono apagado + fio inferior),
+      sem caixa em volta: coluna Tradicional apagada, coluna Buy-Side acesa,
+      e a última linha (os sistemas adicionais no ano) fecha em gradiente.
+   3. O "E tem mais" é uma pull-quote em serif âmbar, a assinatura do ato.
+
+   No celular o cabeçalho de colunas some e cada linha vira: cenário em cima,
+   os dois valores lado a lado embaixo, com mini-etiqueta por valor.
 
    Esta seção herda o pb-44 que era do Manual estratégico: é sobre ELA que o
    ato "paper" (depoimento do Rodrigo) sobrepõe o arco de -mt-20. */
@@ -42,6 +49,13 @@ export const RetornoV4: React.FC = () => {
   const outro =
     section?.texts.outro ||
     '<span class="cms-orange">E tem mais:</span> ao aplicar o Método Buy-Side em vendas consultivas B2B, você amplia sua capacidade de conquistar projetos de maior porte, aumentando seu potencial de faturamento e lucro.'
+
+  /* O número em destaque (a taxa de fechamento amplificada). */
+  const statLabel = section?.texts.statLabel || 'Taxa média de fechamento'
+  const statFrom = section?.texts.statFrom || '20%'
+  const statFromTag = section?.texts.statFromTag || 'Hoje'
+  const statTo = section?.texts.statTo || '25 a 30%'
+  const statToTag = section?.texts.statToTag || 'Com o método'
 
   const colScenario = section?.texts.colScenario || 'Cenário'
   const colTrad = section?.texts.colTrad || 'Método Tradicional'
@@ -85,68 +99,119 @@ export const RetornoV4: React.FC = () => {
           </p>
         </Reveal>
 
-        <Reveal delay={230}>
+        {/* ── O número é a história: de 20% → para 25 a 30% ─────────────── */}
+        <Reveal delay={240}>
+          <div className="mt-16 border-y border-white/[0.08] py-10 md:py-12">
+            <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">
+              {statLabel}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 md:gap-x-10">
+              {/* hoje: apagado */}
+              <div>
+                <p className="font-['Sora'] text-[clamp(2.4rem,5.5vw,4.2rem)] font-extrabold leading-none tracking-tight text-slate-600">
+                  {statFrom}
+                </p>
+                <p className="v4-mono mt-2.5 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">
+                  {statFromTag}
+                </p>
+              </div>
+
+              {/* fio-seta: do cinza ao laranja, na direção da virada */}
+              <div className="flex min-w-[56px] flex-1 items-center" aria-hidden>
+                <span className="h-px w-full bg-gradient-to-r from-white/[0.08] via-orange-500/40 to-orange-500" />
+                <ArrowRight size={22} className="-ml-2 shrink-0 text-orange-500" strokeWidth={2.5} />
+              </div>
+
+              {/* com o método: aceso, maior */}
+              <div>
+                <p className="v4-grad-text font-['Sora'] text-[clamp(3rem,7.5vw,5.6rem)] font-extrabold leading-none tracking-tight">
+                  {statTo}
+                </p>
+                <p className="v4-mono mt-2.5 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-400">
+                  {statToTag}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
           <h3 className="mt-16 max-w-3xl font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">
             {section?.texts.tableTitle || 'Veja o impacto real considerando uma base de 20 propostas por mês:'}
           </h3>
         </Reveal>
 
-        {/* Tabela: coluna Buy-Side acesa (tinta + borda laranja, valor cheio),
-            Tradicional apagada — o olho lê a direção da virada sozinho. */}
-        <Reveal delay={280}>
-          <div className="mt-8 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02]">
-            {/* Cabeçalho das colunas (desktop) */}
-            <div className="hidden border-b border-white/[0.08] bg-white/[0.02] md:grid md:grid-cols-[1.35fr_1fr_1.35fr]">
-              <p className="v4-mono px-7 py-4 text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">
+        {/* ── A conta, linha a linha: Tradicional apagado, Buy-Side aceso ──
+            Mesma anatomia das listas do Manual: número mono + hairline. */}
+        <div className="mt-4">
+          {/* Cabeçalho das colunas (desktop) */}
+          <Reveal delay={160}>
+            <div className="hidden border-b border-white/[0.08] pb-4 md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)] md:gap-x-8">
+              <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-600">
                 {colScenario}
               </p>
-              <p className="v4-mono border-l border-white/[0.06] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
+              <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-slate-500">
                 {colTrad}
               </p>
-              <div className="flex items-center gap-2.5 border-l border-orange-500/20 bg-orange-500/[0.06] px-7 py-4">
+              <div className="flex items-center gap-2.5">
                 <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-orange-400">{colBuy}</p>
                 {colBuyTag.trim() && (
-                  <span className="v4-mono rounded-full border border-orange-500/25 bg-orange-500/10 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-orange-300">
+                  <span className="v4-mono rounded-full border border-orange-500/25 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-orange-400/80">
                     {colBuyTag}
                   </span>
                 )}
               </div>
             </div>
+          </Reveal>
 
-            {linhas.map(([label, trad, buy], i) => (
-              <div
-                key={i}
-                className="grid grid-cols-2 border-b border-white/[0.06] transition-colors last:border-b-0 hover:bg-white/[0.02] md:grid-cols-[1.35fr_1fr_1.35fr]"
-              >
-                <p className="col-span-2 px-5 pt-5 text-[15px] font-semibold leading-snug text-slate-200 md:col-span-1 md:flex md:items-center md:px-7 md:py-5 md:text-base">
-                  {label}
-                </p>
+          {linhas.map(([label, trad, buy], i) => {
+            const ultima = i === linhas.length - 1
+            return (
+              <Reveal key={i} delay={200 + i * 70}>
+                <div className="group grid grid-cols-2 items-center gap-x-4 border-b border-white/[0.08] py-6 transition-transform duration-500 hover:translate-x-1 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)] md:gap-x-8 md:py-7">
+                  {/* cenário, com o número-índice mono das listas do ato */}
+                  <div className="col-span-2 mb-3 grid grid-cols-[40px_1fr] items-center gap-4 md:col-span-1 md:mb-0 md:grid-cols-[48px_1fr] md:gap-5">
+                    <span className="v4-mono text-xl font-bold leading-none text-white/25" aria-hidden>
+                      {`0${i + 1}`}
+                    </span>
+                    <h4 className="text-base font-semibold leading-snug text-slate-200 md:text-lg">{label}</h4>
+                  </div>
 
-                <div className="px-5 pb-5 pt-3 md:flex md:flex-col md:justify-center md:border-l md:border-white/[0.06] md:px-7 md:py-5">
-                  <p className="v4-mono mb-1 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-600 md:hidden">
-                    {colTrad}
-                  </p>
-                  <p className="v4-mono text-[15px] text-slate-400 md:text-base">{trad}</p>
+                  {/* tradicional: apagado */}
+                  <div className="pl-[56px] md:pl-0">
+                    <p className="v4-mono mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-600 md:hidden">
+                      {colTrad}
+                    </p>
+                    <p className="font-['Sora'] text-xl font-bold leading-tight tracking-tight text-slate-600 md:text-2xl">
+                      {trad}
+                    </p>
+                  </div>
+
+                  {/* Buy-Side: aceso; a última linha fecha em gradiente */}
+                  <div>
+                    <p className="v4-mono mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-500/70 md:hidden">
+                      {colBuy}
+                    </p>
+                    <p
+                      className={`font-['Sora'] text-xl font-extrabold leading-tight tracking-tight md:text-2xl ${
+                        ultima ? 'v4-grad-text' : 'text-white'
+                      }`}
+                    >
+                      {buy}
+                    </p>
+                  </div>
                 </div>
+              </Reveal>
+            )
+          })}
+        </div>
 
-                <div className="bg-orange-500/[0.04] px-5 pb-5 pt-3 md:flex md:flex-col md:justify-center md:border-l md:border-orange-500/20 md:bg-orange-500/[0.06] md:px-7 md:py-5">
-                  <p className="v4-mono mb-1 text-[9px] font-bold uppercase tracking-[0.2em] text-orange-500/70 md:hidden">
-                    {colBuy}
-                  </p>
-                  <p className="v4-mono text-[15px] font-bold text-white md:text-base">{buy}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-
-        {/* Fechamento: a mesma caixa de destaque dos depoimentos, em tinta escura */}
-        <Reveal delay={320}>
-          <div className="mt-12 max-w-3xl rounded-r-2xl border-l-4 border-orange-500 bg-white/[0.03] p-6 md:p-7">
-            <p className="text-lg font-semibold leading-relaxed text-white md:text-xl">
-              <CMSText value={outro} />
-            </p>
-          </div>
+        {/* ── Fechamento: pull-quote em serif, a assinatura do ato ─────── */}
+        <Reveal delay={200}>
+          <p className="v4-serif mt-14 max-w-3xl border-l-2 border-orange-500 pl-6 text-2xl leading-snug text-amber-200/90 md:text-[1.75rem]">
+            <CMSText value={outro} />
+          </p>
         </Reveal>
       </div>
     </section>

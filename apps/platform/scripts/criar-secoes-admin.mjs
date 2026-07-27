@@ -125,6 +125,11 @@ const RETORNO = {
     title: 'O <span class="cms-orange">verdadeiro retorno</span> do Método Solar Buy-Side',
     intro:
       'Com base em cinco anos de pesquisa de campo, estimamos que vendedores que apliquem o Método Solar Buy-Side possam elevar sua taxa média atual de fechamento de <span class="cms-bold">20% para 25% a 30%</span>, conforme sua capacidade de execução e isso sem aumentar o número de propostas apresentadas.',
+    statLabel: 'Taxa média de fechamento',
+    statFrom: '20%',
+    statFromTag: 'Hoje',
+    statTo: '25 a 30%',
+    statToTag: 'Com o método',
     tableTitle: 'Veja o impacto real considerando uma base de 20 propostas por mês:',
     colScenario: 'Cenário',
     colTrad: 'Método Tradicional',

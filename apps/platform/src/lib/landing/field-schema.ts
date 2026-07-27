@@ -586,6 +586,17 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
+        // O "de 20% → para 25 a 30%" gigante entre o parágrafo e a tabela.
+        label: "Número em destaque",
+        fields: [
+          t("statLabel", "Rótulo acima do número", { maxLength: 40 }),
+          t("statFrom", "Número da esquerda (hoje)", { maxLength: 12 }),
+          t("statFromTag", "Etiqueta da esquerda", { maxLength: 30 }),
+          t("statTo", "Número da direita (com o método)", { maxLength: 16 }),
+          t("statToTag", "Etiqueta da direita", { maxLength: 30 }),
+        ],
+      },
+      {
         label: "Tabela de impacto",
         fields: [
           t("tableTitle", "Título da tabela"),
