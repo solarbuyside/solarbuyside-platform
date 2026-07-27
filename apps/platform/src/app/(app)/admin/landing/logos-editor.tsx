@@ -219,13 +219,23 @@ export function LogosEditor({ section, onSaved }: { section: LandingSection; onS
           </div>
         ))}
 
-        <button
-          onClick={add}
-          className="inline-flex h-10 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 text-sm font-bold text-primary transition-all hover:bg-primary/10"
-        >
-          <Plus className="h-4 w-4" />
-          Adicionar logo
-        </button>
+        {/* Trava no MAX_LOGOS: a landing lê logo1…logo30, então um logo 31
+            seria salvo no banco e nunca apareceria na página. */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={add}
+            disabled={logos.length >= MAX_LOGOS}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-4 text-sm font-bold text-primary transition-all hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400"
+          >
+            <Plus className="h-4 w-4" />
+            Adicionar logo
+          </button>
+          {logos.length >= MAX_LOGOS && (
+            <span className="text-[11px] text-slate-500">
+              Limite de {MAX_LOGOS} logos. Remova ou oculte um para adicionar outro.
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
