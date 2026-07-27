@@ -78,6 +78,19 @@ const SECTION_ANCHOR: Record<string, string> = {
   faq: "faq",
 };
 
+/**
+ * JSON com as chaves ordenadas. Comparar objetos de conteúdo com
+ * JSON.stringify cru dá falso positivo: o jsonb volta do Postgres numa ordem
+ * diferente da que foi gravada.
+ */
+function stableStringify(value: unknown): string {
+  return JSON.stringify(value, (_k, v) =>
+    v && typeof v === "object" && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v as Record<string, unknown>).sort(([a], [b]) => a.localeCompare(b)))
+      : v,
+  );
+}
+
 // Nas seções buyer-wave os campos testimonial* são editados na aba "Depoimentos".
 const isTestimonialKey = (k: string) => /^testimonial\d+/.test(k);
 
@@ -211,22 +224,25 @@ export function LandingEditor({
     [drafts, selectedId],
   );
 
-  // Snapshot original p/ detectar alterações não salvas.
-  const originals = React.useMemo(
-    () => JSON.stringify(Object.fromEntries(sections.map((s) => [s.sectionId, { texts: s.texts, images: s.images }]))),
-    [sections],
+  /**
+   * Referência do "já salvo", POR SEÇÃO.
+   *
+   * Antes isto era comparado com as props do servidor. Só que salvar não
+   * recarrega as props, então bastava editar e salvar uma vez para o aviso de
+   * "alterações não salvas" ficar armado para sempre — e o navegador
+   * perguntava "Sair do site?" mesmo com tudo publicado.
+   *
+   * As chaves são ordenadas antes de comparar: o jsonb volta do Postgres em
+   * outra ordem, e JSON.stringify cru acusaria diferença onde não há.
+   */
+  const [baselines, setBaselines] = React.useState<Record<string, string>>(() =>
+    Object.fromEntries(sections.map((s) => [s.sectionId, stableStringify({ texts: s.texts, images: s.images })])),
   );
-  const dirty = React.useMemo(() => JSON.stringify(drafts) !== originals, [drafts, originals]);
 
-  React.useEffect(() => {
-    if (!dirty) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
+  const dirty = React.useMemo(
+    () => Object.entries(drafts).some(([id, d]) => stableStringify(d) !== baselines[id]),
+    [drafts, baselines],
+  );
 
   const [state, setState] = React.useState<SaveState>("idle");
   const [pending, start] = React.useTransition();
@@ -239,6 +255,18 @@ export function LandingEditor({
   const [publishState, setPublishState] = React.useState<SaveState>("idle");
   const [publishPending, startPublish] = React.useTransition();
   const pendingTotal = localPending.size + (globalsDirty ? 1 : 0);
+
+  React.useEffect(() => {
+    // Durante o Publicar não faz sentido travar: o conteúdo já está no banco.
+    if (!dirty || publishPending) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty, publishPending]);
+
 
   function publish() {
     if (!window.confirm("Publicar as alterações na landing page ao vivo?")) return;
@@ -313,6 +341,8 @@ export function LandingEditor({
           pruneUntouched(draft.texts, selected?.texts ?? {}),
           pruneUntouched(draft.images, selected?.images ?? {}),
         );
+        // O que está na tela passa a ser o "já salvo" desta seção.
+        setBaselines((b) => ({ ...b, [selectedId]: stableStringify(draft) }));
         setLocalPending((p) => new Set(p).add(selectedId));
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
