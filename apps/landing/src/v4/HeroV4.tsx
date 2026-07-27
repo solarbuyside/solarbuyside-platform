@@ -162,7 +162,7 @@ export const HeroV4: React.FC = () => {
       {/* A máscara circular é ancorada pela BASE deste bloco, que coincide com
           a base do Hero — por isso ela consegue reproduzir o mesmo círculo do
           disco sem tirar a faixa do fluxo. Ver .v4-band-sphere-mask. */}
-      <div className="v4-band-sphere-mask relative z-10 w-full pb-[7vh] md:pb-[3vh]">
+      <div className="v4-band-sphere-mask relative z-10 w-full pb-[3vh] md:pb-[3vh]">
         <ApoiadoresBandV4 compact />
       </div>
 
