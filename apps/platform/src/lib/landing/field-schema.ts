@@ -57,11 +57,16 @@ export type SectionSchema = {
   /** Chaves legadas/duplicadas a ocultar do editor (não viram "Outros campos"). */
   hiddenKeys?: string[];
   /**
-   * Seção que NÃO é mais renderizada na LP oficial ("/") — só sobrevive na /1,
-   * a cópia-salvaguarda da LP completa (remoções pedidas pelo Francis em
-   * 2026-07-22). Continua editável de propósito: se ele voltar atrás, o
-   * conteúdo está lá. O editor marca essas com um selo "V1" para ninguém
-   * editar achando que muda a LP oficial.
+   * Seção ARQUIVADA: não é renderizada em nenhuma página.
+   *
+   * Ela saiu da LP oficial ("/") nas remoções do Francis em 2026-07-22 e
+   * sobrevivia na /1. Só que a /1 virou salvaguarda de verdade — conteúdo
+   * congelado em `apps/landing/src/v4-full/content-snapshot.json`, fora do
+   * banco. Logo, editar estas seções aqui não muda mais nada em lugar nenhum.
+   *
+   * Continuam no manifesto (e no banco) de propósito: se um dia a seção voltar
+   * para a LP, o conteúdo está lá. O editor as separa numa gaveta "Arquivadas",
+   * fechada por padrão, com aviso explícito.
    */
   onlyOnV1?: boolean;
 };
@@ -91,6 +96,7 @@ const LOGO_KEYS = Array.from({ length: MAX_LOGOS }, (_, i) => i + 1).flatMap((i)
   `logo${i}Name`,
   `logo${i}Desc`,
   `logo${i}Cat`,
+  `logo${i}Hidden`,
 ]);
 
 export const LANDING_SCHEMA: Record<string, SectionSchema> = {
@@ -141,7 +147,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   context: {
     label: "Contexto / Panorama",
-    order: 1,
+    order: 2,
     groups: [
       {
         label: "Topo",
@@ -188,7 +194,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   video: {
     label: "Vídeo",
-    order: 2,
+    order: 3,
     groups: [
       {
         label: "Faixa de alerta",
@@ -204,6 +210,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("videoBadge", "Vídeo — selo", { maxLength: 40 }),
           t("videoTitle", "Vídeo — título"),
           t("videoDuration", "Duração", { maxLength: 20 }),
+          img("videoPoster", "Capa do vídeo", {
+            help: "Imagem que aparece antes de o vídeo começar.",
+          }),
         ],
       },
       {
@@ -241,7 +250,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   apoiadores: {
     label: "Apoiadores institucionais",
     // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
-    order: 6.5,
+    order: 10,
     groups: [
       {
         label: "Seção",
@@ -266,7 +275,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   audience: {
     label: "Público (para quem é)",
-    order: 3,
+    order: 6,
     groups: [
       {
         label: "Topo",
@@ -330,7 +339,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "manual-strategic": {
     label: "Manual estratégico",
-    order: 4,
+    order: 7,
     groups: [
       {
         // Francis, slide 11: "criar este título da seção MANUAL ESTRATÉGICO".
@@ -351,7 +360,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("description2", "Parágrafo 2"),
           ml("description3", "Parágrafo 3"),
           t("ctaButton", "Botão (CTA)", { maxLength: 40 }),
-          img("manual", "Imagem do manual"),
+          // A LP lê `manualImage`. O campo apontava para `manual`, chave que
+          // ninguém lê: trocar a capa pelo admin não surtia efeito nenhum.
+          img("manualImage", "Imagem do manual (capa)", {
+            help: "Capa que aparece ao lado do texto do Manual.",
+          }),
         ],
       },
       {
@@ -376,6 +389,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("codeItem4", "Lista — item 4"),
           ml("codeItem5", "Lista — item 5", { help: "Deixe vazio para não exibir." }),
           ml("codeItem6", "Lista — item 6", { help: "Deixe vazio para não exibir." }),
+          img("codeImage", "Imagem do Código (capa)", {
+            help: "Capa que aparece ao lado do bloco do Código do Vendedor.",
+          }),
         ],
       },
       {
@@ -412,12 +428,15 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
+    // `manual`: chave antiga da capa, substituída por `manualImage` (a que a LP
+    // realmente lê). Continua no banco, mas não é mais oferecida no editor.
+    hiddenKeys: ["manual"],
   },
 
   plataforma: {
     label: "Plataforma de avaliação",
     // Revisão 25/07: trocou de lugar com o depoimento do Rodrigo (slide 15).
-    order: 6,
+    order: 9,
     groups: [
       {
         label: "Topo",
@@ -455,7 +474,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // selo girando e com foto retangular. Entra logo depois do vídeo.
   "testimonial-lucas": {
     label: "Depoimento do Lucas",
-    order: 2.6,
+    order: 4,
     groups: [
       {
         label: "Cabeçalho",
@@ -494,7 +513,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // Transformação (Francis, slide 8). Textos dele, visual redesenhado.
   transformacao: {
     label: "Transformação",
-    order: 2.8,
+    order: 5,
     groups: [
       {
         label: "Topo",
@@ -534,7 +553,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   testimonials: {
     label: "Depoimento do Rodrigo",
     // Revisão 25/07: trocou de lugar com a Plataforma (slide 14).
-    order: 5,
+    order: 8,
     groups: [
       {
         label: "Cabeçalho",
@@ -575,7 +594,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "story-bridge": {
     label: "Ponte / Narrativa",
-    order: 7,
+    order: 90,
     onlyOnV1: true,
     groups: [
       {
@@ -605,7 +624,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "seller-code": {
     label: "Código do vendedor (bônus)",
-    order: 8,
+    order: 91,
     onlyOnV1: true,
     groups: [
       {
@@ -653,7 +672,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Autoridade (autores)",
     // Revisão 25/07 (slide 3): a seção subiu para logo depois da faixa de
     // logos, e passou a levar o primeiro botão da página.
-    order: 0.5,
+    order: 1,
     groups: [
       {
         label: "Topo",
@@ -706,7 +725,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   pricing: {
     label: "Oferta / Preço",
-    order: 9,
+    order: 11,
     groups: [
       {
         label: "Cabeçalho",
@@ -800,28 +819,39 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           }),
         ],
       },
-      {
-        label: "Selos de pagamento (imagens)",
-        fields: [
-          img("guarantee", "Selo de garantia"),
-          img("visa", "Visa"),
-          img("mastercard", "Mastercard"),
-          img("pix", "Pix"),
-          img("boleto", "Boleto"),
-          img("securePurchase", "Compra segura"),
-        ],
-      },
     ],
     // feature1Desc/bonusBadge existem no banco mas a LP não usa (bonusBadge
     // nunca foi lido; feature1Desc é resquício do fallback card1Desc).
     // promoUrl/promoCtaLabel: o botão "Clique aqui" saiu do bloco da promo em
     // 2026-07-26. As chaves continuam no banco, mas a LP não lê mais.
-    hiddenKeys: ["feature1Desc", "bonusBadge", "promoUrl", "promoCtaLabel"],
+    // Selos de pagamento (guarantee/visa/mastercard/pix/boleto/securePurchase):
+    // herança da LP v1. Nenhum componente do v4 lê — eram 6 campos de upload
+    // que não mudavam nada na página. Auditoria de 2026-07-27.
+    // feature1Title/bonusTitle/bonusSubtitle/manualImage/codeImage: a LP só usa
+    // como FALLBACK de card1Title/card2Title/card1Image/card2Image, que já têm
+    // campo próprio aqui. Expor os dois daria duas caixas para o mesmo texto.
+    hiddenKeys: [
+      "feature1Desc",
+      "feature1Title",
+      "bonusTitle",
+      "bonusSubtitle",
+      "manualImage",
+      "codeImage",
+      "bonusBadge",
+      "promoUrl",
+      "promoCtaLabel",
+      "guarantee",
+      "visa",
+      "mastercard",
+      "pix",
+      "boleto",
+      "securePurchase",
+    ],
   },
 
   "buyer-wave": {
     label: "Onda do comprador",
-    order: 10,
+    order: 92,
     onlyOnV1: true,
     groups: [
       {
@@ -865,7 +895,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "lead-magnet": {
     label: "Isca (ebook)",
-    order: 12,
+    order: 93,
     onlyOnV1: true,
     groups: [
       {
@@ -903,7 +933,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   faq: {
     label: "Perguntas frequentes",
-    order: 13,
+    order: 12,
     groups: [
       {
         label: "Cabeçalho",
@@ -937,7 +967,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   newsletter: {
     label: "Newsletter",
-    order: 14,
+    order: 94,
     onlyOnV1: true,
     groups: [
       {
@@ -957,7 +987,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   contact: {
     label: "Contato / Rodapé",
-    order: 15,
+    order: 13,
     groups: [
       {
         label: "Cabeçalho",
@@ -1084,21 +1114,23 @@ export function buildSectionGroups(
   const groups: GroupDef[] = [];
 
   if (schema) {
-    // Editor espelha o banco: mostra só os campos cujo conteúdo existe no banco.
-    // (O banco é populado com o conteúdo atual da LP — ver migration de fill.)
+    // Todo campo do manifesto aparece, esteja ou não no banco.
+    //
+    // Antes o editor filtrava pelos campos já presentes no banco, e o efeito
+    // era grave: chave que a LP lê mas que nunca foi gravada ficava INVISÍVEL
+    // no painel, ou seja, não dava para preencher pela primeira vez. Era o caso
+    // de `pricing.promoTitle` (o liga/desliga da promo), de
+    // `manual-strategic.manualImage` (a capa do manual) e de `video.videoPoster`.
+    //
+    // O par disto está no editor: campo que continua vazio e não existia no
+    // banco NÃO é gravado, senão o primeiro "Salvar" escreveria "" por cima e
+    // apagaria o texto que hoje vem do ContentData da landing.
     for (const g of schema.groups) {
-      const fields = g.fields.filter((f) => {
-        if (isComposite(f)) {
-          const partKeys = f.parts.map((p) => p.key);
-          const exists = partKeys.some((k) => textKeys.includes(k));
-          if (exists) partKeys.forEach((k) => known.add(k));
-          return exists;
-        }
-        const exists = f.type === "image" ? imageKeys.includes(f.key) : textKeys.includes(f.key);
-        if (exists) known.add(f.key);
-        return exists;
-      });
-      if (fields.length) groups.push({ label: g.label, fields });
+      for (const f of g.fields) {
+        if (isComposite(f)) f.parts.forEach((p) => known.add(p.key));
+        else known.add(f.key);
+      }
+      if (g.fields.length) groups.push({ label: g.label, fields: g.fields });
     }
   }
 

@@ -50,3 +50,6 @@ ajustes/*.docx
 ajustes/~$*
 ajustes/extracted/
 ajustes/xlsx/
+
+# Backup de linha do CMS gerado por scripts/restaurar-logos-ocultos.mjs
+apps/platform/scripts/.backup-*.json

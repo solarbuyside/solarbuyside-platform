@@ -20,6 +20,8 @@ import {
   X,
   Quote,
   Rocket,
+  Archive,
+  ChevronDown,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -36,21 +38,32 @@ import { saveLandingSectionAction, saveLandingGlobalAction, publishLandingAction
 import { TestimonialsEditor } from "./testimonials-editor";
 import { LogosEditor } from "./logos-editor";
 import { RichTextEditor } from "./rich-text";
+import { ImageField } from "./image-field";
 
 const TESTIMONIALS_VIEW = "__testimonials__";
 const LOGOS_VIEW = "__logos__";
 
-// O editor alimenta o redesign v4 (Solar Dawn), que vive em /v4 enquanto a raiz
-// segue na LP oficial atual. Preview precisa apontar pro v4.
-const LP_URL = "https://solarbuyside.com.br/v4";
+// A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
+// render por causa do default do roteador, mas apontar pra raiz é o correto.)
+const LP_URL = "https://solarbuyside.com.br/";
 
 // section_id -> âncora (id) na landing, para o scroll do preview.
+// Espelha os `<div id="...">` de apps/landing/src/v4/AppV4.tsx.
 const SECTION_ANCHOR: Record<string, string> = {
+  hero: "hero",
+  authority: "authority",
   context: "contexto",
-  video: "video-section",
+  // O vídeo é renderizado DENTRO do Panorama (ContextV4), não tem âncora própria.
+  video: "contexto",
+  "testimonial-lucas": "depoimento-lucas",
+  transformacao: "transformacao",
   audience: "audiencia",
+  "manual-strategic": "manual-strategic",
   testimonials: "depoimentos",
+  plataforma: "plataforma",
+  apoiadores: "apoiadores",
   pricing: "oferta",
+  faq: "faq",
 };
 
 // Nas seções buyer-wave os campos testimonial* são editados na aba "Depoimentos".
@@ -61,11 +74,16 @@ type Draft = { texts: Record<string, string>; images: Record<string, string> };
 type Mode = "edit" | "preview";
 type Device = "default" | "mobile" | "desktop";
 
-const GLOBAL_FIELDS: { key: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const GLOBAL_FIELDS: {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  image?: boolean;
+}[] = [
   { key: "purchaseLink", label: "Link da venda (checkout Greenn)", icon: Link2 },
   { key: "whatsappNumber", label: "WhatsApp", icon: MessageCircle },
-  { key: "logo", label: "Logo (URL)", icon: ImageIcon },
-  { key: "favicon", label: "Favicon (URL)", icon: ImageIcon },
+  { key: "logo", label: "Logo", icon: ImageIcon, image: true },
+  { key: "favicon", label: "Favicon (ícone da aba)", icon: ImageIcon, image: true },
 ];
 
 export function LandingEditor({
@@ -95,6 +113,18 @@ export function LandingEditor({
       ),
     [rawSections, meta],
   );
+  // A lista principal mostra só o que a LP realmente renderiza, na ordem em que
+  // aparece na página. As arquivadas (que não estão em nenhuma página desde que
+  // a /1 virou snapshot congelado) vão pra uma gaveta fechada no fim.
+  const liveSections = React.useMemo(
+    () => sections.filter((s) => !meta.get(s.sectionId)?.onlyOnV1),
+    [sections, meta],
+  );
+  const archivedSections = React.useMemo(
+    () => sections.filter((s) => meta.get(s.sectionId)?.onlyOnV1),
+    [sections, meta],
+  );
+  const [showArchived, setShowArchived] = React.useState(false);
   const buyerWave = rawSections.find((s) => s.sectionId === "buyer-wave");
   const apoiadores = rawSections.find((s) => s.sectionId === "apoiadores");
 
@@ -172,17 +202,50 @@ export function LandingEditor({
     return () => window.clearTimeout(id);
   }, [mode, selectedId, iframeKey, device]);
 
+  // Chaves que o usuário realmente mexeu nesta sessão. Ver pruneUntouched: é o
+  // que distingue "campo que ele esvaziou de propósito" de "campo que nasceu
+  // vazio porque o manifesto declara e o banco nunca teve".
+  const [touched, setTouched] = React.useState<Set<string>>(() => new Set());
+  const markTouched = (k: string) => setTouched((t) => (t.has(k) ? t : new Set(t).add(k)));
+
   function setText(k: string, v: string) {
+    markTouched(k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
   }
   function setImage(k: string, v: string) {
+    markTouched(k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], images: { ...d[selectedId].images, [k]: v } } }));
   }
+  /**
+   * Grava só o que existe no banco ou o que ele realmente mexeu.
+   *
+   * O manifesto mostra campos que a LP lê mas que nunca foram gravados (a capa
+   * do manual, o liga/desliga da promo). Se o primeiro "Salvar" escrevesse ""
+   * em todos, o banco passaria a vencer o ContentData da landing com vazio e o
+   * conteúdo sumiria da página sem ninguém ter pedido.
+   *
+   * O critério é INTENÇÃO, não "está vazio": um campo que ele abriu, digitou e
+   * depois limpou precisa ir para o banco como "" — é assim que se desliga o
+   * bloco da promo Belenergy, cuja chave ainda não existe lá.
+   */
+  function pruneUntouched(next: Record<string, string>, original: Record<string, string>) {
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(next)) {
+      if (!(k in original) && !touched.has(k)) continue;
+      out[k] = v;
+    }
+    return out;
+  }
+
   function saveSection() {
     setState("saving");
     start(async () => {
       try {
-        await saveLandingSectionAction(selectedId, draft.texts, draft.images);
+        await saveLandingSectionAction(
+          selectedId,
+          pruneUntouched(draft.texts, selected?.texts ?? {}),
+          pruneUntouched(draft.images, selected?.images ?? {}),
+        );
         setLocalPending((p) => new Set(p).add(selectedId));
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
@@ -234,100 +297,86 @@ export function LandingEditor({
       <div className="space-y-4 lg:col-span-1">
         <GlobalsCard globals={globals} onSaved={() => setGlobalsDirty(true)} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-3 text-sm font-bold text-slate-800">
-            Seções ({sections.length})
+          <div className="border-b border-slate-100 px-5 py-3">
+            <p className="text-sm font-bold text-slate-800">Seções da landing</p>
+            <p className="mt-0.5 text-[11px] leading-snug text-slate-400">
+              Na mesma ordem em que aparecem no site, de cima para baixo.
+            </p>
           </div>
-          {/* Legenda do selo V1 — só aparece se houver seção fora da LP oficial. */}
-          {sections.some((s) => meta.get(s.sectionId)?.onlyOnV1) && (
-            <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-2 text-[11px] leading-snug text-slate-500">
-              <span className="mr-1 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500">
-                V1
-              </span>
-              Seção que saiu da LP oficial e hoje só aparece em{" "}
-              <span className="font-semibold">solarbuyside.com.br/1</span>. Editar aqui não altera a
-              LP principal — fica guardada caso queira voltar atrás.
-            </div>
-          )}
           <div className="max-h-[460px] overflow-y-auto p-2">
-            {sections.map((s) => {
-              const count = Object.keys(drafts[s.sectionId]?.texts ?? {}).length;
-              const active = s.sectionId === selectedId;
-              // "Depoimentos (cards)" edita os cards do carrossel (parte da
-              // seção buyer-wave). Renderiza junto da buyer-wave p/ a lista
-              // seguir exatamente a ordem da LP, em vez de fixado no topo.
-              const cardsBtn =
-                s.sectionId === "buyer-wave" && buyerWave ? (
-                  <button
-                    onClick={() => setSelectedId(TESTIMONIALS_VIEW)}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                      selectedId === TESTIMONIALS_VIEW ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
-                    )}
-                  >
-                    <Quote className="h-3.5 w-3.5 shrink-0" />
-                    Depoimentos (cards)
-                    <span
-                      className="shrink-0 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500"
-                      title="Só aparece na LP /1 (cópia de salvaguarda). Editar aqui NÃO altera a LP oficial."
-                    >
-                      V1
-                    </span>
-                  </button>
-                ) : null;
-              // "Logos dos apoiadores": editor próprio (imagem + categoria +
-              // texto do card por logo), aninhado sob a seção Apoiadores.
-              const logosBtn =
-                s.sectionId === "apoiadores" && apoiadores ? (
-                  <button
-                    onClick={() => setSelectedId(LOGOS_VIEW)}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                      selectedId === LOGOS_VIEW
-                        ? "bg-primary/10 font-bold text-primary"
-                        : "text-slate-700 hover:bg-slate-50",
-                    )}
-                  >
-                    <ImageIcon className="h-3.5 w-3.5 shrink-0" />
-                    Logos dos apoiadores
-                  </button>
-                ) : null;
-              return (
-                <React.Fragment key={s.sectionId}>
-                  {cardsBtn}
-                  <button
-                    onClick={() => setSelectedId(s.sectionId)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                      active ? "bg-primary/10 font-bold text-primary" : "text-slate-700 hover:bg-slate-50",
-                    )}
-                  >
-                    <span className="flex min-w-0 items-center gap-1.5">
-                      {localPending.has(s.sectionId) && (
-                        <span
-                          className="h-2 w-2 shrink-0 rounded-full bg-amber-500"
-                          title="Rascunho não publicado"
-                        />
-                      )}
-                      <span className="truncate">{meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}</span>
-                      {/* Seção que saiu da LP oficial e só existe na /1: edita,
-                          mas não muda o site principal. Ver onlyOnV1. */}
-                      {meta.get(s.sectionId)?.onlyOnV1 && (
-                        <span
-                          className="shrink-0 rounded border border-slate-300 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500"
-                          title="Só aparece na LP /1 (cópia de salvaguarda). Editar aqui NÃO altera a LP oficial."
-                        >
-                          V1
-                        </span>
-                      )}
-                    </span>
-                    <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                      {count}
-                    </span>
-                  </button>
-                  {logosBtn}
-                </React.Fragment>
-              );
-            })}
+            {liveSections.map((s, i) => (
+              <SectionRow
+                key={s.sectionId}
+                index={i + 1}
+                sectionId={s.sectionId}
+                label={meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}
+                fieldCount={Object.keys(drafts[s.sectionId]?.texts ?? {}).length}
+                active={s.sectionId === selectedId}
+                pending={localPending.has(s.sectionId)}
+                onSelect={() => setSelectedId(s.sectionId)}
+              >
+                {/* "Logos dos apoiadores": editor próprio (imagem + categoria +
+                    texto do card por logo), aninhado sob a seção Apoiadores. */}
+                {s.sectionId === "apoiadores" && apoiadores ? (
+                  <SubRow
+                    icon={ImageIcon}
+                    label="Logos dos apoiadores"
+                    active={selectedId === LOGOS_VIEW}
+                    onSelect={() => setSelectedId(LOGOS_VIEW)}
+                  />
+                ) : null}
+              </SectionRow>
+            ))}
+
+            {/* GAVETA — seções arquivadas. Não são renderizadas em página
+                nenhuma desde que a /1 virou snapshot congelado (ver onlyOnV1).
+                Ficam guardadas caso alguma volte pra LP. */}
+            {archivedSections.length > 0 && (
+              <div className="mt-2 border-t border-slate-100 pt-2">
+                <button
+                  onClick={() => setShowArchived((v) => !v)}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[12px] font-semibold text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-600"
+                >
+                  <Archive className="h-3.5 w-3.5 shrink-0" />
+                  Arquivadas ({archivedSections.length})
+                  <ChevronDown
+                    className={cn("ml-auto h-3.5 w-3.5 transition-transform", showArchived && "rotate-180")}
+                  />
+                </button>
+                {showArchived && (
+                  <>
+                    <p className="px-3 pb-1 pt-1 text-[11px] leading-snug text-slate-400">
+                      Não aparecem no site. Ficam guardadas caso queira trazer de volta —
+                      editar aqui não muda nada na landing.
+                    </p>
+                    {archivedSections.map((s) => (
+                      <SectionRow
+                        key={s.sectionId}
+                        sectionId={s.sectionId}
+                        label={meta.get(s.sectionId)?.label ?? s.name ?? s.sectionId}
+                        fieldCount={Object.keys(drafts[s.sectionId]?.texts ?? {}).length}
+                        active={s.sectionId === selectedId}
+                        pending={localPending.has(s.sectionId)}
+                        muted
+                        onSelect={() => setSelectedId(s.sectionId)}
+                      >
+                        {/* Os cards do carrossel de depoimentos vivem na
+                            buyer-wave, que está arquivada junto. */}
+                        {s.sectionId === "buyer-wave" && buyerWave ? (
+                          <SubRow
+                            icon={Quote}
+                            label="Depoimentos (cards)"
+                            active={selectedId === TESTIMONIALS_VIEW}
+                            muted
+                            onSelect={() => setSelectedId(TESTIMONIALS_VIEW)}
+                          />
+                        ) : null}
+                      </SectionRow>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -428,6 +477,16 @@ export function LandingEditor({
             </div>
           ) : (
             <div className="space-y-7 p-6">
+              {meta.get(selectedId)?.onlyOnV1 && (
+                <div className="flex gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-[13px] leading-snug text-amber-900">
+                  <Archive className="mt-px h-4 w-4 shrink-0" />
+                  <p>
+                    <span className="font-bold">Seção arquivada.</span> Ela não aparece na
+                    landing — foi removida da página e está guardada aqui só para o caso de
+                    voltar. Alterações neste painel não mudam nada no site.
+                  </p>
+                </div>
+              )}
               {!hasFields && (
                 <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
                   Sem campos editáveis nesta seção (o texto é fixo no código da landing).
@@ -445,6 +504,7 @@ export function LandingEditor({
                       <FieldInput
                         key={field.key}
                         field={field}
+                        folder={selectedId}
                         value={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) ?? ""}
                         onChange={(v) => (field.type === "image" ? setImage(field.key, v) : setText(field.key, v))}
                       />
@@ -459,6 +519,96 @@ export function LandingEditor({
       </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Linha da lista de seções. O número à esquerda é a posição na página — é o que
+ * liga "o que estou editando" ao "onde isso aparece no site" sem precisar abrir
+ * a preview. Seções arquivadas vêm sem número e apagadas (`muted`).
+ */
+function SectionRow({
+  index,
+  label,
+  fieldCount,
+  active,
+  pending,
+  muted,
+  onSelect,
+  children,
+}: {
+  index?: number;
+  sectionId: string;
+  label: string;
+  fieldCount: number;
+  active: boolean;
+  pending: boolean;
+  muted?: boolean;
+  onSelect: () => void;
+  children?: React.ReactNode;
+}) {
+  return (
+    <>
+      <button
+        onClick={onSelect}
+        className={cn(
+          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
+          active
+            ? "bg-primary/10 font-bold text-primary"
+            : muted
+              ? "text-slate-400 hover:bg-slate-50"
+              : "text-slate-700 hover:bg-slate-50",
+        )}
+      >
+        <span className="flex min-w-0 items-center gap-1.5">
+          {pending && (
+            <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" title="Rascunho não publicado" />
+          )}
+          {index != null && (
+            <span className="w-4 shrink-0 text-right text-[11px] font-semibold tabular-nums text-slate-300">
+              {index}
+            </span>
+          )}
+          <span className="truncate">{label}</span>
+        </span>
+        <span className="ml-2 shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
+          {fieldCount}
+        </span>
+      </button>
+      {children}
+    </>
+  );
+}
+
+/** Editor dedicado aninhado sob uma seção (logos, cards de depoimento). */
+function SubRow({
+  icon: Icon,
+  label,
+  active,
+  muted,
+  onSelect,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active: boolean;
+  muted?: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={cn(
+        "flex w-full items-center gap-2 rounded-lg py-2 pl-9 pr-3 text-left text-[13px] transition-colors",
+        active
+          ? "bg-primary/10 font-bold text-primary"
+          : muted
+            ? "text-slate-400 hover:bg-slate-50"
+            : "text-slate-600 hover:bg-slate-50",
+      )}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      {label}
+    </button>
   );
 }
 
@@ -493,10 +643,13 @@ function FieldInput({
   field,
   value,
   onChange,
+  folder,
 }: {
   field: FieldDef;
   value: string;
   onChange: (v: string) => void;
+  /** Pasta no bucket de imagens (= section_id). Só usada em type "image". */
+  folder: string;
 }) {
   const len = value.length;
   const over = field.maxLength != null && len > field.maxLength;
@@ -518,7 +671,9 @@ function FieldInput({
       </div>
       {field.help && <span className="text-[11px] leading-snug text-slate-400">{field.help}</span>}
 
-      {field.type === "rich" ? (
+      {field.type === "image" ? (
+        <ImageField value={value} onChange={onChange} folder={folder} />
+      ) : field.type === "rich" ? (
         <RichTextEditor value={value} onChange={onChange} />
       ) : field.type === "multiline" ? (
         <textarea
@@ -536,10 +691,6 @@ function FieldInput({
         />
       )}
 
-      {field.type === "image" && value && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={value} alt="" className="mt-1 max-h-24 rounded-lg border border-slate-200 object-contain" />
-      )}
     </div>
   );
 }
@@ -621,16 +772,25 @@ function GlobalsCard({ globals, onSaved }: { globals: LandingGlobals; onSaved: (
         <SaveButton state={pending ? "saving" : state} onClick={save} />
       </div>
       <div className="space-y-3">
-        {GLOBAL_FIELDS.map(({ key, label, icon: Icon }) => (
+        {GLOBAL_FIELDS.map(({ key, label, icon: Icon, image }) => (
           <label key={key} className="grid gap-1.5">
             <span className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
               <Icon className="h-3.5 w-3.5" /> {label}
             </span>
-            <input
-              value={values[key] ?? ""}
-              onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
-            />
+            {image ? (
+              <ImageField
+                value={values[key] ?? ""}
+                onChange={(v) => setValues((s) => ({ ...s, [key]: v }))}
+                folder="globais"
+                compact
+              />
+            ) : (
+              <input
+                value={values[key] ?? ""}
+                onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/15"
+              />
+            )}
           </label>
         ))}
       </div>

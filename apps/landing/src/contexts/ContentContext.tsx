@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { initialContent, CONTENT_VERSION } from './ContentData'
+import contentSnapshot from '../v4-full/content-snapshot.json'
 import { API_URL } from '../utils/api'
 
 export interface SectionContent {
@@ -378,15 +379,48 @@ const getStoredGlobalSettings = (): GlobalSettings => {
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined)
 
-export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<SectionContent[]>(() => getStoredSections())
+// --- /1 CONGELADA ------------------------------------------------------------
+// A /1 é a cópia-salvaguarda da LP completa. Ela lia as MESMAS linhas de
+// `landing_sections` que a LP oficial, então estava congelada só no código:
+// qualquer edição do admin na oficial mudava a /1 junto, sem aviso.
+// Agora ela lê um retrato estático (content-snapshot.json, gerado por
+// `apps/platform/scripts/snapshot-v4-full.mjs`) e não toca no Supabase nem no
+// localStorage — que é compartilhado pelas duas rotas na mesma origem e
+// vazaria o conteúdo da oficial para dentro da salvaguarda.
+const frozenGlobals = contentSnapshot.globals as Record<string, string | undefined>
 
-  const [globalAssets, setGlobalAssets] = useState<GlobalAssets>(() => getStoredGlobalAssets())
+const frozenSections = (): SectionContent[] =>
+  mergeSections(initialContent, contentSnapshot.sections, true)
 
-  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(() => getStoredGlobalSettings())
+const frozenGlobalAssets = (): GlobalAssets => ({
+  favicon: frozenGlobals.favicon ?? DEFAULT_GLOBAL_ASSETS.favicon,
+  logo: frozenGlobals.logo ?? DEFAULT_GLOBAL_ASSETS.logo,
+})
+
+const frozenGlobalSettings = (): GlobalSettings => ({
+  whatsappNumber: frozenGlobals.whatsappNumber ?? DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
+  purchaseLink: frozenGlobals.purchaseLink ?? DEFAULT_GLOBAL_SETTINGS.purchaseLink,
+})
+
+export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }> = ({
+  children,
+  frozen = false,
+}) => {
+  const [content, setContent] = useState<SectionContent[]>(() =>
+    frozen ? frozenSections() : getStoredSections(),
+  )
+
+  const [globalAssets, setGlobalAssets] = useState<GlobalAssets>(() =>
+    frozen ? frozenGlobalAssets() : getStoredGlobalAssets(),
+  )
+
+  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(() =>
+    frozen ? frozenGlobalSettings() : getStoredGlobalSettings(),
+  )
 
   // Load content from backend on mount
   useEffect(() => {
+    if (frozen) return // salvaguarda: nada de rede, nada de cache
     const loadContent = async () => {
       try {
         const [sectionsRes, assetsRes, settingsRes] = await Promise.all([
@@ -498,7 +532,7 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     void loadContent // CMS Render aposentado (mantido só como referência)
     void loadFromSupabase()
-  }, [])
+  }, [frozen])
 
   const persistSection = async (section: SectionContent): Promise<boolean> => {
     const token = localStorage.getItem('admin-token')
