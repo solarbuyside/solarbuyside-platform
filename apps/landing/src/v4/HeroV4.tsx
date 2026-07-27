@@ -2,7 +2,7 @@
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { WordReveal } from './atoms'
-import { ApoiadoresBandV4 } from './ApoiadoresV4'
+import { scrollToId } from './scroll'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
    gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
@@ -35,6 +35,7 @@ export const HeroV4: React.FC = () => {
     return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
   })()
   const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
+  const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {
@@ -75,7 +76,7 @@ export const HeroV4: React.FC = () => {
         {/* brilho central do amanhecer (com parallax) */}
         <div ref={glowRef} className="absolute inset-0 will-change-transform">
           <div
-            className="absolute left-1/2 top-[56%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 md:top-[64%]"
+            className="absolute left-1/2 top-[74%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2"
             style={{
               background:
                 'radial-gradient(circle at 50% 62%, rgba(253,186,116,0.32) 0%, rgba(249,115,22,0.16) 22%, transparent 52%)',
@@ -83,10 +84,10 @@ export const HeroV4: React.FC = () => {
           />
         </div>
         {/* raios cônicos girando muito devagar */}
-        <div className="v4-rays absolute left-1/2 top-[62%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10] md:top-[70%]" />
+        <div className="v4-rays absolute left-1/2 top-[80%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10]" />
         {/* o disco solar: silhueta gigante com aresta incandescente */}
         <div
-          className="absolute left-1/2 top-[62%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d] md:top-[70%]"
+          className="absolute left-1/2 top-[80%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d]"
           style={{
             boxShadow:
               '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
@@ -105,20 +106,15 @@ export const HeroV4: React.FC = () => {
       </div>
 
       {/* ── Conteúdo ──────────────────────────────────────────────────── */}
-      {/* A faixa de apoiadores passou a viver DENTRO do Hero (Francis, 27/07),
-          então o conteúdo perde o respiro de baixo e sobe: o pb-[22vh] que
-          empurrava tudo para o meio da tela virou o espaço da faixa. Isso
-          também tira a subfrase de cima do disco escuro, que era a queixa do
-          print em 100% de zoom. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-[4vh] pt-24 text-center md:pb-[10vh] md:pt-28">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-28 pt-28 text-center md:pb-[22vh]">
         {/* chip do produto */}
-        <div className="v4-rise mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
+        <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
           <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-slate-300">{manualTitle}</span>
         </div>
 
         {/* headline massiva */}
-        <h1 className="max-w-5xl text-[clamp(2.25rem,5.3vw,4.5rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
+        <h1 className="max-w-5xl text-[clamp(2.5rem,6.6vw,5.6rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
           <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />{' '}
           <WordReveal
             trigger="load"
@@ -133,7 +129,7 @@ export const HeroV4: React.FC = () => {
         {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
             seção "limpa e com espaço entre cada frase" (slide 2). */}
         <p
-          className="v4-rise mt-7 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-9 md:text-2xl"
+          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-16 md:text-2xl"
           style={{ ['--d' as string]: '560ms' }}
         >
           <CMSText value={subLead} />
@@ -150,25 +146,20 @@ export const HeroV4: React.FC = () => {
             passa a ser o CTA 1, no fim da secao de Autores. */}
       </div>
 
-      {/* Faixa de apoiadores na PRIMEIRA DOBRA. Fica depois do bloco flex-1,
-          então pousa no rodapé do Hero.
-
-          Desktop: DENTRO do disco escuro, abaixo da aresta incandescente — as
-          pontas da faixa acompanham a curva da bola (Gabriel, 27/07). Celular:
-          acima do arco, porque lá o disco sobe e não sobra altura útil dentro
-          dele para a faixa inteira. */}
-      {/* A máscara circular é ancorada pela BASE deste bloco, que coincide com
-          a base do Hero — por isso ela consegue reproduzir o mesmo círculo do
-          disco sem tirar a faixa do fluxo. Ver .v4-band-sphere-mask. */}
-      <div className="v4-band-sphere-mask relative z-10 w-full pb-[3vh]">
-        <ApoiadoresBandV4 compact />
-      </div>
-
-      {/* O indicador de rolagem (fio vertical com o gotejar laranja) foi
-          removido: desde que a faixa de apoiadores passou a ocupar o rodapé do
-          Hero, ele caía POR CIMA da legenda "+15 empresas apoiadoras" no
-          celular. No desktop já estava escondido, e a própria faixa em
-          movimento é o sinal de que a página continua abaixo. */}
+      {/* scroll hint sobre o horizonte */}
+      <button
+        onClick={() => scrollToId('contexto')}
+        type="button"
+        aria-label={scrollHint}
+        className="group absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
+      >
+        {/* Texto "Veja o panorama 2026" removido (Francis, slide 1). O botão
+            segue existindo só como indicador de rolagem; scrollHint continua
+            no aria-label para leitor de tela. */}
+        <span className="block h-10 w-px overflow-hidden bg-white/10">
+          <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-400 to-transparent" />
+        </span>
+      </button>
     </section>
   )
 }

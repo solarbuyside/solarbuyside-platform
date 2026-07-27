@@ -114,7 +114,7 @@ export const AuthorityV4: React.FC = () => {
   const section = getSection('authority')
 
   return (
-    <section id="autor" className="relative overflow-hidden bg-[#07090d] pb-24 pt-12 text-white md:py-32 md:pb-32">
+    <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
       {/* fade "top" (era "center"): a grade entra cheia, emendando na faixa de
           logos logo acima, e vai apagando até sumir no meio da seção. É a
           continuação do crepúsculo do Hero, não uma textura isolada. */}

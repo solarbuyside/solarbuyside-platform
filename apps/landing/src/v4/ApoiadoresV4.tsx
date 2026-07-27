@@ -75,7 +75,7 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
 }
 
 /* ── 1) Faixa contínua ──────────────────────────────────────────────────── */
-export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+export const ApoiadoresBandV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
   const { logos: todos } = useApoiadores()
@@ -112,23 +112,13 @@ export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = fa
   return (
     // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
     // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
-    //
-    // `compact` = renderizada DENTRO do Hero, na primeira dobra (Francis,
-    // 27/07: "90% dos profissionais do solar conhecem essas marcas, isso
-    // desperta curiosidade pelo movimento"). Aí o respiro é menor e a grade de
-    // células não se repete — o Hero já tem a dele.
-    <section className={compact ? 'relative bg-transparent' : 'relative bg-transparent py-12'}>
+    <section className="relative bg-transparent py-12">
       {/* Ponte do crepúsculo: a grade do Hero atravessa esta faixa inteira e
           só começa a sumir na seção de Autores, logo abaixo. Como o v4-cells
           é background-attachment:fixed, a fase casa sem emenda. */}
-      {!compact && <SolarCells fade="full" />}
+      <SolarCells fade="full" />
 
-      <p
-        className={
-          'v4-mono relative z-10 px-6 text-center font-bold uppercase tracking-[0.3em] text-orange-400 ' +
-          (compact ? 'mb-4 text-[11px] md:text-[12px]' : 'mb-7 text-[14px]')
-        }
-      >
+      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[14px] font-bold uppercase tracking-[0.3em] text-orange-400">
         {bandTitle}
       </p>
 
@@ -142,10 +132,7 @@ export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = fa
           e a emenda fica com o mesmo respiro dos demais logos. */}
       {/* speed = duração de um ciclo, então número maior = desfile mais lento.
           46s -> 58s a pedido do Gabriel (26/07). */}
-      <Marquee
-        speed={58}
-        className={'v4-marquee-tight relative z-10' + (compact ? ' v4-band-edge-fade' : '')}
-      >
+      <Marquee speed={58} className="v4-marquee-tight relative z-10">
         <span className="flex items-center gap-6 whitespace-nowrap">
           {[...logos, ...logos].map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
@@ -162,12 +149,7 @@ export const ApoiadoresBandV4: React.FC<{ compact?: boolean }> = ({ compact = fa
       </Marquee>
 
       {bandSubtitle && (
-        <p
-          className={
-            'relative z-10 mx-auto max-w-3xl px-6 text-center leading-relaxed text-slate-300 ' +
-            (compact ? 'mt-4 text-[12px] md:text-[13px]' : 'mt-8 text-[15px]')
-          }
-        >
+        <p className="relative z-10 mx-auto mt-8 max-w-3xl px-6 text-center text-[15px] leading-relaxed text-slate-300">
           {bandLead}
           {bandSegmentos && (
             // block: os cinco segmentos ficam sempre numa linha só, embaixo.

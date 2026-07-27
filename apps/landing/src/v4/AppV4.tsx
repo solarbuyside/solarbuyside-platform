@@ -4,7 +4,7 @@ import { trackPageView, observeSection } from '../utils/analytics'
 import { FloatingCTAV4, HeaderV4, MobileCtaBarV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
-import { ApoiadoresV4 } from './ApoiadoresV4'
+import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
@@ -81,8 +81,9 @@ export default function AppV4() {
       <div id="hero">
         <HeroV4 />
       </div>
-      {/* A faixa de logos agora é renderizada DENTRO do Hero, para aparecer já
-          na primeira dobra (Francis, 27/07). Ver HeroV4. */}
+      {/* Faixa de logos logo abaixo do Hero, como no slide 1 do Francis. Ela
+          substitui a antiga faixa "Manual ✦ Código" (resposta dele em 23/07). */}
+      <ApoiadoresBandV4 />
       {/* Autores logo depois da faixa de logos (slide 3): quem assina o método
           aparece antes de qualquer argumento, e leva o primeiro CTA da página. */}
       <div id="authority">
