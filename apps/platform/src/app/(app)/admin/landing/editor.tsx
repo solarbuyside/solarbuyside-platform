@@ -54,6 +54,7 @@ const BAND_VIEW = "__faixa__";
 /** Blocos repetíveis com editor próprio (adicionar/remover/reordenar). */
 const FAQ_VIEW = "__faq__";
 const CODE_PARAGRAFOS_VIEW = "__code-paragrafos__";
+const HISTORIA_VIEW = "__historia__";
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
@@ -127,6 +128,21 @@ const FAQ_GROUPS: ListGroup[] = [
 ];
 
 /**
+ * História da seção Autoridade (Francis, 28/07: "a mensagem principal é a
+ * história, não seus autores"). Lista aberta — ele começou pedindo um parágrafo
+ * e logo mudou para dois; com lista, quantos forem é decisão dele.
+ */
+const HISTORIA_GROUPS: ListGroup[] = [
+  {
+    prefix: "story",
+    label: "Parágrafos",
+    itemLabel: "Parágrafo",
+    max: 8,
+    fields: [{ suffix: "", label: "Texto", kind: "rich" }],
+  },
+];
+
+/**
  * Parágrafos do bloco "Código do Vendedor", em dois grupos: a lista "O que você
  * leva" fica ENTRE eles, então não dá para ser uma lista só.
  * `legacyKeys` traz o texto publicado hoje (codeDesc1-4) na primeira abertura.
@@ -193,6 +209,7 @@ export function LandingEditor({
   const apoiadores = rawSections.find((s) => s.sectionId === "apoiadores");
   const faqSection = rawSections.find((s) => s.sectionId === "faq");
   const manualSection = rawSections.find((s) => s.sectionId === "manual-strategic");
+  const authoritySection = rawSections.find((s) => s.sectionId === "authority");
   // Categorias dos apoiadores saem dos próprios dados, na ordem da página.
   const categoriasApoiadores = React.useMemo(
     () => (apoiadores ? categoriasDe(apoiadores) : []),
@@ -424,6 +441,15 @@ export function LandingEditor({
                     onSelect={() => setSelectedId(BAND_VIEW)}
                   />
                 ) : null}
+                {/* A história fica entre o título e os autores. */}
+                {s.sectionId === "authority" && authoritySection ? (
+                  <SubRow
+                    icon={Pilcrow}
+                    label="História"
+                    active={selectedId === HISTORIA_VIEW}
+                    onSelect={() => setSelectedId(HISTORIA_VIEW)}
+                  />
+                ) : null}
                 {/* O FAQ deixou de ser 7 perguntas fixas: pergunta, resposta,
                     adicionar, remover e reordenar (Francis, 27/07). */}
                 {s.sectionId === "faq" && faqSection ? (
@@ -529,6 +555,14 @@ export function LandingEditor({
           <TestimonialsEditor
             section={buyerWave}
             onSaved={() => setLocalPending((p) => new Set(p).add("buyer-wave"))}
+          />
+        ) : selectedId === HISTORIA_VIEW && authoritySection ? (
+          <ListEditor
+            section={authoritySection}
+            title="História (aparece abaixo do título)"
+            icon={Pilcrow}
+            groups={HISTORIA_GROUPS}
+            onSaved={() => setLocalPending((p) => new Set(p).add("authority"))}
           />
         ) : selectedId === FAQ_VIEW && faqSection ? (
           <ListEditor
@@ -661,7 +695,12 @@ export function LandingEditor({
                   </p>
                   {group.fields.map((field) =>
                     isComposite(field) ? (
-                      <CompositeField key={field.key} field={field} texts={draft.texts} setText={setText} />
+                      <CompositeField
+                        key={`${selectedId}:${field.key}`}
+                        field={field}
+                        texts={draft.texts}
+                        setText={setText}
+                      />
                     ) : (
                       <FieldInput
                         key={field.key}

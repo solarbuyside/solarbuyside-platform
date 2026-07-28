@@ -1,5 +1,6 @@
 ﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 
@@ -56,9 +57,10 @@ const DuelSide: React.FC<DuelSideProps> = ({
 
       {/* Experiência editorial: número gigante + label mono */}
       <Reveal delay={baseDelay} className="relative flex items-end gap-4">
-        {/* 60/72 -> 56/68 (26/07) -> 45/54: menos 20%, pedido do Francis em
-            27/07 — o número competia com o nome do especialista. */}
-        <span className={`font-['Sora'] text-[45px] font-extrabold leading-none tracking-tight md:text-[54px] ${t.accent}`}>
+        {/* 60/72 -> 56/68 (26/07) -> 45/54 (27/07) -> 28/34 (28/07). O Francis
+            pediu para reduzir MUITO: nesta revisão a mensagem da seção é a
+            história, e o número disputava a atenção com ela. */}
+        <span className={`font-['Sora'] text-[28px] font-extrabold leading-none tracking-tight md:text-[34px] ${t.accent}`}>
           {experience}
         </span>
         <span className="v4-mono mb-3 text-[10px] uppercase tracking-[0.3em] text-slate-500">
@@ -75,7 +77,8 @@ const DuelSide: React.FC<DuelSideProps> = ({
         // 288 -> 224px: segunda redução pedida pelo Francis (slide 3,
         // "reduzir o tamanho das fotos"). A seção subiu para o topo da página
         // e o peso agora tem que estar no texto, não no retrato.
-        className="group relative aspect-[3/4] w-full max-w-[224px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
+        // 224 -> 184px: as fotos cedem espaço para o texto inicial (Francis, 28/07).
+        className="group relative aspect-[3/4] w-full max-w-[184px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
       >
         <img
           src={image}
@@ -113,6 +116,27 @@ export const AuthorityV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('authority')
 
+  /* Título: o campo é COMPOSTO no admin (title + titleHighlight numa caixa só).
+     Quando o cliente destaca a frase inteira, `title` fica vazio de propósito —
+     e com `||` o texto padrão antigo voltava, então metade da headline ignorava
+     a edição dele. Foi o "ao trocar de título, ele não atualiza" (Francis,
+     28/07). Se QUALQUER uma das duas chaves existe no banco, as duas são
+     respeitadas como estão, vazio incluído. */
+  const temTituloNoCms =
+    section?.texts.title !== undefined || section?.texts.titleHighlight !== undefined
+  const tituloBase = temTituloNoCms
+    ? (section?.texts.title ?? '')
+    : 'Este conteúdo foi concebido por quem viveu'
+  const tituloDestaque = temTituloNoCms
+    ? (section?.texts.titleHighlight ?? '')
+    : 'os dois lados da mesa: o do comprador e o do vendedor.'
+
+  /* Parágrafos da história: story1..N, vazios ignorados. Lista aberta para ele
+     decidir quantos são sem pedir dev (começou pedindo 1, depois 2). */
+  const MAX_HISTORIA = 8
+  const historia = Array.from({ length: MAX_HISTORIA }, (_, i) => section?.texts[`story${i + 1}`] ?? '')
+    .filter((v) => v.trim().length > 0)
+
   return (
     <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
       {/* fade "top" (era "center"): a grade entra cheia, emendando na faixa de
@@ -130,12 +154,26 @@ export const AuthorityV4: React.FC = () => {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,3.8vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
-              {section?.texts.title || 'Este conteúdo foi concebido por quem viveu'}{' '}
-              <span className="v4-serif text-orange-400">
-                {section?.texts.titleHighlight || 'os dois lados da mesa: o do comprador e o do vendedor.'}
-              </span>
+              {tituloBase}
+              {tituloBase && tituloDestaque ? ' ' : ''}
+              {tituloDestaque && <span className="v4-serif text-orange-400">{tituloDestaque}</span>}
             </h2>
           </Reveal>
+
+          {/* História da seção (Francis, 28/07: "a mensagem principal é a
+              história, não seus autores"). Parágrafos livres entre o título e
+              os autores, editáveis em "Autoridade > História". */}
+          {historia.length > 0 && (
+            <Reveal delay={160}>
+              <div className="mt-7 max-w-3xl space-y-4">
+                {historia.map((paragrafo, i) => (
+                  <p key={i} className="text-[15px] leading-relaxed text-slate-300 md:text-[17px]">
+                    <CMSText value={paragrafo} />
+                  </p>
+                ))}
+              </div>
+            </Reveal>
+          )}
         </div>
 
         {/* O duelo */}

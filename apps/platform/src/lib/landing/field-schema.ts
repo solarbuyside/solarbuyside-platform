@@ -809,6 +809,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
+    // A história tem editor próprio ("História"), com adicionar/remover.
+    hiddenKeys: Array.from({ length: 8 }, (_, i) => `story${i + 1}`),
   },
 
   pricing: {
