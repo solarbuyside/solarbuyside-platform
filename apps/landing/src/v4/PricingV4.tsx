@@ -8,7 +8,14 @@ import { GrainOverlay, Reveal, Stamp } from './atoms'
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
 const PaymentMarks: React.FC = () => (
-  <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-slate-500" aria-label="Formas de pagamento: Visa, Mastercard, Pix e Boleto">
+  // role="img" porque os filhos são todos aria-hidden (traços decorativos): o
+  // conjunto vira uma imagem única com legenda. Sem role, o aria-label numa div
+  // genérica é ignorado por leitor de tela — era isso que o Lighthouse acusava.
+  <div
+    className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-slate-500"
+    role="img"
+    aria-label="Formas de pagamento: Visa, Mastercard, Pix e Boleto"
+  >
     <span className="font-['Sora'] text-sm font-extrabold italic tracking-tight" aria-hidden>
       VISA
     </span>
@@ -306,7 +313,11 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                   <img
                     src={card.image}
                     alt={card.imageAlt}
-                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    // Todos lazy. O 1º card era eager, mas esta seção começa a
+                    // ~23.000px do topo: a capa (977 KB) baixava junto com o
+                    // carregamento inicial e disputava banda com o LCP, que é o
+                    // <h1> do Hero. Nunca esteve na primeira dobra.
+                    loading="lazy"
                     // Capas recortadas justas + altura fixa 184px → mesma altura
                     // visual nos 4. A capa "wide" (tablet) ganha um halo claro
                     // extra p/ descolar do fundo escuro da seção.

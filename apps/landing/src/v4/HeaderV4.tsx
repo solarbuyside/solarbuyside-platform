@@ -211,6 +211,10 @@ export const FloatingCTAV4: React.FC = () => {
         isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
       }`}
       aria-hidden={!isVisible}
+      // Sem o tabIndex, o link continuava alcançável pelo Tab enquanto estava
+      // escondido — foco indo para um elemento invisível. É o que o Lighthouse
+      // reportava como "aria-hidden element must not be focusable".
+      tabIndex={isVisible ? undefined : -1}
     >
       <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
         <ArrowRight size={19} />
@@ -260,6 +264,9 @@ export const MobileCtaBarV4: React.FC = () => {
               target.scrollIntoView({ behavior: 'smooth', block: 'start' })
             }
           }}
+          // A barra inteira leva aria-hidden quando escondida; sem isto o link
+          // dentro dela seguia focável pelo Tab. Mesma correção do FloatingCTA.
+          tabIndex={isVisible ? undefined : -1}
           className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.7)] active:scale-[0.97]"
         >
           Garantir acesso

@@ -1,0 +1,16 @@
+# robots.txt — solarbuyside.com.br
+# Precisa existir como ARQUIVO em public/: o rewrite do vercel.json manda
+# /((?!api/).*) para index.html, então sem este arquivo a rota devolvia o HTML
+# da SPA e o Lighthouse acusava "robots.txt não é válido — 58 erros".
+
+User-agent: *
+Allow: /
+
+# Rotas internas: cópias/rascunhos da LP e o painel (que só redireciona).
+Disallow: /1
+Disallow: /v1
+Disallow: /v4
+Disallow: /admin
+Disallow: /users
+
+Sitemap: https://solarbuyside.com.br/sitemap.xml

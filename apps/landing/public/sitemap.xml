@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sitemap.xml — solarbuyside.com.br
+  Arquivo estático em public/ pelo mesmo motivo do robots.txt: o rewrite da
+  Vercel engolia a rota e devolvia o HTML da SPA.
+  As rotas são as declaradas em src/App.tsx (raiz + 3 páginas legais).
+  /1, /v1 e /v4 ficam de fora de propósito: são cópias da LP.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://solarbuyside.com.br/</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://solarbuyside.com.br/politica-de-privacidade</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://solarbuyside.com.br/termos-de-uso</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://solarbuyside.com.br/medidas-antipiratarias</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

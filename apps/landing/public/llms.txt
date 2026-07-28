@@ -1,0 +1,46 @@
+# Solar Buy-Side
+
+> Manual de Compra de Sistema Solar Fotovoltaico. O Método Solar Buy-Side ensina
+> o integrador a conduzir a venda pela perspectiva do comprador, saindo da
+> disputa por preço.
+
+A landing page é uma SPA em React: o conteúdo só existe depois que o JavaScript
+executa. Este arquivo lista as seções e os títulos reais da página para leitura
+por agentes que não renderizam JS.
+
+## Produto
+
+- [Página principal](https://solarbuyside.com.br/): apresentação completa do método, do kit e da oferta.
+
+O Kit Completo Solar Buy-Side reúne:
+
+- **Manual Solar Buy-Side** — 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato. Acesso vitalício.
+- **Código do Vendedor Consultivo** — 26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico.
+- **Plataforma de Avaliação de Proposta Comercial** — atribui nota a propostas comerciais antes do envio ao cliente.
+- **Licença de Uso Coletiva** — até 10 cópias para o mesmo CNPJ.
+
+## Seções da página
+
+- Autores do método — Francis Poloni e Ovídio Collesi
+- Panorama 2026 do mercado de energia solar
+- Relato de caso: o integrador Lucas
+- Para quem o método foi desenvolvido: empresas de integração solar, empreendedores iniciantes e representantes comerciais
+- Kit Completo Solar Buy-Side
+- O verdadeiro retorno do Método Solar Buy-Side
+- Depoimentos de compradores e integradores
+- Apoiadores institucionais: distribuidora âncora, fabricantes, tecnologia, serviços e seguros
+- Oferta e formas de pagamento
+- Perguntas frequentes
+- Dados e contato — Buy-Side Soluções
+
+## Páginas legais
+
+- [Política de Privacidade](https://solarbuyside.com.br/politica-de-privacidade)
+- [Termos de Uso](https://solarbuyside.com.br/termos-de-uso)
+- [Medidas Antipirataria](https://solarbuyside.com.br/medidas-antipiratarias)
+
+## Observações
+
+- Idioma: português do Brasil.
+- Público-alvo: integradores, vendedores e empresas do setor de energia solar fotovoltaica no Brasil.
+- Conteúdo protegido por direitos autorais. Ver Medidas Antipirataria.
