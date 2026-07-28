@@ -1,6 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,300..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* Sora, Fraunces e JetBrains Mono agora vêm de uma única folha no <head> do
+   index.html, junto com a Manrope da index.css. Conferido antes de mover:
+   a URL consolidada devolve os mesmos 17 arquivos .woff2, com as mesmas
+   famílias, pesos e estilos que os 4 @import antigos. */
 
 /* ═══════════════════════════════════════════════════════════════════════
    SOLAR BUY-SIDE — V4 "SOLAR DAWN"
