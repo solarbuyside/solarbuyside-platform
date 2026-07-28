@@ -286,15 +286,20 @@ export function LandingEditor({
   }, [dirty, publishPending]);
 
 
+  // Publicou no banco mas o rebuild da LP não disparou (deploy hook falhou).
+  const [publishWarning, setPublishWarning] = React.useState(false);
+
   function publish() {
     if (!window.confirm("Publicar as alterações na landing page ao vivo?")) return;
     setPublishState("saving");
+    setPublishWarning(false);
     startPublish(async () => {
       try {
-        await publishLandingAction();
+        const { deployTriggered } = await publishLandingAction();
         setLocalPending(new Set());
         setGlobalsDirty(false);
         setPublishState("saved");
+        setPublishWarning(!deployTriggered);
         setTimeout(() => setPublishState("idle"), 1500);
         router.refresh();
       } catch {
@@ -406,6 +411,16 @@ export function LandingEditor({
           onClick={publish}
         />
       </div>
+      {publishWarning ? (
+        <div className="flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-800">
+          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>
+            O conteúdo foi publicado, mas a atualização automática do site não disparou.
+            Quem visita a LP já vê o texto novo; o Google pode demorar até o próximo deploy.
+            Publique de novo em alguns minutos — se o aviso continuar, fale com o suporte técnico.
+          </span>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {/* ESQUERDA — globais + lista de seções (ordem da LP) */}

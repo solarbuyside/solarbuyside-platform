@@ -7,6 +7,7 @@ import {
   saveLandingSection,
   saveLandingGlobalValue,
   publishLanding,
+  triggerLandingDeploy,
 } from "@/lib/landing/content-admin";
 
 async function assertAdmin() {
@@ -28,8 +29,12 @@ export async function saveLandingGlobalAction(key: string, value: string) {
   await saveLandingGlobalValue(key, value);
 }
 
-export async function publishLandingAction() {
+export async function publishLandingAction(): Promise<{ deployTriggered: boolean }> {
   await assertAdmin();
   await publishLanding();
+  // O HTML da LP é pré-renderizado no build; sem rebuild, crawlers leem o
+  // conteúdo anterior mesmo com o banco já atualizado.
+  const deployTriggered = await triggerLandingDeploy();
   revalidatePath("/admin/landing");
+  return { deployTriggered };
 }

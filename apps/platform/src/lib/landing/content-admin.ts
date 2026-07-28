@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getLandingDeployHookUrl } from "@/lib/env";
 
 /**
  * Leitura/escrita do conteúdo da landing (tabelas landing_sections /
@@ -135,7 +136,7 @@ export async function publishLanding(): Promise<void> {
     .select("key,value_draft");
   if (globErr) throw new Error(globErr.message);
 
-  await Promise.all([
+  const results = await Promise.all([
     ...(secs ?? []).map((r) =>
       admin
         .from("landing_sections")
@@ -146,4 +147,30 @@ export async function publishLanding(): Promise<void> {
       admin.from("landing_globals").update({ value: g.value_draft ?? "" }).eq("key", g.key),
     ),
   ]);
+  // O client do Supabase devolve o erro em vez de lançar; sem esta checagem uma
+  // publicação parcial passaria como sucesso.
+  const failed = results.map((r) => r.error).filter(Boolean);
+  if (failed.length > 0) throw new Error(failed[0]!.message);
+}
+
+/**
+ * Dispara o Deploy Hook da landing na Vercel, com novas tentativas. Retorna
+ * false em vez de lançar: o conteúdo já foi publicado no banco e isso não deve
+ * ser mascarado como erro — o chamador decide como avisar.
+ */
+export async function triggerLandingDeploy(): Promise<boolean> {
+  const url = getLandingDeployHookUrl();
+  if (!url) return false;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, { method: "POST" });
+      if (res.ok) return true;
+      // Erro de configuração (401/404/…) não melhora repetindo; 429/5xx sim.
+      if (res.status < 500 && res.status !== 429) return false;
+    } catch {
+      // Falha de rede: tenta de novo.
+    }
+    if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 1000));
+  }
+  return false;
 }

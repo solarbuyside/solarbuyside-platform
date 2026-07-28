@@ -91,6 +91,16 @@ export function isAdminEmail(email: string | null | undefined) {
   return getAdminEmails().includes(email.trim().toLowerCase());
 }
 
+/**
+ * Deploy Hook (Vercel) da landing. O Publicar do /admin dispara este hook para
+ * rebuildar a LP: o HTML servido é pré-renderizado no build, então sem rebuild
+ * o Google e as IAs continuam lendo o conteúdo anterior (o navegador não —
+ * o JS hidrata com o banco).
+ */
+export function getLandingDeployHookUrl() {
+  return cleanEnv(process.env.LANDING_DEPLOY_HOOK_URL);
+}
+
 export function getAppUrl() {
   const explicitUrl = cleanEnv(process.env.NEXT_PUBLIC_APP_URL);
   if (explicitUrl) return explicitUrl;
