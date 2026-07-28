@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "//": "redirects rodam ANTES de rewrites. As rotas abaixo serviam a LP oficial em URLs paralelas (ou, no caso dos .html, protótipos antigos com conteúdo próprio) — conteúdo duplicado para o crawler. Agora só existem a raiz e /1.",
   "redirects": [
     { "source": "/v1", "destination": "/", "permanent": true },
     { "source": "/v2", "destination": "/", "permanent": true },
