@@ -1,6 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+  "//": "redirects rodam ANTES de rewrites. As rotas abaixo serviam a LP oficial em URLs paralelas (ou, no caso dos .html, protótipos antigos com conteúdo próprio) — conteúdo duplicado para o crawler. Agora só existem a raiz e /1.",
+  "redirects": [
+    { "source": "/v1", "destination": "/", "permanent": true },
+    { "source": "/v2", "destination": "/", "permanent": true },
+    { "source": "/v3", "destination": "/", "permanent": true },
+    { "source": "/v4", "destination": "/", "permanent": true },
+    { "source": "/2", "destination": "/", "permanent": true },
+    { "source": "/3", "destination": "/", "permanent": true },
+    { "source": "/4", "destination": "/", "permanent": true },
+    { "source": "/v2.html", "destination": "/", "permanent": true },
+    { "source": "/v3.html", "destination": "/", "permanent": true },
+    { "source": "/v4.html", "destination": "/", "permanent": true }
+  ],
+  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
 }
