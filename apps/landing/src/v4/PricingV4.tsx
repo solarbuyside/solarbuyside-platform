@@ -340,7 +340,10 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 >
                   {card.tag}
                 </span>
-                <h4 className="mt-2 font-['Sora'] text-lg font-bold text-white">{card.title}</h4>
+                {/* h3, não h4: o título da seção de oferta é um h2 e o card não
+                    tem heading intermediário — pular para h4 quebrava a ordem
+                    da árvore. O tamanho vem das classes, então nada muda visualmente. */}
+                <h3 className="mt-2 font-['Sora'] text-lg font-bold text-white">{card.title}</h3>
                 <p className="mt-2 max-w-[300px] text-sm leading-relaxed text-slate-400">{card.desc}</p>
               </Reveal>
             )

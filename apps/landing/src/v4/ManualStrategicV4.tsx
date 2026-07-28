@@ -218,12 +218,16 @@ export const ManualStrategicV4: React.FC = () => {
             </Reveal>
             {codeItems.length > 0 && (
               <Reveal delay={240} className="mt-10 max-w-2xl">
+                {/* h3, não h4: o título anterior da seção é um h2, e pular de
+                    h2 para h4 quebra a ordem da árvore de headings (Lighthouse
+                    acusava "ordem sequencial descendente"). Os itens da lista
+                    abaixo seguem h4, que agora desce certo a partir daqui. */}
                 {section?.texts.codeListTitle?.trim() && (
-                  <h4 className="border-b border-white/[0.08] pb-3">
+                  <h3 className="border-b border-white/[0.08] pb-3">
                     <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">
                       {section.texts.codeListTitle}
                     </span>
-                  </h4>
+                  </h3>
                 )}
                 <ul>
                   {codeItems.map((item, i) => (

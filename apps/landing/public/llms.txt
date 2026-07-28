@@ -1,37 +1,74 @@
 # Solar Buy-Side
 
 > Manual de Compra de Sistema Solar Fotovoltaico. O Método Solar Buy-Side ensina
-> o integrador a conduzir a venda pela perspectiva do comprador, saindo da
-> disputa por preço.
+> o integrador e o vendedor a conduzir a venda pela perspectiva de quem compra,
+> saindo da disputa por preço e passando a vender decisão técnica.
 
-A landing page é uma SPA em React: o conteúdo só existe depois que o JavaScript
-executa. Este arquivo lista as seções e os títulos reais da página para leitura
-por agentes que não renderizam JS.
+**O problema que resolve:** no mercado solar brasileiro, integradores competem
+por desconto porque o comprador não tem critério para comparar propostas. Quem
+vende perde margem; quem compra erra a escolha. O método dá o critério aos dois
+lados.
 
-## Produto
+**Para quem é:** empresas de integração solar, empreendedores iniciantes no
+setor e representantes comerciais de energia solar fotovoltaica no Brasil.
 
-- [Página principal](https://solarbuyside.com.br/): apresentação completa do método, do kit e da oferta.
+- [Página principal](https://solarbuyside.com.br/): método, kit completo, depoimentos e oferta.
 
-O Kit Completo Solar Buy-Side reúne:
+A landing page é uma SPA em React — o conteúdo só existe depois que o JavaScript
+executa. Este arquivo descreve a página para agentes que não renderizam JS.
+
+## Quem assina o método
+
+**Francis Poloni** — Especialista em visão Buy-Side (comprador). Atua desde 2018
+no setor de integração fotovoltaica e consultoria, tendo assessorado tanto do
+lado do comprador (buy-side) quanto do lado do vendedor (sell-side), com mais de
+6 anos de experiência em decisões de compra de sistemas solares.
+
+**Ovídio Collesi** — Especialista em visão Sell-Side (vendedor). Atua desde 2020
+em venda e pós-venda no setor de energia solar fotovoltaica, com passagens por
+marketplaces, distribuidores, empresas de integração solar e certificadora,
+reunindo a visão do vendedor e do suporte técnico.
+
+A dupla cobre os dois lados da mesa de negociação — é isso que dá origem ao nome
+"Buy-Side" e ao ângulo do método.
+
+## O que compõe o Kit Completo Solar Buy-Side
 
 - **Manual Solar Buy-Side** — 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato. Acesso vitalício.
 - **Código do Vendedor Consultivo** — 26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico.
-- **Plataforma de Avaliação de Proposta Comercial** — atribui nota a propostas comerciais antes do envio ao cliente.
-- **Licença de Uso Coletiva** — até 10 cópias para o mesmo CNPJ.
+- **Plataforma de Avaliação de Proposta Comercial** — atribui nota a uma proposta comercial antes do envio ao cliente, permitindo testá-la antes que o mercado a teste.
+- **Licença de Uso Coletiva** — até 10 cópias para o mesmo CNPJ, para alinhar o time comercial inteiro.
+
+Preço, condições de parcelamento e formas de pagamento estão na página principal
+e podem mudar — consulte https://solarbuyside.com.br/ para os valores vigentes.
+Pagamento por cartão, PIX e boleto.
+
+## Apoiadores institucionais
+
+Empresas do setor que apoiam o método, entre distribuidora âncora, fabricantes,
+tecnologia, serviços e seguros: BelEnergy, PV Clean, Solis, Clamper, Longi,
+Staubli, Hoymiles, SolarView e Electro Graphics.
 
 ## Seções da página
 
-- Autores do método — Francis Poloni e Ovídio Collesi
+- Autores do método
 - Panorama 2026 do mercado de energia solar
 - Relato de caso: o integrador Lucas
-- Para quem o método foi desenvolvido: empresas de integração solar, empreendedores iniciantes e representantes comerciais
+- Para quem o método foi desenvolvido
 - Kit Completo Solar Buy-Side
 - O verdadeiro retorno do Método Solar Buy-Side
 - Depoimentos de compradores e integradores
-- Apoiadores institucionais: distribuidora âncora, fabricantes, tecnologia, serviços e seguros
+- Apoiadores institucionais
 - Oferta e formas de pagamento
 - Perguntas frequentes
-- Dados e contato — Buy-Side Soluções
+- Dados e contato
+
+## Garantia e contato
+
+O produto tem política de reembolso descrita na seção de perguntas frequentes da
+página principal.
+
+Contato: contato@buyside.com.br — Buy-Side Soluções.
 
 ## Páginas legais
 
@@ -42,5 +79,6 @@ O Kit Completo Solar Buy-Side reúne:
 ## Observações
 
 - Idioma: português do Brasil.
-- Público-alvo: integradores, vendedores e empresas do setor de energia solar fotovoltaica no Brasil.
 - Conteúdo protegido por direitos autorais. Ver Medidas Antipirataria.
+- Valores monetários não são reproduzidos aqui de propósito: o preço é editável
+  no CMS e um número fixo neste arquivo ficaria desatualizado sem aviso.
