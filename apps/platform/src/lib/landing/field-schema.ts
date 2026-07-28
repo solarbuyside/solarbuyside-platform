@@ -766,13 +766,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Topo",
         fields: [
           t("badge", "Selo", { maxLength: 40 }),
-          comp(
-            "title",
-            "Título",
-            [tx("title"), hl("titleHighlight")],
-            "cms-orange",
-            "Frase inteira numa caixa. Destaque o trecho final.",
-          ),
+          rich("title", "Título", {
+            help: "Selecione o trecho que deve ficar laranja e clique em Destaque.",
+          }),
         ],
       },
       {
@@ -809,8 +805,10 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
     ],
-    // A história tem editor próprio ("História"), com adicionar/remover.
-    hiddenKeys: Array.from({ length: 8 }, (_, i) => `story${i + 1}`),
+    // titleHighlight: o título virou UM campo rich-text; a chave antiga segue
+    // no banco como fallback da landing até ele salvar no formato novo.
+    // story*: a história tem editor próprio ("História").
+    hiddenKeys: ["titleHighlight", ...Array.from({ length: 8 }, (_, i) => `story${i + 1}`)],
   },
 
   pricing: {

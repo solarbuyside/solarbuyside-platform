@@ -116,20 +116,27 @@ export const AuthorityV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('authority')
 
-  /* Título: o campo é COMPOSTO no admin (title + titleHighlight numa caixa só).
-     Quando o cliente destaca a frase inteira, `title` fica vazio de propósito —
-     e com `||` o texto padrão antigo voltava, então metade da headline ignorava
-     a edição dele. Foi o "ao trocar de título, ele não atualiza" (Francis,
-     28/07). Se QUALQUER uma das duas chaves existe no banco, as duas são
-     respeitadas como estão, vazio incluído. */
-  const temTituloNoCms =
-    section?.texts.title !== undefined || section?.texts.titleHighlight !== undefined
-  const tituloBase = temTituloNoCms
-    ? (section?.texts.title ?? '')
-    : 'Este conteúdo foi concebido por quem viveu'
-  const tituloDestaque = temTituloNoCms
-    ? (section?.texts.titleHighlight ?? '')
-    : 'os dois lados da mesa: o do comprador e o do vendedor.'
+  /* Título: UM campo só, com o destaque pintável (Gabriel, 28/07). Antes eram
+     duas chaves (title + titleHighlight) montadas numa caixa composta, e isso
+     produziu dois bugs: quando o cliente destacava a frase inteira, `title`
+     ficava vazio e o texto padrão do código voltava por cima; e a caixa era
+     reaproveitada entre seções no admin.
+
+     Agora `title` guarda o HTML inteiro e a landing renderiza via <CMSText>.
+     `titleHighlight` vira LEGADO: se o título ainda não tem marcação e a chave
+     antiga existe, as duas são costuradas aqui — assim nada se perde até ele
+     salvar pela primeira vez no formato novo. */
+  const tituloCms = section?.texts.title
+  const destaqueLegado = (section?.texts.titleHighlight ?? '').trim()
+  const tituloHtml = (() => {
+    if (tituloCms === undefined && !destaqueLegado) {
+      return 'Este conteúdo foi concebido por quem viveu <span class="cms-orange">os dois lados da mesa: o do comprador e o do vendedor.</span>'
+    }
+    const base = (tituloCms ?? '').trim()
+    if (base.includes('<span')) return base
+    if (!destaqueLegado) return base
+    return [base, `<span class="cms-orange">${destaqueLegado}</span>`].filter(Boolean).join(' ')
+  })()
 
   /* Parágrafos da história: story1..N, vazios ignorados. Lista aberta para ele
      decidir quantos são sem pedir dev (começou pedindo 1, depois 2). */
@@ -154,9 +161,7 @@ export const AuthorityV4: React.FC = () => {
           </Reveal>
           <Reveal delay={100}>
             <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,3.8vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
-              {tituloBase}
-              {tituloBase && tituloDestaque ? ' ' : ''}
-              {tituloDestaque && <span className="v4-serif text-orange-400">{tituloDestaque}</span>}
+              <CMSText value={tituloHtml} />
             </h2>
           </Reveal>
 

@@ -527,3 +527,15 @@
   gap: 1.5rem;
   padding-right: 1.5rem;
 }
+
+/* Destaque do título da Autoridade. O título virou UM campo rich-text, e o
+   trecho pintado sai como .cms-orange — que é só cor. Aqui ele reganha o serif
+   itálico que a seção sempre teve, sem mudar o .cms-orange usado no resto da
+   página. */
+#autor h2 .cms-orange {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 480;
+  letter-spacing: -0.015em;
+  color: #fb923c;
+}
