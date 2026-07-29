@@ -471,15 +471,16 @@ async function capturarRota(browser, rota) {
  * render-blocking (fonts.googleapis) do caminho crítico, que era "economia
  * estimada de 1,5s" no mobile do Lighthouse.
  *
- * Preload de woff2 SÓ NO DESKTOP (media min-width 768px), e o porquê importa:
+ * Preload de woff2 gateado por viewport, com uma exceção que vale a regra:
  * - No desktop, o CLS depende de a fonte vencer o primeiro paint. O fallback
  *   métrico ("Sora Fallback") aproxima larguras médias, mas a Sora 800
  *   extrabold quebra linha diferente do Arial ajustado em certas larguras de
  *   viewport (medido: shift 0,175 no h1 a 1350px quando a fonte chega tarde).
- *   Com preload, a corrida nunca acontece.
+ *   Com preload, a corrida nunca acontece. Lá vão as três.
  * - No mobile, os ~150 KB de woff2 disputam o 4G com CSS e bundle e pioram
- *   FCP/LCP — lá o preload não entra (media não casa) e o swap tardio tem
- *   CLS pequeno no viewport estreito.
+ *   FCP — por isso o gate existe. Mas as fontes DO H1 são exceção: adiá-las
+ *   não economiza LCP, porque o h1 repinta quando elas chegam e o Chrome
+ *   re-registra o LCP nesse momento. Ver a lista `alvos` abaixo.
  *
  * Se o fetch falhar, mantém os <link> originais (enhancement, não guard).
  */
@@ -503,14 +504,23 @@ async function inlinarFontes(template) {
   }
   if (!css.includes('woff2') || css.includes('</style>')) return template
 
-  // Fontes visíveis no primeiro paint do hero, subset latin. A Sora 800 (fonte
-  // do h1, o elemento LCP) vai SEM gate: quando ela chega depois do paint, o
-  // h1 repinta maior e o Chrome re-registra o LCP na hora da fonte — ~20 KB
-  // que ancoram o LCP no primeiro paint em qualquer viewport. As outras duas
-  // ficam atrás do gate de desktop: no 4G, 150 KB de fontes atrasavam o FCP.
+  // Fontes visíveis no primeiro paint do hero, subset latin. As que compõem o
+  // h1 — o elemento LCP — vão SEM gate: quando chegam depois do paint, o h1
+  // repinta e o Chrome re-registra o LCP na hora da fonte, então adiá-las não
+  // economiza LCP, só empurra.
+  //
+  // Sora 800 é o corpo do h1. Fraunces italic é o `.v4-serif` das palavras
+  // "Vender Decisões" DENTRO do mesmo h1 — mesmo argumento, e ficou de fora
+  // até 29/07: medido em produção com perfil Moto G / 4G lento, ela chegava em
+  // 3423 ms (contra 1189 ms da Sora, preloadada) enquanto o primeiro paint
+  // acontecia em 1708 ms. O PSI mobile reportava LCP de 5,3 s com FCP de
+  // 2,9 s — a distância entre os dois é esse repaint.
+  //
+  // Manrope segue atrás do gate de desktop: é a fonte do corpo, não entra no
+  // h1, e no 4G cada woff2 a mais disputa banda com o CSS e o bundle.
   const alvos = [
     { familia: 'Sora', peso: '800', sempre: true },
-    { familia: 'Fraunces', estilo: 'italic' },
+    { familia: 'Fraunces', estilo: 'italic', sempre: true },
     { familia: 'Manrope', peso: '400' },
   ]
   const preloads = []
@@ -544,7 +554,7 @@ async function inlinarFontes(template) {
     () => `<style>${css}</style>`,
   )
   console.log(
-    `[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB) + ${preloads.length} preloads de woff2 só desktop`,
+    `[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB) + ${preloads.length} preloads de woff2 (h1 sem gate, corpo só desktop)`,
   )
   return saida
 }
