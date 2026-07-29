@@ -47,6 +47,21 @@ exceto os itens que dependem de conta externa. Registro rápido:
   desconhecida redireciona à raiz, `design-landing.md` criado (design.md e
   CLAUDE.md apontam), `.htaccess` removido.
 
+### Rodada de performance pós-prints (28/07, madrugada)
+
+Depois dos prints do Gabriel (desktop 89 → **99** após os fixes; mobile 81):
+CLS de fonte zerado com fallbacks métricos (@capsizecss), fontes do Google
+inline no build, `<main>` landmark, logos de apoiadores 200→120px, /1 e
+páginas legais viraram chunks lazy (raiz: 507→365 KB de JS), poster do vídeo
+em WebP e preconnect ao Supabase. Preload de woff2 foi testado e REVERTIDO
+(no 4G disputava banda com CSS/bundle e piorava FCP/LCP).
+
+Limite conhecido do mobile: o Chrome registra o LCP no repaint do h1 após o
+mount do React (o candidato estático conta com ~metade do tamanho), então o
+LCP acompanha a chegada do JS. Próximas alavancas, ambas projeto e não ajuste:
+critical CSS / split do Tailwind (127 KB render-blocking) e migrar
+createRoot→hydrateRoot para o remount não repintar.
+
 ### O que AINDA falta (tudo depende de conta/decisão externa)
 
 1. **Google Search Console** — precisa de conta Google do Francis/Gabriel;
