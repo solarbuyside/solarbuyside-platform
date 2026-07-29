@@ -1,19 +1,6 @@
-# robots.txt — solarbuyside.com.br
-# Precisa existir como ARQUIVO em public/: o rewrite do vercel.json manda
-# /((?!api/).*) para index.html, então sem este arquivo a rota devolvia o HTML
-# da SPA e o Lighthouse acusava "robots.txt não é válido — 58 erros".
-
 User-agent: *
 Allow: /
 
-# /1 é a cópia congelada da LP: existe de propósito, mas não deve competir com
-# a raiz na busca. NÃO entra como Disallow — bloquear o rastreamento impedia o
-# Google de ler o <meta name="robots" content="noindex"> que o prerender põe
-# nessa rota, e uma URL bloqueada ainda pode ser indexada (sem título nem
-# descrição). Deixar rastrear é o que permite o noindex de fato tirá-la do
-# índice. /admin e /users só redirecionam.
-# As demais rotas antigas (/v1, /v2, /v3, /v4, /2, /3, /4) não precisam de
-# Disallow: recebem redirect 308 para a raiz no vercel.json.
 Disallow: /admin
 Disallow: /users
 
