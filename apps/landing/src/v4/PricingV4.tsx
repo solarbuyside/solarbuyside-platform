@@ -140,7 +140,9 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
      repetir o palco completo soa copy-paste. A 2ª chamada é uma faixa de
      decisão enxuta: headline + preço + CTA + garantia. */
   if (!isFirstSection) {
-    const installments = `${section?.texts.priceValue || '61'}${section?.texts.priceCents || ',38'}`
+    // Defaults espelham o CMS (12x de R$ 81,94 / R$ 797,00): é o que aparece
+    // se o fetch do Supabase falhar no navegador.
+    const installments = `${section?.texts.priceValue || '81'}${section?.texts.priceCents || ',94'}`
     return (
       <section id={id} className="relative overflow-hidden bg-[#0a0705] py-24 text-white md:py-28">
         <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -188,7 +190,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                       </span>
                     </p>
                     <p className="mt-2 text-sm font-semibold text-slate-400">
-                      {section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'}
+                      {section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'}
                     </p>
                   </div>
 
@@ -385,13 +387,13 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 <span className="flex items-baseline">
                   <span className="mr-1 self-start pt-3 text-3xl font-extrabold">R$</span>
                   <span className="font-['Sora'] text-[clamp(4.5rem,10vw,7rem)] font-extrabold leading-none tracking-tighter text-white">
-                    {section?.texts.priceValue || '61'}
+                    {section?.texts.priceValue || '81'}
                   </span>
-                  <span className="text-4xl font-extrabold text-white md:text-5xl">{section?.texts.priceCents || ',38'}</span>
+                  <span className="text-4xl font-extrabold text-white md:text-5xl">{section?.texts.priceCents || ',94'}</span>
                 </span>
               </div>
               <p className="mt-3 text-lg font-semibold text-slate-300">
-                {section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'}
+                {section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'}
               </p>
 
               {/* Promo Belenergy (Francis, slide 7). Só aparece se houver

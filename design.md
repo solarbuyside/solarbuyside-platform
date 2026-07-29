@@ -2,6 +2,11 @@
 
 Este documento define a identidade visual, os tokens de design, a paleta de cores e os padrões de componentes para a plataforma **Solar Buy-Side**. Ele serve como a **única fonte de verdade (Single Source of Truth)** para a interface do usuário, garantindo consistência visual e uma experiência de uso extremamente premium, moderna e fluida.
 
+> **ESCOPO: este documento vale para a PLATAFORMA (`apps/platform/`).**
+> A landing page (`apps/landing/`) usa OUTRO sistema — o dark "Solar Dawn"
+> com Sora/Fraunces/JetBrains Mono — documentado em **`design-landing.md`**.
+> "Corrigir" a LP para o padrão claro daqui é bug, não conserto.
+
 ---
 
 ## 🌌 1. Conceito de Design & Atmosfera

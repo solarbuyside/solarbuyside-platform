@@ -73,7 +73,17 @@ function App() {
     )
   }
 
-  // LP oficial = V4 "Solar Dawn" (raiz e qualquer rota não especial, ex.: /v4).
+  // Rota desconhecida (/5, /teste, …): os redirects do vercel.json cobrem só
+  // caminhos exatos, e o rewrite da SPA entregava a LP oficial em qualquer URL
+  // — conteúdo duplicado para o Google. Mesma lógica do /admin acima.
+  if (pathname !== '/') {
+    if (typeof window !== 'undefined') {
+      window.location.replace('/')
+    }
+    return null
+  }
+
+  // LP oficial = V4 "Solar Dawn" na raiz.
   return (
     <>
       <AppV4 />

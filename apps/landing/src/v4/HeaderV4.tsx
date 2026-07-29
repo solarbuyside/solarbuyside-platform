@@ -238,8 +238,11 @@ export const MobileCtaBarV4: React.FC = () => {
   const section = getSection('pricing')
   const isVisible = useCtaVisibility('mobile')
 
-  const installments = `${section?.texts.priceInstallments || '12x de'} R$ ${section?.texts.priceValue || '61'}${section?.texts.priceCents || ',38'}`
-  const upfront = section?.texts.priceUpfront || 'Ou R$ 597,00 à vista no PIX'
+  // Defaults espelham o CMS (12x de R$ 81,94 / R$ 797,00). Divergir daqui é
+  // bug de produção: se o fetch do Supabase falhar no navegador, é este valor
+  // que o visitante vê — chegou a ficar R$ 200 abaixo do preço real.
+  const installments = `${section?.texts.priceInstallments || '12x de'} R$ ${section?.texts.priceValue || '81'}${section?.texts.priceCents || ',94'}`
+  const upfront = section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'
 
   return (
     <div
