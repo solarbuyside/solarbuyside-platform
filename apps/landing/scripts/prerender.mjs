@@ -371,9 +371,13 @@ async function inlinarFontes(template) {
   }
   if (!css.includes('woff2') || css.includes('</style>')) return template
 
-  // Fontes visíveis no primeiro paint do hero, subset latin.
+  // Fontes visíveis no primeiro paint do hero, subset latin. A Sora 800 (fonte
+  // do h1, o elemento LCP) vai SEM gate: quando ela chega depois do paint, o
+  // h1 repinta maior e o Chrome re-registra o LCP na hora da fonte — ~20 KB
+  // que ancoram o LCP no primeiro paint em qualquer viewport. As outras duas
+  // ficam atrás do gate de desktop: no 4G, 150 KB de fontes atrasavam o FCP.
   const alvos = [
-    { familia: 'Sora', peso: '800' },
+    { familia: 'Sora', peso: '800', sempre: true },
     { familia: 'Fraunces', estilo: 'italic' },
     { familia: 'Manrope', peso: '400' },
   ]
@@ -385,18 +389,20 @@ async function inlinarFontes(template) {
     const peso = bloco.match(/font-weight:\s*([\d ]+)/)?.[1]?.trim()
     const arquivo = bloco.match(/url\((https:[^)]+\.woff2)\)/)?.[1]
     if (!arquivo) continue
-    const bate = alvos.some(
+    const alvo = alvos.find(
       (a) =>
         a.familia === familia &&
         (!a.peso || peso === a.peso || Boolean(peso?.includes(' '))) &&
         (!a.estilo || estilo === a.estilo),
     )
-    if (bate && !preloads.includes(arquivo)) preloads.push(arquivo)
+    if (alvo && !preloads.some((p) => p.arquivo === arquivo)) {
+      preloads.push({ arquivo, sempre: Boolean(alvo.sempre) })
+    }
   }
   const linksPreload = preloads
     .map(
-      (u) =>
-        `<link rel="preload" as="font" type="font/woff2" crossorigin media="(min-width: 768px)" href="${u}" />`,
+      (p) =>
+        `<link rel="preload" as="font" type="font/woff2" crossorigin${p.sempre ? '' : ' media="(min-width: 768px)"'} href="${p.arquivo}" />`,
     )
     .join('\n    ')
 
