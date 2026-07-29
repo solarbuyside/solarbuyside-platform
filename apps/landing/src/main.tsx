@@ -12,7 +12,17 @@ import { ContentProvider } from './contexts/ContentContext'
 // oficial; sem isso, editar a oficial mudava a /1 junto (mesmas linhas no banco).
 const isFrozenRoute = window.location.pathname.replace(/\/$/, '') === '/1'
 
-createRoot(document.getElementById('root')!).render(
+// Carga pré-renderizada (prerender.mjs preenche o #root no build): o hero já
+// está pintado antes de o JS rodar. Re-rodar a animação de entrada esconderia
+// o texto já visível e re-mostraria depois — o paint do LCP ia parar no FIM
+// da animação (medido: +1,2s de render delay no Lighthouse desktop). html.pre
+// pula SÓ a entrada do hero (ver v4.css); os reveals por scroll continuam.
+const root = document.getElementById('root')!
+if (root.hasChildNodes()) {
+  document.documentElement.classList.add('pre')
+}
+
+createRoot(root).render(
   <StrictMode>
     <ContentProvider frozen={isFrozenRoute}>
       <App />

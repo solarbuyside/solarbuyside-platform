@@ -145,6 +145,22 @@
   animation-delay: var(--d, 0ms);
 }
 
+/* Carga pré-renderizada (html.pre, ver main.tsx): o hero já chega pintado no
+   HTML servido, então a entrada NÃO re-roda quando o React monta — re-animar
+   esconderia o texto já visível e empurraria o paint do LCP para o fim da
+   animação (+1,2s de render delay medido no Lighthouse desktop). Escopo
+   restrito ao hero de propósito: os reveals por scroll das demais seções
+   continuam como sempre. */
+html.pre #hero .v4-rise,
+html.pre #hero .v4-words .v4-word,
+html.pre #hero .v4r {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: none;
+  transition: none;
+}
+
 /* ── Rotação contínua (raios, selos, anéis) ─────────────────────────── */
 @keyframes v4-rotate {
   to {
