@@ -321,13 +321,16 @@ async function capturarRota(browser, rota) {
 }
 
 /**
- * Fontes: troca os <link> do Google Fonts por CSS inline + preload dos woff2
- * do primeiro paint. Dois efeitos medidos no Lighthouse:
- * - remove a folha render-blocking (fonts.googleapis) do caminho crítico —
- *   era "economia estimada de 1,5s" no mobile;
- * - o h1 pré-renderizado pinta cedo e REFLUI quando a Sora/Fraunces chegam
- *   (CLS 0,22 no desktop, o shift inteiro atribuído ao .v4-words do hero).
- *   Com preload, as fontes do hero chegam antes do primeiro paint.
+ * Fontes: troca os <link> do Google Fonts por CSS inline — remove a folha
+ * render-blocking (fonts.googleapis) do caminho crítico, que era "economia
+ * estimada de 1,5s" no mobile do Lighthouse.
+ *
+ * SEM preload de woff2, de propósito: foi testado e revertido. Os 3 arquivos
+ * (~150 KB) disputavam a banda do 4G com o CSS render-blocking e com o bundle,
+ * atrasando first paint e LCP no mobile. Quem segura o layout durante o swap
+ * são os fallbacks métricos do v4.css ("Sora Fallback" etc.) — CLS fica 0
+ * mesmo com a fonte chegando tarde.
+ *
  * Se o fetch falhar, mantém os <link> originais (enhancement, não guard).
  */
 async function inlinarFontes(template) {
@@ -350,39 +353,12 @@ async function inlinarFontes(template) {
   }
   if (!css.includes('woff2') || css.includes('</style>')) return template
 
-  // Fontes visíveis no primeiro paint (hero): Sora 800 (h1), Fraunces itálica
-  // (destaque do h1) e Manrope 400 (subfrase/corpo) — só o subset latin.
-  const alvos = [
-    { familia: 'Sora', peso: '800' },
-    { familia: 'Fraunces', estilo: 'italic' },
-    { familia: 'Manrope', peso: '400' },
-  ]
-  const preloads = []
-  for (const bloco of css.split('@font-face').slice(1)) {
-    if (!bloco.includes('U+0000-00FF')) continue // só latin
-    const familia = bloco.match(/font-family:\s*'([^']+)'/)?.[1]
-    const estilo = bloco.match(/font-style:\s*(\w+)/)?.[1]
-    const peso = bloco.match(/font-weight:\s*([\d ]+)/)?.[1]?.trim()
-    const arquivo = bloco.match(/url\((https:[^)]+\.woff2)\)/)?.[1]
-    if (!arquivo) continue
-    const bate = alvos.some(
-      (a) =>
-        a.familia === familia &&
-        (!a.peso || peso === a.peso || (peso?.includes(' ') && true)) &&
-        (!a.estilo || estilo === a.estilo),
-    )
-    if (bate && !preloads.includes(arquivo)) preloads.push(arquivo)
-  }
-  const linksPreload = preloads
-    .map((u) => `<link rel="preload" as="font" type="font/woff2" crossorigin href="${u}" />`)
-    .join('\n    ')
-
-  let saida = template.replace(/<link[^>]*as="style"[^>]*>/, linksPreload)
+  let saida = template.replace(/\s*<link[^>]*as="style"[^>]*>/, '')
   saida = saida.replace(
     /<link[^>]*rel="stylesheet"[^>]*href="https:\/\/fonts\.googleapis\.com[^>]*>/,
     () => `<style>${css}</style>`,
   )
-  console.log(`[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB) + ${preloads.length} preloads de woff2`)
+  console.log(`[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB), sem preloads`)
   return saida
 }
 
