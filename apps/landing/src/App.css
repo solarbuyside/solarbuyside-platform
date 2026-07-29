@@ -1,4 +1,16 @@
-﻿.reveal {
+﻿/* Par obrigatório dos atributos width/height que o átomo <Img> passou a emitir
+   (src/v4/atoms.tsx + scripts/gerar-dimensoes.mjs). Os atributos existem para o
+   navegador saber a PROPORÇÃO antes da imagem chegar e não empurrar o layout
+   (CLS). Sem esta regra, numa imagem fluida (CSS define a largura, não a
+   altura) o height do atributo viraria altura fixa em px e a imagem esticaria.
+   Com height:auto o navegador deriva a altura da proporção — que é o objetivo.
+   Especificidade de elemento: qualquer altura vinda de classe ou style vence
+   esta regra, então os casos de altura fixa (logos do marquee) seguem iguais. */
+img {
+  height: auto;
+}
+
+.reveal {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 700ms ease, transform 700ms ease;

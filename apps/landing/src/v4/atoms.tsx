@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
 import temWebp from './webp-manifest.json'
+import dimManifesto from './dim-manifest.json'
 
 /* Átomos compartilhados da V4 "Solar Dawn" — reveal, tipografia expressiva,
    CTAs, marquee, selos. A copy nunca vive aqui: estes componentes só dão forma. */
@@ -26,14 +27,35 @@ export function comWebp(src: string): string {
   return src
 }
 
+/** Dimensões intrínsecas conhecidas, para o navegador reservar a proporção
+    antes da imagem chegar (CLS). Vem de scripts/gerar-dimensoes.mjs. Caminho
+    fora do manifesto (upload do CMS no Storage) sai sem os atributos, como
+    antes. O tamanho EXIBIDO segue do CSS: `img { height: auto }` em v4.css
+    garante que o height aqui valha como proporção, não como altura fixa. */
+function dimensoes(src: string): { width: number; height: number } | null {
+  try {
+    const plano = decodeURI(src).normalize('NFC')
+    // O JSON tipa os pares como number[]; a garantia de 2 elementos é do
+    // gerador, então a checagem de tamanho fica aqui.
+    const d = (dimManifesto as Record<string, number[]>)[plano]
+    if (d?.length === 2) return { width: d[0], height: d[1] }
+  } catch {
+    /* src malformado: segue sem dimensão */
+  }
+  return null
+}
+
 export const Img: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => {
   const src = typeof props.src === 'string' ? props.src : undefined
   const webp = src ? comWebp(src) : src
-  if (!src || webp === src) return <img {...props} />
+  // width/height explícitos no call site vencem o manifesto.
+  const dim = src && props.width == null && props.height == null ? dimensoes(src) : null
+  const img = <img {...props} {...(dim ?? {})} />
+  if (!src || webp === src) return img
   return (
     <picture>
       <source srcSet={webp} type="image/webp" />
-      <img {...props} />
+      {img}
     </picture>
   )
 }

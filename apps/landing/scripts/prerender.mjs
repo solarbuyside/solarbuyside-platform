@@ -56,12 +56,20 @@ const HOSTS_BLOQUEADOS = ['va.vercel-scripts.com', 'vercel-insights.com']
 // pior que build quebrado). A raiz extrai ~50 KB hoje; legais ~10 KB.
 const ROTAS = [
   { rota: '/', saida: 'index.html', exigeBanco: true, pisoTexto: 10_000, pisoCss: 15_000 },
-  { rota: '/1', saida: '1/index.html', pisoTexto: 10_000, pisoCss: 15_000 },
+  // noindex: a /1 é cópia da LP oficial. O canonical para a raiz já dizia isso,
+  // mas o Disallow no robots.txt impedia o Google de LER esse canonical — a
+  // URL podia ser indexada mesmo assim, sem título nem descrição. Com o
+  // Disallow removido, o robots meta é o sinal que de fato remove a página do
+  // índice (é a via que o próprio Google recomenda em vez do robots.txt).
+  { rota: '/1', saida: '1/index.html', pisoTexto: 10_000, pisoCss: 15_000, noindex: true },
   // titulo: a SPA não seta document.title, então as rotas internas herdariam o
   // título da home no HTML estático.
-  { rota: '/politica-de-privacidade', saida: 'politica-de-privacidade/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Política de Privacidade — Solar Buy-Side' },
-  { rota: '/termos-de-uso', saida: 'termos-de-uso/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Termos de Uso — Solar Buy-Side' },
-  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Medidas Antipiratarias — Solar Buy-Side' },
+  // descricao: idem — sem isso as três legais herdavam a description COMERCIAL
+  // da home ("...ganhando: Técnica, Credibilidade e Conversão"), que descreve
+  // um produto, não um documento jurídico.
+  { rota: '/politica-de-privacidade', saida: 'politica-de-privacidade/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Política de Privacidade — Solar Buy-Side', descricao: 'Como a Buy-Side Soluções coleta, usa, armazena e protege os dados pessoais de quem acessa o site e adquire o Manual Solar Buy-Side, conforme a LGPD.' },
+  { rota: '/termos-de-uso', saida: 'termos-de-uso/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Termos de Uso — Solar Buy-Side', descricao: 'Condições de uso do site e dos materiais Solar Buy-Side: licença de acesso, responsabilidades das partes, pagamento, reembolso e propriedade intelectual.' },
+  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Medidas Antipiratarias — Solar Buy-Side', descricao: 'Medidas de proteção autoral do Manual Solar Buy-Side: rastreamento de cópias, limites da licença coletiva e providências em caso de compartilhamento indevido.' },
 ]
 
 const MIME = {
@@ -542,6 +550,20 @@ function montarSaida(template, rota, captura, secoes) {
   if (titulo) {
     const escapado = titulo.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     saida = saida.replace(/<title>[^<]*<\/title>/, `<title>${escapado}</title>`)
+  }
+
+  if (rota.descricao) {
+    const escapado = rota.descricao.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    // og:description junto: senão o card do WhatsApp anuncia o produto quando
+    // alguém compartilha o link de um documento legal.
+    saida = saida
+      .replace(/(<meta name="description" content=")[^"]*(")/, `$1${escapado}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${escapado}$2`)
+      .replace(/(<meta property="twitter:description" content=")[^"]*(")/, `$1${escapado}$2`)
+  }
+
+  if (rota.noindex) {
+    saida = saida.replace('</head>', '<meta name="robots" content="noindex, follow">\n</head>')
   }
 
   if (rota.canonical) {

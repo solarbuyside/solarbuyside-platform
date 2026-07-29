@@ -14,8 +14,9 @@ setor e representantes comerciais de energia solar fotovoltaica no Brasil.
 
 - [Página principal](https://solarbuyside.com.br/): método, kit completo, depoimentos e oferta.
 
-A landing page é uma SPA em React — o conteúdo só existe depois que o JavaScript
-executa. Este arquivo descreve a página para agentes que não renderizam JS.
+A landing page é pré-renderizada: o HTML servido já contém o conteúdo completo
+(texto, headings e dados estruturados), sem depender de JavaScript. O React
+apenas hidrata por cima. Este arquivo é um resumo, não um substituto da página.
 
 ## Quem assina o método
 
