@@ -9,6 +9,41 @@
    Escopo: tudo prefixado com v4- para não vazar para a LP atual.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* ── Fallbacks com métricas compatíveis (CLS) ───────────────────────────
+   A LP é pré-renderizada: o h1 pinta com a fonte fallback e REFLUÍA quando
+   a Sora/Fraunces chegavam — era um shift de 0,222, o CLS inteiro do
+   desktop (atribuição do Lighthouse; com fontes bloqueadas, CLS = 0).
+   Estes @font-face fazem o Arial ocupar o mesmo espaço da fonte final
+   (ascent/descent/size-adjust calculados por @capsizecss/core a partir das
+   métricas reais). Se trocar de família, regenerar com createFontStack. */
+@font-face {
+  font-family: 'Sora Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-display: swap;
+  ascent-override: 85.2913%;
+  descent-override: 25.4995%;
+  line-gap-override: 0%;
+  size-adjust: 113.7279%;
+}
+@font-face {
+  font-family: 'Fraunces Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-display: swap;
+  ascent-override: 92.9623%;
+  descent-override: 24.2386%;
+  line-gap-override: 0%;
+  size-adjust: 105.2039%;
+}
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial'), local('ArialMT');
+  font-display: swap;
+  ascent-override: 103.3095%;
+  descent-override: 29.074%;
+  line-gap-override: 0%;
+  size-adjust: 103.1851%;
+}
+
 .v4-root {
   /* Atos escuros */
   --v4-night: #07090d; /* carvão azulado — ato I/II */
@@ -29,14 +64,14 @@
   --v4-blue: #3b82f6;
 
   --v4-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-family: 'Manrope', 'Manrope Fallback', system-ui, -apple-system, sans-serif;
 }
 
 .v4-root h1,
 .v4-root h2,
 .v4-root h3,
 .v4-root h4 {
-  font-family: 'Sora', system-ui, sans-serif;
+  font-family: 'Sora', 'Sora Fallback', system-ui, sans-serif;
 }
 
 .v4-root [id] {
@@ -45,7 +80,7 @@
 
 /* ── Tipografia expressiva ──────────────────────────────────────────── */
 .v4-serif {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Fraunces', 'Fraunces Fallback', Georgia, serif;
   font-style: italic;
   font-weight: 480;
   letter-spacing: -0.015em;

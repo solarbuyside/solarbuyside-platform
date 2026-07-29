@@ -67,7 +67,9 @@ function App() {
   if (legalPage) {
     return (
       <div className="font-sans">
-        <LegalPage title={legalPage.title} sections={legalPage.sections} slug={legalPage.slug} />
+        <main>
+          <LegalPage title={legalPage.title} sections={legalPage.sections} slug={legalPage.slug} />
+        </main>
         <Footer />
       </div>
     )

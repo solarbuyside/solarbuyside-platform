@@ -262,7 +262,18 @@ que leu código, não comportamento.
 - **Existem dois `v4.css`.** `src/v4/v4.css` (LP oficial) e
   `src/v4-full/v4.css` (cópia congelada da `/1`). O Vite empacota o CSS de
   todas as rotas num arquivo só, então mexer só em um não surte efeito. Foi o
-  que fez a otimização de fontes parecer inútil na primeira medição.
+  que fez a otimização de fontes parecer inútil na primeira medição. Mordeu
+  DE NOVO em 28/07 à noite: as pilhas `font-family` com fallback métrico
+  (CLS) só funcionaram depois de aplicadas nos DOIS arquivos — a regra do
+  congelado vem depois no bundle e vence a da oficial.
+
+- **Com pré-renderização, o swap de fonte vira CLS.** O h1 pinta cedo com a
+  fonte fallback e reflui quando Sora/Fraunces chegam — era um shift de 0,22,
+  o CLS inteiro do desktop (provado: bloqueando fonts.gstatic, CLS = 0).
+  Antes da pré-renderização isso não aparecia porque não havia texto na tela
+  até o React montar. Correção: fallbacks com métricas compatíveis
+  (`@capsizecss/core`, `ascent/descent/size-adjust` no v4.css) + fontes
+  inline no build + preload dos woff2 do hero (prerender.mjs).
 
 - **Não comparar performance de `localhost` com a Vercel.** Servidores
   diferentes, CDN e compressão diferentes. Cheguei a reportar um "+524ms pior"

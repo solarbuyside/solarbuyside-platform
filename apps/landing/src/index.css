@@ -34,7 +34,7 @@ html {
 }
 
 body {
-  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-family: 'Manrope', 'Manrope Fallback', system-ui, -apple-system, sans-serif;
   font-size: clamp(16px, 1.02vw, 19px);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -45,7 +45,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-family: 'Sora', 'Sora Fallback', system-ui, -apple-system, sans-serif;
   letter-spacing: 0;
 }
 

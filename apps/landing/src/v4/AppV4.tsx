@@ -80,6 +80,9 @@ export default function AppV4() {
       <HeaderV4 />
       <FloatingCTAV4 />
       <MobileCtaBarV4 />
+      {/* <main>: landmark principal para leitor de tela (auditoria de Práticas
+          do Lighthouse). Header/CTAs/rodapé ficam fora, como manda a semântica. */}
+      <main>
       <div id="hero">
         <HeroV4 />
       </div>
@@ -128,6 +131,7 @@ export default function AppV4() {
         <FAQV4 />
       </div>
       <ContactV4 />
+      </main>
       <FooterV4 />
     </div>
   )

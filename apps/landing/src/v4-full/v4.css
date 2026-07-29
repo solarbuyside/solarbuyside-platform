@@ -30,14 +30,14 @@
   --v4-blue: #3b82f6;
 
   --v4-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-family: 'Manrope', 'Manrope Fallback', system-ui, -apple-system, sans-serif;
 }
 
 .v4-root h1,
 .v4-root h2,
 .v4-root h3,
 .v4-root h4 {
-  font-family: 'Sora', system-ui, sans-serif;
+  font-family: 'Sora', 'Sora Fallback', system-ui, sans-serif;
 }
 
 .v4-root [id] {
@@ -46,7 +46,7 @@
 
 /* ── Tipografia expressiva ──────────────────────────────────────────── */
 .v4-serif {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Fraunces', 'Fraunces Fallback', Georgia, serif;
   font-style: italic;
   font-weight: 480;
   letter-spacing: -0.015em;
@@ -419,7 +419,7 @@
 
 /* ── Drop cap editorial ─────────────────────────────────────────────── */
 .v4-dropcap::first-letter {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Fraunces', 'Fraunces Fallback', Georgia, serif;
   font-style: italic;
   font-size: 3.4em;
   font-weight: 600;
