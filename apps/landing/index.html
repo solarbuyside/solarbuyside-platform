@@ -53,22 +53,27 @@
     <meta property="twitter:image" content="https://solarbuyside.com.br/og-image.png" />
 
     <!--
-      GA4. O guard de hostname existe por causa do prerender: o script roda num
-      Chromium headless a cada build e, sem ele, cada deploy mandaria sessões
-      falsas de localhost para a propriedade. Também mantém dev local fora dos
-      dados. async: não bloqueia o parser.
+      GA4. O snippet fica ESTÁTICO, na forma padrão, porque o verificador do
+      Google busca a página e procura a tag no HTML servido — injetar por JS
+      fazia a tag existir para o visitante e não existir para o detector.
+
+      O que impede o lixo de build é a flag ga-disable-<ID>, que é o opt-out
+      oficial do GA: o gtag.js carrega mas não envia nada. Sem isso, o Chromium
+      headless do prerender abriria a página a cada deploy e cada build viraria
+      uma sessão de localhost na propriedade. Mesma proteção para o dev local.
+      Precisa vir ANTES do gtag.js.
     -->
     <script>
-      if (location.hostname === 'solarbuyside.com.br' || location.hostname === 'www.solarbuyside.com.br') {
-        window.dataLayer = window.dataLayer || []
-        window.gtag = function () { window.dataLayer.push(arguments) }
-        gtag('js', new Date())
-        gtag('config', 'G-1HC0KJXB6S')
-        var s = document.createElement('script')
-        s.async = true
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S'
-        document.head.appendChild(s)
+      if (location.hostname !== 'solarbuyside.com.br' && location.hostname !== 'www.solarbuyside.com.br') {
+        window['ga-disable-G-1HC0KJXB6S'] = true
       }
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() { dataLayer.push(arguments) }
+      gtag('js', new Date())
+      gtag('config', 'G-1HC0KJXB6S')
     </script>
 
     <!-- Schema.org JSON-LD -->
