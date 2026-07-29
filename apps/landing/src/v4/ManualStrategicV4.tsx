@@ -12,6 +12,35 @@ type ItemProps = {
   delay?: number
 }
 
+/* Lista numerada do ato escuro: rótulo mono laranja + itens 01..N com fio.
+   Nasceu no bloco do Código e virou compartilhada quando o Francis pediu a
+   mesma coisa no Manual (29/07) — os dois blocos usam a mesma anatomia, então
+   duplicar o markup só criaria duas versões para divergirem depois. */
+const NumberedList: React.FC<{ title?: string; items: string[] }> = ({ title, items }) => (
+  <>
+    {/* h3, não h4: o título anterior do bloco é um h2, e pular de h2 para h4
+        quebra a ordem da árvore de headings (o Lighthouse acusava "ordem
+        sequencial descendente"). */}
+    {title?.trim() && (
+      <h3 className="border-b border-white/[0.08] pb-3">
+        <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">{title}</span>
+      </h3>
+    )}
+    <ul>
+      {items.map((item, i) => (
+        <li key={i} className="grid grid-cols-[48px_1fr] gap-5 border-b border-white/[0.08] py-5">
+          <span className="v4-mono text-xl font-bold leading-none text-white/25" aria-hidden>
+            {`0${i + 1}`}
+          </span>
+          <p className="leading-relaxed text-slate-300">
+            <CMSText value={item} />
+          </p>
+        </li>
+      ))}
+    </ul>
+  </>
+)
+
 /* Item editorial sem caixa: anel hairline + hairline inferior, inversão laranja no hover */
 const FeatureItem: React.FC<ItemProps> = ({ Icon, title, desc, delay = 0 }) => (
   <Reveal
@@ -81,19 +110,24 @@ export const ManualStrategicV4: React.FC = () => {
     section?.texts.codeDesc4 ?? 'Resultado: você deixa de competir por preço e passa a vender por valor.',
   ])
 
-  /* Lista "O que você leva com o Código" (Francis 2026-07-23): mesma anatomia
-     da lista que existia na seção Código (rótulo mono + item numerado + fio),
-     adaptada à paleta escura deste bloco. Itens vazios não renderizam. */
-  const codeItems = [
-    section?.texts.codeItem1,
-    section?.texts.codeItem2,
-    section?.texts.codeItem3,
-    section?.texts.codeItem4,
-    section?.texts.codeItem5,
-    section?.texts.codeItem6,
-  ]
-    .map((item) => item ?? '')
-    .filter((item) => item.trim().length > 0)
+  /* Listas numeradas dos dois blocos. A do Código veio primeiro (Francis
+     2026-07-23); a do Manual foi pedida em 29/07 ("do mesmo jeito do que para
+     o código"), com um subtítulo próprio. Itens vazios não renderizam, então o
+     cliente controla quantos aparecem sem passar por aqui.
+     O teto espelha os slots oferecidos no editor (field-schema.ts). */
+  const MAX_ITENS = 6
+  const lerItens = (prefixo: string) => {
+    const out: string[] = []
+    for (let i = 1; i <= MAX_ITENS; i++) {
+      const valor = section?.texts[`${prefixo}${i}`]
+      if (valor === undefined) continue
+      out.push(valor)
+    }
+    return out.filter(notEmpty)
+  }
+
+  const manualItems = lerItens('manualItem')
+  const codeItems = lerItens('codeItem')
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
@@ -148,6 +182,14 @@ export const ManualStrategicV4: React.FC = () => {
                   renderizado (bug reportado pelo Francis em 2026-07-23). */}
               {section?.texts.description3?.trim() && <p>{section.texts.description3}</p>}
             </Reveal>
+
+            {/* Lista numerada do Manual (Francis, 29/07): mesma lista que o
+                Código já tinha, aqui logo abaixo dos parágrafos. */}
+            {manualItems.length > 0 && (
+              <Reveal delay={360} className="mt-10 max-w-2xl">
+                <NumberedList title={section?.texts.manualListTitle} items={manualItems} />
+              </Reveal>
+            )}
           </div>
 
           {/* Pedestal de luz: glow + capa flutuando + elipse no chão + reflexo */}
@@ -218,32 +260,7 @@ export const ManualStrategicV4: React.FC = () => {
             </Reveal>
             {codeItems.length > 0 && (
               <Reveal delay={240} className="mt-10 max-w-2xl">
-                {/* h3, não h4: o título anterior da seção é um h2, e pular de
-                    h2 para h4 quebra a ordem da árvore de headings (Lighthouse
-                    acusava "ordem sequencial descendente"). Os itens da lista
-                    abaixo seguem h4, que agora desce certo a partir daqui. */}
-                {section?.texts.codeListTitle?.trim() && (
-                  <h3 className="border-b border-white/[0.08] pb-3">
-                    <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-500">
-                      {section.texts.codeListTitle}
-                    </span>
-                  </h3>
-                )}
-                <ul>
-                  {codeItems.map((item, i) => (
-                    <li
-                      key={i}
-                      className="grid grid-cols-[48px_1fr] gap-5 border-b border-white/[0.08] py-5"
-                    >
-                      <span className="v4-mono text-xl font-bold leading-none text-white/25" aria-hidden>
-                        {`0${i + 1}`}
-                      </span>
-                      <p className="leading-relaxed text-slate-300">
-                        <CMSText value={item} />
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                <NumberedList title={section?.texts.codeListTitle} items={codeItems} />
               </Reveal>
             )}
             {codeParagraphsBottom.length > 0 && (

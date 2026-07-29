@@ -374,6 +374,24 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
+        // Francis, 29/07: pediu no Manual a mesma lista numerada que o Código
+        // já tem, "abaixo dos 3 parágrafos", com um subtítulo próprio. Grupo
+        // separado (e não mais campos dentro de "Bloco 1") para ele achar:
+        // grupo longo é justamente onde ele já perdeu campo antes.
+        label: "Manual — lista numerada (abaixo dos 3 parágrafos)",
+        fields: [
+          t("manualListTitle", "Lista — título", {
+            help: 'Rótulo em laranja acima da lista. Deixe vazio para não exibir o rótulo.',
+          }),
+          ml("manualItem1", "Lista — item 1"),
+          ml("manualItem2", "Lista — item 2"),
+          ml("manualItem3", "Lista — item 3"),
+          ml("manualItem4", "Lista — item 4"),
+          ml("manualItem5", "Lista — item 5"),
+          ml("manualItem6", "Lista — item 6", { help: "Deixe vazio para não exibir." }),
+        ],
+      },
+      {
         // Bloco "Código do Vendedor" que aparece DENTRO do Manual na LP
         // oficial. Não confundir com a seção "Código do vendedor (bônus)",
         // que hoje só existe na /1.
