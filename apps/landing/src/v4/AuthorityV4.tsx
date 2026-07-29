@@ -194,7 +194,7 @@ export const AuthorityV4: React.FC = () => {
 
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-0">
             <DuelSide
-              image={section?.images.francis || '/assets/Francis Poloni LP PRO.jpg.jpeg'}
+              image={section?.images.francis || '/assets/Francis Poloni LP PRO 368.jpeg'}
               name={section?.texts.person1Name || 'Francis Poloni'}
               badge={section?.texts.person1Badge || 'Especialista'}
               experience={section?.texts.person1Experience || '+7 Anos'}
