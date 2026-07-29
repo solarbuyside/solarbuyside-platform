@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react'
 import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { GrainOverlay, Reveal } from './atoms'
+import { comWebp, GrainOverlay, Reveal } from './atoms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -86,7 +86,7 @@ export const VideoV4: React.FC = () => {
                   <div
                     className="absolute inset-0 bg-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     style={{
-                      backgroundImage: `url('${section?.images.videoPoster || '/assets/capa-video-solar.jpeg'}')`,
+                      backgroundImage: `url('${comWebp(section?.images.videoPoster || '/assets/capa-video-solar.jpeg')}')`,
                       backgroundPosition: '50% 50%',
                       filter: 'saturate(0.82) contrast(1.05)',
                     }}

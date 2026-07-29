@@ -12,20 +12,24 @@ import temWebp from './webp-manifest.json'
    fora do manifesto (ex.: upload do CMS no Supabase Storage) rende <img>
    puro, idêntico ao de antes. O srcSet vai URI-encodado: espaço em srcset é
    separador de candidato. */
+/** URL da variante WebP quando o manifesto garante o arquivo; senão o próprio
+    src. Para background-image em CSS, onde <picture> não existe. */
+export function comWebp(src: string): string {
+  try {
+    const plano = decodeURI(src).normalize('NFC')
+    if ((temWebp as Record<string, boolean>)[plano]) {
+      return encodeURI(plano.replace(/\.(png|jpe?g)$/i, '.webp'))
+    }
+  } catch {
+    /* src malformado: segue original */
+  }
+  return src
+}
+
 export const Img: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => {
   const src = typeof props.src === 'string' ? props.src : undefined
-  let webp: string | null = null
-  if (src) {
-    try {
-      const plano = decodeURI(src).normalize('NFC')
-      if ((temWebp as Record<string, boolean>)[plano]) {
-        webp = encodeURI(plano.replace(/\.(png|jpe?g)$/i, '.webp'))
-      }
-    } catch {
-      /* src malformado: segue sem webp */
-    }
-  }
-  if (!webp) return <img {...props} />
+  const webp = src ? comWebp(src) : src
+  if (!src || webp === src) return <img {...props} />
   return (
     <picture>
       <source srcSet={webp} type="image/webp" />

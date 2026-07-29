@@ -1,11 +1,18 @@
+import { lazy, Suspense } from 'react'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import { LegalPage } from './components/LegalPage'
-import { Footer } from './components/Footer'
-import { antipiracySections, privacySections, termsSections } from './legal/legalContent'
 import AppV4 from './v4/AppV4'
-import AppV4Full from './v4-full/AppV4'
+
+// Rotas secundárias em chunks próprios: a cópia congelada da /1 (componentes +
+// v4.css + snapshot de conteúdo) e as páginas legais embarcavam no bundle de
+// TODO visitante da raiz — eram boa parte do "JavaScript/CSS não usado" do
+// Lighthouse mobile. O custo é um vazio breve nessas rotas entre o mount do
+// React e o chunk chegar (o HTML pré-renderizado cobre até o mount).
+const AppV4Full = lazy(() => import('./v4-full/AppV4'))
+const LegalRoute = lazy(() => import('./LegalRoute'))
+
+const LEGAL_PATHS = ['/politica-de-privacidade', '/termos-de-uso', '/medidas-antipiratarias']
 
 // LP OFICIAL = o redesign V4 "Solar Dawn" (src/v4/AppV4.tsx), renderizado na
 // raiz "/".
@@ -37,41 +44,19 @@ function App() {
   // /1 = snapshot congelado da LP atual completa (antes de remover seções na raiz).
   if (pathname === '/1') {
     return (
-      <>
+      <Suspense fallback={null}>
         <AppV4Full />
         <Analytics />
         <SpeedInsights />
-      </>
+      </Suspense>
     )
   }
 
-  const legalPages = {
-    '/politica-de-privacidade': {
-      title: 'Política de Privacidade',
-      slug: 'privacidade',
-      sections: privacySections,
-    },
-    '/termos-de-uso': {
-      title: 'Termos de Uso',
-      slug: 'termos',
-      sections: termsSections,
-    },
-    '/medidas-antipiratarias': {
-      title: 'Medidas Antipiratarias',
-      slug: 'antipirataria',
-      sections: antipiracySections,
-    },
-  } as const
-  const legalPage = legalPages[pathname as keyof typeof legalPages]
-
-  if (legalPage) {
+  if (LEGAL_PATHS.includes(pathname)) {
     return (
-      <div className="font-sans">
-        <main>
-          <LegalPage title={legalPage.title} sections={legalPage.sections} slug={legalPage.slug} />
-        </main>
-        <Footer />
-      </div>
+      <Suspense fallback={null}>
+        <LegalRoute pathname={pathname} />
+      </Suspense>
     )
   }
 
