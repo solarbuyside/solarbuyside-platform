@@ -325,9 +325,10 @@ Tudo aqui espera decisão ou dado de fora.
   Template de e-commerce mal adaptado. Revisão jurídica, não técnica.
 - **Migration `0024_landing_events.sql`** — a tabela existe no banco, mas
   confirmar se a migration está registrada.
-- **Rota `/leve`** (`scripts/gerar-leve.mjs`) — criada só para o diagnóstico.
-  Sai com `noindex` e fora do sitemap. **Apagar**, junto com a linha do
-  `postbuild` no `package.json`.
+A rota `/leve` foi apagada no mesmo dia, cumprida a função de diagnóstico
+(`gerar-leve.mjs` e a linha do `postbuild`). Voltam a existir só duas páginas
+além das legais: a raiz e a `/1` — e a `/1` é temporária, fica enquanto o
+Francis revisa a versão íntegra.
 
 ---
 
