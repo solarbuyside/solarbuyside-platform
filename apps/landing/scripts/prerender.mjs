@@ -110,10 +110,15 @@ async function carregarSecoes(url, anon) {
    Gerado AQUI, e não à mão no index.html, para a marcação espelhar sempre o
    que está no ar: FAQ e preço saem do DOM renderizado; as pessoas espelham a
    regra banco-vence-default da seção Authority. Marcação inconsistente com a
-   página é pior que nenhuma. `sameAs` segue vazio de propósito: não há rede
-   social da marca documentada no repo — preencher exige URLs do Francis. */
+   página é pior que nenhuma. `sameAs` saiu do Organization em vez de ficar como
+   array vazio: array vazio não consolida entidade nenhuma e ainda sugere que o
+   campo foi preenchido. Volta quando houver perfil oficial da marca. */
 
 const SITE = 'https://solarbuyside.com.br'
+// @id do Organization declarado estaticamente no index.html — os blocos gerados
+// aqui apontam para ele em vez de redeclarar a empresa.
+const ORG_ID = `${SITE}/#organization`
+const CAPA_MANUAL = '/assets/Capa-manual-buy-side-definitiva.png'
 
 // Fallbacks idênticos aos de AuthorityV4.tsx — valem quando o admin não
 // preencheu a chave; se divergirem de lá, a marcação mente sobre a página.
@@ -151,19 +156,34 @@ function montarJsonLd(secoes, dados) {
       jobTitle: t[p.chaves[1]] || p.cargo,
       description: t[p.chaves[2]] || p.desc,
       image: img.startsWith('http') ? img : `${SITE}${encodeURI(img)}`,
-      worksFor: { '@type': 'Organization', name: 'Solar Buy-Side', url: SITE },
+      // Referência ao @id do Organization declarado no index.html, em vez de um
+      // Organization anônimo repetido em cada bloco: é o que faz o Google
+      // tratar empresa, autores e produto como UMA entidade em vez de três
+      // soltas que por acaso têm o mesmo nome.
+      worksFor: { '@id': ORG_ID },
     }
   })
   blocos.push(...pessoas)
 
   if (dados?.precoVista) {
+    // priceValidUntil é exigido pelo rich result de Product. Um ano à frente do
+    // build: o rebuild acontece a cada Publicar do /admin, então a data se
+    // renova sozinha muito antes de vencer.
+    const validade = new Date()
+    validade.setFullYear(validade.getFullYear() + 1)
+
     blocos.push({
       '@context': 'https://schema.org',
       '@type': 'Product',
+      '@id': `${SITE}/#produto`,
       name: hero?.texts?.manualTitle || 'Manual Solar Buy-Side',
       description:
         'Manual de compra de sistema solar fotovoltaico: método Buy-Side para avaliar propostas e decidir pela perspectiva do comprador.',
-      brand: { '@type': 'Organization', name: 'Solar Buy-Side', url: SITE },
+      // Product sem image não é elegível a rich result. A capa do manual é a
+      // mesma imagem que a página exibe na seção do kit.
+      image: [`${SITE}${encodeURI(CAPA_MANUAL)}`, `${SITE}/og-image.png`],
+      sku: 'SBS-MANUAL-KIT',
+      brand: { '@id': ORG_ID },
       author: pessoas.map(({ name, jobTitle }) => ({ '@type': 'Person', name, jobTitle })),
       offers: {
         '@type': 'Offer',
@@ -171,6 +191,21 @@ function montarJsonLd(secoes, dados) {
         priceCurrency: 'BRL',
         url: dados.checkout || `${SITE}/#oferta`,
         availability: 'https://schema.org/InStock',
+        priceValidUntil: validade.toISOString().slice(0, 10),
+        seller: { '@id': ORG_ID },
+        // Espelha a garantia declarada no FAQ da própria página ("7 dias
+        // corridos após a confirmação do pagamento"). Marcação que divergisse
+        // dali seria pior que marcação nenhuma.
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'BR',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: 7,
+          // Sem returnMethod: o produto é digital, não há devolução física. As
+          // opções do schema (ReturnByMail, ReturnInStore) descreveriam algo
+          // que não acontece.
+          returnFees: 'https://schema.org/FreeReturn',
+        },
       },
     })
   }

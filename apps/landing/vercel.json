@@ -2,6 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.solarbuyside.com.br"
+        }
+      ],
+      "destination": "https://solarbuyside.com.br/$1",
+      "permanent": true
+    },
+    {
       "source": "/v1",
       "destination": "/",
       "permanent": true
@@ -49,17 +60,6 @@
     {
       "source": "/v4.html",
       "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.solarbuyside.com.br"
-        }
-      ],
-      "destination": "https://solarbuyside.com.br/:path*",
       "permanent": true
     }
   ],
