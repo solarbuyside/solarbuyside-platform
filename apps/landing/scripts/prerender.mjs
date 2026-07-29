@@ -268,21 +268,35 @@ async function capturarRota(browser, rota) {
   // Margem para o fetch do Supabase aplicar o conteúdo do banco após o idle.
   await new Promise((r) => setTimeout(r, 1200))
   await rolarTudo(page)
-  await page.evaluate(() => {
-    // Blocos que nunca intersectaram no viewport desktop (ex.: variantes
-    // mobile-only) ficariam invisíveis no HTML estático; força o estado final.
-    document.querySelectorAll('.v4r:not(.in)').forEach((el) => el.classList.add('in'))
-    document.querySelectorAll('.v4-words:not(.go)').forEach((el) => el.classList.add('go'))
-    window.scrollTo(0, 0)
-  })
+  await page.evaluate(() => window.scrollTo(0, 0))
   // Estados ligados ao scroll (header, CTA flutuante, contadores) assentam.
   await new Promise((r) => setTimeout(r, 1500))
 
-  const { html, titulo, texto } = await page.evaluate(() => ({
-    html: document.querySelector('#root').innerHTML,
-    titulo: document.title,
-    texto: document.body.innerText,
-  }))
+  const { html, titulo, texto, conteudo } = await page.evaluate(() => {
+    // As classes de reveal (in/go) são adicionadas pelo IntersectionObserver e
+    // NÃO existem no primeiro render do React. Ficar com elas no HTML servido
+    // quebraria a hidratação (mismatch de className => o React descarta o DOM
+    // e volta a repintar, que é o que estamos eliminando). Quem mantém o
+    // conteúdo visível sem JS é a regra html:not(.js) do v4.css; após o
+    // hydrate, os observers revelam como sempre.
+    document.querySelectorAll('.v4r.in').forEach((el) => el.classList.remove('in'))
+    document.querySelectorAll('.v4-words.go').forEach((el) => el.classList.remove('go'))
+    return {
+      html: document.querySelector('#root').innerHTML,
+      titulo: document.title,
+      // innerText ignora display:none mas INCLUI texto com opacity 0 — o piso
+      // continua medindo o conteúdo todo mesmo com os reveals "recolhidos".
+      texto: document.body.innerText,
+      // Estado exato com que esta página foi renderizada (o provider grava o
+      // merge no localStorage). Vira window.__SBS_CONTENT__ para o primeiro
+      // render do cliente bater com o DOM e a hidratação colar.
+      conteudo: {
+        sections: JSON.parse(localStorage.getItem('cms-content') ?? 'null'),
+        assets: JSON.parse(localStorage.getItem('cms-global-assets') ?? 'null'),
+        settings: JSON.parse(localStorage.getItem('cms-global-settings') ?? 'null'),
+      },
+    }
+  })
 
   // Insumos do JSON-LD, tirados do DOM renderizado — a fonte que o visitante vê.
   let dados = null
@@ -317,7 +331,7 @@ async function capturarRota(browser, rota) {
   if (chars < rota.pisoTexto) {
     falhar(`a rota ${rota.rota} renderizou só ${chars} chars de texto (piso: ${rota.pisoTexto}) — captura rejeitada.`)
   }
-  return { html, titulo, chars, dados }
+  return { html, titulo, chars, dados, conteudo }
 }
 
 /**
@@ -325,11 +339,15 @@ async function capturarRota(browser, rota) {
  * render-blocking (fonts.googleapis) do caminho crítico, que era "economia
  * estimada de 1,5s" no mobile do Lighthouse.
  *
- * SEM preload de woff2, de propósito: foi testado e revertido. Os 3 arquivos
- * (~150 KB) disputavam a banda do 4G com o CSS render-blocking e com o bundle,
- * atrasando first paint e LCP no mobile. Quem segura o layout durante o swap
- * são os fallbacks métricos do v4.css ("Sora Fallback" etc.) — CLS fica 0
- * mesmo com a fonte chegando tarde.
+ * Preload de woff2 SÓ NO DESKTOP (media min-width 768px), e o porquê importa:
+ * - No desktop, o CLS depende de a fonte vencer o primeiro paint. O fallback
+ *   métrico ("Sora Fallback") aproxima larguras médias, mas a Sora 800
+ *   extrabold quebra linha diferente do Arial ajustado em certas larguras de
+ *   viewport (medido: shift 0,175 no h1 a 1350px quando a fonte chega tarde).
+ *   Com preload, a corrida nunca acontece.
+ * - No mobile, os ~150 KB de woff2 disputam o 4G com CSS e bundle e pioram
+ *   FCP/LCP — lá o preload não entra (media não casa) e o swap tardio tem
+ *   CLS pequeno no viewport estreito.
  *
  * Se o fetch falhar, mantém os <link> originais (enhancement, não guard).
  */
@@ -353,12 +371,43 @@ async function inlinarFontes(template) {
   }
   if (!css.includes('woff2') || css.includes('</style>')) return template
 
-  let saida = template.replace(/\s*<link[^>]*as="style"[^>]*>/, '')
+  // Fontes visíveis no primeiro paint do hero, subset latin.
+  const alvos = [
+    { familia: 'Sora', peso: '800' },
+    { familia: 'Fraunces', estilo: 'italic' },
+    { familia: 'Manrope', peso: '400' },
+  ]
+  const preloads = []
+  for (const bloco of css.split('@font-face').slice(1)) {
+    if (!bloco.includes('U+0000-00FF')) continue // só latin
+    const familia = bloco.match(/font-family:\s*'([^']+)'/)?.[1]
+    const estilo = bloco.match(/font-style:\s*(\w+)/)?.[1]
+    const peso = bloco.match(/font-weight:\s*([\d ]+)/)?.[1]?.trim()
+    const arquivo = bloco.match(/url\((https:[^)]+\.woff2)\)/)?.[1]
+    if (!arquivo) continue
+    const bate = alvos.some(
+      (a) =>
+        a.familia === familia &&
+        (!a.peso || peso === a.peso || Boolean(peso?.includes(' '))) &&
+        (!a.estilo || estilo === a.estilo),
+    )
+    if (bate && !preloads.includes(arquivo)) preloads.push(arquivo)
+  }
+  const linksPreload = preloads
+    .map(
+      (u) =>
+        `<link rel="preload" as="font" type="font/woff2" crossorigin media="(min-width: 768px)" href="${u}" />`,
+    )
+    .join('\n    ')
+
+  let saida = template.replace(/<link[^>]*as="style"[^>]*>/, linksPreload)
   saida = saida.replace(
     /<link[^>]*rel="stylesheet"[^>]*href="https:\/\/fonts\.googleapis\.com[^>]*>/,
     () => `<style>${css}</style>`,
   )
-  console.log(`[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB), sem preloads`)
+  console.log(
+    `[prerender] Google Fonts inlinado (${(css.length / 1024).toFixed(0)} KB) + ${preloads.length} preloads de woff2 só desktop`,
+  )
   return saida
 }
 
@@ -389,6 +438,13 @@ function montarSaida(template, rota, captura, secoes) {
     console.log(
       `[prerender] JSON-LD: ${captura.dados.faq.length} FAQs, preço à vista ${captura.dados.precoVista ?? 'NÃO ACHADO'}, checkout ${captura.dados.checkout ? 'ok' : 'ausente'}`,
     )
+  }
+
+  // Conteúdo do build embutido — pré-condição do hydrateRoot (ver main.tsx).
+  // Só na raiz: a /1 é determinística (snapshot) e as legais são chunk lazy.
+  if (rota.exigeBanco && captura.conteudo?.sections) {
+    const json = JSON.stringify(captura.conteudo).replace(/</g, '\\u003c')
+    saida = saida.replace('</head>', `<script>window.__SBS_CONTENT__=${json}</script>\n</head>`)
   }
 
   return saida.replace('</head>', `<!-- prerender: ${new Date().toISOString()} -->\n</head>`)

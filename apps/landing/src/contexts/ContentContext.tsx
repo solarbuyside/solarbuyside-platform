@@ -325,7 +325,33 @@ const mergeSections = (
   return applyAliases(merged)
 }
 
+/**
+ * Conteúdo embutido pelo prerender (window.__SBS_CONTENT__): o estado EXATO
+ * com que o build renderizou o HTML servido. Usá-lo como estado inicial faz o
+ * primeiro render do cliente bater com o DOM pré-renderizado — condição para
+ * o hydrateRoot adotar o DOM em vez de descartar (ver main.tsx). O fetch do
+ * Supabase continua rodando depois e vence se o banco mudou pós-build.
+ */
+type ConteudoEmbutido = {
+  sections?: unknown
+  assets?: unknown
+  settings?: unknown
+}
+const conteudoEmbutido = (): ConteudoEmbutido | null => {
+  const w = window as Window & { __SBS_CONTENT__?: ConteudoEmbutido }
+  return w.__SBS_CONTENT__ && isRecord(w.__SBS_CONTENT__) ? w.__SBS_CONTENT__ : null
+}
+
 const getStoredSections = (): SectionContent[] => {
+  const embutido = conteudoEmbutido()
+  if (Array.isArray(embutido?.sections)) {
+    const sections = embutido.sections
+      .map(normalizeSection)
+      .filter((s): s is SectionContent => s !== null)
+    // Verbatim: é o array já mesclado/aliased que o build usou para renderizar.
+    if (sections.length > 0) return sections
+  }
+
   const storedVersion = localStorage.getItem('cms-content-version')
   if (storedVersion !== String(CONTENT_VERSION)) {
     // Content defaults changed — clear stale cache
@@ -346,6 +372,15 @@ const getStoredSections = (): SectionContent[] => {
 }
 
 const getStoredGlobalAssets = (): GlobalAssets => {
+  const embutido = conteudoEmbutido()
+  if (isRecord(embutido?.assets)) {
+    const a = embutido.assets
+    return {
+      favicon: typeof a.favicon === 'string' ? a.favicon : DEFAULT_GLOBAL_ASSETS.favicon,
+      logo: typeof a.logo === 'string' ? a.logo : DEFAULT_GLOBAL_ASSETS.logo,
+    }
+  }
+
   const saved = localStorage.getItem('cms-global-assets')
   if (!saved) return DEFAULT_GLOBAL_ASSETS
 
@@ -362,6 +397,17 @@ const getStoredGlobalAssets = (): GlobalAssets => {
 }
 
 const getStoredGlobalSettings = (): GlobalSettings => {
+  const embutido = conteudoEmbutido()
+  if (isRecord(embutido?.settings)) {
+    const s = embutido.settings
+    return {
+      whatsappNumber:
+        typeof s.whatsappNumber === 'string' ? s.whatsappNumber : DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
+      purchaseLink:
+        typeof s.purchaseLink === 'string' ? s.purchaseLink : DEFAULT_GLOBAL_SETTINGS.purchaseLink,
+    }
+  }
+
   const saved = localStorage.getItem('cms-global-settings')
   if (!saved) return DEFAULT_GLOBAL_SETTINGS
 

@@ -230,7 +230,9 @@ export const PlatformV4: React.FC = () => {
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-4 font-['Sora'] text-[clamp(2.1rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-              {title}{' '}
+              {/* Espaço dentro da expressão: dois text nodes adjacentes quebram
+                  a hidratação (ver ContextV4). */}
+              {`${title} `}
               <span className="v4-serif text-orange-400">{titleHighlight}</span>
             </h2>
           </Reveal>

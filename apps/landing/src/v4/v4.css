@@ -196,6 +196,21 @@ html.pre #hero .v4r {
   transition: none;
 }
 
+/* Sem JS (crawler, ou o instante antes do bundle): o HTML pré-renderizado vem
+   SEM as classes de reveal (in/go saem na captura para a hidratação colar —
+   ver prerender.mjs), então estas regras mantêm todo o conteúdo visível.
+   main.tsx adiciona html.js na primeira linha; daí em diante os observers
+   revelam como sempre. */
+html:not(.js) .v4r,
+html:not(.js) .v4-words .v4-word,
+html:not(.js) .v4-rise {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
 /* ── Rotação contínua (raios, selos, anéis) ─────────────────────────── */
 @keyframes v4-rotate {
   to {

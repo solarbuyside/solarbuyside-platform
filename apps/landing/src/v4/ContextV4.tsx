@@ -39,7 +39,10 @@ export const ContextV4: React.FC = () => {
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-5 font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
-              {section?.texts.title || 'Panorama'}{' '}
+              {/* Espaço DENTRO da expressão (um text node só): {x}{' '} vira dois
+                  nós adjacentes, o innerHTML serializado funde num só e a
+                  hidratação do main.tsx acusa mismatch (#418). */}
+              {`${section?.texts.title || 'Panorama'} `}
               <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || '2026'}</span>
             </h2>
           </Reveal>

@@ -45,7 +45,9 @@ export const LeadMagnetV4: React.FC = () => {
 
             <Reveal delay={90}>
               <h2 className="mt-6 font-['Sora'] text-[clamp(2.2rem,4.5vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
-                {section?.texts.title || 'Ainda com'}{' '}
+                {/* Espaço dentro da expressão: dois text nodes adjacentes
+                    quebram a hidratação (ver ContextV4). */}
+                {`${section?.texts.title || 'Ainda com'} `}
                 <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || 'dúvidas?'}</span>
               </h2>
             </Reveal>
@@ -327,7 +329,9 @@ export const FAQV4: React.FC = () => {
                     aria-expanded={isOpen}
                     disabled={!hasAnswer}
                   >
-                    <span className="v4-mono shrink-0 text-sm text-orange-500/60">0{index + 1}</span>
+                    {/* Um text node só ("01"), não "0"+"1": adjacentes quebram
+                        a hidratação (ver ContextV4). */}
+                    <span className="v4-mono shrink-0 text-sm text-orange-500/60">{`0${index + 1}`}</span>
                     <span
                       className={`flex-1 font-['Sora'] text-lg font-bold transition-colors md:text-xl ${
                         isOpen ? 'text-orange-400' : 'text-white'
@@ -524,7 +528,7 @@ export const ContactV4: React.FC = () => {
                 )}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                {section?.texts.cnpjLabel || 'CNPJ:'}{' '}
+                {`${section?.texts.cnpjLabel || 'CNPJ:'} `}
                 <span className="font-semibold text-slate-200">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
               </p>
             </div>
