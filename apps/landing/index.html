@@ -62,18 +62,34 @@
       headless do prerender abriria a página a cada deploy e cada build viraria
       uma sessão de localhost na propriedade. Mesma proteção para o dev local.
       Precisa vir ANTES do gtag.js.
+
+      O gtag.js só entra DEPOIS do evento load, e não como <script async> no
+      head: medido em produção com perfil Moto G / 4G lento, ele custava 456 ms
+      de LCP (2064 ms contra 1608 ms) e 163 KB, disputando banda com o hero.
+      Analytics não precisa correr antes do conteúdo pintar — a coleta é a
+      mesma, o pageview dispara igual, só sai da frente do primeiro paint.
+
+      A fila do dataLayer e a função gtag() ficam AQUI, síncronas: os
+      componentes chamam gtag() no clique, e um clique pode acontecer antes do
+      load terminar. Sem a fila, esses eventos se perderiam. É o mesmo
+      mecanismo que o snippet oficial usa — o dataLayer acumula e o gtag.js
+      processa tudo quando chega.
     -->
     <script>
       if (location.hostname !== 'solarbuyside.com.br' && location.hostname !== 'www.solarbuyside.com.br') {
         window['ga-disable-G-1HC0KJXB6S'] = true
       }
-    </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S"></script>
-    <script>
       window.dataLayer = window.dataLayer || []
       function gtag() { dataLayer.push(arguments) }
       gtag('js', new Date())
       gtag('config', 'G-1HC0KJXB6S')
+
+      addEventListener('load', function () {
+        var s = document.createElement('script')
+        s.async = true
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S'
+        document.head.appendChild(s)
+      })
     </script>
 
     <!-- Schema.org JSON-LD -->
