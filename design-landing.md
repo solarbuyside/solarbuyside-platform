@@ -74,3 +74,10 @@ Efeitos de texto próprios: `.v4-stroke` (contorno fantasma), `.v4-grad-text`
   de `src/v4/` e NUNCA "sincronize" o congelado.
 - O HTML servido é pré-renderizado no build (`scripts/prerender.mjs`); mudanças
   de conteúdo exigem o Publicar do /admin (que dispara rebuild via Deploy Hook).
+- **A raiz HIDRATA (hydrateRoot)**: o React adota o DOM pré-renderizado sem
+  repintar. Consequência para quem escreve JSX na v4: NUNCA deixar duas
+  expressões/strings de texto adjacentes num elemento — `{x}{' '}<span>` ou
+  `0{i + 1}` viram dois text nodes que o innerHTML serializado funde num só, e
+  a hidratação acusa mismatch (#418) e repinta o subtree. Funda numa expressão
+  única: `` {`${x} `} `` e `` {`0${i + 1}`} ``. Mismatches aparecem no console
+  como `[hydrate] mismatch recuperado` (ver main.tsx).
