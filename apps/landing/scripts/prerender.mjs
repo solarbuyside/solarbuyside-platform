@@ -51,14 +51,17 @@ const HOSTS_BLOQUEADOS = ['va.vercel-scripts.com', 'vercel-insights.com']
 // pisoTexto: mínimo de caracteres de texto renderizado para aceitar a captura.
 // A raiz renderiza ~16.100 hoje; o piso folgado segura remoção de seções mas
 // derruba o build se a página vier em branco ou pela metade.
+// pisoCss: mínimo de bytes do CSS crítico extraído para aceitar a captura —
+// derruba o build se a extração vier vazia/capenga (HTML sem estilo no ar é
+// pior que build quebrado). A raiz extrai ~50 KB hoje; legais ~10 KB.
 const ROTAS = [
-  { rota: '/', saida: 'index.html', exigeBanco: true, pisoTexto: 10_000 },
-  { rota: '/1', saida: '1/index.html', pisoTexto: 10_000 },
+  { rota: '/', saida: 'index.html', exigeBanco: true, pisoTexto: 10_000, pisoCss: 15_000 },
+  { rota: '/1', saida: '1/index.html', pisoTexto: 10_000, pisoCss: 15_000 },
   // titulo: a SPA não seta document.title, então as rotas internas herdariam o
   // título da home no HTML estático.
-  { rota: '/politica-de-privacidade', saida: 'politica-de-privacidade/index.html', canonical: true, pisoTexto: 1_000, titulo: 'Política de Privacidade — Solar Buy-Side' },
-  { rota: '/termos-de-uso', saida: 'termos-de-uso/index.html', canonical: true, pisoTexto: 1_000, titulo: 'Termos de Uso — Solar Buy-Side' },
-  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, titulo: 'Medidas Antipiratarias — Solar Buy-Side' },
+  { rota: '/politica-de-privacidade', saida: 'politica-de-privacidade/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Política de Privacidade — Solar Buy-Side' },
+  { rota: '/termos-de-uso', saida: 'termos-de-uso/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Termos de Uso — Solar Buy-Side' },
+  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Medidas Antipiratarias — Solar Buy-Side' },
 ]
 
 const MIME = {
@@ -272,7 +275,89 @@ async function capturarRota(browser, rota) {
   // Estados ligados ao scroll (header, CTA flutuante, contadores) assentam.
   await new Promise((r) => setTimeout(r, 1500))
 
-  const { html, titulo, texto, conteudo } = await page.evaluate(() => {
+  const { html, titulo, texto, conteudo, cssCritico } = await page.evaluate(() => {
+    // ── CSS crítico por DOM-matching ─────────────────────────────────────
+    // Como o HTML é 100% pré-renderizado, "crítico" = toda regra cujo seletor
+    // casa com o DOM servido (página inteira, não só acima da dobra — elimina
+    // FOUC no scroll rápido). O arquivo completo vira carga async (ver
+    // aplicarCssCritico). Decisões:
+    // - matching por SELETOR, não por coverage: coverage perde :hover,
+    //   :focus-visible e media queries de outros viewports (renderizamos a
+    //   1366px; as regras mobile entram porque o seletor casa).
+    // - pseudo-classes/elementos NÃO escapados saem antes do teste
+    //   (`.group:hover .x` testa `.group .x`); o lookbehind (?<!\\) preserva
+    //   `.hover\:bg-x` e afins do Tailwind, que são nome de classe literal.
+    // - viés conservador: seletor que não parseia => MANTÉM (byte a mais não
+    //   quebra UI; regra a menos quebra).
+    // - safelist de runtime: html.js/html.pre (main.tsx), .in/.go (reveals) e
+    //   :not(.js) (visibilidade sem JS) ficam sempre — no primeiro paint elas
+    //   ainda não existem no DOM mas regem o comportamento pós-JS/sem-JS.
+    //   Estados de interação (FAQ aberto, menu) NÃO precisam: interagir exige
+    //   JS, e o preload do CSS completo (20 KB) chega antes do bundle (105 KB).
+    // - @font-face/@keyframes/@property: mantidos por inteiro (baratos).
+    // Rodar ANTES do strip dos reveals: .v4r.in também casa naturalmente.
+    // Nota: o inline é o CSS re-serializado pelo CSSOM (expande ~1,3x e
+    // arredonda micro-valores). Custo conhecido e aceito: 2 px de AA de glifo
+    // na /1 com JS (invisível; crops verificados) — a alternativa verbatim
+    // testada dropava regras e quebrava o sem-JS.
+    const extrairCssCritico = () => {
+      const SAFE = /\.(?:js|pre|in|go)(?![\w-])|:not\(\.js\)/
+      const limparPseudos = (sel) => {
+        let s = sel.replace(/(?<!\\)::[a-zA-Z-]+(\([^()]*\))?/g, '')
+        let antes
+        do {
+          antes = s
+          s = s.replace(/(?<!\\):[a-zA-Z-]+\([^()]*\)/g, '')
+        } while (s !== antes)
+        return s.replace(/(?<!\\):[a-zA-Z-]+/g, '').trim()
+      }
+      const mantem = (selRaw) => {
+        const sel = selRaw.trim()
+        if (!sel) return false
+        if (SAFE.test(sel)) return true
+        const limpo = limparPseudos(sel)
+        if (!limpo || limpo === '*') return true
+        try {
+          return Boolean(document.querySelector(limpo))
+        } catch {
+          return true
+        }
+      }
+      const coletar = (rules, out) => {
+        for (const r of rules) {
+          if (r.type === CSSRule.STYLE_RULE) {
+            if (r.selectorText.split(',').some(mantem)) out.push(r.cssText)
+          } else if (r.type === CSSRule.MEDIA_RULE || r.type === CSSRule.SUPPORTS_RULE) {
+            const sub = []
+            coletar(r.cssRules, sub)
+            if (sub.length) {
+              const cabecalho = r.cssText.slice(0, r.cssText.indexOf('{')).trim()
+              out.push(`${cabecalho}{${sub.join('')}}`)
+            }
+          } else {
+            out.push(r.cssText)
+          }
+        }
+      }
+      const partes = []
+      for (const sheet of document.styleSheets) {
+        // SÓ a folha do bundle da entrada (/assets/index-*.css) — o arquivo
+        // que sai do caminho crítico. Fora: o CSS de chunk lazy (AppV4-*.css
+        // da /1 carrega com o próprio chunk, como sempre; inliná-lo mudaria a
+        // cascata do primeiro paint em relação à produção de hoje), a folha do
+        // Google Fonts (inlinarFontes cuida no template) e qualquer <style>
+        // inline futuro (re-inlinar duplicaria).
+        if (!sheet.href || !sheet.href.includes('/assets/index-')) continue
+        try {
+          coletar(sheet.cssRules, partes)
+        } catch {
+          // folha ilegível: ignora
+        }
+      }
+      return partes.join('\n')
+    }
+    const cssCritico = extrairCssCritico()
+
     // As classes de reveal (in/go) são adicionadas pelo IntersectionObserver e
     // NÃO existem no primeiro render do React. Ficar com elas no HTML servido
     // quebraria a hidratação (mismatch de className => o React descarta o DOM
@@ -282,6 +367,7 @@ async function capturarRota(browser, rota) {
     document.querySelectorAll('.v4r.in').forEach((el) => el.classList.remove('in'))
     document.querySelectorAll('.v4-words.go').forEach((el) => el.classList.remove('go'))
     return {
+      cssCritico,
       html: document.querySelector('#root').innerHTML,
       titulo: document.title,
       // innerText ignora display:none mas INCLUI texto com opacity 0 — o piso
@@ -331,7 +417,10 @@ async function capturarRota(browser, rota) {
   if (chars < rota.pisoTexto) {
     falhar(`a rota ${rota.rota} renderizou só ${chars} chars de texto (piso: ${rota.pisoTexto}) — captura rejeitada.`)
   }
-  return { html, titulo, chars, dados, conteudo }
+  if ((cssCritico?.length ?? 0) < rota.pisoCss) {
+    falhar(`a rota ${rota.rota} extraiu só ${cssCritico?.length ?? 0} bytes de CSS crítico (piso: ${rota.pisoCss}) — captura rejeitada para não servir página sem estilo.`)
+  }
+  return { html, titulo, chars, dados, conteudo, cssCritico }
 }
 
 /**
@@ -417,10 +506,37 @@ async function inlinarFontes(template) {
   return saida
 }
 
+/**
+ * CSS crítico: o <link rel="stylesheet"> do bundle (render-blocking, 850 ms
+ * no 4G medidos pelo Lighthouse) sai do caminho crítico. No lugar:
+ *   1. <style data-critico> com as regras que o DOM servido usa (por rota);
+ *   2. o arquivo completo como preload que vira stylesheet no onload —
+ *      cobre hover/estados de interação e navegação SPA posterior.
+ * SEM <noscript>: o inline cobre 100% do DOM servido (verificado por diff de
+ * screenshot 0,0000% renderizando SÓ com o inline), e sem JS não existe
+ * navegação nem interação numa SPA — o link duplicado só criava um estado
+ * "inline+completo" exclusivo do sem-JS, com micro-diferenças de serialização
+ * do CSSOM (medido: 2 px de anti-aliasing na /1).
+ * Cascata preservada: o inline entra na MESMA posição do link e é subconjunto
+ * ordenado do arquivo; quando o completo aplica, os valores computados são
+ * idênticos. A hidratação não é afetada (tudo no <head>; hydrateRoot só olha
+ * o #root).
+ */
+function aplicarCssCritico(saida, cssCritico) {
+  const reLink = /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/
+  const m = saida.match(reLink)
+  if (!m) falhar('template sem <link rel="stylesheet"> do bundle — o formato do Vite mudou?')
+  return saida.replace(reLink, () =>
+    `<style data-critico>${cssCritico}</style>\n    ` +
+    `<link rel="preload" as="style" crossorigin href="${m[1]}" onload="this.onload=null;this.rel='stylesheet'">`,
+  )
+}
+
 function montarSaida(template, rota, captura, secoes) {
   const marcador = /<div id="root">\s*<\/div>/
   if (!marcador.test(template)) falhar('dist/index.html não tem <div id="root"></div> — o template mudou?')
   let saida = template.replace(marcador, () => `<div id="root">${captura.html}</div>`)
+  saida = aplicarCssCritico(saida, captura.cssCritico)
 
   const titulo = rota.titulo ?? captura.titulo
   if (titulo) {
@@ -472,20 +588,29 @@ async function main() {
   // Template lido UMA vez, antes de a raiz sobrescrever dist/index.html.
   const template = await inlinarFontes(await readFile(path.join(DIST, 'index.html'), 'utf8'))
 
+  // DUAS FASES: primeiro TODAS as capturas, depois as escritas. A saída da
+  // raiz sobrescreve dist/index.html — que é o arquivo que a interceptação
+  // serve como template da SPA para toda rota sem extensão. Capturar depois de
+  // escrever fazia as rotas seguintes carregarem a raiz JÁ pré-renderizada
+  // (CSS crítico inline + fontes inline + __SBS_CONTENT__), poluindo a
+  // extração de CSS delas com folhas duplicadas.
   const browser = await abrirNavegador()
+  const capturas = []
   try {
     for (const rota of ROTAS) {
-      const captura = await capturarRota(browser, rota)
-      const saida = montarSaida(template, rota, captura, secoes)
-      const destino = path.join(DIST, rota.saida)
-      await mkdir(path.dirname(destino), { recursive: true })
-      await writeFile(destino, saida)
-      console.log(
-        `[prerender] ${rota.rota} -> ${rota.saida} (${(saida.length / 1024).toFixed(0)} KB, ${captura.chars} chars de texto)`,
-      )
+      capturas.push({ rota, captura: await capturarRota(browser, rota) })
     }
   } finally {
     await browser.close()
+  }
+  for (const { rota, captura } of capturas) {
+    const saida = montarSaida(template, rota, captura, secoes)
+    const destino = path.join(DIST, rota.saida)
+    await mkdir(path.dirname(destino), { recursive: true })
+    await writeFile(destino, saida)
+    console.log(
+      `[prerender] ${rota.rota} -> ${rota.saida} (${(saida.length / 1024).toFixed(0)} KB, ${captura.chars} chars de texto, CSS crítico ${(captura.cssCritico.length / 1024).toFixed(0)} KB)`,
+    )
   }
   console.log('[prerender] concluído.')
 }
