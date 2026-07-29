@@ -63,11 +63,17 @@
       uma sessão de localhost na propriedade. Mesma proteção para o dev local.
       Precisa vir ANTES do gtag.js.
 
-      O gtag.js só entra DEPOIS do evento load, e não como <script async> no
-      head: medido em produção com perfil Moto G / 4G lento, ele custava 456 ms
-      de LCP (2064 ms contra 1608 ms) e 163 KB, disputando banda com o hero.
-      Analytics não precisa correr antes do conteúdo pintar — a coleta é a
-      mesma, o pageview dispara igual, só sai da frente do primeiro paint.
+      O gtag.js entra na primeira OCIOSIDADE depois do load, e não como
+      <script async> no head. Duas medições levaram a isso:
+      - como <script async>, custava 456 ms de LCP no mobile (2064 ms contra
+        1608 ms) e 163 KB disputando banda com o hero;
+      - só no evento load, o desktop regrediu de TBT 20 ms para 250 ms: lá a
+        página carrega em ~400 ms, o load dispara cedo e a execução do gtag.js
+        caía DENTRO da janela em que o TBT é medido. No mobile isso não
+        aparecia porque o load acontece bem depois.
+      requestIdleCallback resolve os dois: só roda quando a thread principal
+      está livre. O timeout garante que ele rode de qualquer jeito em página
+      que nunca fica ociosa, e o setTimeout cobre navegador sem a API.
 
       A fila do dataLayer e a função gtag() ficam AQUI, síncronas: os
       componentes chamam gtag() no clique, e um clique pode acontecer antes do
@@ -85,10 +91,14 @@
       gtag('config', 'G-1HC0KJXB6S')
 
       addEventListener('load', function () {
-        var s = document.createElement('script')
-        s.async = true
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S'
-        document.head.appendChild(s)
+        var carregar = function () {
+          var s = document.createElement('script')
+          s.async = true
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S'
+          document.head.appendChild(s)
+        }
+        if (window.requestIdleCallback) requestIdleCallback(carregar, { timeout: 4000 })
+        else setTimeout(carregar, 1500)
       })
     </script>
 
