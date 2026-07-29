@@ -2,6 +2,7 @@
 import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { comWebp, GrainOverlay, Reveal } from './atoms'
+import { track } from '../lib/analytics'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -73,11 +74,17 @@ export const VideoV4: React.FC = () => {
           <div className="group relative">
             <div
               className="relative flex aspect-video cursor-pointer items-center justify-center overflow-hidden rounded-[1.5rem] border border-white/10 bg-black shadow-[0_60px_120px_-40px_rgba(0,0,0,0.95)]"
-              onClick={() => setShowPlayer(true)}
+              onClick={() => {
+                track('video_play', { origem: 'poster' })
+                setShowPlayer(true)
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') setShowPlayer(true)
+                if (event.key === 'Enter' || event.key === ' ') {
+                  track('video_play', { origem: 'teclado' })
+                  setShowPlayer(true)
+                }
               }}
             >
               {!showPlayer ? (

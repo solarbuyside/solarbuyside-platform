@@ -52,6 +52,25 @@
     <meta property="twitter:description" content="Com o Manual de Compra Solar Buy-Side, você passa a enxergar o processo de compra pelos olhos do cliente, ganhando: Técnica, Credibilidade e Conversão." />
     <meta property="twitter:image" content="https://solarbuyside.com.br/og-image.png" />
 
+    <!--
+      GA4. O guard de hostname existe por causa do prerender: o script roda num
+      Chromium headless a cada build e, sem ele, cada deploy mandaria sessões
+      falsas de localhost para a propriedade. Também mantém dev local fora dos
+      dados. async: não bloqueia o parser.
+    -->
+    <script>
+      if (location.hostname === 'solarbuyside.com.br' || location.hostname === 'www.solarbuyside.com.br') {
+        window.dataLayer = window.dataLayer || []
+        window.gtag = function () { window.dataLayer.push(arguments) }
+        gtag('js', new Date())
+        gtag('config', 'G-1HC0KJXB6S')
+        var s = document.createElement('script')
+        s.async = true
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1HC0KJXB6S'
+        document.head.appendChild(s)
+      }
+    </script>
+
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json">
     {

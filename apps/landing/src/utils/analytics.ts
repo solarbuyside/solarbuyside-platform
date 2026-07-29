@@ -48,6 +48,8 @@ export async function trackEvent(
     sectionName?: string;
   }
 ): Promise<void> {
+  espelharNoGa4(eventType, data?.sectionName);
+
   try {
     const url = import.meta.env.VITE_SUPABASE_URL;
     const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -71,6 +73,23 @@ export async function trackEvent(
   } catch (error) {
     // Silently fail - don't break user experience if analytics fails
     console.debug('Analytics tracking failed:', error);
+  }
+}
+
+/* Espelho no GA4. Os dois destinos existem de propósito e medem coisas
+   diferentes: o Supabase guarda o funil próprio que o /admin lê (e é a fonte
+   histórica), o GA4 dá aquisição, canal e comparação com campanha. Fica fora
+   do try/catch do fetch acima porque não pode depender do INSERT ter dado
+   certo. Eventos de granularidade fina (cta_click, faq_open, video_play) vão
+   só para o GA4: o event_type de landing_events tem CHECK com os cinco tipos
+   do funil, e ampliar aquilo é migration, não instrumentação. */
+function espelharNoGa4(eventType: EventType, sectionName?: string): void {
+  const gtag = (window as Window & { gtag?: (...a: unknown[]) => void }).gtag;
+  if (typeof gtag !== 'function') return;
+  try {
+    gtag('event', eventType, sectionName ? { secao: sectionName } : {});
+  } catch {
+    /* analytics nunca quebra a página */
   }
 }
 

@@ -12,6 +12,7 @@ import {
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics'
+import { track } from '../lib/analytics'
 import { Img, Cta, GrainOverlay, Reveal } from './atoms'
 
 /* ── Lead magnet (teaser gratuito) — "THE UNLOCK" ──────────────────────── */
@@ -297,7 +298,16 @@ export const FAQV4: React.FC = () => {
   }
 
   const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index)
+    const abrindo = openFaq !== index
+    // Só a abertura vira evento: fechar não diz nada sobre interesse, e contar
+    // os dois dobraria o número de qualquer pergunta que o visitante reler.
+    if (abrindo) {
+      track('faq_open', {
+        faq_indice: index + 1,
+        faq_pergunta: (faqData[index]?.question || '').slice(0, 80),
+      })
+    }
+    setOpenFaq(abrindo ? index : null)
   }
 
   return (

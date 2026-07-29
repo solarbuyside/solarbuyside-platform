@@ -2,6 +2,7 @@ import React, { useEffect, useId, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
 import temWebp from './webp-manifest.json'
 import dimManifesto from './dim-manifest.json'
+import { rotuloDe, secaoDe, track } from '../lib/analytics'
 
 /* Átomos compartilhados da V4 "Solar Dawn" — reveal, tipografia expressiva,
    CTAs, marquee, selos. A copy nunca vive aqui: estes componentes só dão forma. */
@@ -220,15 +221,27 @@ export const Cta: React.FC<CtaProps> = ({
   }
   const cls = `${base} ${sizes} ${variants[variant]} ${className}`
 
+  /* O rótulo e a seção saem do DOM no momento do clique, não de uma prop: a LP
+     tem CTA em quase toda dobra e exigir uma prop nova em cada chamada seria
+     esquecida na próxima seção criada. Aqui, todo Cta é medido por construção. */
+  const aoClicar = (e: React.MouseEvent<HTMLElement>) => {
+    track('cta_click', {
+      cta_texto: rotuloDe(e.currentTarget),
+      cta_secao: secaoDe(e.currentTarget),
+      cta_destino: href || '(botao)',
+    })
+    onClick?.()
+  }
+
   if (href) {
     return (
-      <a href={href} target={target} rel={rel} onClick={onClick} className={cls}>
+      <a href={href} target={target} rel={rel} onClick={aoClicar} className={cls}>
         <span className="relative z-10 flex items-center gap-3">{children}</span>
       </a>
     )
   }
   return (
-    <button type="button" onClick={onClick} className={cls}>
+    <button type="button" onClick={aoClicar} className={cls}>
       <span className="relative z-10 flex items-center gap-3">{children}</span>
     </button>
   )
