@@ -670,7 +670,7 @@ export const FooterV4: React.FC = () => {
               href="/medidas-antipiratarias"
               className="v4-mono text-[10px] uppercase tracking-[0.2em] text-white/50 transition-colors hover:text-orange-400"
             >
-              Medidas Antipiratarias
+              Medidas Antipirataria
             </a>
           </nav>
         </div>

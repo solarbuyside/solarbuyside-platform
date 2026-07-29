@@ -17,7 +17,7 @@ const PAGINAS = {
     sections: termsSections,
   },
   '/medidas-antipiratarias': {
-    title: 'Medidas Antipiratarias',
+    title: 'Medidas Antipirataria',
     slug: 'antipirataria',
     sections: antipiracySections,
   },

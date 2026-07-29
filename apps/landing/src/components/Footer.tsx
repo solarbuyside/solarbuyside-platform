@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
             Termos de Uso
           </a>
           <a href="/medidas-antipiratarias" className="hover:text-orange-500 transition-colors">
-            Medidas Antipiratarias
+            Medidas Antipirataria
           </a>
         </nav>
       </div>

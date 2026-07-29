@@ -69,7 +69,7 @@ const ROTAS = [
   // um produto, não um documento jurídico.
   { rota: '/politica-de-privacidade', saida: 'politica-de-privacidade/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Política de Privacidade — Solar Buy-Side', descricao: 'Como a Buy-Side Soluções coleta, usa, armazena e protege os dados pessoais de quem acessa o site e adquire o Manual Solar Buy-Side, conforme a LGPD.' },
   { rota: '/termos-de-uso', saida: 'termos-de-uso/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Termos de Uso — Solar Buy-Side', descricao: 'Condições de uso do site e dos materiais Solar Buy-Side: licença de acesso, responsabilidades das partes, pagamento, reembolso e propriedade intelectual.' },
-  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Medidas Antipiratarias — Solar Buy-Side', descricao: 'Medidas de proteção autoral do Manual Solar Buy-Side: rastreamento de cópias, limites da licença coletiva e providências em caso de compartilhamento indevido.' },
+  { rota: '/medidas-antipiratarias', saida: 'medidas-antipiratarias/index.html', canonical: true, pisoTexto: 1_000, pisoCss: 3_000, titulo: 'Medidas Antipirataria — Solar Buy-Side', descricao: 'Medidas de proteção autoral do Manual Solar Buy-Side: rastreamento de cópias, limites da licença coletiva e providências em caso de compartilhamento indevido.' },
 ]
 
 const MIME = {

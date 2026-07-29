@@ -14,7 +14,7 @@ export const LEGAL_PREVIEW_CONFIG: Record<string, LegalPreviewConfig> = {
   },
   antipiracy: {
     route: '/medidas-antipiratarias',
-    label: 'Medidas Antipiratarias',
+    label: 'Medidas Antipirataria',
   },
 }
 
