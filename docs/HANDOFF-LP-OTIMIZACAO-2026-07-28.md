@@ -12,6 +12,57 @@ encontradas.
 
 ---
 
+## ⚡ ATUALIZAÇÃO 28/07 (segunda sessão) — as fases abaixo FORAM CONCLUÍDAS
+
+Tudo o que a seção 3 chama de "o que falta" foi implementado e está no ar,
+exceto os itens que dependem de conta externa. Registro rápido:
+
+- **Pré-requisito da Fase 3**: o "algo nesse caminho" NÃO existia. Foi criado
+  o Deploy Hook `publicar-admin` no projeto Vercel da landing e o Publicar do
+  /admin agora dispara rebuild (env `LANDING_DEPLOY_HOOK_URL` no projeto
+  platform; retry 3x; aviso âmbar no editor quando o hook falha). De quebra,
+  corrigido bug real: `publishLanding` ignorava os erros dos updates.
+- **Fase 3 (pré-renderização)**: `apps/landing/scripts/prerender.mjs` roda no
+  postbuild, renderiza `/`, `/1` e as 3 páginas legais em Chromium headless
+  (@sparticuz/chromium na Vercel) com conteúdo real do Supabase e grava o DOM
+  no `<div id="root">`. Guards que ABORTAM o build: fetch do banco falhou;
+  a própria página não recebeu 200 de `landing_sections`; texto abaixo do
+  piso. O HTML servido da raiz agora tem ~150 KB com os 15,9 mil chars.
+- **Fase 4 (JSON-LD)**: gerado DENTRO do prerender para nunca divergir da
+  página: FAQPage (perguntas extraídas do DOM), Product/Offer (preço à vista
+  lido do DOM = R$ 797, checkout Greenn como url) e 2 Person (Francis/Ovídio,
+  espelhando banco-vence-default da Authority). `sameAs` segue vazio — não há
+  rede social da marca documentada no repo (pendência Francis).
+- **Fase 5 (funil)**: descoberta — o backend da Render está VIVO e já tem
+  ~7,8 mil eventos numa MySQL sem leitor. Novo destino: tabela
+  `landing_events` no Supabase (migration 0024, aplicada em produção; RLS
+  anon INSERT-only) + página `/admin/landing/funil` (sessões, cliques,
+  conversão, funil seção a seção, por dia). O prerender responde 201 falso
+  para não sujar o funil com builds.
+- **Fase 2c (WebP)**: `scripts/gerar-webp.mjs` (manual) + átomo `<Img>` com
+  manifesto — só oferece WebP quando o arquivo existe (evita 404 sem
+  fallback do `<picture>`). 50/69 assets convertidos; a página caiu de
+  ~2,5 MB para ~1,0 MB de imagem. Upload do CMS de 1,3 MB → 133 KB.
+- **Pontas soltas 1–4**: preço default corrigido (81,94/797), rota
+  desconhecida redireciona à raiz, `design-landing.md` criado (design.md e
+  CLAUDE.md apontam), `.htaccess` removido.
+
+### O que AINDA falta (tudo depende de conta/decisão externa)
+
+1. **Google Search Console** — precisa de conta Google do Francis/Gabriel;
+   verificar o domínio e submeter `sitemap.xml`.
+2. **Microsoft Clarity** — precisa de conta Microsoft; criar projeto e
+   adicionar o script (id) no index.html.
+3. **`sameAs` da Organization** — pedir ao Francis as URLs das redes.
+4. **llms.txt** — Francis ainda precisa revisar a prosa.
+5. **PageSpeed no CI** — sem CI no repo; o PSI sem API key limita (429).
+6. **Histórico da Render** — exportar a MySQL antiga se fizer falta um dia.
+7. **WebP de uploads novos do CMS** — rerodar `gerar-webp.mjs` de tempos em
+   tempos (upload novo cai no fallback `<img>` até lá); imagens do Supabase
+   Storage dependem de transform (plano) — hoje passam intactas.
+
+---
+
 ## 1. Diagnóstico inicial (28/07, antes de qualquer mudança)
 
 | Módulo | Score | Status |
