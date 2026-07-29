@@ -1,8 +1,38 @@
 import React, { useEffect, useId, useRef } from 'react'
 import { ArrowRight } from 'lucide-react'
+import temWebp from './webp-manifest.json'
 
 /* Átomos compartilhados da V4 "Solar Dawn" — reveal, tipografia expressiva,
    CTAs, marquee, selos. A copy nunca vive aqui: estes componentes só dão forma. */
+
+/* ── Imagem com variante WebP ─────────────────────────────────────────── */
+/* Emite <picture> com <source> WebP SÓ quando o .webp existe de fato — o
+   manifesto vem de scripts/gerar-webp.mjs. Se o source escolhido desse 404,
+   o <picture> NÃO cai para o <img>: quebraria a imagem. Por isso um caminho
+   fora do manifesto (ex.: upload do CMS no Supabase Storage) rende <img>
+   puro, idêntico ao de antes. O srcSet vai URI-encodado: espaço em srcset é
+   separador de candidato. */
+export const Img: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => {
+  const src = typeof props.src === 'string' ? props.src : undefined
+  let webp: string | null = null
+  if (src) {
+    try {
+      const plano = decodeURI(src).normalize('NFC')
+      if ((temWebp as Record<string, boolean>)[plano]) {
+        webp = encodeURI(plano.replace(/\.(png|jpe?g)$/i, '.webp'))
+      }
+    } catch {
+      /* src malformado: segue sem webp */
+    }
+  }
+  if (!webp) return <img {...props} />
+  return (
+    <picture>
+      <source srcSet={webp} type="image/webp" />
+      <img {...props} />
+    </picture>
+  )
+}
 
 /* ── Reveal por bloco ─────────────────────────────────────────────────── */
 type RevealProps = React.HTMLAttributes<HTMLDivElement> & {

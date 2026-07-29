@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
 
 type BuyerTestimonial = {
@@ -269,7 +269,7 @@ export const BuyerWaveV4: React.FC = () => {
                   <div key={t.name} className={`absolute inset-0 transition-all duration-700 ${deckPose}`}>
                     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-[2rem] border border-white/10 bg-[#0e0c10] md:grid-cols-[230px_1fr] md:grid-rows-1">
                       <div className="relative">
-                        <img
+                        <Img
                           src={t.avatar}
                           className="h-52 w-full object-cover md:h-full"
                           style={{ objectPosition: t.objectPosition || 'center' }}

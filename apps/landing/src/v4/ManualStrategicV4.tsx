@@ -2,7 +2,7 @@ import React from 'react'
 import { BarChart3, Layout, MinusCircle, Target, TrendingUp, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
 
 type ItemProps = {
@@ -158,7 +158,7 @@ export const ManualStrategicV4: React.FC = () => {
 
                 <div className="relative w-[390px] max-w-full">
                   <div className="relative">
-                    <img
+                    <Img
                       src={manualImage}
                       alt="Manual Solar Buy-Side"
                       className="v4-float relative h-auto w-full"
@@ -172,7 +172,7 @@ export const ManualStrategicV4: React.FC = () => {
                   </div>
 
                   {/* Reflexo espelhado */}
-                  <img
+                  <Img
                     src={manualImage}
                     alt=""
                     aria-hidden
@@ -262,7 +262,7 @@ export const ManualStrategicV4: React.FC = () => {
               <div className="relative flex justify-center">
                 <div className="absolute -inset-10 rounded-full bg-orange-500/20 blur-[110px]" aria-hidden />
                 <div className="relative w-[300px] max-w-full">
-                  <img
+                  <Img
                     src={codeImage}
                     alt="O Código do Vendedor Consultivo"
                     className="v4-float relative h-auto w-full drop-shadow-[0_30px_50px_rgba(0,0,0,0.6)]"

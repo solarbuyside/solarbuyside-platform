@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
+import { Img } from './atoms'
 
 const NAV_ITEMS = [
   { href: '#contexto', label: 'Panorama' },
@@ -59,7 +60,7 @@ export const HeaderV4: React.FC = () => {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         <a href="#hero" className="flex items-center gap-3">
-          <img
+          <Img
             src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
             alt="Solar Buy-Side"
             className="h-11 w-auto sm:h-12"

@@ -12,7 +12,7 @@ import {
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics'
-import { Cta, GrainOverlay, Reveal } from './atoms'
+import { Img, Cta, GrainOverlay, Reveal } from './atoms'
 
 /* ── Lead magnet (teaser gratuito) — "THE UNLOCK" ──────────────────────── */
 export const LeadMagnetV4: React.FC = () => {
@@ -59,7 +59,7 @@ export const LeadMagnetV4: React.FC = () => {
 
             {/* Imagem no mobile */}
             <Reveal className="mt-8 flex items-center justify-center lg:hidden">
-              <img
+              <Img
                 src="/assets/foto-o-codigo-do-vendedor.png"
                 alt="E-book Solar Buy-Side"
                 className="h-auto w-[300px] max-w-full drop-shadow-[0_30px_50px_rgba(0,0,0,0.55)]"
@@ -106,7 +106,7 @@ export const LeadMagnetV4: React.FC = () => {
               aria-hidden
             />
             <div className="relative">
-              <img
+              <Img
                 src="/assets/foto-o-codigo-do-vendedor.png"
                 alt="E-book Solar Buy-Side"
                 className="v4-float relative z-10 h-auto w-[380px] max-w-full drop-shadow-[0_44px_64px_rgba(0,0,0,0.65)]"
@@ -574,7 +574,7 @@ export const FooterV4: React.FC = () => {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col items-center justify-between gap-6 pt-10 sm:flex-row">
           <div className="flex items-center gap-3">
-            <img
+            <Img
               src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
               alt="Solar Buy-Side"
               className="h-10 w-auto"

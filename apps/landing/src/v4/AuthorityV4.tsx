@@ -1,7 +1,7 @@
 ﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, Reveal, SolarCells } from './atoms'
+import { Img, Cta, CtaArrow, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 
 /* "O DUELO" — Francis (azul, buy-side) à esquerda vs. Ovídio (laranja,
@@ -80,7 +80,7 @@ const DuelSide: React.FC<DuelSideProps> = ({
         // 224 -> 184px: as fotos cedem espaço para o texto inicial (Francis, 28/07).
         className="group relative aspect-[3/4] w-full max-w-[184px] overflow-hidden rounded-[2rem] bg-white/[0.03]"
       >
-        <img
+        <Img
           src={image}
           alt={name}
           loading="lazy"

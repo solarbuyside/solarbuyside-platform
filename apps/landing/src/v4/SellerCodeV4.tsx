@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ArrowRight, Settings2, ShieldCheck, Target, UserCheck } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { GrainOverlay, Reveal } from './atoms'
+import { Img, GrainOverlay, Reveal } from './atoms'
 
 export const SellerCodeV4: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
@@ -52,7 +52,7 @@ export const SellerCodeV4: React.FC = () => {
         aria-hidden
       />
       <GrainOverlay />
-      <img src={bookImage} alt="O Código Oficial" className="v4-float relative z-10 h-auto w-full" loading="lazy" />
+      <Img src={bookImage} alt="O Código Oficial" className="v4-float relative z-10 h-auto w-full" loading="lazy" />
     </div>
   )
 

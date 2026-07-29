@@ -1,7 +1,7 @@
 import React from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Marquee, Reveal, SolarCells } from './atoms'
+import { Img, Marquee, Reveal, SolarCells } from './atoms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
@@ -142,7 +142,7 @@ export const ApoiadoresBandV4: React.FC = () => {
               key={i}
               className="flex h-12 shrink-0 items-center justify-center rounded-lg bg-white/95 px-5 md:h-14 md:px-6"
             >
-              <img src={logo.src} alt={logo.name} loading="lazy" className="h-6 w-auto object-contain md:h-7" />
+              <Img src={logo.src} alt={logo.name} loading="lazy" className="h-6 w-auto object-contain md:h-7" />
             </span>
           ))}
         </span>
@@ -187,7 +187,7 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
         aria-label={logo.name}
         className="flex h-20 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-500/60 hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)]"
       >
-        <img src={logo.src} alt={logo.name} loading="lazy" className="max-h-10 w-auto object-contain" />
+        <Img src={logo.src} alt={logo.name} loading="lazy" className="max-h-10 w-auto object-contain" />
       </button>
 
       {temCard && open && (
@@ -206,7 +206,7 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
           >
             <div className="flex items-start gap-4">
               <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white p-2">
-                <img src={logo.src} alt="" aria-hidden className="max-h-full w-auto object-contain" />
+                <Img src={logo.src} alt="" aria-hidden className="max-h-full w-auto object-contain" />
               </span>
               <div className="min-w-0">
                 {logo.cat && (

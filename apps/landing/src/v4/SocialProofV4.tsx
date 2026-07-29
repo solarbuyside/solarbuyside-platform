@@ -1,7 +1,7 @@
 import React from 'react'
 import { Quote } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Cta, CtaArrow, Reveal, Stamp } from './atoms'
+import { Img, Cta, CtaArrow, Reveal, Stamp } from './atoms'
 
 /* Depoimento do Rodrigo — abertura do ato "paper": inversão editorial sobre o
    dark anterior, foto em arch com selo girando + citação gigante em serif. */
@@ -19,7 +19,7 @@ export const TestimonialsV4: React.FC = () => {
             <div className="relative mx-auto max-w-[420px]">
               <figure>
                 <div className="v4-arch v4-hard-shadow aspect-[3/4] w-full">
-                  <img
+                  <Img
                     src={rodrigoImage}
                     alt="Rodrigo"
                     className="h-full w-full object-cover"
@@ -139,7 +139,7 @@ export const TestimonialLucasV4: React.FC = () => {
           <Reveal className="lg:col-span-5">
             <figure className="mx-auto max-w-[420px]">
               <div className="v4-hard-shadow aspect-[3/4] w-full overflow-hidden rounded-2xl">
-                <img src={foto} alt="Lucas de Freitas" className="h-full w-full object-cover" loading="lazy" />
+                <Img src={foto} alt="Lucas de Freitas" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <figcaption className="mt-8">
                 <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
@@ -251,7 +251,7 @@ export const StoryBridgeV4: React.FC = () => {
           <Reveal className="lg:col-span-5">
             <div className="group v4-hard-shadow rounded-[2rem] bg-[#e9e0d0] p-10">
               {/* multiply: o fundo branco do PNG some sobre o paper */}
-              <img
+              <Img
                 src={section?.images.manualImage || '/assets/Manual de Compra -OF.png'}
                 alt="Manual de Compra Solar Buy-Side"
                 className="h-auto w-full rotate-[-2deg] mix-blend-multiply transition-transform duration-700 ease-out group-hover:rotate-0"

@@ -3,7 +3,7 @@ import { ArrowRight, CheckCircle2, Lock as LockIcon, ShieldCheck, Sparkles } fro
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { CMSText } from '../components/CMSText'
-import { GrainOverlay, Reveal, Stamp } from './atoms'
+import { Img, GrainOverlay, Reveal, Stamp } from './atoms'
 
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
@@ -312,7 +312,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 )}
 
                 <div className="relative flex w-full flex-col items-center">
-                  <img
+                  <Img
                     src={card.image}
                     alt={card.imageAlt}
                     // Todos lazy. O 1º card era eager, mas esta seção começa a
@@ -406,7 +406,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                       não precisa de chip branco atrás. */}
                   <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 font-['Sora'] text-xl font-extrabold tracking-tight text-white md:text-2xl">
                     <CMSText value={promoTitle} />
-                    <img
+                    <Img
                       src={promoLogo}
                       alt="Belenergy"
                       loading="lazy"
