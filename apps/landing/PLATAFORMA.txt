@@ -43,7 +43,7 @@ abordagem "dual" do método:
 Empresa por trás:
   Razão social: Buy-Side Soluções Inova Simples
   Nome comercial: Buy-Side Soluções
-  CNPJ: 55.463.06/0001-80
+  CNPJ: 55.463.086/0001-80
   Endereço: Torre Norte — Av. Bento Munhoz da Rocha Neto, 632,
            19º Andar, Salas 1905 a 1908 — Zona 7, Maringá - PR, 87030-010
   E-mail: contato@buyside.com.br
@@ -566,7 +566,7 @@ Título: "DADOS E CONTATOS"
 Subtítulo: "Transparência e clareza para você entrar em contato com total
 confiança."
 Empresa: "Buy-Side Soluções"
-CNPJ: 55.463.06/0001-80
+CNPJ: 55.463.086/0001-80
 Endereço:
   "Torre Norte - Av. Bento Munhoz da Rocha Neto, 632"
   "19º Andar, Salas 1905 a 1908 - Zona 7,"

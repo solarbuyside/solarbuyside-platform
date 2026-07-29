@@ -532,7 +532,7 @@ export const ContactV4: React.FC = () => {
                 </div>
                 <p className="text-sm text-slate-500">
                   {section?.texts.cnpjLabel || 'CNPJ:'}{' '}
-                  <span className="font-semibold text-slate-800">{section?.texts.cnpjValue || '55.463.06/0001-80'}</span>
+                  <span className="font-semibold text-slate-800">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
                 </p>
 
                 <div className="mt-7 flex items-start gap-3">

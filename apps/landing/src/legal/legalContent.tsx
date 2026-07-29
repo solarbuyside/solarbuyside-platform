@@ -13,7 +13,7 @@ export const privacySections: LegalSection[] = [
         A <span className="font-semibold">Buy-Side Soluções Inova Simples</span>, pessoa jurídica de direito privado, com sede na Av. Bento Munhoz da Rocha Netto,
         632, 19 ANDAR, SALAS 1905, 1906, 1907 E 1908 – EVOA, CEP: 87.030-010 Maringá-PR, inscrita no CNPJ sob o nº 55.463.086/0001-80 (“Landing Page” ou “nós”) leva a sua
         privacidade a sério e zela pela segurança e proteção de dados de todos os seus clientes, parceiros, fornecedores e usuários (“Usuários” ou “você”) do site
-        “www.solarbuyside.com.br” e qualquer outro site, Loja, aplicativo operado por nós (aqui designados, simplesmente, “nós”).
+        “solarbuyside.com.br” e qualquer outro site, Loja, aplicativo operado por nós (aqui designados, simplesmente, “nós”).
       </>,
       <>
         Esta <span className="font-semibold">Política de Privacidade</span> destina-se a informá-lo sobre o modo como nós utilizamos e divulgamos informações
