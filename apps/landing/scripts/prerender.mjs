@@ -79,11 +79,11 @@ const limpar = (v) => (v && v.trim() ? v.trim() : undefined)
 const normalizar = (s) => s.replace(/\s+/g, ' ').trim()
 
 /** Falha cedo e com mensagem clara se o Supabase estiver fora ou vazio. */
-async function validarBanco(url, anon) {
+async function carregarSecoes(url, anon) {
   const headers = { apikey: anon, Authorization: `Bearer ${anon}` }
   let secoes
   try {
-    const res = await fetch(`${url}/rest/v1/landing_sections?select=section_id`, { headers })
+    const res = await fetch(`${url}/rest/v1/landing_sections?select=section_id,texts,images`, { headers })
     if (!res.ok) falhar(`Supabase respondeu ${res.status} para landing_sections — build abortado para não congelar conteúdo default.`)
     secoes = await res.json()
   } catch (e) {
@@ -92,7 +92,96 @@ async function validarBanco(url, anon) {
   if (!Array.isArray(secoes) || secoes.length === 0) {
     falhar('landing_sections voltou vazio — build abortado para não congelar conteúdo default.')
   }
-  return secoes.length
+  return secoes
+}
+
+/* ── JSON-LD (Fase 4) ─────────────────────────────────────────────────────
+   Gerado AQUI, e não à mão no index.html, para a marcação espelhar sempre o
+   que está no ar: FAQ e preço saem do DOM renderizado; as pessoas espelham a
+   regra banco-vence-default da seção Authority. Marcação inconsistente com a
+   página é pior que nenhuma. `sameAs` segue vazio de propósito: não há rede
+   social da marca documentada no repo — preencher exige URLs do Francis. */
+
+const SITE = 'https://solarbuyside.com.br'
+
+// Fallbacks idênticos aos de AuthorityV4.tsx — valem quando o admin não
+// preencheu a chave; se divergirem de lá, a marcação mente sobre a página.
+const PESSOAS_DEFAULT = [
+  {
+    chaves: ['person1Name', 'person1Tag', 'person1Desc'],
+    imagem: 'francis',
+    nome: 'Francis Poloni',
+    cargo: 'Especialista Visão Buy-Side (Comprador)',
+    desc: 'Atua desde 2018 no setor de integração fotovoltaica e consultoria onde assessorou tanto no lado do comprador (Buy-Side) quanto no lado do vendedor (Sell-Side), ajudando na tomada de decisões inteligentes e seguras.',
+    imagemDefault: '/assets/Francis Poloni LP PRO.jpg.jpeg',
+  },
+  {
+    chaves: ['person2Name', 'person2Tag', 'person2Desc'],
+    imagem: 'ovidio',
+    nome: 'Ovídio Collesi',
+    cargo: 'Especialista Visão Sell-Side (Vendedor)',
+    desc: 'Com vasta experiência em venda e pós venda no setor de energia solar fotovoltaica desde 2020, teve passagens por marketplaces, distribuidores, integração solar e certificadora, trazendo uma visão completa do lado do vendedor e do suporte técnico.',
+    imagemDefault: '/assets/Ovídio2.png',
+  },
+]
+
+function montarJsonLd(secoes, dados) {
+  const blocos = []
+  const authority = secoes.find((s) => s.section_id === 'authority')
+  const hero = secoes.find((s) => s.section_id === 'hero')
+
+  const pessoas = PESSOAS_DEFAULT.map((p) => {
+    const t = authority?.texts ?? {}
+    const img = (authority?.images ?? {})[p.imagem] || p.imagemDefault
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: t[p.chaves[0]] || p.nome,
+      jobTitle: t[p.chaves[1]] || p.cargo,
+      description: t[p.chaves[2]] || p.desc,
+      image: img.startsWith('http') ? img : `${SITE}${encodeURI(img)}`,
+      worksFor: { '@type': 'Organization', name: 'Solar Buy-Side', url: SITE },
+    }
+  })
+  blocos.push(...pessoas)
+
+  if (dados?.precoVista) {
+    blocos.push({
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: hero?.texts?.manualTitle || 'Manual Solar Buy-Side',
+      description:
+        'Manual de compra de sistema solar fotovoltaico: método Buy-Side para avaliar propostas e decidir pela perspectiva do comprador.',
+      brand: { '@type': 'Organization', name: 'Solar Buy-Side', url: SITE },
+      author: pessoas.map(({ name, jobTitle }) => ({ '@type': 'Person', name, jobTitle })),
+      offers: {
+        '@type': 'Offer',
+        price: dados.precoVista,
+        priceCurrency: 'BRL',
+        url: dados.checkout || `${SITE}/#oferta`,
+        availability: 'https://schema.org/InStock',
+      },
+    })
+  }
+
+  if (dados?.faq?.length) {
+    blocos.push({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: dados.faq.map(({ q, a }) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: a },
+      })),
+    })
+  }
+
+  return blocos
+    .map(
+      (b) =>
+        `<script type="application/ld+json">${JSON.stringify(b).replace(/</g, '\\u003c')}</script>`,
+    )
+    .join('\n')
 }
 
 async function abrirNavegador() {
@@ -189,6 +278,28 @@ async function capturarRota(browser, rota) {
     titulo: document.title,
     texto: document.body.innerText,
   }))
+
+  // Insumos do JSON-LD, tirados do DOM renderizado — a fonte que o visitante vê.
+  let dados = null
+  if (rota.exigeBanco) {
+    dados = await page.evaluate(() => {
+      const faq = [...document.querySelectorAll('#faq [aria-expanded]')]
+        .map((btn) => {
+          const q = btn.querySelector('span.flex-1')?.textContent?.trim()
+          const a = btn.parentElement?.querySelector('.v4-faq-body p')?.textContent?.trim()
+          return q && a ? { q, a } : null
+        })
+        .filter(Boolean)
+      const oferta = document.querySelector('#oferta')
+      // "Ou R$ 797,00 à vista no PIX" -> 797.00 (formato do schema.org)
+      const m = (oferta?.innerText ?? '').match(/R\$\s*([\d.]+,\d{2})\s*à vista/i)
+      const precoVista = m ? m[1].replace(/\./g, '').replace(',', '.') : null
+      const cta = [...(oferta?.querySelectorAll('a[href^="http"]') ?? [])].find((a) =>
+        /greenn|checkout|pay/i.test(a.href),
+      )
+      return { faq, precoVista, checkout: cta?.href ?? null }
+    })
+  }
   await page.close()
 
   if (rota.exigeBanco && statusBanco !== 200) {
@@ -201,10 +312,10 @@ async function capturarRota(browser, rota) {
   if (chars < rota.pisoTexto) {
     falhar(`a rota ${rota.rota} renderizou só ${chars} chars de texto (piso: ${rota.pisoTexto}) — captura rejeitada.`)
   }
-  return { html, titulo, chars }
+  return { html, titulo, chars, dados }
 }
 
-function montarSaida(template, rota, captura) {
+function montarSaida(template, rota, captura, secoes) {
   const marcador = /<div id="root">\s*<\/div>/
   if (!marcador.test(template)) falhar('dist/index.html não tem <div id="root"></div> — o template mudou?')
   let saida = template.replace(marcador, () => `<div id="root">${captura.html}</div>`)
@@ -225,6 +336,14 @@ function montarSaida(template, rota, captura) {
       .replace(/(<meta property="twitter:url" content=")[^"]*(")/, `$1${urlRota}$2`)
   }
 
+  if (rota.exigeBanco && captura.dados) {
+    const jsonLd = montarJsonLd(secoes, captura.dados)
+    if (jsonLd) saida = saida.replace('</head>', `${jsonLd}\n</head>`)
+    console.log(
+      `[prerender] JSON-LD: ${captura.dados.faq.length} FAQs, preço à vista ${captura.dados.precoVista ?? 'NÃO ACHADO'}, checkout ${captura.dados.checkout ? 'ok' : 'ausente'}`,
+    )
+  }
+
   return saida.replace('</head>', `<!-- prerender: ${new Date().toISOString()} -->\n</head>`)
 }
 
@@ -238,8 +357,8 @@ async function main() {
   }
   if (!existsSync(path.join(DIST, 'index.html'))) falhar('dist/index.html não existe — rode o vite build antes.')
 
-  const nSecoes = await validarBanco(supaUrl, supaAnon)
-  console.log(`[prerender] banco OK: ${nSecoes} seções em landing_sections`)
+  const secoes = await carregarSecoes(supaUrl, supaAnon)
+  console.log(`[prerender] banco OK: ${secoes.length} seções em landing_sections`)
 
   // Template lido UMA vez, antes de a raiz sobrescrever dist/index.html.
   const template = await readFile(path.join(DIST, 'index.html'), 'utf8')
@@ -248,7 +367,7 @@ async function main() {
   try {
     for (const rota of ROTAS) {
       const captura = await capturarRota(browser, rota)
-      const saida = montarSaida(template, rota, captura)
+      const saida = montarSaida(template, rota, captura, secoes)
       const destino = path.join(DIST, rota.saida)
       await mkdir(path.dirname(destino), { recursive: true })
       await writeFile(destino, saida)
