@@ -59,6 +59,12 @@ export default async function AdminPage() {
             desc="Inscritos da newsletter e do teaser (ebook), capturados pela LP."
           />
           <NavCard
+            href="/admin/landing/funil"
+            icon={BarChart3}
+            title="Funil da LP"
+            desc="Quem chega, até onde rola e quem clica em comprar, seção a seção."
+          />
+          <NavCard
             href="https://vercel.com/francis-solarbuyside/solarbuyside-landing/analytics"
             external
             icon={BarChart3}

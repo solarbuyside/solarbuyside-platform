@@ -231,6 +231,11 @@ async function interceptar(page) {
     if (HOSTS_BLOQUEADOS.some((h) => url.hostname === h || url.hostname.endsWith(`.${h}`))) {
       return req.abort()
     }
+    // O funil da LP (landing_events) não pode registrar as navegações do build
+    // como visitas; responde 201 falso para o silent-fail nem aparecer.
+    if (url.pathname.startsWith('/rest/v1/landing_events')) {
+      return req.respond({ status: 201, body: '' })
+    }
     return req.continue()
   })
 }
