@@ -232,51 +232,9 @@ export const FloatingCTAV4: React.FC = () => {
   )
 }
 
-/* Barra de conversão fixa no mobile — onde está a maior parte do tráfego.
-   Preço sempre à vista do polegar; some sobre oferta/FAQ/contato/rodapé. */
-export const MobileCtaBarV4: React.FC = () => {
-  const { getSection } = useContent()
-  const section = getSection('pricing')
-  const isVisible = useCtaVisibility('mobile')
-
-  // Defaults espelham o CMS (12x de R$ 81,94 / R$ 797,00). Divergir daqui é
-  // bug de produção: se o fetch do Supabase falhar no navegador, é este valor
-  // que o visitante vê — chegou a ficar R$ 200 abaixo do preço real.
-  const installments = `${section?.texts.priceInstallments || '12x de'} R$ ${section?.texts.priceValue || '81'}${section?.texts.priceCents || ',94'}`
-  const upfront = section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'
-
-  return (
-    <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0c12]/95 backdrop-blur-xl transition-all duration-500 md:hidden ${
-        isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
-      }`}
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      aria-hidden={!isVisible}
-    >
-      <div className="flex items-center justify-between gap-4 px-4 py-3">
-        <div className="min-w-0">
-          <p className="text-base font-extrabold leading-tight text-white">{installments}</p>
-          <p className="truncate text-[11px] font-medium text-slate-400">{upfront}</p>
-        </div>
-        <a
-          href="#oferta"
-          onClick={(e) => {
-            trackBuyClick()
-            const target = document.getElementById('oferta')
-            if (target) {
-              e.preventDefault()
-              target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-          }}
-          // A barra inteira leva aria-hidden quando escondida; sem isto o link
-          // dentro dela seguia focável pelo Tab. Mesma correção do FloatingCTA.
-          tabIndex={isVisible ? undefined : -1}
-          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-8px_rgba(249,115,22,0.7)] active:scale-[0.97]"
-        >
-          Garantir acesso
-          <ArrowRight className="h-4 w-4" />
-        </a>
-      </div>
-    </div>
-  )
-}
+/* A barra de conversão fixa do mobile (preço parcelado + "Garantir acesso")
+   foi REMOVIDA em 30/07 a pedido do Francis: "elimina o preço, no formato
+   celular"; perguntado se era só o preço ou o botão também, respondeu "os 2".
+   O componente saiu inteiro em vez de virar prop desligada — está no histórico
+   do git se ele voltar atrás. O `useCtaVisibility` continua recebendo o
+   breakpoint por isso: hoje só o CTA flutuante do desktop o usa. */

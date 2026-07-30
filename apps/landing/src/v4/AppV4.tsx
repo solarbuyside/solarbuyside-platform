@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import './v4.css'
 import { trackPageView, observeSection } from '../utils/analytics'
-import { FloatingCTAV4, HeaderV4, MobileCtaBarV4 } from './HeaderV4'
+import { FloatingCTAV4, HeaderV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
 import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
@@ -79,7 +79,6 @@ export default function AppV4() {
     <div className="v4-root overflow-x-clip bg-[#07090d] text-slate-400 antialiased selection:bg-orange-500/80 selection:text-white">
       <HeaderV4 />
       <FloatingCTAV4 />
-      <MobileCtaBarV4 />
       {/* <main>: landmark principal para leitor de tela (auditoria de Práticas
           do Lighthouse). Header/CTAs/rodapé ficam fora, como manda a semântica. */}
       <main>

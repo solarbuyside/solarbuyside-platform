@@ -129,6 +129,44 @@ export const ManualStrategicV4: React.FC = () => {
   const manualItems = lerItens('manualItem')
   const codeItems = lerItens('codeItem')
 
+  /* Cards do bloco 2. O default do código só vale quando a chave NÃO existe no
+     banco: chave presente e vazia é o cliente dizendo "tira este card".
+
+     Era `texts.x || 'default'`, e `||` trata "" como ausente. O Francis apagou
+     os cards 3 das duas colunas no admin em 30/07 e os textos antigos
+     continuaram na LP, porque o componente caía de volta no hardcoded. O trim
+     cobre o `"\n"` que o editor grava quando o campo é esvaziado. */
+  const card = (
+    Icon: React.ComponentType<{ size?: number }>,
+    titleKey: string,
+    descKey: string,
+    defTitle: string,
+    defDesc: string,
+  ) => ({
+    Icon,
+    title: (section?.texts[titleKey] ?? defTitle).trim(),
+    desc: (section?.texts[descKey] ?? defDesc).trim(),
+  })
+  const comConteudo = (c: { title: string; desc: string }) => Boolean(c.title || c.desc)
+
+  const sellCards = [
+    card(Target, 'sellCard1Title', 'sellCard1Desc', 'Dores reais do cliente',
+      'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'),
+    card(Users, 'sellCard2Title', 'sellCard2Desc', 'Postura consultiva',
+      'Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.'),
+    card(TrendingUp, 'sellCard3Title', 'sellCard3Desc', 'Valor técnico e econômico',
+      'Demonstra, de forma fundamentada, como o valor técnico da solução se converte em benefício econômico.'),
+  ].filter(comConteudo)
+
+  const focusCards = [
+    card(Layout, 'focusCard1Title', 'focusCard1Desc', 'Apresentações persuasivas',
+      'Estruture propostas objetivas e transparentes que facilitam a decisão do cliente.'),
+    card(BarChart3, 'focusCard2Title', 'focusCard2Desc', 'Autoridade na mesa',
+      'Constrói autoridade e conexões reais, que fecham negócio sem desconto.'),
+    card(MinusCircle, 'focusCard3Title', 'focusCard3Desc', 'Menos desconto, mais margem',
+      'Argumente com precisão e preserve sua comissão sem perder vendas.'),
+  ].filter(comConteudo)
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
       <GrainOverlay />
@@ -327,6 +365,7 @@ export const ManualStrategicV4: React.FC = () => {
         </Reveal>
 
         <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-12 lg:grid-cols-2">
+          {sellCards.length > 0 && (
           <div>
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
@@ -335,33 +374,14 @@ export const ManualStrategicV4: React.FC = () => {
               </h3>
             </Reveal>
             <ul className="mt-2">
-              <FeatureItem
-                Icon={Target}
-                delay={80}
-                title={section?.texts.sellCard1Title || 'Dores reais do cliente'}
-                desc={section?.texts.sellCard1Desc || 'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'}
-              />
-              <FeatureItem
-                Icon={Users}
-                delay={160}
-                title={section?.texts.sellCard2Title || 'Postura consultiva'}
-                desc={
-                  section?.texts.sellCard2Desc ||
-                  'Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.'
-                }
-              />
-              <FeatureItem
-                Icon={TrendingUp}
-                delay={240}
-                title={section?.texts.sellCard3Title || 'Valor técnico e econômico'}
-                desc={
-                  section?.texts.sellCard3Desc ||
-                  'Demonstra, de forma fundamentada, como o valor técnico da solução se converte em benefício econômico.'
-                }
-              />
+              {sellCards.map((c, i) => (
+                <FeatureItem key={i} Icon={c.Icon} delay={(i + 1) * 80} title={c.title} desc={c.desc} />
+              ))}
             </ul>
           </div>
+          )}
 
+          {focusCards.length > 0 && (
           <div>
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
@@ -370,26 +390,12 @@ export const ManualStrategicV4: React.FC = () => {
               </h3>
             </Reveal>
             <ul className="mt-2">
-              <FeatureItem
-                Icon={Layout}
-                delay={80}
-                title={section?.texts.focusCard1Title || 'Apresentações persuasivas'}
-                desc={section?.texts.focusCard1Desc || 'Estruture propostas objetivas e transparentes que facilitam a decisão do cliente.'}
-              />
-              <FeatureItem
-                Icon={BarChart3}
-                delay={160}
-                title={section?.texts.focusCard2Title || 'Autoridade na mesa'}
-                desc={section?.texts.focusCard2Desc || 'Constrói autoridade e conexões reais, que fecham negócio sem desconto.'}
-              />
-              <FeatureItem
-                Icon={MinusCircle}
-                delay={240}
-                title={section?.texts.focusCard3Title || 'Menos desconto, mais margem'}
-                desc={section?.texts.focusCard3Desc || 'Argumente com precisão e preserve sua comissão sem perder vendas.'}
-              />
+              {focusCards.map((c, i) => (
+                <FeatureItem key={i} Icon={c.Icon} delay={(i + 1) * 80} title={c.title} desc={c.desc} />
+              ))}
             </ul>
           </div>
+          )}
         </div>
       </div>
     </section>
