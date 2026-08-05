@@ -3,6 +3,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { WordReveal } from './atoms'
 import { scrollToId } from './scroll'
+import { criarTxt } from './cms'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
    gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
@@ -13,16 +14,17 @@ import { scrollToId } from './scroll'
 export const HeroV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('hero')
+  const txt = criarTxt(section)
   const glowRef = useRef<HTMLDivElement | null>(null)
 
-  const titlePrefix = section?.texts.titlePrefix || section?.texts.title1 || 'Saia da Disputa de Preço e Passe a'
-  const titleHighlight = section?.texts.titleHighlight || section?.texts.title2 || 'Vender Decisões'
-  const titleSuffix = section?.texts.titleSuffix || 'em Sistema Solar'
+  const titlePrefix = txt('titlePrefix', txt('title1', 'Saia da Disputa de Preço e Passe a'))
+  const titleHighlight = txt('titleHighlight', txt('title2', 'Vender Decisões'))
+  const titleSuffix = txt('titleSuffix', 'em Sistema Solar')
   // Subfrase única do Hero (Francis, slide 2). O texto antigo ("O método
   // Buy-Side ensina você a pensar como o cliente...") é tratado como legado:
   // se o banco ainda tiver ele, cai no novo. Assim a LP não depende do seed
   // para mostrar a frase certa.
-  const subtitleCms = section?.texts.subtitle || section?.texts.subtitle1 || ''
+  const subtitleCms = txt('subtitle', txt('subtitle1', ''))
   const subtitle = !subtitleCms || subtitleCms.startsWith('O método Buy-Side')
     ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do <span class="cms-semibold">comprador</span>'
     : subtitleCms
@@ -34,8 +36,8 @@ export const HeroV4: React.FC = () => {
     if (i === -1) return [subtitle, '']
     return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
   })()
-  const manualTitle = section?.texts.manualTitle || 'Manual Solar Buy-Side'
-  const scrollHint = section?.texts.scrollHint || 'Veja o panorama 2026'
+  const manualTitle = txt('manualTitle', 'Manual Solar Buy-Side')
+  const scrollHint = txt('scrollHint', 'Veja o panorama 2026')
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {

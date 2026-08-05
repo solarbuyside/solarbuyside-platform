@@ -3,6 +3,7 @@ import { ArrowRight, Menu, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { Img } from './atoms'
+import { criarTxt } from './cms'
 
 const NAV_ITEMS = [
   { href: '#contexto', label: 'Panorama' },
@@ -195,6 +196,7 @@ const useCtaVisibility = (breakpoint: 'mobile' | 'desktop') => {
 export const FloatingCTAV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('pricing')
+  const txt = criarTxt(section)
   const isVisible = useCtaVisibility('desktop')
 
   return (
@@ -225,7 +227,7 @@ export const FloatingCTAV4: React.FC = () => {
           Manual Solar Buy-Side
         </span>
         <span className="block text-sm font-extrabold leading-tight text-slate-50">
-          {section?.texts.ctaButton || 'Garantir meu acesso agora'}
+          {txt('ctaButton', 'Garantir meu acesso agora')}
         </span>
       </span>
     </a>

@@ -2,6 +2,7 @@
 import { ArrowDown, Building2, Rocket, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { GrainOverlay, Reveal, WordReveal } from './atoms'
+import { criarTxt } from './cms'
 
 /* Cores semânticas dos perfis: azul = comprador estruturado (buy-side),
    laranja = marca, esmeralda = conversão/vendas. */
@@ -54,30 +55,31 @@ const PanelEmblem: React.FC<{ meta: (typeof PROFILE_META)[number]; active: boole
 export const AudienceV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('audience')
+  const txt = criarTxt(section)
   const [activeIndex, setActiveIndex] = useState(0)
 
   const profiles = [
     {
-      title: section?.texts.profile1Title || 'Empresas de Integração Solar',
-      description: section?.texts.profile1Desc || 'Para vender valor, fugir da guerra dos preços e fechar mais projetos.',
-      bullets: [section?.texts.profile1Bullet1 || 'Vender valor', section?.texts.profile1Bullet2 || 'Fechar mais projetos'],
-      tag: section?.texts.profile1Tag || 'ESTRUTURADOS',
+      title: txt('profile1Title', 'Empresas de Integração Solar'),
+      description: txt('profile1Desc', 'Para vender valor, fugir da guerra dos preços e fechar mais projetos.'),
+      bullets: [txt('profile1Bullet1', 'Vender valor'), txt('profile1Bullet2', 'Fechar mais projetos')],
+      tag: txt('profile1Tag', 'ESTRUTURADOS'),
     },
     {
-      title: section?.texts.profile2Title || 'Empreendedores Iniciantes',
-      description: section?.texts.profile2Desc || 'Para construir um negócio sólido desde o primeiro passo na integração solar.',
-      bullets: [section?.texts.profile2Bullet1 || 'Base sólida', section?.texts.profile2Bullet2 || 'Autoridade desde o dia 1'],
-      tag: section?.texts.profile2Tag || 'STARTUPS',
+      title: txt('profile2Title', 'Empreendedores Iniciantes'),
+      description: txt('profile2Desc', 'Para construir um negócio sólido desde o primeiro passo na integração solar.'),
+      bullets: [txt('profile2Bullet1', 'Base sólida'), txt('profile2Bullet2', 'Autoridade desde o dia 1')],
+      tag: txt('profile2Tag', 'STARTUPS'),
     },
     {
-      title: section?.texts.profile3Title || 'Representantes Comerciais',
-      description: section?.texts.profile3Desc || 'Para aumentar sua taxa de conversão reduzindo sua taxa de desconto.',
-      bullets: [section?.texts.profile3Bullet1 || 'Menos desconto', section?.texts.profile3Bullet2 || 'Mais conversão'],
-      tag: section?.texts.profile3Tag || 'VENDAS',
+      title: txt('profile3Title', 'Representantes Comerciais'),
+      description: txt('profile3Desc', 'Para aumentar sua taxa de conversão reduzindo sua taxa de desconto.'),
+      bullets: [txt('profile3Bullet1', 'Menos desconto'), txt('profile3Bullet2', 'Mais conversão')],
+      tag: txt('profile3Tag', 'VENDAS'),
     },
   ]
 
-  const title = section?.texts.title || 'Quem REALMENTE precisa desse conhecimento?'
+  const title = txt('title', 'Quem REALMENTE precisa desse conhecimento?')
 
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-white antialiased">
@@ -91,7 +93,7 @@ export const AudienceV4: React.FC = () => {
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-5 text-xl leading-relaxed text-slate-400">
-              {section?.texts.subtitle || 'Veja para quem o Manual Solar Buy-Side é essencial:'}
+              {txt('subtitle', 'Veja para quem o Manual Solar Buy-Side é essencial:')}
             </p>
           </Reveal>
         </div>
@@ -211,16 +213,14 @@ export const AudienceV4: React.FC = () => {
             </p>
 
             <p className="v4-serif mt-4 text-[clamp(1.7rem,3.6vw,2.7rem)] leading-[1.18] text-white">
-              {section?.texts.bottomHighlight || 'Pertence aos profissionais que sabem conduzir a decisão de compra.'}
+              {txt('bottomHighlight', 'Pertence aos profissionais que sabem conduzir a decisão de compra.')}
             </p>
 
             <p className="mx-auto mt-8 max-w-2xl leading-relaxed text-slate-500">
-              {section?.texts.bottomText ||
-                'Os melhores vendedores solares do futuro serão aqueles que entendem como o comprador pensa, reduzem sua insegurança e conduzem a decisão com confiança.'}
+              {txt('bottomText', 'Os melhores vendedores solares do futuro serão aqueles que entendem como o comprador pensa, reduzem sua insegurança e conduzem a decisão com confiança.')}
             </p>
             <p className="mt-3 font-semibold leading-relaxed text-slate-200">
-              {section?.texts.bottomEmphasis ||
-                'O Método Solar Buy-Side foi criado para formar exatamente esse profissional.'}
+              {txt('bottomEmphasis', 'O Método Solar Buy-Side foi criado para formar exatamente esse profissional.')}
             </p>
 
             {/* Ponte para o Manual: fio + seta, sem caixa */}
@@ -235,8 +235,7 @@ export const AudienceV4: React.FC = () => {
               <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/[0.12]" aria-hidden />
             </div>
             <p className="v4-serif mt-5 text-lg text-slate-400 md:text-xl">
-              {section?.texts.bottomOutro ||
-                'A seguir, conheça as ferramentas que tornam essa transformação possível.'}
+              {txt('bottomOutro', 'A seguir, conheça as ferramentas que tornam essa transformação possível.')}
             </p>
           </div>
         </Reveal>

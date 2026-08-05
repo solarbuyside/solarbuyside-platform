@@ -2,37 +2,36 @@ import React, { useState } from 'react'
 import { ArrowRight, Settings2, ShieldCheck, Target, UserCheck } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, GrainOverlay, Reveal } from './atoms'
+import { criarTxt } from './cms'
 
 export const SellerCodeV4: React.FC = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { getSection } = useContent()
   const section = getSection('seller-code')
+  const txt = criarTxt(section)
 
   const contentItems = [
     {
-      title: section?.texts.item1Title || 'Índice de Confiabilidade',
-      desc: section?.texts.item1Desc || 'Aprenda a medir e provar a segurança da sua proposta de forma estruturada e profissional.',
+      title: txt('item1Title', 'Índice de Confiabilidade'),
+      desc: txt('item1Desc', 'Aprenda a medir e provar a segurança da sua proposta de forma estruturada e profissional.'),
       Icon: ShieldCheck,
     },
     {
-      title: section?.texts.item2Title || 'Ajuste de Precisão com Checklist',
+      title: txt('item2Title', 'Ajuste de Precisão com Checklist'),
       desc:
-        section?.texts.item2Desc ||
-        'Refine seus materiais de vendas com base no que compradores realmente avaliam (e o que eles descartam).',
+        txt('item2Desc', 'Refine seus materiais de vendas com base no que compradores realmente avaliam (e o que eles descartam).'),
       Icon: Settings2,
     },
     {
-      title: section?.texts.item3Title || 'Estratégia Anti-Leilão',
+      title: txt('item3Title', 'Estratégia Anti-Leilão'),
       desc:
-        section?.texts.item3Desc ||
-        'Saiba exatamente como agir com clientes focados apenas em preço e recupere sua margem de lucro.',
+        txt('item3Desc', 'Saiba exatamente como agir com clientes focados apenas em preço e recupere sua margem de lucro.'),
       Icon: Target,
     },
     {
-      title: section?.texts.item4Title || 'Postura Consultiva de Elite',
+      title: txt('item4Title', 'Postura Consultiva de Elite'),
       desc:
-        section?.texts.item4Desc ||
-        'Não dispute por preço, dispute por valor. Ajude o cliente a decidir com segurança e fortaleça uma relação de longo prazo.',
+        txt('item4Desc', 'Não dispute por preço, dispute por valor. Ajude o cliente a decidir com segurança e fortaleça uma relação de longo prazo.'),
       Icon: UserCheck,
     },
   ]
@@ -64,27 +63,25 @@ export const SellerCodeV4: React.FC = () => {
           <div className="lg:col-span-7">
             <Reveal>
               <h2 className="font-['Sora'] text-[clamp(2rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-[#181410]">
-                {section?.texts.title || 'O Segredo por trás dos resultados:'}{' '}
+                {txt('title', 'O Segredo por trás dos resultados:')}{' '}
                 <span className="v4-serif text-orange-600">
-                  {section?.texts.titleHighlight || 'O Código do Vendedor Consultivo'}
+                  {txt('titleHighlight', 'O Código do Vendedor Consultivo')}
                 </span>
               </h2>
             </Reveal>
             <Reveal delay={90}>
               <p className="mt-6 border-l-2 border-[#181410]/20 pl-5 text-xl leading-relaxed text-[#4f463c]">
-                {section?.texts.subtitle ||
-                  'O sucesso do Rodrigo não foi por acaso. Além de aplicar o Manual Solar Buy-Side, ele incorporou a estratégia que inverte o jogo: pensar como um comprador para conduzir a venda.'}
+                {txt('subtitle', 'O sucesso do Rodrigo não foi por acaso. Além de aplicar o Manual Solar Buy-Side, ele incorporou a estratégia que inverte o jogo: pensar como um comprador para conduzir a venda.')}
               </p>
             </Reveal>
 
             {/* Bônus */}
             <Reveal delay={180} className="mt-12">
               <h3 className="inline-block rotate-[-1.5deg] rounded-xl bg-[#181410] px-6 py-2.5 font-['Sora'] text-xl font-extrabold tracking-tight text-[#f2ece1] shadow-[6px_6px_0_0_#f97316] md:text-2xl">
-                {section?.texts.bonusTitle || 'BÔNUS EXCLUSIVO'}
+                {txt('bonusTitle', 'BÔNUS EXCLUSIVO')}
               </h3>
               <p className="v4-serif mt-5 text-xl leading-relaxed text-[#4f463c] md:text-2xl">
-                {section?.texts.bonusSubtitle ||
-                  'O método de imersão no Manual Solar Buy-Side para quem não aceita mais perder vendas por preço.'}
+                {txt('bonusSubtitle', 'O método de imersão no Manual Solar Buy-Side para quem não aceita mais perder vendas por preço.')}
               </p>
             </Reveal>
 
@@ -97,7 +94,7 @@ export const SellerCodeV4: React.FC = () => {
             <Reveal delay={120} className="mt-12">
               <h4 className="border-b border-[#181410]/15 pb-3">
                 <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-[#4f463c]/70">
-                  {section?.texts.listTitle || section?.texts.listHeader || 'O que você leva do Código:'}
+                  {txt('listTitle', txt('listHeader', 'O que você leva do Código:'))}
                 </span>
               </h4>
               <div onMouseLeave={() => setHoveredIndex(null)}>

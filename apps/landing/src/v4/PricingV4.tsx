@@ -4,6 +4,7 @@ import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { CMSText } from '../components/CMSText'
 import { Img, GrainOverlay, Reveal, Stamp } from './atoms'
+import { criarTxt, temConteudo } from './cms'
 
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
@@ -58,14 +59,18 @@ type ProductCard = {
 export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   const { getSection, globalSettings } = useContent()
   const section = getSection('pricing')
+  const txt = criarTxt(section)
   const isFirstSection = id === 'oferta'
-  const featuresTitle = section?.texts.featuresTitle || 'VEJA TUDO QUE VOCÊ RECEBE:'
+  const featuresTitle = txt('featuresTitle', 'VEJA TUDO QUE VOCÊ RECEBE:')
+  // Preço "de", riscado, acima do parcelado. Aparece nas duas chamadas.
+  const priceFrom = txt('priceFrom', 'De R$ 997,00 por apenas:')
   // Frase de payback, logo abaixo das quatro capas. Apagar o campo no admin
   // esconde a caixa; campo ausente cai no padrão. Aceita marcação do CMS
   // (<span class="cms-orange">) para destacar o fecho.
-  const paybackNote =
-    section?.texts.paybackNote ??
-    'Apenas uma venda fechada usando o Método Buy-Side já paga 100% do seu investimento. <span class="cms-orange">Todo o resto é lucro.</span>'
+  const paybackNote = txt(
+    'paybackNote',
+    'Apenas uma venda fechada usando o Método Buy-Side já paga 100% do seu investimento. <span class="cms-orange">Todo o resto é lucro.</span>',
+  )
 
   /* Promo Belenergy, três linhas do slide 18. Os valores anteriores são
      tratados como legado: enquanto o banco não for atualizado pelo seed, ele
@@ -82,54 +87,54 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
     promoTitleCms.trim() === '15% OFF para Integradores cadastrados na'
       ? '15% OFF para Integradores credenciados'
       : promoTitleCms
-  const promoSubtitleCms = section?.texts.promoSubtitle ?? ''
+  const promoSubtitleCms = txt('promoSubtitle')
   const promoSubtitle = promoSubtitleCms.startsWith('Cadastre-se agora')
     ? 'Você está sem cupom Belenergy?'
     : promoSubtitleCms
-  const promoNote =
-    section?.texts.promoNote ??
-    'Compra agora e reembolsamos a diferença de <span class="cms-orange">R$ 119,55</span> sob apresentação do cupom!'
+  // O campo estava gravado como "<br>" — não é vazio para o `.trim()`, então
+  // renderizava um parágrafo com uma quebra de linha dentro. Era esse o
+  // "espaço vazio abaixo da logotipo" do slide 19. `txt` trata marcação sem
+  // texto como campo apagado.
+  const promoNote = txt(
+    'promoNote',
+    'Compra agora e reembolsamos a diferença de <span class="cms-orange">R$ 119,55</span> sob apresentação do cupom!',
+  )
   const promoLogo = section?.images.promoLogo || '/assets/apoiadores/belenergy.png'
 
   const productCards: ProductCard[] = [
     {
-      tag: section?.texts.card1Tag || 'MANUAL PRINCIPAL',
-      title: section?.texts.card1Title || section?.texts.feature1Title || 'Manual Solar Buy-Side',
+      tag: txt('card1Tag', 'MANUAL PRINCIPAL'),
+      title: txt('card1Title', txt('feature1Title', 'Manual Solar Buy-Side')),
       desc:
-        section?.texts.card1Desc ||
-        'Acesso vitalício: 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato.',
+        txt('card1Desc', 'Acesso vitalício: 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato.'),
       image: section?.images.card1Image || section?.images.manualImage || '/assets/manual-norm.png',
       imageAlt: 'Capa do Manual Solar Buy-Side',
       variant: 'default',
     },
     {
-      tag: section?.texts.card2Tag || 'DIFERENCIAL ESTRATÉGICO',
-      title: section?.texts.card2Title || section?.texts.bonusTitle || 'Código do Vendedor Consultivo',
+      tag: txt('card2Tag', 'DIFERENCIAL ESTRATÉGICO'),
+      title: txt('card2Title', txt('bonusTitle', 'Código do Vendedor Consultivo')),
       desc:
-        section?.texts.card2Desc ||
-        section?.texts.bonusSubtitle ||
-        '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.',
+        txt('card2Desc', txt('bonusSubtitle', '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.')),
       image: section?.images.card2Image || section?.images.codeImage || '/assets/codigo-norm.png',
       imageAlt: 'Capa do Código do Vendedor Consultivo',
       variant: 'default',
     },
     {
-      tag: section?.texts.cardPlatformTag || 'BÔNUS ESPECIAL',
-      title: section?.texts.cardPlatformTitle || 'Plataforma de Avaliação de Proposta Comercial',
+      tag: txt('cardPlatformTag', 'BÔNUS ESPECIAL'),
+      title: txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial'),
       desc:
-        section?.texts.cardPlatformDesc ||
-        'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.',
+        txt('cardPlatformDesc', 'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.'),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
       imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
       variant: 'bonus',
       wide: true,
     },
     {
-      tag: section?.texts.card3Tag || 'BÔNUS ESPECIAL',
-      title: section?.texts.card3Title || 'Turbine sua Equipe de Venda',
+      tag: txt('card3Tag', 'BÔNUS ESPECIAL'),
+      title: txt('card3Title', 'Turbine sua Equipe de Venda'),
       desc:
-        section?.texts.card3Desc ||
-        'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.',
+        txt('card3Desc', 'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.'),
       image: section?.images.card3Image || '/assets/coletiva-norm.png',
       imageAlt: 'Licença de Uso Coletiva',
       variant: 'bonus',
@@ -142,7 +147,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   if (!isFirstSection) {
     // Defaults espelham o CMS (12x de R$ 81,94 / R$ 797,00): é o que aparece
     // se o fetch do Supabase falhar no navegador.
-    const installments = `${section?.texts.priceValue || '81'}${section?.texts.priceCents || ',94'}`
+    const installments = `${txt('priceValue', '81')}${txt('priceCents', ',94')}`
     return (
       <section id={id} className="relative overflow-hidden bg-[#0a0705] py-24 text-white md:py-28">
         <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -167,8 +172,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           </Reveal>
           <Reveal delay={90}>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-400 md:text-xl">
-              {section?.texts.subtitleSecond ||
-                'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.'}
+              {txt('subtitleSecond', 'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.')}
             </p>
           </Reveal>
 
@@ -177,12 +181,12 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               <div className="rounded-[calc(2rem-1px)] bg-[#0d0a08] p-8 md:p-10">
                 <div className="flex flex-col items-center justify-between gap-8 lg:flex-row lg:text-left">
                   <div className="text-center lg:text-left">
-                    <p className="text-sm font-bold text-slate-500 line-through">
-                      {section?.texts.priceFrom || 'De R$ 997,00 por apenas:'}
-                    </p>
+                    {/* Preço "de": some inteiro quando o campo é apagado no
+                        admin, senão sobraria um risco de texto vazio. */}
+                    {priceFrom && <p className="text-sm font-bold text-slate-500 line-through">{priceFrom}</p>}
                     <p className="mt-2 flex flex-wrap items-baseline justify-center gap-x-2 lg:justify-start">
                       <span className="whitespace-nowrap text-lg font-bold text-slate-300">
-                        {section?.texts.priceInstallments || '12x de'}
+                        {txt('priceInstallments', '12x de')}
                       </span>
                       <span className="whitespace-nowrap font-['Sora'] text-5xl font-extrabold tracking-tight text-white md:text-6xl">
                         <span className="mr-1 align-middle text-2xl md:text-3xl">R$</span>
@@ -190,7 +194,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                       </span>
                     </p>
                     <p className="mt-2 text-sm font-semibold text-slate-400">
-                      {section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'}
+                      {txt('priceUpfront', 'Ou R$ 797,00 à vista no PIX')}
                     </p>
                   </div>
 
@@ -201,7 +205,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     onClick={trackBuyClick}
                     className="group inline-flex w-full max-w-md items-center justify-center gap-3 rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-5 text-center text-base font-extrabold leading-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8)] active:scale-[0.98] lg:w-auto lg:shrink-0 md:text-lg"
                   >
-                    {section?.texts.finalCtaButton || 'Começar agora com garantia de 7 dias'}
+                    {txt('finalCtaButton', 'Começar agora com garantia de 7 dias')}
                     <ArrowRight size={20} className="shrink-0 transition-transform group-hover:translate-x-1" />
                   </a>
                 </div>
@@ -209,11 +213,11 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 <div className="v4-mono mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-white/[0.08] pt-6 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
-                    {section?.texts.benefit1 || 'Liberação imediata no seu e-mail'}
+                    {txt('benefit1', 'Liberação imediata no seu e-mail')}
                   </span>
                   <span className="flex items-center gap-2">
                     <ShieldCheck size={15} className="shrink-0 text-emerald-500" />
-                    {section?.texts.benefit3 || 'Garantia incondicional de 7 dias'}
+                    {txt('benefit3', 'Garantia incondicional de 7 dias')}
                   </span>
                 </div>
               </div>
@@ -246,7 +250,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           <Reveal>
             <div className="v4-mono inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
               <Sparkles size={13} className="animate-pulse" />
-              {section?.texts.badge || 'Condição de pré-venda • antes do lançamento oficial'}
+              {txt('badge', 'Condição de pré-venda • antes do lançamento oficial')}
             </div>
           </Reveal>
 
@@ -271,10 +275,8 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               {section?.texts.subtitle?.trim()
                 ? section.texts.subtitle
                 : isFirstSection
-                  ? section?.texts.subtitleFirst ||
-                    'Manual + Código do Vendedor + Plataforma de Avaliação: o mesmo material que orienta compradores, agora do seu lado da mesa.'
-                  : section?.texts.subtitleSecond ||
-                    'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.'}
+                  ? txt('subtitleFirst', 'Manual + Código do Vendedor + Plataforma de Avaliação: o mesmo material que orienta compradores, agora do seu lado da mesa.')
+                  : txt('subtitleSecond', 'Preço de pré-venda, acesso imediato e 7 dias de garantia incondicional para você avaliar por dentro.')}
             </p>
           </Reveal>
         </div>
@@ -369,37 +371,38 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           <div className="v4-conic-frame rounded-[2.5rem] p-px">
             <div className="v4-conic-inner rounded-[calc(2.5rem-1px)] bg-[#0d0a08] p-10 text-center md:p-14">
               <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-orange-400">
-                {section?.texts.planBadge || 'Plano de Acesso'}
+                {txt('planBadge', 'Plano de Acesso')}
               </span>
               <h3 className="mt-2 font-['Sora'] text-2xl font-extrabold tracking-tight text-white">
-                {section?.texts.planTitle || 'Oferta Especial'}
+                {txt('planTitle', 'Oferta Especial')}
               </h3>
 
-              <p className="mt-6 font-bold text-slate-500 line-through">
-                {section?.texts.priceFrom || 'De R$ 997,00 por apenas:'}
-              </p>
+              {/* Slide 19: "apaguei a frase no ADM mas continua presente". Ela
+                  continuava porque o `||` trocava a string vazia pelo default;
+                  agora o campo apagado tira o parágrafo inteiro do ar. */}
+              {priceFrom && <p className="mt-6 font-bold text-slate-500 line-through">{priceFrom}</p>}
               {/* Parcela como unidade legível: "12x de" e os centavos têm peso
                   suficiente para ninguém ler "R$ 61". */}
               <div className="flex items-baseline justify-center gap-2">
                 <span className="text-2xl font-bold text-slate-200 md:text-3xl">
-                  {section?.texts.priceInstallments || '12x de'}
+                  {txt('priceInstallments', '12x de')}
                 </span>
                 <span className="flex items-baseline">
                   <span className="mr-1 self-start pt-3 text-3xl font-extrabold">R$</span>
                   <span className="font-['Sora'] text-[clamp(4.5rem,10vw,7rem)] font-extrabold leading-none tracking-tighter text-white">
-                    {section?.texts.priceValue || '81'}
+                    {txt('priceValue', '81')}
                   </span>
-                  <span className="text-4xl font-extrabold text-white md:text-5xl">{section?.texts.priceCents || ',94'}</span>
+                  <span className="text-4xl font-extrabold text-white md:text-5xl">{txt('priceCents', ',94')}</span>
                 </span>
               </div>
               <p className="mt-3 text-lg font-semibold text-slate-300">
-                {section?.texts.priceUpfront || 'Ou R$ 797,00 à vista no PIX'}
+                {txt('priceUpfront', 'Ou R$ 797,00 à vista no PIX')}
               </p>
 
               {/* Promo Belenergy (Francis, slide 7). Só aparece se houver
                   título — assim o cliente liga/desliga a campanha pelo admin,
                   sem deploy. Destaque: anel laranja pulsante + brilho. */}
-              {promoTitle.trim() && (
+              {temConteudo(promoTitle) && (
                 <div className="v4-promo-glow relative mt-8 overflow-hidden rounded-2xl border border-orange-500/40 bg-orange-500/[0.07] px-5 py-5 text-center">
                   {/* Linha 1: a frase termina no LOGO da Belenergy, inline,
                       como no slide. O logo vem com caixa sólida na arte, então
@@ -413,13 +416,13 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                       className="h-11 w-auto shrink-0 md:h-14"
                     />
                   </p>
-                  {promoSubtitle.trim() && (
+                  {temConteudo(promoSubtitle) && (
                     <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-slate-200">{promoSubtitle}</p>
                   )}
                   {/* Linha 3 (Francis, slide 18): o reembolso da diferença para
                       quem ainda não tem cupom. Sem travessão. Aceita marcação
                       do CMS para destacar o valor. */}
-                  {promoNote.trim() && (
+                  {temConteudo(promoNote) && (
                     <p className="mx-auto mt-2.5 max-w-md text-base font-semibold leading-relaxed text-orange-300">
                       <CMSText value={promoNote} />
                     </p>
@@ -438,7 +441,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 className="v4-cta-shine group relative mt-8 flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 py-6 text-lg font-extrabold uppercase tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_52px_-12px_rgba(249,115,22,0.8),inset_0_1px_0_rgba(255,255,255,0.3)] active:scale-[0.98] md:text-xl"
               >
                 <span className="relative z-10 leading-tight">
-                  {section?.texts.ctaButton || 'Garantir meu acesso agora'}
+                  {txt('ctaButton', 'Garantir meu acesso agora')}
                 </span>
                 <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
               </a>
@@ -446,15 +449,15 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               <div className="v4-mono mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
                 <span className="flex items-center gap-2">
                   <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />
-                  {section?.texts.benefit1 || 'Liberação imediata no seu e-mail'}
+                  {txt('benefit1', 'Liberação imediata no seu e-mail')}
                 </span>
                 <span className="flex items-center gap-2">
                   <LockIcon size={15} className="shrink-0 text-emerald-500" />
-                  {section?.texts.benefit2 || 'Pagamento criptografado'}
+                  {txt('benefit2', 'Pagamento criptografado')}
                 </span>
                 <span className="flex items-center gap-2">
                   <ShieldCheck size={15} className="shrink-0 text-emerald-500" />
-                  {section?.texts.benefit3 || 'Garantia incondicional de 7 dias'}
+                  {txt('benefit3', 'Garantia incondicional de 7 dias')}
                 </span>
               </div>
 
@@ -468,7 +471,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                   <div className="space-y-4">
                     <PaymentMarks />
                     <p className="v4-mono text-center text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      {section?.texts.secureNote || 'Compra processada em ambiente criptografado'}
+                      {txt('secureNote', 'Compra processada em ambiente criptografado')}
                     </p>
                   </div>
                 </div>

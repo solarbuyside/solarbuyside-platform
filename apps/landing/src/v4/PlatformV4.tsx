@@ -3,6 +3,7 @@ import { Trophy, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Cta, CtaArrow, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
+import { criarTxt } from './cms'
 
 /* PLATAFORMA DE AVALIAÇÃO — bloco reescrito conforme os slides do Francis
    (2026-06): copy virada pro vendedor ("sua proposta tem nota; teste antes que
@@ -197,23 +198,23 @@ const RiskScale: React.FC = () => (
 export const PlatformV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('plataforma')
+  const txt = criarTxt(section)
 
-  const badge = section?.texts.badge || 'Bônus Exclusivo'
-  const title = section?.texts.title || 'No Buy-Side sua proposta comercial tem nota.'
+  const badge = txt('badge', 'Bônus Exclusivo')
+  const title = txt('title', 'No Buy-Side sua proposta comercial tem nota.')
   const titleHighlight =
-    section?.texts.titleHighlight || 'Teste suas propostas antes que o mercado as teste.'
+    txt('titleHighlight', 'Teste suas propostas antes que o mercado as teste.')
   const lead =
-    section?.texts.lead ||
-    'A Plataforma de Avaliação Solar Buy-Side revela as forças e fraquezas das suas ofertas, ajudando sua empresa a entregar propostas mais competitivas, confiáveis e persuasivas.'
+    txt('lead', 'A Plataforma de Avaliação Solar Buy-Side revela as forças e fraquezas das suas ofertas, ajudando sua empresa a entregar propostas mais competitivas, confiáveis e persuasivas.')
   const bullets = [
-    section?.texts.bullet1 || 'Compare propostas de fornecedores lado a lado',
-    section?.texts.bullet2 || 'Pontuação por reputação, tecnologia e viabilidade',
-    section?.texts.bullet3 || 'Índice de Confiabilidade de 0 a 100 para cada fornecedor',
+    txt('bullet1', 'Compare propostas de fornecedores lado a lado'),
+    txt('bullet2', 'Pontuação por reputação, tecnologia e viabilidade'),
+    txt('bullet3', 'Índice de Confiabilidade de 0 a 100 para cada fornecedor'),
   ]
   // CTA 5 (Francis, slide 15: "criar CTA 5"). O botão já existia aqui, o que
   // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
   // é tratado como legado para a LP não depender do seed.
-  const ctaCms = section?.texts.ctaButton || ''
+  const ctaCms = txt('ctaButton', '')
   const ctaButton = !ctaCms || ctaCms === 'Quero o Manual + Plataforma'
     ? 'Quero o Manual + o Código + acesso à Plataforma'
     : ctaCms
@@ -231,9 +232,18 @@ export const PlatformV4: React.FC = () => {
           <Reveal delay={90}>
             <h2 className="mt-4 font-['Sora'] text-[clamp(2.1rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
               {/* Espaço dentro da expressão: dois text nodes adjacentes quebram
-                  a hidratação (ver ContextV4). */}
-              {`${title} `}
-              <span className="v4-serif text-orange-400">{titleHighlight}</span>
+                  a hidratação (ver ContextV4). Sem destaque, o título é um text
+                  node só — nada de span vazio nem espaço solto no fim da frase.
+                  (Francis, slide 3: ele escreveu a frase inteira na parte
+                  branca e deixou o destaque em branco no editor.) */}
+              {titleHighlight ? (
+                <>
+                  {`${title} `}
+                  <span className="v4-serif text-orange-400">{titleHighlight}</span>
+                </>
+              ) : (
+                title
+              )}
             </h2>
           </Reveal>
           <Reveal delay={170}>

@@ -3,6 +3,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, Cta, CtaArrow, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
+import { criarTxt } from './cms'
 
 /* "O DUELO" — Francis (azul, buy-side) à esquerda vs. Ovídio (laranja,
    sell-side) à direita, divididos por uma linha vertical que funde as
@@ -115,6 +116,7 @@ const DuelSide: React.FC<DuelSideProps> = ({
 export const AuthorityV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('authority')
+  const txt = criarTxt(section)
 
   /* Título: UM campo só, com o destaque pintável (Gabriel, 28/07). Antes eram
      duas chaves (title + titleHighlight) montadas numa caixa composta, e isso
@@ -156,7 +158,7 @@ export const AuthorityV4: React.FC = () => {
         <div>
           <Reveal>
             <span className="v4-mono inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-orange-400">
-              {section?.texts.badge || 'Experiência Dual'}
+              {txt('badge', 'Experiência Dual')}
             </span>
           </Reveal>
           <Reveal delay={100}>
@@ -195,15 +197,14 @@ export const AuthorityV4: React.FC = () => {
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-0">
             <DuelSide
               image={section?.images.francis || '/assets/Francis Poloni LP PRO 368.jpeg'}
-              name={section?.texts.person1Name || 'Francis Poloni'}
-              badge={section?.texts.person1Badge || 'Especialista'}
-              experience={section?.texts.person1Experience || '+7 Anos'}
-              experienceLabel={section?.texts.person1ExperienceLabel || 'de experiência'}
+              name={txt('person1Name', 'Francis Poloni')}
+              badge={txt('person1Badge', 'Especialista')}
+              experience={txt('person1Experience', '+7 Anos')}
+              experienceLabel={txt('person1ExperienceLabel', 'de experiência')}
               description={
-                section?.texts.person1Desc ||
-                'Atua desde 2018 no setor de integração fotovoltaica e consultoria onde assessorou tanto no lado do comprador (Buy-Side) quanto no lado do vendedor (Sell-Side), ajudando na tomada de decisões inteligentes e seguras.'
+                txt('person1Desc', 'Atua desde 2018 no setor de integração fotovoltaica e consultoria onde assessorou tanto no lado do comprador (Buy-Side) quanto no lado do vendedor (Sell-Side), ajudando na tomada de decisões inteligentes e seguras.')
               }
-              tag={section?.texts.person1Tag || 'Especialista Visão Buy-Side (Comprador)'}
+              tag={txt('person1Tag', 'Especialista Visão Buy-Side (Comprador)')}
               tone="blue"
               baseDelay={0}
             />
@@ -213,15 +214,14 @@ export const AuthorityV4: React.FC = () => {
 
             <DuelSide
               image={section?.images.ovidio || '/assets/Ovídio2.png'}
-              name={section?.texts.person2Name || 'Ovídio Collesi'}
-              badge={section?.texts.person2Badge || 'Especialista'}
-              experience={section?.texts.person2Experience || '+6 Anos'}
-              experienceLabel={section?.texts.person2ExperienceLabel || 'de experiência'}
+              name={txt('person2Name', 'Ovídio Collesi')}
+              badge={txt('person2Badge', 'Especialista')}
+              experience={txt('person2Experience', '+6 Anos')}
+              experienceLabel={txt('person2ExperienceLabel', 'de experiência')}
               description={
-                section?.texts.person2Desc ||
-                'Com vasta experiência em venda e pós venda no setor de energia solar fotovoltaica desde 2020, teve passagens por marketplaces, distribuidores, integração solar e certificadora, trazendo uma visão completa do lado do vendedor e do suporte técnico.'
+                txt('person2Desc', 'Com vasta experiência em venda e pós venda no setor de energia solar fotovoltaica desde 2020, teve passagens por marketplaces, distribuidores, integração solar e certificadora, trazendo uma visão completa do lado do vendedor e do suporte técnico.')
               }
-              tag={section?.texts.person2Tag || 'Especialista Visão Sell-Side (Vendedor)'}
+              tag={txt('person2Tag', 'Especialista Visão Sell-Side (Vendedor)')}
               tone="orange"
               baseDelay={150}
             />
@@ -233,7 +233,7 @@ export const AuthorityV4: React.FC = () => {
             do duelo para a linha central não descer até ele. */}
         <Reveal delay={220} className="mt-16 flex justify-center">
           <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {section?.texts.ctaButton || 'Quero vender pela perspectiva do comprador'}
+            {txt('ctaButton', 'Quero vender pela perspectiva do comprador')}
             <CtaArrow size={20} />
           </Cta>
         </Reveal>

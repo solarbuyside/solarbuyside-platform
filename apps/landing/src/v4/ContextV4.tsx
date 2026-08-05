@@ -2,23 +2,25 @@
 import { useContent } from '../contexts/ContentContext'
 import { Kicker, Reveal, SolarCells } from './atoms'
 import { VideoSubtitleV4, VideoV4 } from './VideoV4'
+import { criarTxt } from './cms'
 
 export const ContextV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('context')
+  const txt = criarTxt(section)
 
   const cards = [
     {
-      title: section?.texts.card1Title || 'Saberão analisar',
-      desc: section?.texts.card1Desc || 'Compararão propostas com precisão técnica superior à média do mercado.',
+      title: txt('card1Title', 'Saberão analisar'),
+      desc: txt('card1Desc', 'Compararão propostas com precisão técnica superior à média do mercado.'),
     },
     {
-      title: section?.texts.card2Title || 'Analisarão fundo',
-      desc: section?.texts.card2Desc || 'Fornecedores e tecnologias passarão por um crivo muito mais rigoroso.',
+      title: txt('card2Title', 'Analisarão fundo'),
+      desc: txt('card2Desc', 'Fornecedores e tecnologias passarão por um crivo muito mais rigoroso.'),
     },
     {
-      title: section?.texts.card3Title || 'Avaliarão risco',
-      desc: section?.texts.card3Desc || 'A confiabilidade da sua empresa será o fator decisivo antes de qualquer preço.',
+      title: txt('card3Title', 'Avaliarão risco'),
+      desc: txt('card3Desc', 'A confiabilidade da sua empresa será o fator decisivo antes de qualquer preço.'),
     },
   ]
 
@@ -35,21 +37,20 @@ export const ContextV4: React.FC = () => {
             01
           </span>
           <Reveal>
-            <Kicker tone="dark">{section?.texts.badge || 'O que muda em 2026'}</Kicker>
+            <Kicker tone="dark">{txt('badge', 'O que muda em 2026')}</Kicker>
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-5 font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
               {/* Espaço DENTRO da expressão (um text node só): {x}{' '} vira dois
                   nós adjacentes, o innerHTML serializado funde num só e a
                   hidratação do main.tsx acusa mismatch (#418). */}
-              {`${section?.texts.title || 'Panorama'} `}
-              <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || '2026'}</span>
+              {`${txt('title', 'Panorama')} `}
+              <span className="v4-serif text-orange-400">{txt('titleHighlight', '2026')}</span>
             </h2>
           </Reveal>
           <Reveal delay={180}>
             <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-400 md:text-2xl">
-              {section?.texts.subtitle ||
-                'Pode parecer exagero, mas em breve cada vez mais compradores de sistema fotovoltaico estarão informados.'}
+              {txt('subtitle', 'Pode parecer exagero, mas em breve cada vez mais compradores de sistema fotovoltaico estarão informados.')}
             </p>
           </Reveal>
         </div>

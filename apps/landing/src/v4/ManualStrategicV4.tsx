@@ -4,6 +4,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
+import { criarTxt } from './cms'
 
 type ItemProps = {
   Icon: React.ComponentType<{ size?: number }>
@@ -64,6 +65,7 @@ const FeatureItem: React.FC<ItemProps> = ({ Icon, title, desc, delay = 0 }) => (
 export const ManualStrategicV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('manual-strategic')
+  const txt = criarTxt(section)
 
   const manualImage = section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'
   const codeImage = section?.images.codeImage || '/assets/codigo-oficial-norm.png'
@@ -179,12 +181,12 @@ export const ManualStrategicV4: React.FC = () => {
             resultados, que são as duas ferramentas do "kit". ───────────── */}
         <Reveal>
           <h2 className="font-['Sora'] text-[clamp(2rem,4.4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-            {section?.texts.kitTitle || 'Kit Completo Solar Buy-Side'}
+            {txt('kitTitle', 'Kit Completo Solar Buy-Side')}
           </h2>
         </Reveal>
         <Reveal delay={90}>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-400 md:text-xl">
-            {section?.texts.kitSubtitle || 'Para conduzir decisões, você precisa dominar dois lados da conversa.'}
+            {txt('kitSubtitle', 'Para conduzir decisões, você precisa dominar dois lados da conversa.')}
           </p>
         </Reveal>
         <div className="my-14 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
@@ -194,27 +196,25 @@ export const ManualStrategicV4: React.FC = () => {
           {/* Texto */}
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
-              <Kicker tone="dark">{section?.texts.badge || 'A ferramenta estratégica'}</Kicker>
+              <Kicker tone="dark">{txt('badge', 'A ferramenta estratégica')}</Kicker>
             </Reveal>
             <Reveal delay={90}>
               <h2 className="mt-4 text-[clamp(2.6rem,5vw,4.2rem)] font-extrabold leading-[1.05] tracking-tight text-white">
-                {section?.texts.title || 'Manual Solar Buy-Side'}
+                {txt('title', 'Manual Solar Buy-Side')}
               </h2>
             </Reveal>
             <Reveal delay={180}>
               <p className="v4-serif mt-5 max-w-md border-l-2 border-orange-500 pl-5 text-2xl leading-snug text-amber-200/90">
-                {section?.texts.subtitle || 'A ferramenta estratégica que todo vendedor do setor solar precisa ter.'}
+                {txt('subtitle', 'A ferramenta estratégica que todo vendedor do setor solar precisa ter.')}
               </p>
             </Reveal>
 
             <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
               <p>
-                {section?.texts.description1 ||
-                  'O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.'}
+                {txt('description1', 'O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.')}
               </p>
               <p>
-                {section?.texts.description2 ||
-                  'Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).'}
+                {txt('description2', 'Ao proporcionar uma imersão na jornada de compra sob a ótica do comprador, este manual oferece uma compreensão estratégica dos critérios, motivações e desafios enfrentados pelo lado comprador (Buy-Side).')}
               </p>
               {/* Parágrafo 3: existe no CMS/admin desde sempre, mas nunca era
                   renderizado (bug reportado pelo Francis em 2026-07-23). */}
@@ -275,11 +275,11 @@ export const ManualStrategicV4: React.FC = () => {
         <div className="mt-24 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
-              <Kicker tone="dark">{section?.texts.codeBadge || 'Diferencial estratégico'}</Kicker>
+              <Kicker tone="dark">{txt('codeBadge', 'Diferencial estratégico')}</Kicker>
             </Reveal>
             <Reveal delay={90}>
               <h2 className="mt-4 text-[clamp(2.2rem,4.4vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
-                <CMSText value={section?.texts.codeTitle || 'Código do Vendedor Consultivo'} />
+                <CMSText value={txt('codeTitle', 'Código do Vendedor Consultivo')} />
               </h2>
             </Reveal>
             {section?.texts.codeSubtitle?.trim() && (
@@ -370,7 +370,7 @@ export const ManualStrategicV4: React.FC = () => {
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
               <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{section?.texts.sellSideHeader || 'O que o vendedor desenvolve'}</span>
+                <span className="v4-mono font-bold">{txt('sellSideHeader', 'O que o vendedor desenvolve')}</span>
               </h3>
             </Reveal>
             <ul className="mt-2">
@@ -386,7 +386,7 @@ export const ManualStrategicV4: React.FC = () => {
             <Reveal as="header" className="flex items-center gap-4">
               <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
               <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{section?.texts.focusHeader || 'Principais focos e habilidades'}</span>
+                <span className="v4-mono font-bold">{txt('focusHeader', 'Principais focos e habilidades')}</span>
               </h3>
             </Reveal>
             <ul className="mt-2">

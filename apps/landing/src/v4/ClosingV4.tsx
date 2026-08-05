@@ -14,17 +14,19 @@ import { CMSText } from '../components/CMSText'
 import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics'
 import { track } from '../lib/analytics'
 import { Img, Cta, GrainOverlay, Reveal } from './atoms'
+import { criarTxt } from './cms'
 
 /* ── Lead magnet (teaser gratuito) — "THE UNLOCK" ──────────────────────── */
 export const LeadMagnetV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('lead-magnet')
+  const txt = criarTxt(section)
 
   const features = [
-    section?.texts.feature1 || 'Veja o processo de compra pelos olhos do cliente',
-    section?.texts.feature2 || 'Aprenda a conduzir o comprador até a decisão certa',
-    section?.texts.feature3 || 'Blindagem contra o leilão reverso de preços',
-    section?.texts.feature4 || 'Método exclusivo Buy-Side para o mercado solar brasileiro',
+    txt('feature1', 'Veja o processo de compra pelos olhos do cliente'),
+    txt('feature2', 'Aprenda a conduzir o comprador até a decisão certa'),
+    txt('feature3', 'Blindagem contra o leilão reverso de preços'),
+    txt('feature4', 'Método exclusivo Buy-Side para o mercado solar brasileiro'),
   ]
 
   const [showModal, setShowModal] = useState(false)
@@ -40,7 +42,7 @@ export const LeadMagnetV4: React.FC = () => {
             <Reveal>
               <span className="v4-mono inline-flex items-center gap-2 rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
                 <span aria-hidden>✦</span>
-                {section?.texts.badge || 'Conteúdo Exclusivo'}
+                {txt('badge', 'Conteúdo Exclusivo')}
               </span>
             </Reveal>
 
@@ -48,15 +50,14 @@ export const LeadMagnetV4: React.FC = () => {
               <h2 className="mt-6 font-['Sora'] text-[clamp(2.2rem,4.5vw,3.6rem)] font-extrabold leading-[1.06] tracking-tight text-white">
                 {/* Espaço dentro da expressão: dois text nodes adjacentes
                     quebram a hidratação (ver ContextV4). */}
-                {`${section?.texts.title || 'Ainda com'} `}
-                <span className="v4-serif text-orange-400">{section?.texts.titleHighlight || 'dúvidas?'}</span>
+                {`${txt('title', 'Ainda com')} `}
+                <span className="v4-serif text-orange-400">{txt('titleHighlight', 'dúvidas?')}</span>
               </h2>
             </Reveal>
 
             <Reveal delay={170}>
               <p className="mt-5 text-xl leading-relaxed text-slate-300">
-                {section?.texts.subtitle ||
-                  'Garanta agora seu teaser grátuito do Código do Vendedor Consultivo e comece a vender decisão, não preço! '}
+                {txt('subtitle', 'Garanta agora seu teaser grátuito do Código do Vendedor Consultivo e comece a vender decisão, não preço! ')}
               </p>
             </Reveal>
 
@@ -91,12 +92,12 @@ export const LeadMagnetV4: React.FC = () => {
 
             <Reveal delay={140} className="mt-8">
               <Cta size="lg" onClick={() => setShowModal(true)}>
-                {section?.texts.ctaButton || 'Baixar Teaser Gratuito'}
+                {txt('ctaButton', 'Baixar Teaser Gratuito')}
                 <Download size={20} />
               </Cta>
               <p className="mt-3 flex items-center gap-2 text-xs text-slate-500">
                 <CheckCircle2 size={14} className="text-emerald-500" />
-                {section?.texts.ctaSubtext || 'PDF Interativo • 5 páginas • Acesso imediato'}
+                {txt('ctaSubtext', 'PDF Interativo • 5 páginas • Acesso imediato')}
               </p>
             </Reveal>
           </div>
@@ -146,10 +147,10 @@ export const LeadMagnetV4: React.FC = () => {
               {!submitted ? (
                 <>
                   <h3 className="mb-2 font-['Sora'] text-2xl font-extrabold tracking-tight text-white">
-                    {section?.texts.modalTitle || 'Baixe seu E-book'}
+                    {txt('modalTitle', 'Baixe seu E-book')}
                   </h3>
                   <p className="mb-6 text-base text-slate-400">
-                    {section?.texts.modalSubtitle || 'Preencha seus dados para receber o E-book Manual Solar Buy-Side'}
+                    {txt('modalSubtitle', 'Preencha seus dados para receber o E-book Manual Solar Buy-Side')}
                   </p>
 
                   <form
@@ -216,7 +217,7 @@ export const LeadMagnetV4: React.FC = () => {
                       type="submit"
                       className="mt-6 min-h-[44px] w-full rounded-xl bg-gradient-to-b from-orange-500 to-orange-600 py-4 font-bold text-white shadow-[0_14px_30px_-10px_rgba(249,115,22,0.6)] transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                     >
-                      {section?.texts.ctaButton || 'Baixar E-book Gratuito'}
+                      {txt('ctaButton', 'Baixar E-book Gratuito')}
                     </button>
                   </form>
                 </>
@@ -226,11 +227,10 @@ export const LeadMagnetV4: React.FC = () => {
                     <CheckCircle2 size={48} className="text-emerald-500" />
                   </div>
                   <h3 className="font-['Sora'] text-2xl font-extrabold tracking-tight text-white">
-                    {section?.texts.successTitle || 'Cadastro recebido!'}
+                    {txt('successTitle', 'Cadastro recebido!')}
                   </h3>
                   <p className="text-slate-400">
-                    {section?.texts.successMessage ||
-                      'Esta funcionalidade está em produção. Assim que estiver disponível, você receberá o teaser do Código do Vendedor Consultivo no e-mail cadastrado.'}
+                    {txt('successMessage', 'Esta funcionalidade está em produção. Assim que estiver disponível, você receberá o teaser do Código do Vendedor Consultivo no e-mail cadastrado.')}
                   </p>
                   <button
                     onClick={() => {
@@ -276,6 +276,7 @@ const FAQ_PADRAO: { question: string; answer: string }[] = [
 export const FAQV4: React.FC = () => {
   const { getSection, globalSettings } = useContent()
   const section = getSection('faq')
+  const txt = criarTxt(section)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   // Perguntas vêm do CMS: faq1Question/faq1Answer, faq2… até MAX_FAQ. O admin
@@ -315,13 +316,13 @@ export const FAQV4: React.FC = () => {
       <div className="mx-auto max-w-3xl">
         <Reveal className="flex justify-center">
           <span className="v4-kicker text-orange-400">
-            {section?.texts.sectionTitle || 'Perguntas Frequentes'}
+            {txt('sectionTitle', 'Perguntas Frequentes')}
           </span>
         </Reveal>
 
         <Reveal delay={90}>
           <h2 className="mt-4 text-center font-['Sora'] text-[clamp(2.4rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-tight text-white">
-            {section?.texts.title || 'Ficou com dúvidas?'}
+            {txt('title', 'Ficou com dúvidas?')}
           </h2>
         </Reveal>
 
@@ -378,7 +379,7 @@ export const FAQV4: React.FC = () => {
             className="group inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 font-bold text-white shadow-[0_18px_40px_-14px_rgba(37,211,102,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#20bd5a]"
           >
             <WhatsAppIcon size={20} />
-            <span>{section?.texts.ctaButton || 'Fale com a equipe Buy-Side'}</span>
+            <span>{txt('ctaButton', 'Fale com a equipe Buy-Side')}</span>
             <ArrowUpRight size={18} className="opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
           </a>
         </Reveal>
@@ -391,6 +392,7 @@ export const FAQV4: React.FC = () => {
 export const NewsletterV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('newsletter')
+  const txt = criarTxt(section)
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
@@ -426,18 +428,22 @@ export const NewsletterV4: React.FC = () => {
 
           <Reveal delay={90}>
             <h2 className="mt-5 font-['Sora'] text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-              {section?.texts.title || (
+              {/* Default em JSX (tem destaque em serif no meio da frase), então
+                  não cabe no `txt`. A regra do campo apagado vale igual: só cai
+                  no default quando a chave NÃO existe no banco. */}
+              {section?.texts.title === undefined ? (
                 <>
                   Fique por dentro das <span className="v4-serif text-orange-400">novidades</span>
                 </>
+              ) : (
+                txt('title')
               )}
             </h2>
           </Reveal>
 
           <Reveal delay={170}>
             <p className="mt-3 text-lg text-slate-400">
-              {section?.texts.subtitle ||
-                'Cadastre seu e-mail para receber lançamentos exclusivos, atualizações e conteúdos sobre o mercado solar.'}
+              {txt('subtitle', 'Cadastre seu e-mail para receber lançamentos exclusivos, atualizações e conteúdos sobre o mercado solar.')}
             </p>
           </Reveal>
         </div>
@@ -449,7 +455,7 @@ export const NewsletterV4: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={section?.texts.placeholder || 'seu@email.com'}
+                placeholder={txt('placeholder', 'seu@email.com')}
                 required
                 disabled={submitted}
                 className="flex-1 rounded-none border-0 border-b border-white/15 bg-transparent px-1 py-4 text-white placeholder-slate-500 transition-colors focus:border-orange-500 focus:outline-none disabled:opacity-50"
@@ -466,20 +472,20 @@ export const NewsletterV4: React.FC = () => {
                 {submitted ? (
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5" />
-                    {section?.texts.successButton || 'Cadastrado!'}
+                    {txt('successButton', 'Cadastrado!')}
                   </span>
                 ) : (
-                  section?.texts.ctaButton || 'Cadastrar'
+                  txt('ctaButton', 'Cadastrar')
                 )}
               </button>
             </div>
             {submitted && (
               <p className="mt-3 text-sm font-medium text-slate-300">
-                {section?.texts.successMessage || 'E-mail cadastrado com sucesso! Fique atento às novidades.'}
+                {txt('successMessage', 'E-mail cadastrado com sucesso! Fique atento às novidades.')}
               </p>
             )}
             <p className="v4-mono mt-4 text-[10px] text-slate-600">
-              {section?.texts.privacyNote || '🔒 Seus dados estão seguros conosco. Não compartilhamos com terceiros.'}
+              {txt('privacyNote', '🔒 Seus dados estão seguros conosco. Não compartilhamos com terceiros.')}
             </p>
           </form>
         </Reveal>
@@ -492,7 +498,8 @@ export const NewsletterV4: React.FC = () => {
 export const ContactV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('contact')
-  const email = section?.texts.emailAddress || 'contato@buyside.com.br'
+  const txt = criarTxt(section)
+  const email = txt('emailAddress', 'contato@buyside.com.br')
 
   return (
     <section id="contact" className="bg-[#07090d] px-6 py-20 text-white">
@@ -514,7 +521,7 @@ export const ContactV4: React.FC = () => {
           </Reveal>
           <Reveal delay={100}>
             <p className="mx-auto mt-3 max-w-3xl text-slate-400">
-              {section?.texts.subtitle || 'Transparência e clareza para você entrar em contato com total confiança.'}
+              {txt('subtitle', 'Transparência e clareza para você entrar em contato com total confiança.')}
             </p>
           </Reveal>
         </div>
@@ -526,7 +533,7 @@ export const ContactV4: React.FC = () => {
             <div className="p-8 md:p-10">
               <p className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
                 <Building2 size={14} aria-hidden />
-                {section?.texts.companyLabel || 'Empresa'}
+                {txt('companyLabel', 'Empresa')}
               </p>
               <h3 className="mt-4 font-['Sora'] text-xl font-bold tracking-tight text-white">
                 {section?.texts.companyName ? (
@@ -538,22 +545,22 @@ export const ContactV4: React.FC = () => {
                 )}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                {`${section?.texts.cnpjLabel || 'CNPJ:'} `}
-                <span className="font-semibold text-slate-200">{section?.texts.cnpjValue || '55.463.086/0001-80'}</span>
+                {`${txt('cnpjLabel', 'CNPJ:')} `}
+                <span className="font-semibold text-slate-200">{txt('cnpjValue', '55.463.086/0001-80')}</span>
               </p>
             </div>
 
             <div className="p-8 md:p-10">
               <p className="v4-mono flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
                 <MapPin size={14} aria-hidden />
-                {section?.texts.addressLabel || 'Endereço'}
+                {txt('addressLabel', 'Endereço')}
               </p>
               <div className="mt-4 text-sm leading-relaxed text-slate-400">
                 <p className="font-semibold text-slate-200">
-                  {section?.texts.addressLine1 || 'Torre Norte - Av. Bento Munhoz da Rocha Neto, 632'}
+                  {txt('addressLine1', 'Torre Norte - Av. Bento Munhoz da Rocha Neto, 632')}
                 </p>
-                <p className="mt-1">{section?.texts.addressLine2 || '19º Andar, Salas 1905 a 1908 - Zona 7,'}</p>
-                <p>{section?.texts.addressLine3 || 'Maringá - PR, 87030-010'}</p>
+                <p className="mt-1">{txt('addressLine2', '19º Andar, Salas 1905 a 1908 - Zona 7,')}</p>
+                <p>{txt('addressLine3', 'Maringá - PR, 87030-010')}</p>
               </div>
             </div>
 
@@ -569,7 +576,7 @@ export const ContactV4: React.FC = () => {
                 {email}
               </a>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                {section?.texts.emailNote || 'Respondemos em horário comercial.'}
+                {txt('emailNote', 'Respondemos em horário comercial.')}
               </p>
             </div>
           </div>

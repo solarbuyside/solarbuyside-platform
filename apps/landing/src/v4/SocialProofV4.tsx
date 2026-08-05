@@ -2,12 +2,14 @@ import React from 'react'
 import { Quote } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, Cta, CtaArrow, Reveal, Stamp } from './atoms'
+import { criarTxt } from './cms'
 
 /* Depoimento do Rodrigo — abertura do ato "paper": inversão editorial sobre o
    dark anterior, foto em arch com selo girando + citação gigante em serif. */
 export const TestimonialsV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonials')
+  const txt = criarTxt(section)
   const rodrigoImage = section?.images.testimonialImage || '/assets/Integrador_Rodrigo_SP.png'
 
   return (
@@ -29,21 +31,21 @@ export const TestimonialsV4: React.FC = () => {
                 <figcaption className="mt-8">
                   <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
                   <p className="font-['Sora'] text-lg font-bold text-slate-900">
-                    {section?.texts.authorName || 'Rodrigo'}
+                    {txt('authorName', 'Rodrigo')}
                   </p>
                   <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
-                    {section?.texts.authorRole || 'Integrador Solar, SP'}
+                    {txt('authorRole', 'Integrador Solar, SP')}
                   </p>
                 </figcaption>
               </figure>
 
               <div className="absolute right-0 -top-6 origin-top-right scale-[0.8] md:-right-8 md:-top-8 md:scale-100">
-                <Stamp text={section?.texts.statLabel || 'Crescimento'} tone="ink" size={140}>
+                <Stamp text={txt('statLabel', 'Crescimento')} tone="ink" size={140}>
                   <p className="font-['Sora'] text-base font-extrabold leading-tight text-slate-900">
-                    {section?.texts.statValue || '+5 Sistemas'}
+                    {txt('statValue', '+5 Sistemas')}
                   </p>
                   <p className="v4-mono mt-1 text-[8px] uppercase tracking-[0.18em] text-slate-900">
-                    {section?.texts.statSubtext || 'Fechados em 30 dias'}
+                    {txt('statSubtext', 'Fechados em 30 dias')}
                   </p>
                 </Stamp>
               </div>
@@ -56,40 +58,37 @@ export const TestimonialsV4: React.FC = () => {
               <Quote size={44} className="mb-4 fill-current text-orange-500" aria-hidden />
               <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-slate-900">
                 <span className="v4-serif">
-                  {section?.texts.title || '"Em um mês fechei 5 sistemas novos"'}
+                  {txt('title', '"Em um mês fechei 5 sistemas novos"')}
                 </span>
               </h2>
             </Reveal>
             <Reveal delay={90}>
               <p className="mt-5 text-xl font-semibold text-slate-600">
-                {section?.texts.subtitle || 'Os benefícios são claros, e a prática comprova.'}
+                {txt('subtitle', 'Os benefícios são claros, e a prática comprova.')}
               </p>
             </Reveal>
             <Reveal delay={150}>
               <p className="v4-mono mt-2 text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                {section?.texts.intro || 'Veja a experiência de Rodrigo, Integrador de São Paulo'}
+                {txt('intro', 'Veja a experiência de Rodrigo, Integrador de São Paulo')}
               </p>
             </Reveal>
 
             <Reveal delay={220}>
               <p className="v4-dropcap mt-8 text-lg leading-relaxed text-slate-600 md:text-xl">
-                {section?.texts.quote1 ||
-                  '"Eu sofria com a concorrência acirrada e a baixa conversão. O Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e isso mudou o jogo."'}
+                {txt('quote1', '"Eu sofria com a concorrência acirrada e a baixa conversão. O Manual Solar Buy-Side me mostrou como entender a perspectiva do cliente, e isso mudou o jogo."')}
               </p>
               <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
-                {section?.texts.quote2 ||
-                  '"Em um mês, fechei 5 sistemas novos. O mais gratificante, porém, foi a conexão. Deixei de ser apenas um vendedor e me tornei um verdadeiro parceiro para meus clientes."'}
+                {txt('quote2', '"Em um mês, fechei 5 sistemas novos. O mais gratificante, porém, foi a conexão. Deixei de ser apenas um vendedor e me tornei um verdadeiro parceiro para meus clientes."')}
               </p>
             </Reveal>
 
             <Reveal delay={300}>
               <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white p-6">
                 <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em] text-slate-900">
-                  {section?.texts.ctaTitle || 'Faça como ele'}
+                  {txt('ctaTitle', 'Faça como ele')}
                 </p>
                 <p className="mt-2 text-lg font-semibold leading-relaxed text-slate-900">
-                  {section?.texts.ctaText ||
-                    'Imersão no Manual de Compra Solar Buy-Side: pense como seu cliente e torne-se um Vendedor de Alta Performance!'}
+                  {txt('ctaText', 'Imersão no Manual de Compra Solar Buy-Side: pense como seu cliente e torne-se um Vendedor de Alta Performance!')}
                 </p>
               </div>
             </Reveal>
@@ -98,7 +97,7 @@ export const TestimonialsV4: React.FC = () => {
 
         <Reveal delay={140} className="mt-14 flex justify-center">
           <Cta size="lg" variant="ghost-paper" href="#oferta">
-            {section?.texts.ctaButton || 'Quero fechar mais projetos solares'}
+            {txt('ctaButton', 'Quero fechar mais projetos solares')}
             <CtaArrow size={20} />
           </Cta>
         </Reveal>
@@ -121,6 +120,7 @@ export const TestimonialsV4: React.FC = () => {
 export const TestimonialLucasV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonial-lucas')
+  const txt = criarTxt(section)
   const foto = section?.images.testimonialImage || '/assets/Integrador_Lucas_BH.jpg'
 
   return (
@@ -130,7 +130,7 @@ export const TestimonialLucasV4: React.FC = () => {
             título de seção, não uma etiqueta. Virou título de verdade. */}
         <Reveal>
           <h2 className="mb-14 max-w-4xl font-['Sora'] text-[clamp(1.8rem,3.6vw,2.9rem)] font-extrabold leading-[1.12] tracking-tight text-slate-900">
-            {section?.texts.kicker || 'Relato de caso: a história do integrador Lucas'}
+            {txt('kicker', 'Relato de caso: a história do integrador Lucas')}
           </h2>
         </Reveal>
 
@@ -144,10 +144,10 @@ export const TestimonialLucasV4: React.FC = () => {
               <figcaption className="mt-8">
                 <Quote className="mb-3 h-7 w-7 fill-current text-orange-500" aria-hidden />
                 <p className="font-['Sora'] text-lg font-bold text-slate-900">
-                  {section?.texts.authorName || 'Lucas de Freitas'}
+                  {txt('authorName', 'Lucas de Freitas')}
                 </p>
                 <p className="v4-mono mt-1 text-[10px] uppercase tracking-[0.25em] text-slate-600">
-                  {section?.texts.authorRole || 'Integrador Solar, BH'}
+                  {txt('authorRole', 'Integrador Solar, BH')}
                 </p>
               </figcaption>
             </figure>
@@ -159,23 +159,20 @@ export const TestimonialLucasV4: React.FC = () => {
               <Quote size={44} className="mb-4 fill-current text-orange-500" aria-hidden />
               <h2 className="text-[clamp(2.2rem,4.5vw,3.6rem)] leading-[1.06] text-slate-900">
                 <span className="v4-serif">
-                  {section?.texts.title || '"Deixei de competir por preço e passei a ser vendedor consultivo"'}
+                  {txt('title', '"Deixei de competir por preço e passei a ser vendedor consultivo"')}
                 </span>
               </h2>
             </Reveal>
 
             <Reveal delay={220}>
               <p className="v4-dropcap mt-8 text-lg leading-relaxed text-slate-600 md:text-xl">
-                {section?.texts.quote1 ||
-                  'Com o Método Solar Buy-Side, aprendi a ancorar o valor do projeto na perspectiva de investimento do cliente e isso mudou o jogo.'}
+                {txt('quote1', 'Com o Método Solar Buy-Side, aprendi a ancorar o valor do projeto na perspectiva de investimento do cliente e isso mudou o jogo.')}
               </p>
               <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
-                {section?.texts.quote2 ||
-                  'Hoje eu entro numa reunião muito mais tranquilo. Não preciso convencer ninguém. Meu papel é educar e ajudar o cliente a decidir.'}
+                {txt('quote2', 'Hoje eu entro numa reunião muito mais tranquilo. Não preciso convencer ninguém. Meu papel é educar e ajudar o cliente a decidir.')}
               </p>
               <p className="mt-5 text-lg leading-relaxed text-slate-600 md:text-xl">
-                {section?.texts.quote3 ||
-                  'Quando o cliente compara três orçamentos, ele volta pra mim. Não vendo mais o sistema mais barato, vendo a decisão mais segura, e isso pesa muito mais na hora de fechar.'}
+                {txt('quote3', 'Quando o cliente compara três orçamentos, ele volta pra mim. Não vendo mais o sistema mais barato, vendo a decisão mais segura, e isso pesa muito mais na hora de fechar.')}
               </p>
             </Reveal>
 
@@ -184,8 +181,7 @@ export const TestimonialLucasV4: React.FC = () => {
                   sustenta sozinha e o rótulo só empurrava o texto para baixo. */}
               <div className="mt-9 rounded-r-2xl border-l-4 border-orange-500 bg-white p-6">
                 <p className="text-lg font-semibold leading-relaxed text-slate-900">
-                  {section?.texts.ctaText ||
-                    'Se tornar vendedor consultivo Buy-Side significa reduzir risco, insegurança e arrependimento do comprador, e não pressionar por fechamento.'}
+                  {txt('ctaText', 'Se tornar vendedor consultivo Buy-Side significa reduzir risco, insegurança e arrependimento do comprador, e não pressionar por fechamento.')}
                 </p>
               </div>
             </Reveal>
@@ -195,7 +191,7 @@ export const TestimonialLucasV4: React.FC = () => {
         {/* CTA 2 */}
         <Reveal delay={140} className="mt-14 flex justify-center">
           <Cta size="lg" variant="ghost-paper" href="#oferta">
-            {section?.texts.ctaButton || 'Quero parar de perder venda por preço'}
+            {txt('ctaButton', 'Quero parar de perder venda por preço')}
             <CtaArrow size={20} />
           </Cta>
         </Reveal>
@@ -209,23 +205,24 @@ export const TestimonialLucasV4: React.FC = () => {
 export const StoryBridgeV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('story-bridge')
+  const txt = criarTxt(section)
 
   const features = [
     {
-      title: section?.texts.feature1Title || 'Conteúdo Técnico',
-      desc: section?.texts.feature1Desc || 'Mais de 130 páginas com conteúdo técnico e estratégico.',
+      title: txt('feature1Title', 'Conteúdo Técnico'),
+      desc: txt('feature1Desc', 'Mais de 130 páginas com conteúdo técnico e estratégico.'),
     },
     {
-      title: section?.texts.feature2Title || 'Consulta Rápida',
-      desc: section?.texts.feature2Desc || '160 tópicos organizados para consulta rápida.',
+      title: txt('feature2Title', 'Consulta Rápida'),
+      desc: txt('feature2Desc', '160 tópicos organizados para consulta rápida.'),
     },
     {
-      title: section?.texts.feature3Title || 'Jornada de Compra',
-      desc: section?.texts.feature3Desc || 'Uma metodologia em 4 fases que orienta toda a jornada de compra.',
+      title: txt('feature3Title', 'Jornada de Compra'),
+      desc: txt('feature3Desc', 'Uma metodologia em 4 fases que orienta toda a jornada de compra.'),
     },
     {
-      title: section?.texts.feature4Title || 'Suporte Decisório',
-      desc: section?.texts.feature4Desc || 'Anexos técnicos que auxiliam na tomada de decisão.',
+      title: txt('feature4Title', 'Suporte Decisório'),
+      desc: txt('feature4Desc', 'Anexos técnicos que auxiliam na tomada de decisão.'),
     },
   ]
 
@@ -235,13 +232,12 @@ export const StoryBridgeV4: React.FC = () => {
         <header className="mx-auto max-w-3xl text-center">
           <Reveal>
             <h2 className="text-[clamp(1.8rem,3.2vw,2.6rem)] font-extrabold leading-[1.12] tracking-tight text-[#181410]">
-              {section?.texts.title || 'A história de Rodrigo é apenas um exemplo do poder deste manual.'}
+              {txt('title', 'A história de Rodrigo é apenas um exemplo do poder deste manual.')}
             </h2>
           </Reveal>
           <Reveal delay={110}>
             <p className="mt-4 text-xl leading-relaxed text-[#4f463c]">
-              {section?.texts.subtitle ||
-                'Ele é uma ponte entre o comprador bem informado e o vendedor preparado, impulsionando negociações justas e satisfatórias.'}
+              {txt('subtitle', 'Ele é uma ponte entre o comprador bem informado e o vendedor preparado, impulsionando negociações justas e satisfatórias.')}
             </p>
           </Reveal>
         </header>

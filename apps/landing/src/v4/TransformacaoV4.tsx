@@ -2,6 +2,7 @@ import React from 'react'
 import { Check, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Reveal } from './atoms'
+import { criarTxt } from './cms'
 
 /* TRANSFORMAÇÃO (Francis, slide 8: "criar uma nova seção TRANSFORMAÇÃO").
 
@@ -28,11 +29,12 @@ const PARES_PADRAO: [string, string][] = [
 export const TransformacaoV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('transformacao')
+  const txt = criarTxt(section)
 
   const bullets = [
-    section?.texts.bullet1 || 'O cliente não compra porque foi convencido.',
-    section?.texts.bullet2 || 'Ele compra porque sente segurança em seguir a sua recomendação.',
-    section?.texts.bullet3 || 'É exatamente essa transformação que o Método Solar Buy-Side desenvolve.',
+    txt('bullet1', 'O cliente não compra porque foi convencido.'),
+    txt('bullet2', 'Ele compra porque sente segurança em seguir a sua recomendação.'),
+    txt('bullet3', 'É exatamente essa transformação que o Método Solar Buy-Side desenvolve.'),
   ]
 
   const pares = PARES_PADRAO.map(([hoje, depois], i) => [
@@ -40,15 +42,15 @@ export const TransformacaoV4: React.FC = () => {
     section?.texts[`row${i + 1}Depois`] || depois,
   ])
 
-  const hojeLabel = section?.texts.hojeLabel || 'Hoje'
-  const depoisLabel = section?.texts.depoisLabel || 'Depois'
+  const hojeLabel = txt('hojeLabel', 'Hoje')
+  const depoisLabel = txt('depoisLabel', 'Depois')
 
   return (
     <section className="bg-[#f7f8fa] px-6 pb-24 pt-8 text-slate-900 md:pb-32">
       <div className="mx-auto max-w-5xl">
         <Reveal>
           <p className="v4-mono text-[10px] font-bold uppercase tracking-[0.3em] text-orange-600">
-            {section?.texts.kicker || 'Transformação'}
+            {txt('kicker', 'Transformação')}
           </p>
         </Reveal>
 
@@ -57,12 +59,12 @@ export const TransformacaoV4: React.FC = () => {
             perdia. Cada linha é um bloco. */}
         <Reveal delay={80}>
           <h2 className="mt-5 max-w-4xl font-['Sora'] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-[1.18] tracking-tight text-slate-900">
-            <span className="block">{section?.texts.title1 || 'Com o Método Buy-Side,'}</span>
+            <span className="block">{txt('title1', 'Com o Método Buy-Side,')}</span>
             <span className="block text-slate-500">
-              {section?.texts.title2 || 'você deixa de disputar preço,'}
+              {txt('title2', 'você deixa de disputar preço,')}
             </span>
             <span className="v4-serif block font-normal text-orange-600">
-              {section?.texts.title3 || 'você passa a conduzir decisões.'}
+              {txt('title3', 'você passa a conduzir decisões.')}
             </span>
           </h2>
         </Reveal>
@@ -93,7 +95,7 @@ export const TransformacaoV4: React.FC = () => {
         {/* Comparação hoje × depois */}
         <Reveal delay={220}>
           <h3 className="mt-16 font-['Sora'] text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
-            {section?.texts.tableTitle || 'Veja sua transformação'}
+            {txt('tableTitle', 'Veja sua transformação')}
           </h3>
         </Reveal>
 

@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { GrainOverlay, Kicker, Reveal } from './atoms'
+import { criarTxt } from './cms'
 
 /* RETORNO (Francis, revisão 27/07: nova seção "O verdadeiro retorno do Método
    Solar Buy-Side", entre os resultados do Manual estratégico e o depoimento
@@ -39,27 +40,25 @@ const LINHAS_PADRAO: [string, string, string][] = [
 export const RetornoV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('retorno')
+  const txt = criarTxt(section)
 
   const title =
-    section?.texts.title ||
-    'O <span class="cms-orange">verdadeiro retorno</span> do Método Solar Buy-Side'
+    txt('title', 'O <span class="cms-orange">verdadeiro retorno</span> do Método Solar Buy-Side')
   const intro =
-    section?.texts.intro ||
-    'Com base em cinco anos de pesquisa de campo, estimamos que vendedores que apliquem o Método Solar Buy-Side possam elevar sua taxa média atual de fechamento de <span class="cms-bold">20% para 25% a 30%</span>, conforme sua capacidade de execução e isso sem aumentar o número de propostas apresentadas.'
+    txt('intro', 'Com base em cinco anos de pesquisa de campo, estimamos que vendedores que apliquem o Método Solar Buy-Side possam elevar sua taxa média atual de fechamento de <span class="cms-bold">20% para 25% a 30%</span>, conforme sua capacidade de execução e isso sem aumentar o número de propostas apresentadas.')
   const outro =
-    section?.texts.outro ||
-    '<span class="cms-orange">E tem mais:</span> ao aplicar o Método Buy-Side em vendas consultivas B2B, você amplia sua capacidade de conquistar projetos de maior porte, aumentando seu potencial de faturamento e lucro.'
+    txt('outro', '<span class="cms-orange">E tem mais:</span> ao aplicar o Método Buy-Side em vendas consultivas B2B, você amplia sua capacidade de conquistar projetos de maior porte, aumentando seu potencial de faturamento e lucro.')
 
   /* O número em destaque (a taxa de fechamento amplificada). */
-  const statLabel = section?.texts.statLabel || 'Taxa média de fechamento'
-  const statFrom = section?.texts.statFrom || '20%'
-  const statFromTag = section?.texts.statFromTag || 'Hoje'
-  const statTo = section?.texts.statTo || '25 a 30%'
-  const statToTag = section?.texts.statToTag || 'Com o método'
+  const statLabel = txt('statLabel', 'Taxa média de fechamento')
+  const statFrom = txt('statFrom', '20%')
+  const statFromTag = txt('statFromTag', 'Hoje')
+  const statTo = txt('statTo', '25 a 30%')
+  const statToTag = txt('statToTag', 'Com o método')
 
-  const colScenario = section?.texts.colScenario || 'Cenário'
-  const colTrad = section?.texts.colTrad || 'Método Tradicional'
-  const colBuy = section?.texts.colBuy || 'Método Buy-Side'
+  const colScenario = txt('colScenario', 'Cenário')
+  const colTrad = txt('colTrad', 'Método Tradicional')
+  const colBuy = txt('colBuy', 'Método Buy-Side')
   const colBuyTag = section?.texts.colBuyTag ?? 'estimativa'
 
   /* `??` (não `||`): linha apagada no admin some da página; linha que o banco
@@ -90,7 +89,7 @@ export const RetornoV4: React.FC = () => {
       {/* pb-44: a próxima seção (paper) sobrepõe este ato com um arco */}
       <div className="relative mx-auto max-w-5xl px-6 py-24 pb-44 md:py-32 md:pb-44">
         <Reveal>
-          <Kicker tone="dark">{section?.texts.kicker || 'Projeção de resultados'}</Kicker>
+          <Kicker tone="dark">{txt('kicker', 'Projeção de resultados')}</Kicker>
         </Reveal>
 
         <Reveal delay={80}>
@@ -144,7 +143,7 @@ export const RetornoV4: React.FC = () => {
 
         <Reveal delay={120}>
           <h3 className="mt-16 max-w-3xl font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">
-            {section?.texts.tableTitle || 'Veja o impacto real considerando uma base de 20 propostas por mês:'}
+            {txt('tableTitle', 'Veja o impacto real considerando uma base de 20 propostas por mês:')}
           </h3>
         </Reveal>
 

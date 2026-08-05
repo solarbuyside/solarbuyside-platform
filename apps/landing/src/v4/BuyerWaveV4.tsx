@@ -4,6 +4,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
+import { criarTxt } from './cms'
 
 type BuyerTestimonial = {
   name: string
@@ -115,6 +116,7 @@ const DEFAULT_TESTIMONIALS: BuyerTestimonial[] = [
 export const BuyerWaveV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('buyer-wave')
+  const txt = criarTxt(section)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
 
   const testimonials: BuyerTestimonial[] = DEFAULT_TESTIMONIALS.map((item, index) => {
@@ -151,7 +153,7 @@ export const BuyerWaveV4: React.FC = () => {
         {/* Cabeçalho */}
         <div className="text-center">
           <Reveal>
-            <Kicker tone="dark">{section?.texts.badge || 'Guia do Comprador'}</Kicker>
+            <Kicker tone="dark">{txt('badge', 'Guia do Comprador')}</Kicker>
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mx-auto mt-5 max-w-3xl font-['Sora'] text-[clamp(2rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
@@ -166,7 +168,7 @@ export const BuyerWaveV4: React.FC = () => {
           </Reveal>
           <Reveal delay={170}>
             <p className="mx-auto mt-5 max-w-2xl text-xl leading-relaxed text-slate-400">
-              {section?.texts.subtitle || 'Compradores estão evoluindo. Veja o que eles estarão aprendendo em breve.'}
+              {txt('subtitle', 'Compradores estão evoluindo. Veja o que eles estarão aprendendo em breve.')}
             </p>
           </Reveal>
         </div>
@@ -176,13 +178,13 @@ export const BuyerWaveV4: React.FC = () => {
           <Reveal className="py-12 lg:pl-0 lg:pr-12">
             <span className="v4-mono text-3xl font-bold text-blue-400/70">01</span>
             <h3 className="mt-4 font-['Sora'] text-2xl font-bold tracking-tight text-white">
-              {section?.texts.card1Title || 'O que o comprador está aprendendo'}
+              {txt('card1Title', 'O que o comprador está aprendendo')}
             </h3>
             <ul className="mt-3">
               {[
-                section?.texts.card1Item1 || 'Conceitos essenciais para uma compra técnica e segura',
-                section?.texts.card1Item2 || 'Reconhecimento de marcas e distribuidores de alta confiança',
-                section?.texts.card1Item3 || 'Critérios para selecionar empresas sérias e competentes',
+                txt('card1Item1', 'Conceitos essenciais para uma compra técnica e segura'),
+                txt('card1Item2', 'Reconhecimento de marcas e distribuidores de alta confiança'),
+                txt('card1Item3', 'Critérios para selecionar empresas sérias e competentes'),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-4 border-b border-white/[0.06] py-4 last:border-b-0">
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/10">
@@ -197,13 +199,13 @@ export const BuyerWaveV4: React.FC = () => {
           <Reveal delay={110} className="py-12 lg:pl-12">
             <span className="v4-mono text-3xl font-bold text-orange-400/70">02</span>
             <h3 className="mt-4 font-['Sora'] text-2xl font-bold tracking-tight text-white">
-              {section?.texts.card2Title || 'Principais focos e Habilidades'}
+              {txt('card2Title', 'Principais focos e Habilidades')}
             </h3>
             <ul className="mt-3">
               {[
-                section?.texts.card2Item1 || 'Analisar propostas com critérios técnicos e financeiros',
-                section?.texts.card2Item2 || 'Avaliar reputação e suporte de pós-venda com precisão',
-                section?.texts.card2Item3 || 'Tomar decisão com segurança e embasamento técnico',
+                txt('card2Item1', 'Analisar propostas com critérios técnicos e financeiros'),
+                txt('card2Item2', 'Avaliar reputação e suporte de pós-venda com precisão'),
+                txt('card2Item3', 'Tomar decisão com segurança e embasamento técnico'),
               ].map((item) => (
                 <li key={item} className="flex items-start gap-4 border-b border-white/[0.06] py-4 last:border-b-0">
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-500/10">
@@ -221,10 +223,10 @@ export const BuyerWaveV4: React.FC = () => {
           <Reveal className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <h2 className="font-['Sora'] text-3xl font-extrabold tracking-tight text-white md:text-4xl">
-                {section?.texts.testimonialsTitle || 'As vozes de quem aprendeu'}
+                {txt('testimonialsTitle', 'As vozes de quem aprendeu')}
               </h2>
               <p className="mt-2 text-lg text-slate-400">
-                {section?.texts.testimonialsSubtitle || 'Relatos de compradores informados e preparados'}
+                {txt('testimonialsSubtitle', 'Relatos de compradores informados e preparados')}
               </p>
             </div>
             <div className="flex items-center gap-5">
@@ -351,7 +353,7 @@ export const BuyerWaveV4: React.FC = () => {
 
           <Reveal delay={120} className="mt-12 text-center">
             <Cta size="lg" variant="ghost-dark" onClick={() => scrollToId('oferta')}>
-              {section?.texts.ctaButton || 'Quero esse conhecimento do meu lado'}
+              {txt('ctaButton', 'Quero esse conhecimento do meu lado')}
               <CtaArrow size={20} />
             </Cta>
           </Reveal>

@@ -2,6 +2,7 @@ import React from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, Marquee, Reveal, SolarCells } from './atoms'
+import { criarTxt } from './cms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
@@ -78,6 +79,7 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
 export const ApoiadoresBandV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
+  const txt = criarTxt(section)
   const { logos: todos } = useApoiadores()
   // A faixa tem seleção E ordem próprias: o admin escolhe quais apoiadores
   // sobem para cá e em que sequência desfilam, sem mexer na seção lá embaixo —
@@ -88,7 +90,7 @@ export const ApoiadoresBandV4: React.FC = () => {
   // Título da faixa (Francis, slide 2). O texto anterior ("Empresas líderes
   // que apoiam...") é tratado como legado: se o banco ainda tiver ele, cai no
   // novo, para a LP não depender do seed.
-  const bandTitleCms = section?.texts.bandTitle || ''
+  const bandTitleCms = txt('bandTitle', '')
   // Casamento EXATO com o texto legado do banco. Prefixo não serve: pegaria uma
   // frase futura do Francis que comece igual, e o que ele escrever no admin
   // ("Apoiadores > Faixa que rola no topo") tem que vencer.
@@ -97,8 +99,7 @@ export const ApoiadoresBandV4: React.FC = () => {
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
       : bandTitleCms
   const bandSubtitle =
-    section?.texts.bandSubtitle ||
-    '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento'
+    txt('bandSubtitle', '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento')
 
   // A frase dos segmentos é quebrada em duas linhas no ":": a chamada em cima
   // e os cinco segmentos juntos embaixo (Gabriel, 26/07). Sem o ":" o texto
@@ -244,14 +245,15 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
 export const ApoiadoresV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
+  const txt = criarTxt(section)
   const { logos, categorias } = useApoiadores()
   if (logos.length === 0) return null
 
-  const title = section?.texts.title || 'Apoiadores Institucionais Solar Buy-Side'
+  const title = txt('title', 'Apoiadores Institucionais Solar Buy-Side')
   // Subtítulo do slide 16. As duas redações anteriores ("Empresas nacionais e
   // internacionais..." e "Players nacionais e internacionais...") são tratadas
   // como legado para o banco não sobrescrever o texto certo.
-  const subtitleCms = section?.texts.subtitle || ''
+  const subtitleCms = txt('subtitle', '')
   const subtitle =
     !subtitleCms || /^(Empresas nacionais|Players nacionais)/.test(subtitleCms)
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side e contribuem para um novo padrão de profissionalismo, transparência e geração de valor no setor.'

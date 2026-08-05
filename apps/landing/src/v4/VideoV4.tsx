@@ -3,6 +3,7 @@ import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { comWebp, GrainOverlay, Reveal } from './atoms'
 import { track } from '../lib/analytics'
+import { criarTxt } from './cms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -10,6 +11,7 @@ import { track } from '../lib/analytics'
 export const VideoV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('video')
+  const txt = criarTxt(section)
   const [showPlayer, setShowPlayer] = useState(false)
   const [playerReady, setPlayerReady] = useState(false)
   const WistiaPlayer = 'wistia-player' as React.ElementType
@@ -58,14 +60,14 @@ export const VideoV4: React.FC = () => {
           <div className="inline-flex items-center gap-2.5 rounded-full border border-red-500/25 bg-red-500/10 px-4 py-1.5 text-red-400">
             <span className="v4-dot relative h-2 w-2 rounded-full bg-red-500 text-red-500" aria-hidden />
             <span className="v4-mono text-[10px] font-bold uppercase tracking-[0.25em]">
-              {section?.texts.alertBadge || 'Atenção Crítica'}
+              {txt('alertBadge', 'Atenção Crítica')}
             </span>
           </div>
           <h3 className="mx-auto mt-6 max-w-3xl font-['Sora'] text-3xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
-            {section?.texts.alertTitle || 'Veja o porquê de muitos vendedores ficarem fora do jogo.'}
+            {txt('alertTitle', 'Veja o porquê de muitos vendedores ficarem fora do jogo.')}
           </h3>
           <p className="v4-serif mx-auto mt-3 max-w-2xl text-xl text-slate-400 md:text-2xl">
-            {section?.texts.alertSubtitle || 'Não permita que isso aconteça com você.'}
+            {txt('alertSubtitle', 'Não permita que isso aconteça com você.')}
           </p>
         </Reveal>
 
@@ -112,14 +114,14 @@ export const VideoV4: React.FC = () => {
                   <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between gap-4 md:bottom-9 md:left-10 md:right-10">
                     <div className="min-w-0">
                       <p className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-orange-400">
-                        {section?.texts.videoBadge || 'Conteúdo Exclusivo'}
+                        {txt('videoBadge', 'Conteúdo Exclusivo')}
                       </p>
                       <p className="mt-1.5 font-['Sora'] text-xl font-bold tracking-tight text-white md:text-2xl">
-                        {section?.texts.videoTitle || 'A Nova Realidade Solar'}
+                        {txt('videoTitle', 'A Nova Realidade Solar')}
                       </p>
                     </div>
                     <div className="v4-mono shrink-0 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur-md">
-                      {section?.texts.videoDuration || '03:54'}
+                      {txt('videoDuration', '03:54')}
                     </div>
                   </div>
 
@@ -182,11 +184,12 @@ export const VideoV4: React.FC = () => {
 export const VideoSubtitleV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('video')
+  const txt = criarTxt(section)
 
   const linha1 =
-    section?.texts.outroLine1 || 'A maioria dos vendedores solares continua tentando convencer o cliente.'
+    txt('outroLine1', 'A maioria dos vendedores solares continua tentando convencer o cliente.')
   const linha2 =
-    section?.texts.outroLine2 || 'Os vendedores Buy-Side aprendem primeiro como o comprador decide.'
+    txt('outroLine2', 'Os vendedores Buy-Side aprendem primeiro como o comprador decide.')
 
   /* Painel "amanhecer": herda a moldura do bloco que ele substituiu (a faixa
      de alerta + o painel "Ainda há tempo para reverter"), para o ritmo da

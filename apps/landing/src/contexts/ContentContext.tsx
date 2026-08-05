@@ -160,89 +160,102 @@ const normalizeSection = (value: unknown): SectionContent | null => {
   }
 }
 
+/**
+ * Aliases de chaves legadas e defaults de dado.
+ *
+ * Todo teste aqui é `=== undefined`, nunca `!texts.x`. A diferença importa: com
+ * `!`, uma chave PRESENTE e vazia era tratada como ausente, e o valor legado (ou
+ * o default) voltava por cima. Foi assim que o "De R$ 997,00 por apenas:" que o
+ * Francis apagou no admin continuou no ar (slide 19 da revisão de 03/08): ele
+ * estava vazio em `priceFrom`, mas a linha de alias o repunha a partir de
+ * `priceOriginal`, que ninguém edita.
+ *
+ * A regra é a mesma do `criarTxt` da v4: chave ausente = "o banco não sabe,
+ * usa o padrão"; chave presente e vazia = "o cliente mandou tirar do ar".
+ */
 const applySectionAliases = (section: SectionContent): SectionContent => {
   const texts = { ...section.texts }
   const images = { ...section.images }
 
   if (section.id === 'hero') {
-    if (!texts.titlePrefix && texts.title1) texts.titlePrefix = texts.title1
-    if (!texts.titleHighlight && texts.title2) texts.titleHighlight = texts.title2
-    if (!texts.subtitle && (texts.subtitle1 || texts.subtitle2)) {
+    if (texts.titlePrefix === undefined && texts.title1) texts.titlePrefix = texts.title1
+    if (texts.titleHighlight === undefined && texts.title2) texts.titleHighlight = texts.title2
+    if (texts.subtitle === undefined && (texts.subtitle1 || texts.subtitle2)) {
       texts.subtitle = `${texts.subtitle1 || ''} ${texts.subtitle2 || ''}`.trim()
     }
-    if (!texts.titlePrefix) texts.titlePrefix = 'Saia da Disputa de Preço e Passe a'
-    if (!texts.titleHighlight) texts.titleHighlight = 'Vender Decisões'
-    if (!texts.titleSuffix) texts.titleSuffix = 'em Sistema Solar'
-    if (!texts.subtitle) texts.subtitle = 'O método Buy-Side ensina você a pensar como o cliente e conduzir decisões de compra, não disputas de preço.'
-    if (!texts.manualTitle) texts.manualTitle = 'Manual Solar Buy-Side'
-    if (!texts.manualSubtitle) texts.manualSubtitle = 'Construído a partir da observação real de como compradores decidem, na prática.'
-    if (!texts.bonusBadge) texts.bonusBadge = 'Bônus Exclusivo'
-    if (!texts.bonusTitle) texts.bonusTitle = 'O Código do Vendedor Consultivo'
-    if (!texts.bonusSubtitle) texts.bonusSubtitle = 'Para quem quer conduzir decisões, não concessões.'
-    if (!texts.ctaButton) texts.ctaButton = 'Quero vender decisões agora'
-    if (!texts.ctaSubtext) texts.ctaSubtext = 'Acesso imediato ao Manual Solar Buy-Side.'
-    if (!texts.scrollHint) texts.scrollHint = 'Entenda a lógica'
-    if (!images.heroImage) images.heroImage = '/assets/GED9CF_1_cleanup.PNG'
+    if (texts.titlePrefix === undefined) texts.titlePrefix = 'Saia da Disputa de Preço e Passe a'
+    if (texts.titleHighlight === undefined) texts.titleHighlight = 'Vender Decisões'
+    if (texts.titleSuffix === undefined) texts.titleSuffix = 'em Sistema Solar'
+    if (texts.subtitle === undefined) texts.subtitle = 'O método Buy-Side ensina você a pensar como o cliente e conduzir decisões de compra, não disputas de preço.'
+    if (texts.manualTitle === undefined) texts.manualTitle = 'Manual Solar Buy-Side'
+    if (texts.manualSubtitle === undefined) texts.manualSubtitle = 'Construído a partir da observação real de como compradores decidem, na prática.'
+    if (texts.bonusBadge === undefined) texts.bonusBadge = 'Bônus Exclusivo'
+    if (texts.bonusTitle === undefined) texts.bonusTitle = 'O Código do Vendedor Consultivo'
+    if (texts.bonusSubtitle === undefined) texts.bonusSubtitle = 'Para quem quer conduzir decisões, não concessões.'
+    if (texts.ctaButton === undefined) texts.ctaButton = 'Quero vender decisões agora'
+    if (texts.ctaSubtext === undefined) texts.ctaSubtext = 'Acesso imediato ao Manual Solar Buy-Side.'
+    if (texts.scrollHint === undefined) texts.scrollHint = 'Entenda a lógica'
+    if (images.heroImage === undefined) images.heroImage = '/assets/GED9CF_1_cleanup.PNG'
   }
 
   if (section.id === 'context') {
-    if (!texts.titleHighlight && texts.title && /2026/.test(texts.title)) {
+    if (texts.titleHighlight === undefined && texts.title && /2026/.test(texts.title)) {
       texts.title = texts.title.replace(/\s*2026\s*$/, '').trim() || 'Panorama'
       texts.titleHighlight = '2026'
     }
   }
 
   if (section.id === 'testimonials') {
-    if (!texts.title && texts.quote) texts.title = texts.quote
-    if (!texts.intro && texts.label) texts.intro = texts.label
-    if (!texts.quote1 && texts.text1) texts.quote1 = texts.text1
-    if (!texts.quote2 && texts.text2) texts.quote2 = texts.text2
-    if (!texts.ctaTitle && texts.calloutTitle) texts.ctaTitle = texts.calloutTitle
-    if (!texts.ctaText && texts.calloutText) texts.ctaText = texts.calloutText
-    if (!texts.authorName && texts.name) texts.authorName = texts.name
-    if (!texts.authorRole && texts.role) texts.authorRole = texts.role
-    if (!texts.statValue && texts.metric) texts.statValue = texts.metric
-    if (!texts.statSubtext && texts.metricLabel) texts.statSubtext = texts.metricLabel
-    if (!images.testimonialImage && images.avatar) images.testimonialImage = images.avatar
+    if (texts.title === undefined && texts.quote) texts.title = texts.quote
+    if (texts.intro === undefined && texts.label) texts.intro = texts.label
+    if (texts.quote1 === undefined && texts.text1) texts.quote1 = texts.text1
+    if (texts.quote2 === undefined && texts.text2) texts.quote2 = texts.text2
+    if (texts.ctaTitle === undefined && texts.calloutTitle) texts.ctaTitle = texts.calloutTitle
+    if (texts.ctaText === undefined && texts.calloutText) texts.ctaText = texts.calloutText
+    if (texts.authorName === undefined && texts.name) texts.authorName = texts.name
+    if (texts.authorRole === undefined && texts.role) texts.authorRole = texts.role
+    if (texts.statValue === undefined && texts.metric) texts.statValue = texts.metric
+    if (texts.statSubtext === undefined && texts.metricLabel) texts.statSubtext = texts.metricLabel
+    if (images.testimonialImage === undefined && images.avatar) images.testimonialImage = images.avatar
   }
 
   if (section.id === 'seller-code') {
-    if (!texts.badge && texts.bonusBadge) texts.badge = texts.bonusBadge
-    if (!texts.listTitle && texts.listHeader) texts.listTitle = texts.listHeader
-    if (!texts.bonusSubtitle && texts.ebookSubtitle) texts.bonusSubtitle = texts.ebookSubtitle
-    if (!images.bookImage && images.book) images.bookImage = images.book
+    if (texts.badge === undefined && texts.bonusBadge) texts.badge = texts.bonusBadge
+    if (texts.listTitle === undefined && texts.listHeader) texts.listTitle = texts.listHeader
+    if (texts.bonusSubtitle === undefined && texts.ebookSubtitle) texts.bonusSubtitle = texts.ebookSubtitle
+    if (images.bookImage === undefined && images.book) images.bookImage = images.book
   }
 
   if (section.id === 'pricing') {
-    if (!texts.featuresTitle && texts.sectionTitle) texts.featuresTitle = texts.sectionTitle
-    if (!texts.priceFrom && texts.priceOriginal) texts.priceFrom = texts.priceOriginal
-    if (!texts.priceUpfront && texts.priceCash) texts.priceUpfront = texts.priceCash
+    if (texts.featuresTitle === undefined && texts.sectionTitle) texts.featuresTitle = texts.sectionTitle
+    if (texts.priceFrom === undefined && texts.priceOriginal) texts.priceFrom = texts.priceOriginal
+    if (texts.priceUpfront === undefined && texts.priceCash) texts.priceUpfront = texts.priceCash
 
-    if ((!texts.priceValue || !texts.priceCents) && texts.priceInstallments) {
+    if ((texts.priceValue === undefined || texts.priceCents === undefined) && texts.priceInstallments) {
       const match = texts.priceInstallments.match(/(\d+)\s*de\s*R\$\s*(\d+)(?:,(\d+))?/i)
       if (match) {
-        if (!texts.priceValue) texts.priceValue = match[2]
-        if (!texts.priceCents) texts.priceCents = `,${match[3] || '00'}`
+        if (texts.priceValue === undefined) texts.priceValue = match[2]
+        if (texts.priceCents === undefined) texts.priceCents = `,${match[3] || '00'}`
       }
     }
 
-    if (!texts.finalCtaButton) texts.finalCtaButton = 'DESBLOQUEAR CONTEÚDO COMPLETO'
+    if (texts.finalCtaButton === undefined) texts.finalCtaButton = 'DESBLOQUEAR CONTEÚDO COMPLETO'
   }
 
   if (section.id === 'manual-strategic') {
     // The live HostGator page displays the 3D mockup, even when the CMS API
     // returns the older flat cover path for this field.
     if (images.manual === '/assets/manual.jpg.png') images.manual = '/assets/Capa-manual-buy-side-definitiva.png'
-    if (!images.manualImage && images.manual) images.manualImage = images.manual
+    if (images.manualImage === undefined && images.manual) images.manualImage = images.manual
     if (images.manualImage === '/assets/manual.jpg.png') images.manualImage = '/assets/Capa-manual-buy-side-definitiva.png'
   }
 
   if (section.id === 'story-bridge') {
-    if (!images.manualImage && images.manual) images.manualImage = images.manual
+    if (images.manualImage === undefined && images.manual) images.manualImage = images.manual
   }
 
   if (section.id === 'buyer-wave') {
-    if (!texts.ctaButton) texts.ctaButton = 'ACESSAR GUIA ESTRATÉGICO AGORA'
+    if (texts.ctaButton === undefined) texts.ctaButton = 'ACESSAR GUIA ESTRATÉGICO AGORA'
 
     DEFAULT_BUYER_TESTIMONIALS.forEach((defaultItem, index) => {
       const i = index + 1
