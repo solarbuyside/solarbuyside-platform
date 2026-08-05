@@ -88,7 +88,7 @@ export const EquipeV4: React.FC = () => {
     <section className="bg-[#f7f8fa] px-6 pb-24 pt-16 text-slate-700 md:pb-28 md:pt-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 lg:grid-cols-[1fr_300px] lg:gap-14">
-          <div className="order-2 lg:order-1">
+          <div>
             <Reveal>
               <h2 className="max-w-2xl font-['Sora'] text-[clamp(1.7rem,3.4vw,2.6rem)] font-extrabold leading-[1.12] tracking-tight text-slate-900">
                 <CMSText value={titulo} />
@@ -189,10 +189,11 @@ export const EquipeV4: React.FC = () => {
             </ul>
           </div>
 
-          {/* Capa da Licença Coletiva. Sticky no desktop: acompanha a tabela
-              inteira, que é longa. No mobile vai para o topo, porque depois de
-              dez linhas ninguém rola de volta para ver a capa. */}
-          <Reveal delay={110} className="order-1 lg:order-2">
+          {/* Capa da Licença Coletiva, sticky, acompanhando a tabela inteira.
+              Some abaixo de lg: sem a coluna própria ela ia parar em cima do
+              título e empurrava a tabela para fora da primeira tela. Aqui a
+              tabela é o conteúdo; a capa é ilustração. */}
+          <Reveal delay={110} className="hidden lg:block">
             <div className="lg:sticky lg:top-28">
               <div className="flex justify-center lg:justify-end">
                 <Img

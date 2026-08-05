@@ -113,6 +113,16 @@ export const ApoiadoresBandV4: React.FC = () => {
     return [bandSubtitle.slice(0, i + 1).trim(), bandSubtitle.slice(i + 1).trim()]
   })()
 
+  /* Quantas vezes a lista se repete dentro de cada trilha.
+
+     Não dá para medir a tela: o HTML é congelado no build e o React hidrata
+     em cima dele, então o número precisa sair só de `logos.length`, igual no
+     servidor e no navegador. Estima ~190px por chip e mira 4.400px de
+     conteúdo, que cobre 4K com folga. Mínimo de 2 porque uma cópia só deixa a
+     volta com salto visível. */
+  const copias = Math.max(2, Math.ceil(4400 / Math.max(1, logos.length * 190)))
+  const desfile = Array.from({ length: copias }, () => logos).flat()
+
   return (
     // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
     // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
@@ -128,17 +138,17 @@ export const ApoiadoresBandV4: React.FC = () => {
 
       {/* Sem reverse: sentido do desfile invertido a pedido do Gabriel (26/07).
 
-          A lista vai DUPLICADA dentro de cada trilha de propósito. A trilha
-          tem `min-width: 100%`: quando a soma dos logos é menor que a largura
-          da tela (monitor largo), ela estica e a sobra inteira vira um buraco
-          na emenda entre uma cópia e a outra. Dobrando a lista, o conteúdo
-          sempre passa da largura do viewport, o min-width nunca entra em ação
-          e a emenda fica com o mesmo respiro dos demais logos. */}
+          A lista é REPETIDA dentro de cada trilha (ver `copias`). A trilha tem
+          `min-width: 100%`: se a soma dos logos não passar da largura da tela,
+          ela estica e a sobra vira um buraco na emenda entre uma volta e a
+          outra. Era o que acontecia em monitor largo depois que o Francis
+          ocultou vários apoiadores: sobraram 6 logos, ~2.200px, e numa tela de
+          2.560px aparecia um vão do tamanho de um chip a cada ciclo. */}
       {/* speed = duração de um ciclo, então número maior = desfile mais lento.
           46s -> 58s a pedido do Gabriel (26/07). */}
       <Marquee speed={58} className="v4-marquee-tight relative z-10">
         <span className="flex items-center gap-6 whitespace-nowrap">
-          {[...logos, ...logos].map((logo, i) => (
+          {desfile.map((logo, i) => (
             // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
             // SolarView) e sumiriam no escuro. Filtro monocromático não serve
             // porque BelEnergy/Fluke/Energy Channel já vêm com caixa sólida.
