@@ -2,7 +2,7 @@ import React from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, Marquee, Reveal, SolarCells } from './atoms'
-import { criarTxt, temConteudo } from './cms'
+import { criarTxt } from './cms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
@@ -98,11 +98,11 @@ export const ApoiadoresBandV4: React.FC = () => {
     !bandTitleCms || bandTitleCms.trim() === 'Empresas líderes que apoiam o Movimento Solar Buy-Side'
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
       : bandTitleCms
-  // Letra miúda abaixo do carrossel (slide 2). Sem default de código: ou o
-  // Francis escreve no admin, ou a faixa não tem ressalva nenhuma.
-  const bandDisclaimer = txt('bandDisclaimer')
+  // A linha abaixo do carrossel. Em 03/08 ela deixou de contar os apoiadores
+  // e virou a ressalva de que eles não vendem o material (Francis, slide 2):
+  // é o MESMO lugar e o mesmo corpo de texto, não uma frase a mais.
   const bandSubtitle =
-    txt('bandSubtitle', '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento')
+    txt('bandSubtitle', 'Elas não vendem os materiais nem participam da sua receita. O conteúdo é de responsabilidade exclusiva da Buy-Side Soluções.')
 
   // A frase dos segmentos é quebrada em duas linhas no ":": a chamada em cima
   // e os cinco segmentos juntos embaixo (Gabriel, 26/07). Sem o ":" o texto
@@ -159,16 +159,6 @@ export const ApoiadoresBandV4: React.FC = () => {
             // block: os cinco segmentos ficam sempre numa linha só, embaixo.
             <span className="mt-1 block">{bandSegmentos}</span>
           )}
-        </p>
-      )}
-
-      {/* Ressalva jurídica em letra miúda (Francis, slide 2: "nova frase em
-          letra miúda"): as apoiadoras não vendem o material nem participam da
-          receita. Menor e mais apagada que o subtítulo de propósito, é nota de
-          rodapé da faixa, não argumento. */}
-      {temConteudo(bandDisclaimer) && (
-        <p className="relative z-10 mx-auto mt-4 max-w-3xl px-6 text-center text-[12px] leading-relaxed text-slate-500">
-          {bandDisclaimer}
         </p>
       )}
     </section>

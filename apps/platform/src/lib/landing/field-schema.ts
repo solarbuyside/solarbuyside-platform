@@ -282,10 +282,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
             help: "É a frase laranja em maiúsculas logo abaixo do Hero. Ela aparece no topo da página, mas se edita AQUI porque pertence à faixa de logos.",
           }),
           ml("bandSubtitle", "Texto abaixo dos logos", {
-            help: "Quebra em duas linhas no “:” — a chamada em cima, os segmentos embaixo.",
-          }),
-          ml("bandDisclaimer", "Letra miúda abaixo do carrossel", {
-            help: "Ressalva em corpo menor e cor mais apagada (ex.: as apoiadoras não vendem o material). Apagar o campo tira a linha da página.",
+            help: "Se tiver “:”, quebra em duas linhas: a chamada em cima, o resto embaixo. Apagar o campo tira a linha da página.",
           }),
         ],
       },

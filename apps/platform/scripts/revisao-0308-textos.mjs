@@ -130,9 +130,15 @@ const MUDANCAS = {
       "Vende como consultor, defendendo o valor da sua proposta com dados e evidências, não com desconto.",
     // Slide 2, "Nova frase" acima dos logos.
     bandTitle: "Empresas referência que apoiam o Solar Buy-Side na profissionalização do mercado",
-    // Slide 2, "Nova frase em letra miúda". O original dele usava travessão.
-    bandDisclaimer:
+    // Slide 2, "Nova frase em letra miúda". Ela SUBSTITUI a contagem de
+    // apoiadores que ocupava esta linha ("+15 empresas apoiadoras em 5
+    // segmentos..."), no mesmo lugar e no mesmo corpo. O original dele usava
+    // travessão.
+    bandSubtitle:
       "Elas não vendem os materiais nem participam da sua receita. O conteúdo é de responsabilidade exclusiva da Buy-Side Soluções.",
+    // Chave da tentativa anterior (uma linha A MAIS embaixo da contagem).
+    // Vazia para o campo sumir de instalações que já a receberam.
+    bandDisclaimer: "",
   },
   context: {
     // Slide 4, "No ADM: inserir este texto". Ponto final acrescentado.
