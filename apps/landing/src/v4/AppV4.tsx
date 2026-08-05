@@ -19,22 +19,22 @@ import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
    experiência redesenhada em 4 atos. Em PREVIEW na rota /v4; a produção (/)
    continua na v1. (Foi oficial por uma janela em 2026-06-11; revertido.) */
 
-/* Ordem das seções = ordem dos slides da revisão do Francis de 25/07/2026
-   ("Nova ordem das seções", arquivo F). Os dois movimentos grandes: a seção
-   de Autores subiu do 12º para o 3º lugar, e a de Apoiadores desceu do 6º
-   para depois da Plataforma. */
+/* Ordem das seções = ordem dos slides da revisão do Francis de 03/08/2026
+   ("V1 REVISÃO A"). Dois movimentos em relação à revisão de 25/07: a
+   Plataforma subiu da 11ª para a 3ª posição (slide 3) e a de Autores desceu
+   da 3ª para depois do vídeo (slide 6). */
 const SECTION_IDS = [
   'hero',
-  'authority',
+  'plataforma',
   'contexto',
   'video-section',
+  'authority',
   'depoimento-lucas',
   'transformacao',
   'audiencia',
   'manual-strategic',
   'retorno',
   'depoimentos',
-  'plataforma',
   'apoiadores',
   'oferta',
   'faq',
@@ -88,15 +88,22 @@ export default function AppV4() {
       {/* Faixa de logos logo abaixo do Hero, como no slide 1 do Francis. Ela
           substitui a antiga faixa "Manual ✦ Código" (resposta dele em 23/07). */}
       <ApoiadoresBandV4 />
-      {/* Autores logo depois da faixa de logos (slide 3): quem assina o método
-          aparece antes de qualquer argumento, e leva o primeiro CTA da página. */}
-      <div id="authority">
-        <AuthorityV4 />
+      {/* Plataforma subiu da 11ª para a 3ª posição (slide 3 da revisão de
+          03/08). A ferramenta passa a ser o primeiro argumento depois da prova
+          social dos logos, antes de qualquer texto de contexto. */}
+      <div id="plataforma">
+        <PlatformV4 />
       </div>
       {/* O vídeo e o bloco das duas frases que o fecha vivem DENTRO do
           Panorama, então não aparecem mais aqui. Ver ContextV4. */}
       <div id="contexto">
         <ContextV4 />
+      </div>
+      {/* Autores desceu da 3ª para depois do vídeo (slides 5 e 6): a revisão de
+          03/08 inverteu o que a de 25/07 tinha feito. O primeiro CTA da página
+          continua sendo o desta seção. */}
+      <div id="authority">
+        <AuthorityV4 />
       </div>
       <div id="depoimento-lucas">
         <TestimonialLucasV4 />
@@ -118,10 +125,8 @@ export default function AppV4() {
       <div id="depoimentos">
         <TestimonialsV4 />
       </div>
-      <div id="plataforma">
-        <PlatformV4 />
-      </div>
-      {/* Apoiadores desceu para depois da Plataforma (slide 16). */}
+      {/* Apoiadores segue depois do depoimento do Rodrigo (slide 16). Os dois
+          são claros, então o ato "paper" fica inteiro num bloco só. */}
       <div id="apoiadores">
         <ApoiadoresV4 />
       </div>

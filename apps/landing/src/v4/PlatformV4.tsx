@@ -12,10 +12,10 @@ import { criarTxt } from './cms'
    - índices por grupo + Índice de Confiabilidade, todos /100;
    - SEM as sub-linhas decimais "nota /10";
    - Viabilidade é informativa → mostra "/" no lugar de um número;
-   - Decisão do comprador: Renova e Self Solar como finalistas (pode divergir do
-     ranking puro — é escolha do comprador);
+   - Decisão do comprador: só a maior nota total sai como VENCEDORA e as
+     demais como descartadas (Francis, 03/08);
    - Escala de risco abaixo da tabela, em tamanho menor e na régua /100;
-   - mobile: 4 colunas (finalistas + melhor e pior índice).
+   - mobile: 4 colunas (a vencedora + melhor e pior índice).
    Estilo segue o padrão das seções escuras: destaque de título em
    v4-serif laranja e lead em slate (sem o lead âmbar, que é exclusivo do
    spotlight do Manual). */
@@ -25,11 +25,17 @@ const INVESTMENTS = [17690, 16342.8, 15900, 14500, 17325.75, 17497]
 const EMPRESAS_INDICE = [66.9, 84.5, 26.8, 55.5, 69.1, 69.3]
 const TECNOLOGIAS_INDICE = [61.1, 73.7, 57.9, 55.8, 53.7, 74.7]
 const CONFIABILIDADE = [64.1, 79.2, 41.9, 55.6, 61.6, 72.0]
-/* Finalista do exemplo: só a maior nota total (Índice de Confiabilidade) —
-   Soli Brasil (1), 79.2. As demais são descartadas. */
-const FINALISTS = new Set([1])
+/* Vencedora do exemplo: só a maior nota total (Índice de Confiabilidade) —
+   Soli Brasil (1), 79.2. As demais são descartadas.
 
-/* No mobile a tabela mostra só 4 fornecedores (os 2 finalistas + a melhor e a
+   "Vencedora", não "Finalista" (Francis, slide 3 de 03/08): no produto o
+   comprador escolhe DOIS finalistas e depois decide entre eles, mas neste
+   exemplo só uma empresa chega ao fim, e "finalista" ficava sem par. A troca
+   vale só para a ilustração da LP; o domínio da plataforma continua com dois
+   finalistas. */
+const WINNERS = new Set([1])
+
+/* No mobile a tabela mostra só 4 fornecedores (a vencedora + a melhor e a
    pior pontuação); TAP Solar e Fotovolta Express aparecem a partir de md. */
 const MOBILE_HIDDEN = new Set([3, 4])
 const colCls = (i: number) => (MOBILE_HIDDEN.has(i) ? 'hidden md:table-cell' : '')
@@ -37,12 +43,18 @@ const colCls = (i: number) => (MOBILE_HIDDEN.has(i) ? 'hidden md:table-cell' : '
 const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 })
 
 /* Escala na MESMA régua da tabela (/100) — a versão /10 da plataforma não faz
-   sentido aqui porque as sub-linhas "nota /10" foram removidas do exemplo. */
+   sentido aqui porque as sub-linhas "nota /10" foram removidas do exemplo.
+
+   As faixas eram 0–40 / 50–60 / 70–80 / 90–100 e deixavam buracos: uma nota
+   61,6 (Fotovolta Express, na própria tabela acima) não caía em faixa
+   nenhuma. Agora cobrem 0 a 100 sem buraco e sem sobreposição (Francis,
+   slide 3 de 03/08). A mesma correção foi feita na régua /10 do comparativo
+   da plataforma. */
 const RISK = [
   { range: '0–40', label: 'Risco Crítico', cls: 'bg-red-500' },
-  { range: '50–60', label: 'Risco Moderado', cls: 'bg-amber-500' },
-  { range: '70–80', label: 'Risco Baixo', cls: 'bg-emerald-500' },
-  { range: '90–100', label: 'Risco Mínimo', cls: 'bg-blue-500' },
+  { range: '41–60', label: 'Risco Moderado', cls: 'bg-amber-500' },
+  { range: '61–80', label: 'Risco Baixo', cls: 'bg-emerald-500' },
+  { range: '81–100', label: 'Risco Mínimo', cls: 'bg-blue-500' },
 ] as const
 
 /* Moldura de janela (mesma da experiência do produto) */
@@ -66,10 +78,10 @@ const Window: React.FC<{ title: string; children: React.ReactNode; className?: s
   </div>
 )
 
-const DecisionTag: React.FC<{ finalist: boolean }> = ({ finalist }) =>
-  finalist ? (
+const DecisionTag: React.FC<{ winner: boolean }> = ({ winner }) =>
+  winner ? (
     <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-1 text-[10px] font-bold text-emerald-300">
-      <Trophy size={11} aria-hidden /> Finalista
+      <Trophy size={11} aria-hidden /> Vencedora
     </span>
   ) : (
     <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] font-bold text-slate-500">
@@ -77,9 +89,9 @@ const DecisionTag: React.FC<{ finalist: boolean }> = ({ finalist }) =>
     </span>
   )
 
-/* Célula de dado padrão, com leve realce de coluna para os finalistas */
+/* Célula de dado padrão, com leve realce na coluna da vencedora */
 const fin = (i: number, extra = '') =>
-  `px-3 py-2.5 text-center ${colCls(i)} ${FINALISTS.has(i) ? `bg-orange-500/[0.04] ${extra}` : extra}`
+  `px-3 py-2.5 text-center ${colCls(i)} ${WINNERS.has(i) ? `bg-orange-500/[0.04] ${extra}` : extra}`
 
 const ScoreTableExample: React.FC = () => (
   <Window title="Plataforma · Pontuação Geral · exemplo real">
@@ -94,7 +106,7 @@ const ScoreTableExample: React.FC = () => (
               <th
                 key={c}
                 className={`min-w-[104px] px-3 py-3 text-center text-[11px] font-bold ${colCls(i)} ${
-                  FINALISTS.has(i) ? 'text-orange-300' : 'text-slate-400'
+                  WINNERS.has(i) ? 'text-orange-300' : 'text-slate-400'
                 }`}
               >
                 {c}
@@ -154,8 +166,8 @@ const ScoreTableExample: React.FC = () => (
               Índice de Confiabilidade
             </td>
             {CONFIABILIDADE.map((v, i) => (
-              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${FINALISTS.has(i) ? 'bg-orange-500/[0.09]' : ''}`}>
-                <span className={`font-['Sora'] text-lg font-extrabold ${FINALISTS.has(i) ? 'text-orange-400' : 'text-slate-300'}`}>
+              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${WINNERS.has(i) ? 'bg-orange-500/[0.09]' : ''}`}>
+                <span className={`font-['Sora'] text-lg font-extrabold ${WINNERS.has(i) ? 'text-orange-400' : 'text-slate-300'}`}>
                   {v}
                 </span>
                 <span className="text-[9px] text-slate-500">/100</span>
@@ -169,8 +181,8 @@ const ScoreTableExample: React.FC = () => (
               Decisão do comprador
             </td>
             {COMPANIES.map((_, i) => (
-              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${FINALISTS.has(i) ? 'bg-orange-500/[0.04]' : ''}`}>
-                <DecisionTag finalist={FINALISTS.has(i)} />
+              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${WINNERS.has(i) ? 'bg-orange-500/[0.04]' : ''}`}>
+                <DecisionTag winner={WINNERS.has(i)} />
               </td>
             ))}
           </tr>

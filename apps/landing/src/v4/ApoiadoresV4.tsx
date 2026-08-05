@@ -262,7 +262,13 @@ export const ApoiadoresV4: React.FC = () => {
   return (
     // Respiro maior embaixo: com py simétrico a última fileira de logos
     // encostava na seção seguinte (Gabriel, 27/07).
-    <section className="bg-[#f7f8fa] px-6 pb-28 pt-20 text-slate-700 md:pb-36 md:pt-24">
+    //
+    // O gradiente do topo é a emenda com o depoimento do Rodrigo, que virou a
+    // seção anterior na reordenação de 03/08. Ele é creme (#f2ece1, o ato
+    // "paper") e esta é branco-gelo (#f7f8fa, escolhido para os logos não
+    // puxarem para entardecer): sem a ponte, os dois claros se encostavam com
+    // uma linha visível de troca de temperatura.
+    <section className="bg-gradient-to-b from-[#f2ece1] via-[#f7f8fa] to-[#f7f8fa] bg-[length:100%_160px] bg-no-repeat px-6 pb-28 pt-20 text-slate-700 [background-color:#f7f8fa] md:pb-36 md:pt-24">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-slate-900">

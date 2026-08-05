@@ -725,11 +725,15 @@ function OverviewTable({
           🎯 Seção 2 — Escala de risco
         </h3>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {/* As faixas eram 0–4 / 5–6 / 7–8 / 9–10 e deixavam buracos: uma nota
+              6,4 ou 8,7 não caía em faixa nenhuma. Agora cobrem 0 a 10 inteiro,
+              sem buraco e sem sobreposição. Mesma correção feita na régua /100
+              do exemplo da landing (Francis, 03/08). */}
           {[
             { range: "0–4", label: "Risco Crítico", cls: "bg-red-500" },
-            { range: "5–6", label: "Risco Moderado", cls: "bg-amber-500" },
-            { range: "7–8", label: "Risco Baixo", cls: "bg-emerald-500" },
-            { range: "9–10", label: "Risco Mínimo", cls: "bg-blue-500" },
+            { range: "4,1–6", label: "Risco Moderado", cls: "bg-amber-500" },
+            { range: "6,1–8", label: "Risco Baixo", cls: "bg-emerald-500" },
+            { range: "8,1–10", label: "Risco Mínimo", cls: "bg-blue-500" },
           ].map((r) => (
             <div key={r.range} className={cn("rounded-xl p-4 text-center text-white", r.cls)}>
               <p className="text-lg font-extrabold">{r.range}</p>

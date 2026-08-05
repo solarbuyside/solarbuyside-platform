@@ -5,12 +5,15 @@ import { trackBuyClick } from '../utils/analytics'
 import { Img } from './atoms'
 import { criarTxt } from './cms'
 
+/* Na MESMA ordem em que as seções aparecem na página (ver SECTION_IDS no
+   AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
+   navegação, e o indicador de progresso do topo anda ao contrário. */
 const NAV_ITEMS = [
+  { href: '#plataforma', label: 'Plataforma' },
   { href: '#contexto', label: 'Panorama' },
   { href: '#video-section', label: 'Vídeo' },
-  { href: '#audiencia', label: 'Para Quem' },
-  { href: '#plataforma', label: 'Plataforma' },
   { href: '#autor', label: 'Mentor' },
+  { href: '#audiencia', label: 'Para Quem' },
   { href: '#faq', label: 'FAQ' },
 ]
 
