@@ -69,19 +69,26 @@ export const EquipeV4: React.FC = () => {
 
   if (!temConteudo(titulo) || linhas.length === 0) return null
 
-  // A barra mais cara ocupa 100%; as demais, proporcional. Piso de 8% para a
-  // última linha não virar um traço invisível.
+  // A barra mais cara ocupa a trilha inteira; as demais, proporcional. Piso de
+  // 7% para a última não virar um ponto invisível.
   const maior = Math.max(...linhas.map((l) => numero(l.valor)), 1)
+  const menor = Math.min(...linhas.map((l) => numero(l.valor)))
+  // Quanto o custo por pessoa cai da menor para a maior equipe. Calculado dos
+  // próprios valores dele: se ele editar a tabela no admin, o número segue.
+  const queda = maior > 0 ? Math.round((1 - menor / maior) * 100) : 0
   const capa = section?.images.teamImage || '/assets/coletiva-norm.png'
+  const primeira = linhas[0]
+  const ultima = linhas[linhas.length - 1]
 
-  // Respiro próprio no topo: a seção acima (apoiadores) tem o MESMO fundo
-  // claro, então sem padding os dois viram um bloco só e o título nasce colado
-  // na última fileira de logos.
+
+  /* Respiro próprio no topo: a seção acima (apoiadores) tem o MESMO fundo
+     claro, então sem padding os dois viram um bloco só e o título nasce colado
+     na última fileira de logos. */
   return (
     <section className="bg-[#f7f8fa] px-6 pb-24 pt-16 text-slate-700 md:pb-28 md:pt-20">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-12 lg:grid-cols-[1.55fr_1fr] lg:gap-16">
-          <div>
+        <div className="grid gap-10 lg:grid-cols-[1fr_300px] lg:gap-14">
+          <div className="order-2 lg:order-1">
             <Reveal>
               <h2 className="max-w-2xl font-['Sora'] text-[clamp(1.7rem,3.4vw,2.6rem)] font-extrabold leading-[1.12] tracking-tight text-slate-900">
                 <CMSText value={titulo} />
@@ -89,49 +96,91 @@ export const EquipeV4: React.FC = () => {
             </Reveal>
 
             {temConteudo(lead) && (
-              <Reveal delay={90}>
+              <Reveal delay={80}>
                 <p className="mt-4 max-w-xl text-lg leading-relaxed text-slate-600">
                   <CMSText value={lead} />
                 </p>
               </Reveal>
             )}
 
-            <Reveal delay={150}>
-              {/* Corpo e espacejamento menores no celular: a 390px os dois
-                  rótulos se encostavam e viravam uma frase só. */}
+            {/* O placar: o argumento inteiro em uma linha, antes da tabela.
+                Quem não ler as dez linhas já sai sabendo. Os três números
+                saem dos próprios dados, então acompanham o que ele editar. */}
+            {primeira && ultima && queda > 0 && (
+              <Reveal delay={130}>
+                <div className="mt-9 flex flex-wrap items-stretch gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
+                  {/* Sem risco no primeiro valor: R$ 399 não é preço antigo,
+                      é a opção da menor equipe. Os rótulos são as próprias
+                      linhas da tabela, então não inventam composição nenhuma. */}
+                  <div className="flex-1 bg-white px-5 py-4">
+                    <p className="v4-mono truncate text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                      {primeira.equipe}
+                    </p>
+                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-slate-500">{primeira.valor}</p>
+                  </div>
+                  <div className="flex-1 bg-white px-5 py-4">
+                    <p className="v4-mono truncate text-[9px] font-bold uppercase tracking-[0.16em] text-orange-500">
+                      {ultima.equipe}
+                    </p>
+                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-orange-600">{ultima.valor}</p>
+                  </div>
+                  <div className="flex-1 bg-white px-5 py-4">
+                    <p className="v4-mono text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                      Queda por pessoa
+                    </p>
+                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-slate-900">{`-${queda}%`}</p>
+                  </div>
+                </div>
+              </Reveal>
+            )}
+
+            {/* Corpo e espacejamento menores no celular: a 390px os dois
+                rótulos se encostavam e viravam uma frase só. */}
+            <Reveal delay={170}>
               <div className="v4-mono mt-10 flex items-baseline justify-between gap-3 border-b border-slate-200 pb-3 text-[9px] font-bold uppercase tracking-[0.08em] text-slate-400 sm:text-[10px] sm:tracking-[0.18em]">
                 <span>{colEquipe}</span>
                 <span className="shrink-0 text-right">{colValor}</span>
               </div>
             </Reveal>
 
-            <ul className="mt-1">
+            <ul>
               {linhas.map((linha, i) => {
-                const largura = Math.max(8, (numero(linha.valor) / maior) * 100)
-                const ultima = i === linhas.length - 1
+                const largura = Math.max(7, (numero(linha.valor) / maior) * 100)
+                const destaque = i === linhas.length - 1
                 return (
-                  <Reveal key={linha.equipe} delay={190 + i * 45}>
-                    <li className="relative border-b border-slate-200/70 py-3">
-                      {/* A régua: fica ATRÁS do texto, bem apagada. É o que
-                          mostra a queda do custo sem precisar de gráfico. */}
+                  <Reveal key={linha.equipe} delay={200 + i * 40}>
+                    {/* A barra vive numa COLUNA própria, entre o rótulo e o
+                        preço, não atrás do texto: encolhendo linha a linha ela
+                        vira gráfico, e não sujeira de fundo. Some no celular,
+                        onde não há largura para ela dizer nada. */}
+                    <li
+                      className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-slate-200/70 py-2.5 md:grid-cols-[230px_minmax(0,1fr)_86px] md:gap-6 ${
+                        destaque ? 'border-b-0' : ''
+                      }`}
+                    >
                       <span
-                        className="pointer-events-none absolute inset-y-1 left-0 rounded-r-md bg-gradient-to-r from-orange-500/[0.14] to-orange-500/[0.03]"
-                        style={{ width: `${largura}%` }}
-                        aria-hidden
-                      />
-                      <span className="relative flex items-baseline justify-between gap-4">
+                        className={`text-[15px] md:text-base ${
+                          destaque ? 'font-bold text-slate-900' : 'text-slate-600'
+                        }`}
+                      >
+                        {linha.equipe}
+                      </span>
+                      <span className="hidden h-1.5 w-full rounded-full bg-slate-200/80 md:block" aria-hidden>
                         <span
-                          className={`text-[15px] md:text-base ${ultima ? 'font-bold text-slate-900' : 'text-slate-700'}`}
-                        >
-                          {linha.equipe}
-                        </span>
-                        <span
-                          className={`v4-mono shrink-0 font-bold tabular-nums ${
-                            ultima ? 'text-lg text-orange-600 md:text-xl' : 'text-[15px] text-slate-800 md:text-base'
+                          className={`block h-full rounded-full ${
+                            destaque
+                              ? 'bg-gradient-to-r from-orange-500 to-orange-600'
+                              : 'bg-gradient-to-r from-amber-300 to-orange-400/70'
                           }`}
-                        >
-                          {linha.valor}
-                        </span>
+                          style={{ width: `${largura}%` }}
+                        />
+                      </span>
+                      <span
+                        className={`v4-mono shrink-0 text-right font-bold tabular-nums ${
+                          destaque ? 'text-lg text-orange-600 md:text-xl' : 'text-[15px] text-slate-800 md:text-base'
+                        }`}
+                      >
+                        {linha.valor}
                       </span>
                     </li>
                   </Reveal>
@@ -140,17 +189,17 @@ export const EquipeV4: React.FC = () => {
             </ul>
           </div>
 
-          {/* Capa da Licença Coletiva. Sticky no desktop: acompanha a régua
-              inteira, que é longa (10 linhas). No mobile vem antes da lista,
-              porque depois dela ninguém rola de volta para ver a capa. */}
-          <Reveal delay={120} className="order-first lg:order-none">
+          {/* Capa da Licença Coletiva. Sticky no desktop: acompanha a tabela
+              inteira, que é longa. No mobile vai para o topo, porque depois de
+              dez linhas ninguém rola de volta para ver a capa. */}
+          <Reveal delay={110} className="order-1 lg:order-2">
             <div className="lg:sticky lg:top-28">
               <div className="flex justify-center lg:justify-end">
                 <Img
                   src={capa}
                   alt="Licença de Uso Coletiva Solar Buy-Side"
                   loading="lazy"
-                  className="h-[240px] w-auto max-w-none drop-shadow-[0_28px_38px_rgba(15,23,42,0.28)] md:h-[300px]"
+                  className="h-[210px] w-auto max-w-none drop-shadow-[0_28px_38px_rgba(15,23,42,0.28)] md:h-[280px]"
                 />
               </div>
             </div>
