@@ -1,13 +1,21 @@
 ﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { Kicker, Reveal, SolarCells } from './atoms'
 import { VideoSubtitleV4, VideoV4 } from './VideoV4'
-import { criarTxt } from './cms'
+import { criarTxt, temConteudo } from './cms'
 
 export const ContextV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('context')
   const txt = criarTxt(section)
+
+  // Slide 4: "No ADM, inserir este texto". Sem travessão (regra da LP) e com
+  // ponto final, que faltava no original dele.
+  const fechoPanorama = txt(
+    'closing',
+    'Antes disso, abrimos uma janela exclusiva de 90 dias para vender e capacitar integradoras e vendedores em primeira mão. É a sua chance de dominar o método <span class="cms-semibold">Solar Buy-Side</span>, alinhar uma venda verdadeiramente consultiva e preparar sua equipe antes que o novo padrão chegue aos consumidores.',
+  )
 
   const cards = [
     {
@@ -75,6 +83,18 @@ export const ContextV4: React.FC = () => {
             </Reveal>
           ))}
         </div>
+
+        {/* Fecho do Panorama (Francis, slide 4): a janela de 90 dias antes do
+            lançamento para o consumidor final. Entra DEPOIS das três previsões
+            porque é a consequência delas ("antes disso" = antes de o novo
+            padrão chegar ao comprador). Aceita marcação do CMS. */}
+        {temConteudo(fechoPanorama) && (
+          <Reveal delay={120}>
+            <p className="mt-10 max-w-3xl border-l-2 border-orange-500/40 pl-5 text-lg leading-relaxed text-slate-300 md:text-xl">
+              <CMSText value={fechoPanorama} />
+            </p>
+          </Reveal>
+        )}
 
         {/* Vídeo (Gabriel, 26/07): entra aqui, logo depois do 3º tópico do
             Panorama e antes da faixa "Quem não entender essa nova jornada".

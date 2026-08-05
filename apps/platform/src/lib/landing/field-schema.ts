@@ -45,7 +45,12 @@ export type AnyField = FieldDef | CompositeFieldDef;
 export const isComposite = (f: AnyField): f is CompositeFieldDef =>
   (f as CompositeFieldDef).kind === "composite";
 
-export type GroupDef = { label: string; fields: AnyField[] };
+export type GroupDef = {
+  label: string;
+  fields: AnyField[];
+  /** Recado exibido acima dos campos do grupo. Não é campo, não vai pro banco. */
+  note?: string;
+};
 
 export type SectionSchema = {
   /** Nome humano da seção (substitui o section_id cru). */
@@ -106,6 +111,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     groups: [
       {
         label: "Título principal",
+        note: "A frase laranja em maiúsculas que aparece logo abaixo do Hero (acima dos logos) NÃO fica aqui: ela pertence à faixa de logos, em “Apoiadores (faixa do topo + seção)”.",
         fields: [
           comp(
             "title",
@@ -172,6 +178,14 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("card2Desc", "Card 2 — descrição"),
           t("card3Title", "Card 3 — título"),
           ml("card3Desc", "Card 3 — descrição"),
+        ],
+      },
+      {
+        label: "Fecho (abaixo dos 3 cards)",
+        fields: [
+          rich("closing", "Parágrafo de fecho", {
+            help: "Fica logo abaixo dos três itens, com um filete laranja à esquerda. Apagar o campo tira o parágrafo da página.",
+          }),
         ],
       },
     ],
@@ -259,9 +273,14 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       {
         label: "Faixa que rola no topo (abaixo do Hero)",
         fields: [
-          t("bandTitle", "Título acima dos logos"),
+          t("bandTitle", "Título acima dos logos", {
+            help: "É a frase laranja em maiúsculas logo abaixo do Hero. Ela aparece no topo da página, mas se edita AQUI porque pertence à faixa de logos.",
+          }),
           ml("bandSubtitle", "Texto abaixo dos logos", {
             help: "Quebra em duas linhas no “:” — a chamada em cima, os segmentos embaixo.",
+          }),
+          ml("bandDisclaimer", "Letra miúda abaixo do carrossel", {
+            help: "Ressalva em corpo menor e cor mais apagada (ex.: as apoiadoras não vendem o material). Apagar o campo tira a linha da página.",
           }),
         ],
       },

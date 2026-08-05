@@ -708,6 +708,16 @@ export function LandingEditor({
                   <p className="flex items-center gap-1.5 border-b border-slate-100 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                     <Type className="h-3.5 w-3.5" /> {group.label}
                   </p>
+                  {/* Recado do grupo: texto que não é campo. Existe porque o
+                      Francis procurou por três vezes uma frase na seção errada
+                      (ela aparece no topo da página mas pertence a outra
+                      seção). Aviso curto vale mais que outra rodada de
+                      "não encontrei no ADM". */}
+                  {group.note && (
+                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+                      {group.note}
+                    </p>
+                  )}
                   {group.fields.map((field) =>
                     isComposite(field) ? (
                       <CompositeField

@@ -2,7 +2,7 @@ import React from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, Marquee, Reveal, SolarCells } from './atoms'
-import { criarTxt } from './cms'
+import { criarTxt, temConteudo } from './cms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
@@ -98,6 +98,9 @@ export const ApoiadoresBandV4: React.FC = () => {
     !bandTitleCms || bandTitleCms.trim() === 'Empresas líderes que apoiam o Movimento Solar Buy-Side'
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
       : bandTitleCms
+  // Letra miúda abaixo do carrossel (slide 2). Sem default de código: ou o
+  // Francis escreve no admin, ou a faixa não tem ressalva nenhuma.
+  const bandDisclaimer = txt('bandDisclaimer')
   const bandSubtitle =
     txt('bandSubtitle', '+15 empresas apoiadoras em 5 segmentos da cadeia fotovoltaica: Distribuição • Fabricante • Tecnologia • Serviços • Financiamento')
 
@@ -156,6 +159,16 @@ export const ApoiadoresBandV4: React.FC = () => {
             // block: os cinco segmentos ficam sempre numa linha só, embaixo.
             <span className="mt-1 block">{bandSegmentos}</span>
           )}
+        </p>
+      )}
+
+      {/* Ressalva jurídica em letra miúda (Francis, slide 2: "nova frase em
+          letra miúda"): as apoiadoras não vendem o material nem participam da
+          receita. Menor e mais apagada que o subtítulo de propósito, é nota de
+          rodapé da faixa, não argumento. */}
+      {temConteudo(bandDisclaimer) && (
+        <p className="relative z-10 mx-auto mt-4 max-w-3xl px-6 text-center text-[12px] leading-relaxed text-slate-500">
+          {bandDisclaimer}
         </p>
       )}
     </section>
