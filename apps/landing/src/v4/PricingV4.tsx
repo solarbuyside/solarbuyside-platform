@@ -406,14 +406,20 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 <div className="v4-promo-glow relative mt-8 overflow-hidden rounded-2xl border border-orange-500/40 bg-orange-500/[0.07] px-5 py-5 text-center">
                   {/* Linha 1: a frase termina no LOGO da Belenergy, inline,
                       como no slide. O logo vem com caixa sólida na arte, então
-                      não precisa de chip branco atrás. */}
-                  <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 font-['Sora'] text-xl font-extrabold tracking-tight text-white md:text-2xl">
+                      não precisa de chip branco atrás.
+
+                      Corpo reduzido em ~4px no mobile e ~6px no desktop
+                      (20/24 -> 16/18) a pedido do Francis, slide 19: em
+                      extrabold a frase ocupava três linhas e competia com o
+                      preço logo acima, que é o que a caixa deveria apoiar. O
+                      logo desce junto para a proporção não mudar. */}
+                  <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 font-['Sora'] text-base font-extrabold tracking-tight text-white md:text-lg">
                     <CMSText value={promoTitle} />
                     <Img
                       src={promoLogo}
                       alt="Belenergy"
                       loading="lazy"
-                      className="h-11 w-auto shrink-0 md:h-14"
+                      className="h-9 w-auto shrink-0 md:h-11"
                     />
                   </p>
                   {temConteudo(promoSubtitle) && (

@@ -129,6 +129,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Selo do produto",
         fields: [t("manualTitle", "Selo acima do título")],
       },
+      {
+        label: "Kit no topo (4 capas + frase + botão)",
+        note: "As CAPAS, os títulos e as etiquetas das quatro peças são os mesmos da seção “Oferta / Preço”: trocar lá troca aqui. Só as frases curtas abaixo de cada capa, a linha de resumo e o botão se editam neste grupo. Elas ficam em “Oferta / Preço > Kit do topo (Hero)”, porque pertencem àquela seção no banco.",
+        fields: [],
+      },
     ],
     // Chaves que existem no banco mas a LP não usa — não vale expor no editor.
     // ctaSubtext e scrollHint saíram do Hero em 2026-07-23 (Francis, slide 1:
@@ -852,6 +857,29 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Oferta / Preço",
     order: 12,
     groups: [
+      {
+        label: "Kit do topo (Hero)",
+        note: "Estes campos aparecem no TOPO da página, abaixo do título, não aqui na oferta. Moram nesta seção porque usam as mesmas capas e os mesmos nomes das quatro peças.",
+        fields: [
+          t("heroKit1Desc", "Frase da capa 1 (Manual)", { maxLength: 60 }),
+          t("heroKit2Desc", "Frase da capa 2 (Código)", { maxLength: 60 }),
+          t("heroKit3Desc", "Frase da capa 3 (Plataforma)", { maxLength: 60 }),
+          t("heroKit4Desc", "Frase da capa 4 (Licença Coletiva)", { maxLength: 60 }),
+          rich("heroKitNote", "Linha de resumo abaixo das capas"),
+          t("heroKitCta", "Botão do topo", { maxLength: 40 }),
+        ],
+      },
+      {
+        label: "Bloco “Capacite seu time” (antes da oferta)",
+        note: "Bloco da Licença de Uso Coletiva, entre os apoiadores e a oferta. Os valores por pessoa NÃO são calculados: se o preço à vista mudar, atualize esta tabela na mão.",
+        fields: [
+          rich("teamTitle", "Título"),
+          rich("teamLead", "Texto de apoio"),
+          t("teamColTeam", "Cabeçalho da coluna 1", { maxLength: 40 }),
+          t("teamColValue", "Cabeçalho da coluna 2", { maxLength: 40 }),
+          img("teamImage", "Imagem à direita"),
+        ],
+      },
       {
         label: "Cabeçalho",
         fields: [

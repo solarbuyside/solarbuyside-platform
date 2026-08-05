@@ -55,6 +55,8 @@ const BAND_VIEW = "__faixa__";
 const FAQ_VIEW = "__faq__";
 const CODE_PARAGRAFOS_VIEW = "__code-paragrafos__";
 const HISTORIA_VIEW = "__historia__";
+const EQUIPE_VIEW = "__equipe__";
+const PROPOSITO_VIEW = "__proposito__";
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
@@ -143,6 +145,42 @@ const HISTORIA_GROUPS: ListGroup[] = [
 ];
 
 /**
+ * Tabela do bloco "Capacite todo o seu time comercial" (Francis, slide 17 da
+ * revisão de 03/08). Lista aberta porque a Licença Coletiva vale para até 10
+ * vendedores hoje, mas o teto é decisão comercial dele, não do layout.
+ *
+ * Os valores NÃO são calculados a partir do preço: ele arredondou à mão e nem
+ * sempre para o mesmo lado. Se o preço à vista mudar, a tabela muda aqui.
+ */
+const EQUIPE_GROUPS: ListGroup[] = [
+  {
+    prefix: "teamRow",
+    label: "Linhas da tabela",
+    itemLabel: "Linha",
+    max: 12,
+    fields: [
+      { suffix: "Label", label: "Composição da equipe", kind: "text" },
+      { suffix: "Value", label: "Investimento por pessoa", kind: "text" },
+    ],
+  },
+];
+
+/**
+ * "Para que servem o Manual, o Código e a Plataforma de Avaliação?" — o bloco
+ * abaixo do carrossel de logos (Francis, slide 2). Ele mandou três respostas;
+ * lista aberta porque virar quatro é decisão de copy, não de código.
+ */
+const PROPOSITO_GROUPS: ListGroup[] = [
+  {
+    prefix: "purpose",
+    label: "Respostas",
+    itemLabel: "Resposta",
+    max: 6,
+    fields: [{ suffix: "", label: "Texto", kind: "rich" }],
+  },
+];
+
+/**
  * Parágrafos do bloco "Código do Vendedor", em dois grupos: a lista "O que você
  * leva" fica ENTRE eles, então não dá para ser uma lista só.
  * `legacyKeys` traz o texto publicado hoje (codeDesc1-4) na primeira abertura.
@@ -210,6 +248,7 @@ export function LandingEditor({
   const faqSection = rawSections.find((s) => s.sectionId === "faq");
   const manualSection = rawSections.find((s) => s.sectionId === "manual-strategic");
   const authoritySection = rawSections.find((s) => s.sectionId === "authority");
+  const pricingSection = rawSections.find((s) => s.sectionId === "pricing");
   // Categorias dos apoiadores saem dos próprios dados, na ordem da página.
   const categoriasApoiadores = React.useMemo(
     () => (apoiadores ? categoriasDe(apoiadores) : []),
@@ -475,6 +514,16 @@ export function LandingEditor({
                     onSelect={() => setSelectedId(FAQ_VIEW)}
                   />
                 ) : null}
+                {/* Tabela do bloco "Capacite seu time", entre os apoiadores
+                    e a oferta. */}
+                {s.sectionId === "pricing" && pricingSection ? (
+                  <SubRow
+                    icon={ListOrdered}
+                    label="Tabela “Capacite seu time”"
+                    active={selectedId === EQUIPE_VIEW}
+                    onSelect={() => setSelectedId(EQUIPE_VIEW)}
+                  />
+                ) : null}
                 {/* Parágrafos do bloco "Código do Vendedor", que antes eram 4
                     slots fixos — não havia como quebrar um em dois. */}
                 {s.sectionId === "manual-strategic" && manualSection ? (
@@ -490,6 +539,12 @@ export function LandingEditor({
                     campo "Categoria" de um logo. */}
                 {s.sectionId === "apoiadores" && apoiadores ? (
                   <>
+                    <SubRow
+                      icon={Pilcrow}
+                      label="“Para que servem…” (abaixo dos logos)"
+                      active={selectedId === PROPOSITO_VIEW}
+                      onSelect={() => setSelectedId(PROPOSITO_VIEW)}
+                    />
                     <SubRow
                       icon={ImageIcon}
                       label="Todos os logos"
@@ -586,6 +641,22 @@ export function LandingEditor({
             icon={ListOrdered}
             groups={FAQ_GROUPS}
             onSaved={() => setLocalPending((p) => new Set(p).add("faq"))}
+          />
+        ) : selectedId === EQUIPE_VIEW && pricingSection ? (
+          <ListEditor
+            section={pricingSection}
+            title="Tabela “Capacite todo o seu time comercial”"
+            icon={ListOrdered}
+            groups={EQUIPE_GROUPS}
+            onSaved={() => setLocalPending((p) => new Set(p).add("pricing"))}
+          />
+        ) : selectedId === PROPOSITO_VIEW && apoiadores ? (
+          <ListEditor
+            section={apoiadores}
+            title="“Para que servem o Manual, o Código e a Plataforma?”"
+            icon={Pilcrow}
+            groups={PROPOSITO_GROUPS}
+            onSaved={() => setLocalPending((p) => new Set(p).add("apoiadores"))}
           />
         ) : selectedId === CODE_PARAGRAFOS_VIEW && manualSection ? (
           <ListEditor

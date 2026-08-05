@@ -70,14 +70,64 @@ const STORY1 =
   '<span class="cms-bold">E percebemos algo que a maioria dos treinamentos ignora: ' +
   "eles ensinam a vender, mas não ensinam a entender como o cliente compra.</span>";
 
+/* Tabela do slide 17: o kit custa o mesmo R$ 797, mas a Licenca Coletiva vale
+   para ate 10 vendedores, entao o custo por pessoa cai de 399 para 72. Os
+   valores sao os que ELE escreveu, nao calculados: o arredondamento dele nao
+   e uniforme (79,70 virou 80; 265,67 virou 265). */
+const EQUIPE = [
+  ["Integrador + 1 vendedor", "R$ 399"],
+  ["Integrador + 2 vendedores", "R$ 265"],
+  ["Integrador + 3 vendedores", "R$ 199"],
+  ["Integrador + 4 vendedores", "R$ 159"],
+  ["Integrador + 5 vendedores", "R$ 133"],
+  ["Integrador + 6 vendedores", "R$ 114"],
+  ["Integrador + 7 vendedores", "R$ 99"],
+  ["Integrador + 8 vendedores", "R$ 88"],
+  ["Integrador + 9 vendedores", "R$ 80"],
+  ["Integrador + 10 vendedores", "R$ 72"],
+];
+const LINHAS_EQUIPE = Object.fromEntries(
+  EQUIPE.flatMap(([equipe, valor], i) => [
+    [`teamRow${i + 1}Label`, equipe],
+    [`teamRow${i + 1}Value`, valor],
+  ]),
+);
+
 const MUDANCAS = {
   pricing: {
+    // Slide 1: frases curtas das quatro capas no topo da pagina, a linha de
+    // resumo e o botao. Sao chaves proprias do Hero; as descricoes longas da
+    // secao de oferta continuam intactas ("SEM ALTERACAO", slide 18).
+    heroKit1Desc: "130 páginas e 160 tópicos",
+    heroKit2Desc: "Método de venda consultiva",
+    heroKit3Desc: "Teste a sua proposta antes de enviar",
+    heroKit4Desc: "Licença de uso para até 10 vendedores",
+    heroKitNote:
+      "Kit Completo para integradoras e vendedores: 2 Ebooks + acesso à Plataforma de Avaliação de propostas",
+    heroKitCta: "Quero o Kit Completo Agora",
+    // Slide 17.
+    teamTitle: "Capacite todo o seu time comercial por um investimento surpreendentemente baixo",
+    teamLead:
+      'Kit Solar Buy-Side com <span class="cms-bold">Licença de Uso Coletiva</span>: até 10 vendedores treinados no mesmo método de vendas consultivas.',
+    teamColTeam: "Composição da equipe",
+    teamColValue: "Investimento por pessoa",
+    ...LINHAS_EQUIPE,
     // Slide 1, "Eliminar frase": some da página (o campo existe e está vazio).
     card1Desc: "",
     // Slide 1, "Texto novo" na capa da Licença de Uso Coletiva.
     card3Desc: "Licença de uso para até 10 vendedores",
   },
   apoiadores: {
+    // Slide 2, o bloco "novo texto abaixo do carrossel". Sem travessao no
+    // item 3 (o original dele tinha um).
+    purposeKicker: "O que você leva",
+    purposeTitle: "Para que servem o Manual, o Código e a Plataforma de Avaliação?",
+    purpose1:
+      "Você entende exatamente como o comprador avalia integradora, tecnologia, viabilidade e risco antes de fechar negócio.",
+    purpose2:
+      "Aplica esses mesmos critérios para revisar sua proposta e neutralizar objeções antes que elas apareçam.",
+    purpose3:
+      "Vende como consultor, defendendo o valor da sua proposta com dados e evidências, não com desconto.",
     // Slide 2, "Nova frase" acima dos logos.
     bandTitle: "Empresas referência que apoiam o Solar Buy-Side na profissionalização do mercado",
     // Slide 2, "Nova frase em letra miúda". O original dele usava travessão.

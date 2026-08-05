@@ -5,6 +5,7 @@ import { FloatingCTAV4, HeaderV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
 import { ContextV4 } from './ContextV4'
 import { ApoiadoresBandV4, ApoiadoresV4 } from './ApoiadoresV4'
+import { PropositoV4 } from './PropositoV4'
 import { AudienceV4 } from './AudienceV4'
 import { ManualStrategicV4 } from './ManualStrategicV4'
 import { PlatformV4 } from './PlatformV4'
@@ -12,6 +13,7 @@ import { RetornoV4 } from './RetornoV4'
 import { TestimonialLucasV4, TestimonialsV4 } from './SocialProofV4'
 import { TransformacaoV4 } from './TransformacaoV4'
 import { PricingV4 } from './PricingV4'
+import { EquipeV4 } from './EquipeV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
 
@@ -88,6 +90,10 @@ export default function AppV4() {
       {/* Faixa de logos logo abaixo do Hero, como no slide 1 do Francis. Ela
           substitui a antiga faixa "Manual ✦ Código" (resposta dele em 23/07). */}
       <ApoiadoresBandV4 />
+      {/* "Para que servem o Manual, o Código e a Plataforma?" logo abaixo do
+          carrossel de logos (Francis, slide 2). Ele responde a pergunta que a
+          faixa acabou de levantar, e emenda na seção da Plataforma. */}
+      <PropositoV4 />
       {/* Plataforma subiu da 11ª para a 3ª posição (slide 3 da revisão de
           03/08). A ferramenta passa a ser o primeiro argumento depois da prova
           social dos logos, antes de qualquer texto de contexto. */}
@@ -130,6 +136,12 @@ export default function AppV4() {
       <div id="apoiadores">
         <ApoiadoresV4 />
       </div>
+      {/* "Capacite todo o seu time comercial" (Francis, slide 17): entra
+          DEPOIS dos apoiadores e ANTES da oferta, que é a posição dele no
+          deck. Justifica o preço antes de o preço aparecer. Claro como a
+          seção acima, para a oferta continuar subindo por cima com o topo
+          arredondado escuro. */}
+      <EquipeV4 />
       <PricingV4 id="oferta" />
       <div id="faq">
         <FAQV4 />

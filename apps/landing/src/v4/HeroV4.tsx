@@ -1,15 +1,124 @@
 ﻿import React, { useEffect, useRef } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { WordReveal } from './atoms'
+import { Img, WordReveal } from './atoms'
 import { scrollToId } from './scroll'
-import { criarTxt } from './cms'
+import { trackBuyClick } from '../utils/analytics'
+import { criarTxt, temConteudo } from './cms'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
    gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
    campo azul à esquerda (comprador) e âmbar à direita (vendedor).
    Headline massiva com reveal palavra-a-palavra; destaque em serif itálica.
    O manual + bônus viram um "ticket de acesso" com picote central. */
+
+/* As quatro peças do kit, embaixo da subfrase do Hero (Francis, slide 1).
+
+   A arte e os nomes vêm da MESMA seção que alimenta a oferta lá embaixo, para
+   não existirem duas verdades sobre o que é o kit. As frases curtas são
+   próprias do Hero: aqui cabe uma linha, e na oferta cabe um parágrafo.
+
+   Sem cartões e sem molduras: as capas flutuam sobre o horizonte do Hero, com
+   um "+" entre elas, como no slide. Cartão aqui brigaria com o chip do produto
+   e com o botão, e o Hero já vai ficar cheio. */
+const HeroKitV4: React.FC = () => {
+  const { getSection, globalSettings } = useContent()
+  const section = getSection('pricing')
+  const txt = criarTxt(section)
+
+  const pecas = [
+    {
+      tag: txt('card1Tag', 'MANUAL PRINCIPAL'),
+      title: txt('card1Title', 'Manual Solar Buy-Side'),
+      desc: txt('heroKit1Desc', '130 páginas e 160 tópicos'),
+      image: section?.images.card1Image || '/assets/manual-norm.png',
+    },
+    {
+      tag: txt('card2Tag', 'DIFERENCIAL ESTRATÉGICO'),
+      title: txt('card2Title', 'Código do Vendedor Consultivo'),
+      desc: txt('heroKit2Desc', 'Método de venda consultiva'),
+      image: section?.images.card2Image || '/assets/codigo-norm.png',
+    },
+    {
+      tag: txt('cardPlatformTag', 'FERRAMENTA EXCLUSIVA'),
+      title: txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial'),
+      desc: txt('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
+      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
+    },
+    {
+      tag: txt('card3Tag', 'BÔNUS ESPECIAL'),
+      title: txt('card3Title', 'Turbine sua Equipe de Venda'),
+      desc: txt('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
+      image: section?.images.card3Image || '/assets/coletiva-norm.png',
+    },
+  ]
+
+  const nota = txt(
+    'heroKitNote',
+    'Kit Completo para integradoras e vendedores: 2 Ebooks + acesso à Plataforma de Avaliação de propostas',
+  )
+  const cta = txt('heroKitCta', 'Quero o Kit Completo Agora')
+
+  return (
+    <div className="v4-rise mt-14 w-full md:mt-16" style={{ ['--d' as string]: '760ms' }}>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-9 md:grid-cols-4 md:gap-x-2">
+        {pecas.map((peca, i) => (
+          <div key={peca.title} className="group relative flex flex-col items-center text-center">
+            {/* O "+" entre as peças, só no desktop: no mobile a grade é 2x2 e
+                o sinal cairia no meio do nada. */}
+            {i > 0 && (
+              <span className="absolute -left-3 top-[38px] hidden text-2xl font-light text-orange-500/40 md:block" aria-hidden>
+                +
+              </span>
+            )}
+            <Img
+              src={peca.image}
+              alt={peca.title}
+              // A primeira dobra: estas quatro imagens competem com o <h1>,
+              // que é o LCP. Todas lazy, como as capas da oferta.
+              loading="lazy"
+              className="h-[86px] w-auto max-w-none drop-shadow-[0_18px_26px_rgba(0,0,0,0.6)] transition duration-500 group-hover:-translate-y-1.5 md:h-[104px]"
+            />
+            {temConteudo(peca.tag) && (
+              <span className="v4-mono mt-4 text-[8px] font-bold uppercase tracking-[0.22em] text-orange-400/80">
+                {peca.tag}
+              </span>
+            )}
+            {/* Altura mínima de duas linhas: "Plataforma de Avaliação de Proposta
+                Comercial" quebra em duas e, sem isto, a frase daquela peça
+                descia sozinha e as quatro deixavam de alinhar. */}
+            <p className="mt-1.5 min-h-[2.6em] text-[13px] font-bold leading-snug text-white md:text-sm">
+              {peca.title}
+            </p>
+            {temConteudo(peca.desc) && (
+              <p className="mt-1 max-w-[190px] text-[12px] leading-snug text-slate-400">{peca.desc}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {temConteudo(nota) && (
+        <p className="mx-auto mt-10 max-w-2xl text-balance text-[15px] leading-relaxed text-slate-300 md:text-base">
+          <CMSText value={nota} />
+        </p>
+      )}
+
+      {temConteudo(cta) && (
+        <a
+          href={globalSettings.purchaseLink || '#oferta'}
+          target={globalSettings.purchaseLink ? '_blank' : undefined}
+          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
+          onClick={trackBuyClick}
+          className="v4-cta-shine group relative mx-auto mt-7 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:text-lg"
+        >
+          <span className="relative z-10">{cta}</span>
+          <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
+        </a>
+      )}
+    </div>
+  )
+}
 
 export const HeroV4: React.FC = () => {
   const { getSection } = useContent()
@@ -144,15 +253,22 @@ export const HeroV4: React.FC = () => {
           )}
         </p>
 
-        {/* CTA principal e o "ticket" com as capas do Manual e do Código foram
-            removidos (Francis, slide 2 + confirmacao do Gabriel 2026-07-26): o
-            Hero fica so com a headline e a subfrase. O primeiro botao da pagina
-            passa a ser o CTA 1, no fim da secao de Autores. */}
+        {/* As quatro capas do kit voltaram ao Hero (Francis, slide 1 da revisão
+            de 03/08). Elas tinham saído em 26/07, junto com o CTA; ele agora
+            quer os dois de novo, e mais uma linha de resumo entre as capas e o
+            botão. O Hero fica cheio de propósito: a decisão é dele, com a
+            ressalva registrada.
+
+            As capas, títulos e etiquetas são os MESMOS da seção de oferta (lê
+            a seção `pricing`), então trocar a arte num lugar troca nos dois. Só
+            as frases são próprias (`heroKit1Desc`...): aqui elas precisam ser
+            curtas, e a seção de oferta ele marcou "SEM ALTERAÇÃO". */}
+        <HeroKitV4 />
       </div>
 
       {/* scroll hint sobre o horizonte */}
       <button
-        onClick={() => scrollToId('contexto')}
+        onClick={() => scrollToId('plataforma')}
         type="button"
         aria-label={scrollHint}
         className="group absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
