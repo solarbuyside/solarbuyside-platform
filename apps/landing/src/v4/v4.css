@@ -592,3 +592,34 @@ html:not(.js) .v4-rise {
   letter-spacing: -0.015em;
   color: #fb923c;
 }
+
+/* ── HERO EM TELA BAIXA ──────────────────────────────────────────────────
+   Notebook de 13"/14" entrega ~700-780px de altura útil, e é a maior fatia
+   do tráfego de desktop. O Hero carrega headline, subfrase, QUATRO capas,
+   linha de resumo e botão (composição que o Francis pediu em 03/08 e
+   confirmou em 06/08). Em 900px de altura tudo cabe com a aresta do sol
+   fazendo base para o botão; abaixo disso o botão nascia fora da dobra, que
+   é o pior lugar possível para ele.
+
+   Aqui o Hero cede por ALTURA, não só por largura: encolhem os respiros, a
+   tipografia grande e as capas. Nenhum conteúdo some, e o mobile não é
+   afetado (min-width: 768px). */
+@media (min-width: 768px) and (max-height: 880px) {
+  .v4-hero-conteudo {
+    padding-top: 4rem;
+    padding-bottom: 16vh;
+  }
+  .v4-hero h1 {
+    font-size: clamp(2.4rem, 5vw, 3.9rem);
+  }
+  .v4-hero-sub {
+    margin-top: 1.25rem;
+    font-size: 1.125rem;
+  }
+  .v4-hero-kit {
+    margin-top: 2rem;
+  }
+  .v4-hero-kit img {
+    height: 84px;
+  }
+}

@@ -89,7 +89,7 @@ const HeroKitV4: React.FC = () => {
      Somados à linha de etiquetas que saiu e à nota que encurtou, o botão sobe
      cerca de 90px sem que nada precise encolher de tamanho. */
   return (
-    <div className="v4-rise mt-11 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
+    <div className="v4-hero-kit v4-rise mt-11 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
       <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-2">
         {pecas.map((peca, i) => (
           <div key={peca.title} className="group relative flex flex-col items-center text-center">
@@ -191,7 +191,7 @@ export const HeroV4: React.FC = () => {
   }, [])
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
+    <section className="v4-hero relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
       {/* ── Céu ───────────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         {/* gradiente vertical da noite */}
@@ -207,10 +207,15 @@ export const HeroV4: React.FC = () => {
               'radial-gradient(55% 60% at 8% 75%, rgba(59,130,246,0.13), transparent 70%), radial-gradient(55% 60% at 92% 75%, rgba(249,115,22,0.13), transparent 70%)',
           }}
         />
+        {/* HORIZONTE 4 pontos mais alto (Gabriel, 09/08: "jogar o sol negro um
+            pouco mais pra cima"). O disco, os raios e o brilho sobem JUNTOS,
+            senão o brilho do amanhecer deixa de nascer atrás da aresta e vira
+            uma mancha solta no céu. A aresta incandescente é o topo do disco,
+            então mover o disco é mover a linha do horizonte. */}
         {/* brilho central do amanhecer (com parallax) */}
         <div ref={glowRef} className="absolute inset-0 will-change-transform">
           <div
-            className="absolute left-1/2 top-[74%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-[73%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2"
             style={{
               background:
                 'radial-gradient(circle at 50% 62%, rgba(253,186,116,0.32) 0%, rgba(249,115,22,0.16) 22%, transparent 52%)',
@@ -218,19 +223,22 @@ export const HeroV4: React.FC = () => {
           />
         </div>
         {/* raios cônicos girando muito devagar */}
-        <div className="v4-rays absolute left-1/2 top-[80%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10]" />
+        <div className="v4-rays absolute left-1/2 top-[79%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10]" />
         {/* o disco solar: silhueta gigante com aresta incandescente */}
         <div
-          className="absolute left-1/2 top-[80%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d]"
+          className="absolute left-1/2 top-[79%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d]"
           style={{
             boxShadow:
               '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
           }}
         />
         {/* grade de células no "chão": mesma textura (cor/escala) da seção
-            seguinte e visível até a borda inferior — o panorama continua dela */}
+            seguinte e visível até a borda inferior — o panorama continua dela.
+            Cresceu de 30% para 34% junto com o horizonte: a grade tem que
+            começar ABAIXO da aresta, senão aparece um naco de chão texturizado
+            boiando no céu. */}
         <div
-          className="v4-cells absolute inset-x-0 bottom-0 h-[30%]"
+          className="v4-cells absolute inset-x-0 bottom-0 h-[34%]"
           style={{
             maskImage: 'linear-gradient(180deg, transparent, black 55%)',
             WebkitMaskImage: 'linear-gradient(180deg, transparent, black 55%)',
@@ -240,17 +248,23 @@ export const HeroV4: React.FC = () => {
       </div>
 
       {/* ── Conteúdo ──────────────────────────────────────────────────── */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-6 pb-28 pt-28 text-center md:pb-[22vh]">
+      {/* pb menor (era pb-28 / md:pb-[22vh]): com o horizonte 4 pontos mais
+          alto, o respiro de 22vh empurrava o bloco para cima demais e a
+          headline encostava no cabeçalho. Agora o conteúdo fica centrado no
+          CÉU, acima da aresta, que é onde ele sempre deveria estar. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-24 pt-20 text-center md:pb-[30vh]">
         {/* chip do produto */}
-        <div className="v4-rise mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
+        <div className="v4-rise mb-7 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
           <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-slate-300">{manualTitle}</span>
         </div>
 
         {/* headline massiva */}
-        {/* clamp: mobile 44px (era 40) e desktop 81.6px (era 89.6) — ajuste do
-            Gabriel 27/07: headline menor no desktop, maior no celular. */}
-        <h1 className="max-w-5xl text-[clamp(2.75rem,6.6vw,5.1rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
+        {/* clamp: mobile 41.6px e desktop 77.6px. O teto caiu 4px (era 5.1rem =
+            81.6px) a pedido do Gabriel em 09/08; o piso desceu junto para a
+            frase não crescer no celular enquanto encolhe no desktop. O 27/07
+            já tinha trazido o desktop de 89.6px para 81.6px. */}
+        <h1 className="max-w-5xl text-[clamp(2.6rem,6.2vw,4.85rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
           <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />{' '}
           <WordReveal
             trigger="load"
@@ -262,10 +276,14 @@ export const HeroV4: React.FC = () => {
           <WordReveal trigger="load" text={titleSuffix} baseDelay={470} step={40} wordClassName="text-white" />
         </h1>
 
-        {/* Subfrase. Respiro grande entre ela e a headline: o Francis pediu a
-            seção "limpa e com espaço entre cada frase" (slide 2). */}
+        {/* Subfrase. O respiro entre ela e a headline era 48px/60px, herdado de
+            quando o Hero terminava aqui (o Francis tinha pedido a seção "limpa
+            e com espaço entre cada frase", slide 2 de 25/07). Com as quatro
+            capas, a linha de resumo e o botão embaixo, aquele vão virou o maior
+            buraco da dobra. 32px/40px mantém a frase separada da headline sem
+            partir o Hero em dois blocos soltos. */}
         <p
-          className="v4-rise mt-12 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-[60px] md:text-2xl"
+          className="v4-hero-sub v4-rise mt-8 max-w-3xl text-lg leading-relaxed text-slate-200 sm:text-xl md:mt-10 md:text-2xl"
           style={{ ['--d' as string]: '560ms' }}
         >
           <CMSText value={subLead} />
