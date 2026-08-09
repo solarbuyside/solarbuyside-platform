@@ -286,7 +286,7 @@ export const HeroV4: React.FC = () => {
 
           Foi assim que o selo deixou de colar na barra fixa em tela de 1080px
           (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-44 text-center md:pb-[30vh]">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-32 text-center md:pb-[30vh]">
         {/* O selo "MÉTODO SOLAR BUY-SIDE" saiu em 09/08 (Gabriel). Ele
             repetia, em letra miúda, a marca que o cabeçalho fixo já mostra a
             30px dali, e nessa distância os dois liam como um bloco só de
