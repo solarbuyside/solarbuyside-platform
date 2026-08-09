@@ -414,20 +414,15 @@ export const JornadaPlataformaV4: React.FC = () => {
       </div>
 
       {/* ── CONTROLES E LEGENDA, fora da moldura ─────────────────────────── */}
-      <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-8">
-        {/* A frase explicativa do painel, que é o que o Francis pediu. Altura
-            reservada para as cinco: sem isso o bloco abaixo sobe e desce a
-            cada troca, porque as frases têm comprimentos diferentes. */}
-        <p
-          key={painel.id}
-          className="v4-troca-suave min-h-[3.5rem] flex-1 text-[15px] leading-relaxed text-slate-300 sm:min-h-[3rem]"
-        >
-          <span className="v4-mono mr-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">
-            {String(atual + 1).padStart(2, '0')}
-          </span>
-          {painel.frase}
-        </p>
+      {/* CONTROLES À ESQUERDA, antes da frase (Gabriel, 09/08). Eles ficavam
+          no canto direito, longe do 01/02/03 que numera o painel e longe das
+          abas, que também são navegação. Juntos do começo da linha, a barra
+          inteira lê como um controle só: voltar, pausar, avançar, e ao lado o
+          que o painel está mostrando.
 
+          Vêm antes no DOM, e não só visualmente: no celular a coluna empilha,
+          e é a ordem do código que decide o que aparece primeiro. */}
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-5">
         <div className="flex shrink-0 items-center gap-2">
           <Botao aoClicar={() => ir(atual - 1)} rotulo="Painel anterior">
             <ChevronLeft size={16} aria-hidden />
@@ -442,6 +437,21 @@ export const JornadaPlataformaV4: React.FC = () => {
             <ChevronRight size={16} aria-hidden />
           </Botao>
         </div>
+
+        {/* A frase explicativa do painel, que é o que o Francis pediu. Altura
+            reservada para as cinco: sem isso o bloco abaixo sobe e desce a
+            cada troca, porque as frases têm comprimentos diferentes.
+            `sm:pt-1.5` alinha a primeira linha do texto com o meio dos botões,
+            que têm 36px de altura contra ~24px da linha. */}
+        <p
+          key={painel.id}
+          className="v4-troca-suave min-h-[3.5rem] flex-1 text-[15px] leading-relaxed text-slate-300 sm:min-h-[2.5rem] sm:pt-1.5"
+        >
+          <span className="v4-mono mr-2 text-[10px] font-bold uppercase tracking-[0.2em] text-orange-400">
+            {String(atual + 1).padStart(2, '0')}
+          </span>
+          {painel.frase}
+        </p>
       </div>
 
     </div>
