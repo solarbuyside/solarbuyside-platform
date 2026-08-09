@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, WordReveal } from './atoms'
-import { scrollToId } from './scroll'
 import { trackBuyClick } from '../utils/analytics'
 import { criarTxt, temConteudo } from './cms'
 
@@ -169,7 +168,6 @@ export const HeroV4: React.FC = () => {
     return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
   })()
   const manualTitle = txt('manualTitle', 'Manual Solar Buy-Side')
-  const scrollHint = txt('scrollHint', 'Veja o panorama 2026')
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {
@@ -248,11 +246,17 @@ export const HeroV4: React.FC = () => {
       </div>
 
       {/* ── Conteúdo ──────────────────────────────────────────────────── */}
-      {/* pb menor (era pb-28 / md:pb-[22vh]): com o horizonte 4 pontos mais
-          alto, o respiro de 22vh empurrava o bloco para cima demais e a
-          headline encostava no cabeçalho. Agora o conteúdo fica centrado no
-          CÉU, acima da aresta, que é onde ele sempre deveria estar. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-24 pt-20 text-center md:pb-[30vh]">
+      {/* pt e pb ANDAM JUNTOS, e é por isso que os dois são grandes.
+          O conteúdo é centrado por justify-center e a aresta do sol é
+          posicionada em % da ALTURA DA SEÇÃO. Crescer só o pt empurra o
+          conteúdo para baixo, contra a aresta; crescer os dois faz a seção
+          crescer, e a aresta desce mais rápido que o conteúdo (79% de um
+          número maior). Cada 40px somados aos dois compram ~40px de folga do
+          selo para o cabeçalho e ~23px de folga do botão para a aresta.
+
+          Foi assim que o selo deixou de colar na barra fixa em tela de 1080px
+          (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-24 pt-28 text-center md:pb-[34vh]">
         {/* chip do produto */}
         <div className="v4-rise mb-7 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
@@ -307,20 +311,12 @@ export const HeroV4: React.FC = () => {
         <HeroKitV4 />
       </div>
 
-      {/* scroll hint sobre o horizonte */}
-      <button
-        onClick={() => scrollToId('plataforma')}
-        type="button"
-        aria-label={scrollHint}
-        className="group absolute bottom-8 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-3 md:flex"
-      >
-        {/* Texto "Veja o panorama 2026" removido (Francis, slide 1). O botão
-            segue existindo só como indicador de rolagem; scrollHint continua
-            no aria-label para leitor de tela. */}
-        <span className="block h-10 w-px overflow-hidden bg-white/10">
-          <span className="v4-drip block h-full w-full bg-gradient-to-b from-orange-400 to-transparent" />
-        </span>
-      </button>
+      {/* O indicador de rolagem (fio vertical com o pingo laranja escorrendo)
+          saiu em 09/08, a pedido do Gabriel. Ele já vinha perdendo a função: o
+          texto "Veja o panorama 2026" tinha saído em 25/07 e sobrara só o
+          risco, que num Hero terminado por um botão laranja de 60px não dizia
+          mais "role para baixo". Os ~72px que ele ocupava no pé viraram
+          respiro para o resto da dobra distribuir. */}
     </section>
   )
 }
