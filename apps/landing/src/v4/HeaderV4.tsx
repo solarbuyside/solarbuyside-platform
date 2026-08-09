@@ -4,6 +4,7 @@ import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { Img } from './atoms'
 import { criarTxt } from './cms'
+import { VARIANTES, useVarianteHero } from './heroVariante'
 
 /* Na MESMA ordem em que as seções aparecem na página (ver SECTION_IDS no
    AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
 ]
 
 export const HeaderV4: React.FC = () => {
+  const { variante, modoAvaliacao, trocar } = useVarianteHero()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const progressRef = useRef<HTMLDivElement | null>(null)
@@ -68,6 +70,39 @@ export const HeaderV4: React.FC = () => {
           : 'border-b border-transparent bg-transparent'
       }`}
     >
+      {/* Barra de AVALIAÇÃO das variantes do Hero. Só aparece em modo de
+          avaliação (`?hero=` na URL ou host local) — ver heroVariante.ts. No
+          domínio de produção, sem parâmetro, ela não existe: um seletor de
+          layout visível para um lead pago seria a coisa mais cara da página. */}
+      {modoAvaliacao && (
+        <div className="border-b border-white/10 bg-[#0a0c12]">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1.5 px-6 py-1.5">
+            <span className="v4-mono text-[9px] font-bold uppercase tracking-[0.24em] text-slate-500">
+              Hero
+            </span>
+            {VARIANTES.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => trocar(v.id)}
+                title={v.resumo}
+                aria-pressed={variante === v.id}
+                className={`v4-mono rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors ${
+                  variante === v.id
+                    ? 'bg-orange-500 text-white'
+                    : 'text-slate-400 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {`${v.id.toUpperCase()} · ${v.nome}`}
+              </button>
+            ))}
+            <span className="hidden text-[10px] text-slate-600 sm:block">
+              {VARIANTES.find((v) => v.id === variante)?.resumo}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         <a href="#hero" className="flex items-center gap-3">
           <Img
