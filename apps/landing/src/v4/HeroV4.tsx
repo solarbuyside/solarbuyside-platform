@@ -58,10 +58,17 @@ const HeroKitV4: React.FC = () => {
       title: txt('heroKit3Title', txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
     },
-    {
-      title: txt('heroKit4Title', txt('card3Title', 'Turbine sua Equipe de Venda')),
-      image: section?.images.card3Image || '/assets/coletiva-norm.png',
-    },
+    /* A Licença de Uso Coletiva SAIU da primeira dobra (Gabriel, 09/08).
+       O rótulo logo acima promete "2 Ebooks + Plataforma", que são três
+       coisas, e apareciam quatro capas: o visitante contava os objetos, batia
+       com o texto e sobrava uma. A quarta continua na página inteira, com
+       seção própria ("Capacite todo o seu time comercial") e card na oferta,
+       então nada se perde; ela só deixa de ser prometida sem nome na dobra.
+
+       ATENÇÃO: é o único ponto em que esta versão se afasta do slide 2 do
+       Francis, que pediu as quatro capas no Hero. Se ele quiser as quatro de
+       volta, o caminho certo é a capa voltar E o rótulo passar a nomeá-la,
+       senão a conta desencontra de novo. */
   ]
 
   /* A linha de resumo entre as capas e o botão. Encurtada em 06/08 (slide 2:
@@ -119,28 +126,46 @@ const HeroKitV4: React.FC = () => {
       {/* max-w própria, menor que a do Hero: soltas nos 1152px do container as
           quatro capas viravam quatro objetos isolados em tela larga. Juntas,
           lêem como UM kit, que é o que a linha acima acabou de anunciar. */}
-      <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 items-center gap-x-6 gap-y-6 md:mt-6 md:grid-cols-4 md:gap-x-4">
+      {/* CAPAS ASSENTADAS NO HORIZONTE.
+          Antes elas eram atravessadas pela aresta incandescente: a linha
+          passava pelo terço inferior e a base ficava no escuro, o que lia
+          como colisão de z-index e não como intenção. Agora a base encosta na
+          linha (ver o pb da seção, que é calibrado para isso) e cada capa
+          ganha a ELIPSE DE CONTATO que a seção do Manual já usava no pedestal
+          de luz. Sem o contato, objeto sobre horizonte flutua.
+
+          Maiores também: 124px num canvas de 1900px liam como selinho, e
+          selinho diz "isto é secundário" justamente sobre o produto. Sem o
+          texto competindo, elas aguentam 180px sem poluir. */}
+      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-3 items-end gap-x-6 md:mt-8 md:gap-x-10">
         {pecas.map((peca, i) => (
-          <div key={peca.title} className="group relative flex items-center justify-center">
-            {/* O "+" entre as peças, só no desktop: no mobile a grade é 2x2 e
-                o sinal cairia no meio do nada. Agora centrado na própria
-                célula, que só tem a imagem. */}
+          <div key={peca.title} className="group relative flex items-end justify-center">
+            {/* O "+" entre as peças. Alinhado pelo meio da capa, não da
+                célula: as capas têm alturas visuais diferentes e o sinal
+                dançava de uma para outra. */}
             {i > 0 && (
               <span
-                className="absolute -left-4 top-1/2 hidden -translate-y-1/2 text-2xl font-light text-orange-500/40 md:block"
+                className="absolute -left-5 bottom-[38%] text-2xl font-light text-orange-500/40 md:-left-7"
                 aria-hidden
               >
                 +
               </span>
             )}
-            <Img
-              src={peca.image}
-              alt={peca.title}
-              // A primeira dobra: estas quatro imagens competem com o <h1>,
-              // que é o LCP. Todas lazy, como as capas da oferta.
-              loading="lazy"
-              className="h-[100px] w-auto max-w-none drop-shadow-[0_18px_26px_rgba(0,0,0,0.6)] transition duration-500 group-hover:-translate-y-1.5 md:h-[124px]"
-            />
+            <div className="relative">
+              <Img
+                src={peca.image}
+                alt={peca.title}
+                // A primeira dobra: estas imagens competem com o <h1>, que é
+                // o LCP. Todas lazy, como as capas da oferta.
+                loading="lazy"
+                className="relative z-10 h-[126px] w-auto max-w-none drop-shadow-[0_22px_30px_rgba(0,0,0,0.7)] transition duration-500 group-hover:-translate-y-1.5 sm:h-[150px] md:h-[180px]"
+              />
+              {/* Elipse de contato: a sombra que prende a capa no chão. */}
+              <span
+                className="absolute -bottom-1.5 left-1/2 h-3 w-[78%] -translate-x-1/2 rounded-[100%] bg-orange-400/25 blur-md transition-opacity duration-500 group-hover:opacity-70"
+                aria-hidden
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -262,7 +287,7 @@ export const HeroV4: React.FC = () => {
 
           Foi assim que o selo deixou de colar na barra fixa em tela de 1080px
           (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-24 pt-28 text-center md:pb-[34vh]">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-28 text-center md:pb-[30vh]">
         {/* chip do produto */}
         <div className="v4-rise mb-7 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
           <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
@@ -274,16 +299,41 @@ export const HeroV4: React.FC = () => {
             81.6px) a pedido do Gabriel em 09/08; o piso desceu junto para a
             frase não crescer no celular enquanto encolhe no desktop. O 27/07
             já tinha trazido o desktop de 89.6px para 81.6px. */}
-        <h1 className="max-w-5xl text-[clamp(2.6rem,6.2vw,4.85rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">
-          <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />{' '}
-          <WordReveal
-            trigger="load"
-            text={titleHighlight}
-            baseDelay={340}
-            step={55}
-            wordClassName="v4-serif v4-grad-text pr-[0.06em]"
-          />{' '}
-          <WordReveal trigger="load" text={titleSuffix} baseDelay={470} step={40} wordClassName="text-white" />
+        {/* UMA PARTE POR LINHA.
+            As tres partes vinham no mesmo fluxo, separadas por espaco, e o
+            navegador quebrava onde desse: em 1920px a linha 1 terminava em
+            "Passe a" e o trecho em italico laranja comecava numa linha e
+            terminava na outra. O recurso da headline e o contraste romano
+            versus italico marcando "sai disto, vai para aquilo"; partido no
+            meio, o olho le dois pedacos de laranja em vez de um bloco, e
+            sobra uma preposicao pendurada no fim da linha.
+
+            Em blocos a quebra e deterministica: o destaque nunca racha e
+            nenhuma parte termina em palavra solta. Some tambem o {' '} entre
+            os WordReveal, que era um no de texto adjacente a outro e e
+            exatamente o padrao que quebra a hidratacao (#418). */}
+        <h1 className="max-w-5xl text-[clamp(2.6rem,6.2vw,4.85rem)] font-extrabold leading-[1.06] tracking-[-0.03em] text-white">
+          {temConteudo(titlePrefix) && (
+            <span className="block">
+              <WordReveal trigger="load" text={titlePrefix} baseDelay={80} step={40} />
+            </span>
+          )}
+          {temConteudo(titleHighlight) && (
+            <span className="block">
+              <WordReveal
+                trigger="load"
+                text={titleHighlight}
+                baseDelay={340}
+                step={55}
+                wordClassName="v4-serif v4-grad-text pr-[0.06em]"
+              />
+            </span>
+          )}
+          {temConteudo(titleSuffix) && (
+            <span className="block">
+              <WordReveal trigger="load" text={titleSuffix} baseDelay={470} step={40} wordClassName="text-white" />
+            </span>
+          )}
         </h1>
 
         {/* Subfrase. O respiro entre ela e a headline era 48px/60px, herdado de

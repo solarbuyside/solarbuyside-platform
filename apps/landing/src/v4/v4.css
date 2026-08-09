@@ -611,7 +611,11 @@ html:not(.js) .v4-rise {
      header"). 6.5rem = 104px deixa o selo respirar sob o cabeçalho. */
   .v4-hero-conteudo {
     padding-top: 6.5rem;
-    padding-bottom: 14vh;
+    /* Alto de proposito: a aresta do sol fica em 79% da ALTURA DA SECAO, e a
+       secao so cresce pelo padding. Com pb pequeno a aresta caia ACIMA da
+       base das capas e as atravessava. ~28vh poe a linha logo abaixo delas,
+       que e onde ela vira chao em vez de corte. */
+    padding-bottom: 30vh;
   }
   .v4-hero h1 {
     font-size: clamp(2.4rem, 5vw, 3.9rem);
@@ -624,6 +628,6 @@ html:not(.js) .v4-rise {
     margin-top: 2rem;
   }
   .v4-hero-kit img {
-    height: 84px;
+    height: 132px;
   }
 }
