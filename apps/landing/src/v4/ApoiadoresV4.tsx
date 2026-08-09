@@ -1,24 +1,30 @@
 import React from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Hand } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Img, Marquee, Reveal, SolarCells } from './atoms'
-import { criarTxt } from './cms'
+import { Img, Reveal } from './atoms'
+import { criarTxt, temConteudo } from './cms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
 
-   Dois blocos, alimentados pela MESMA lista de logos (seção CMS "apoiadores"):
+   Seção completa, com os logos agrupados por categoria e um card de descrição
+   que abre no hover (desktop) ou no toque (mobile).
 
-   1) ApoiadoresBandV4 — faixa contínua de logos, logo abaixo do Hero (slide 1).
-      Substitui a antiga faixa "Manual de Compra ✦ Código do Vendedor"
-      (confirmado por ele em 23/07).
+   POSIÇÃO: 4ª dobra, logo depois de "Para que servem o Manual, o Código e a
+   Plataforma?" (Francis, revisão de 06/08, slide 7). Ela vivia no fim da LP e
+   subiu porque "o carrossel não explica a participação das marcas e este bloco
+   deveria estar bem no início para transferir a maior credibilidade dessas
+   marcas desde os primeiros instantes do lead na página".
+
+   A FAIXA CONTÍNUA de logos que rolava logo abaixo do Hero (ApoiadoresBandV4)
+   foi REMOVIDA na mesma revisão (slide 3: "eliminar o carrossel e seu título
+   acima"). Este bloco a substitui: os mesmos logos, agora explicados. As
+   chaves de CMS dela (bandTitle, bandSubtitle, logoNBandOff, logoNBandPos)
+   ficaram órfãs no banco.
 
    PALETA: branco-gelo NEUTRO (#f7f8fa), não o bege/creme que a LP usava — o
    creme puxava para entardecer e brigava com a ideia de painel solar. Claro
    (e não escuro) porque boa parte dos logos é texto escuro sobre branco
    (Huawei, LONGi, SolarView, Unipower) e sumiria no fundo escuro.
-
-   2) ApoiadoresV4 — seção completa, com os logos agrupados por categoria e um
-      card de descrição que abre no hover (desktop) ou no toque (mobile).
 
    Os logos vêm do CMS: images.logoNSrc + texts.logoNName/logoNDesc/logoNCat.
    Um logo só entra na lista se tiver imagem — assim o cliente adiciona e
@@ -30,10 +36,6 @@ export type Apoiador = {
   desc: string
   cat: string
   url: string
-  /** Fora da faixa do topo, mas ainda na seção. Ver logoNBandOff. */
-  bandOff: boolean
-  /** Posição na faixa. A faixa tem ordem PRÓPRIA — ver ApoiadoresBandV4. */
-  bandPos: number
 }
 
 const MAX_LOGOS = 30
@@ -41,12 +43,11 @@ const MAX_LOGOS = 30
 /**
  * Lê a lista de logos do CMS (logo1…logoN).
  *
- * Dois níveis de visibilidade, controlados no admin:
- *  - `logoNHidden = "1"`  → guardado, fora dos DOIS lugares (marca sem
- *    autorização de uso, por exemplo). Nem entra nesta lista.
- *  - `logoNBandOff = "1"` → aparece na seção de apoiadores mas NÃO na faixa
- *    que rola no topo. Ausente significa "vai na faixa", que é o que sempre
- *    valeu — nenhum conteúdo existente muda de comportamento.
+ * `logoNHidden = "1"` → guardado, fora do ar (marca sem autorização de uso,
+ * por exemplo). Nem entra nesta lista.
+ *
+ * `logoNBandOff` e `logoNBandPos` deixaram de ser lidos quando a faixa do topo
+ * saiu (06/08): a seção tem um lugar só, e a ordem dela é a ordem da lista.
  */
 export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
   const { getSection } = useContent()
@@ -63,10 +64,6 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
       cat: section?.texts?.[`logo${i}Cat`] || '',
       // Link opcional para o site do apoiador. Vazio = o card não mostra link.
       url: section?.texts?.[`logo${i}Url`] || '',
-      bandOff: section?.texts?.[`logo${i}BandOff`] === '1',
-      // Sem valor gravado, cai na posição da própria lista — que é como a
-      // faixa sempre se comportou, antes de ganhar ordem própria.
-      bandPos: Number(section?.texts?.[`logo${i}BandPos`]) || i,
     })
   }
   // Ordem das categorias = ordem de aparição na lista (o admin controla).
@@ -75,107 +72,6 @@ export function useApoiadores(): { logos: Apoiador[]; categorias: string[] } {
   return { logos, categorias }
 }
 
-/* ── 1) Faixa contínua ──────────────────────────────────────────────────── */
-export const ApoiadoresBandV4: React.FC = () => {
-  const { getSection } = useContent()
-  const section = getSection('apoiadores')
-  const txt = criarTxt(section)
-  const { logos: todos } = useApoiadores()
-  // A faixa tem seleção E ordem próprias: o admin escolhe quais apoiadores
-  // sobem para cá e em que sequência desfilam, sem mexer na seção lá embaixo —
-  // onde a ordem da lista é o que define o agrupamento por categoria.
-  const logos = todos.filter((l) => !l.bandOff).sort((a, b) => a.bandPos - b.bandPos)
-  if (logos.length === 0) return null
-
-  // Título da faixa (Francis, slide 2). O texto anterior ("Empresas líderes
-  // que apoiam...") é tratado como legado: se o banco ainda tiver ele, cai no
-  // novo, para a LP não depender do seed.
-  const bandTitleCms = txt('bandTitle', '')
-  // Casamento EXATO com o texto legado do banco. Prefixo não serve: pegaria uma
-  // frase futura do Francis que comece igual, e o que ele escrever no admin
-  // ("Apoiadores > Faixa que rola no topo") tem que vencer.
-  const bandTitle =
-    !bandTitleCms || bandTitleCms.trim() === 'Empresas líderes que apoiam o Movimento Solar Buy-Side'
-      ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side'
-      : bandTitleCms
-  // A linha abaixo do carrossel. Em 03/08 ela deixou de contar os apoiadores
-  // e virou a ressalva de que eles não vendem o material (Francis, slide 2):
-  // é o MESMO lugar e o mesmo corpo de texto, não uma frase a mais.
-  const bandSubtitle =
-    txt('bandSubtitle', 'Elas não vendem os materiais nem participam da sua receita. O conteúdo é de responsabilidade exclusiva da Buy-Side Soluções.')
-
-  // A frase dos segmentos é quebrada em duas linhas no ":": a chamada em cima
-  // e os cinco segmentos juntos embaixo (Gabriel, 26/07). Sem o ":" o texto
-  // sai numa linha só, como antes.
-  const [bandLead, bandSegmentos] = (() => {
-    const i = bandSubtitle.indexOf(':')
-    if (i === -1) return [bandSubtitle, '']
-    return [bandSubtitle.slice(0, i + 1).trim(), bandSubtitle.slice(i + 1).trim()]
-  })()
-
-  /* Quantas vezes a lista se repete dentro de cada trilha.
-
-     Não dá para medir a tela: o HTML é congelado no build e o React hidrata
-     em cima dele, então o número precisa sair só de `logos.length`, igual no
-     servidor e no navegador. Estima ~190px por chip e mira 4.400px de
-     conteúdo, que cobre 4K com folga. Mínimo de 2 porque uma cópia só deixa a
-     volta com salto visível. */
-  const copias = Math.max(2, Math.ceil(4400 / Math.max(1, logos.length * 190)))
-  const desfile = Array.from({ length: copias }, () => logos).flat()
-
-  return (
-    // Sem fundo e sem bordas: o horizonte solar do Hero desce e emenda na
-    // seção seguinte, e qualquer faixa de cor cortaria essa continuidade.
-    <section className="relative bg-transparent py-12">
-      {/* Ponte do crepúsculo: a grade do Hero atravessa esta faixa inteira e
-          só começa a sumir na seção de Autores, logo abaixo. Como o v4-cells
-          é background-attachment:fixed, a fase casa sem emenda. */}
-      <SolarCells fade="full" />
-
-      <p className="v4-mono relative z-10 mb-7 px-6 text-center text-[14px] font-bold uppercase tracking-[0.3em] text-orange-400">
-        {bandTitle}
-      </p>
-
-      {/* Sem reverse: sentido do desfile invertido a pedido do Gabriel (26/07).
-
-          A lista é REPETIDA dentro de cada trilha (ver `copias`). A trilha tem
-          `min-width: 100%`: se a soma dos logos não passar da largura da tela,
-          ela estica e a sobra vira um buraco na emenda entre uma volta e a
-          outra. Era o que acontecia em monitor largo depois que o Francis
-          ocultou vários apoiadores: sobraram 6 logos, ~2.200px, e numa tela de
-          2.560px aparecia um vão do tamanho de um chip a cada ciclo. */}
-      {/* speed = duração de um ciclo, então número maior = desfile mais lento.
-          46s -> 58s a pedido do Gabriel (26/07). */}
-      <Marquee speed={58} className="v4-marquee-tight relative z-10">
-        <span className="flex items-center gap-6 whitespace-nowrap">
-          {desfile.map((logo, i) => (
-            // Chip branco por logo: vários são texto escuro (Huawei, LONGi,
-            // SolarView) e sumiriam no escuro. Filtro monocromático não serve
-            // porque BelEnergy/Fluke/Energy Channel já vêm com caixa sólida.
-            <span
-              key={i}
-              className="flex h-12 shrink-0 items-center justify-center rounded-lg bg-white/95 px-5 md:h-14 md:px-6"
-            >
-              <Img src={logo.src} alt={logo.name} loading="lazy" className="h-6 w-auto object-contain md:h-7" />
-            </span>
-          ))}
-        </span>
-      </Marquee>
-
-      {bandSubtitle && (
-        <p className="relative z-10 mx-auto mt-8 max-w-3xl px-6 text-center text-[15px] leading-relaxed text-slate-300">
-          {bandLead}
-          {bandSegmentos && (
-            // block: os cinco segmentos ficam sempre numa linha só, embaixo.
-            <span className="mt-1 block">{bandSegmentos}</span>
-          )}
-        </p>
-      )}
-    </section>
-  )
-}
-
-/* ── 2) Seção completa, por categoria, com card no hover/toque ──────────── */
 /* Card do apoiador (Francis, slide 16: "quando o visitante passa o mouse
    (desktop) ou toca (mobile), abrir um pequeno card").
 
@@ -272,16 +168,34 @@ export const ApoiadoresV4: React.FC = () => {
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side e contribuem para um novo padrão de profissionalismo, transparência e geração de valor no setor.'
       : subtitleCms
 
+  /* Dica de interação (Francis, 06/08, slide 7: "quando o lead chega neste
+     bloco, que um card abra com a mensagem: Passe o mouse ou toque nos
+     logos"). Não é um card sobreposto: um card que abre sozinho tapa
+     justamente os logos que ele manda tocar, e no mobile viraria um pop-up
+     para fechar. É um chip fixo ao lado do primeiro rótulo de categoria, no
+     caminho do olho antes da primeira fileira. Some se o campo for apagado. */
+  const dica = txt('hoverHint', 'Passe o mouse ou toque nos logos')
+
+  /* Ressalva legal que vivia embaixo do carrossel do topo. O carrossel saiu
+     (slide 3) e o texto NÃO: ele diz que os apoiadores não vendem o material
+     nem participam da receita, e some da LP junto com a faixa se ninguém o
+     trouxer. `bandSubtitle` é lido como legado para o texto que o Francis já
+     gravou no admin continuar no ar sem ele precisar redigitar. */
+  const disclaimer = txt(
+    'disclaimer',
+    txt('bandSubtitle', 'Elas não vendem os materiais nem participam da sua receita. O conteúdo é de responsabilidade exclusiva da Buy-Side Soluções.'),
+  )
+
   return (
-    // Respiro maior embaixo: com py simétrico a última fileira de logos
-    // encostava na seção seguinte (Gabriel, 27/07).
-    //
-    // O gradiente do topo é a emenda com o depoimento do Rodrigo, que virou a
-    // seção anterior na reordenação de 03/08. Ele é creme (#f2ece1, o ato
-    // "paper") e esta é branco-gelo (#f7f8fa, escolhido para os logos não
-    // puxarem para entardecer): sem a ponte, os dois claros se encostavam com
-    // uma linha visível de troca de temperatura.
-    <section className="bg-gradient-to-b from-[#f2ece1] via-[#f7f8fa] to-[#f7f8fa] bg-[length:100%_160px] bg-no-repeat px-6 pb-28 pt-20 text-slate-700 [background-color:#f7f8fa] md:pb-36 md:pt-24">
+    /* 4ª dobra, subindo por cima do ato escuro com o arco arredondado — o
+       mesmo movimento que os depoimentos e a oferta já fazem. Antes de 06/08
+       esta seção ficava no fim da LP, entre dois blocos claros, e o topo era
+       um degradê de creme para branco-gelo; aqui em cima ela nasce sobre o
+       "Para que servem", que é escuro, então o degradê saiu e entrou o arco.
+
+       O pb generoso é o espaço que a seção de Mentores ocupa ao subir por
+       cima desta com o próprio arco, escuro. */
+    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] px-6 pb-36 pt-24 text-slate-700 md:rounded-t-[4.5rem] md:pb-44 md:pt-32">
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-slate-900">
@@ -295,9 +209,17 @@ export const ApoiadoresV4: React.FC = () => {
         <div className="mt-12 space-y-10">
           {categorias.map((cat, ci) => (
             <Reveal key={cat} delay={120 + ci * 60}>
-              <h3 className="v4-mono border-b border-slate-200 pb-2.5 text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">
-                {cat}
-              </h3>
+              {/* A dica acompanha o PRIMEIRO rótulo de categoria: é onde o
+                  olho pousa antes de encontrar o primeiro logo. */}
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-slate-200 pb-2.5">
+                <h3 className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">{cat}</h3>
+                {ci === 0 && temConteudo(dica) && (
+                  <p className="v4-mono inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                    <Hand size={12} aria-hidden />
+                    {dica}
+                  </p>
+                )}
+              </div>
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {logos
                   .filter((l) => l.cat === cat)
@@ -308,6 +230,14 @@ export const ApoiadoresV4: React.FC = () => {
             </Reveal>
           ))}
         </div>
+
+        {temConteudo(disclaimer) && (
+          <Reveal delay={160}>
+            <p className="mt-14 max-w-3xl border-t border-slate-200 pt-6 text-[13px] leading-relaxed text-slate-500">
+              {disclaimer}
+            </p>
+          </Reveal>
+        )}
       </div>
     </section>
   )

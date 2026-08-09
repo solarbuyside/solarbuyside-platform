@@ -251,23 +251,10 @@ export const CtaArrow: React.FC<{ size?: number }> = ({ size = 18 }) => (
   <ArrowRight size={size} className="transition-transform duration-300 group-hover:translate-x-1" />
 )
 
-/* ── Marquee da marca (banda entre atos) ─────────────────────────────── */
-type MarqueeProps = {
-  children: React.ReactNode
-  speed?: number
-  reverse?: boolean
-  className?: string
-}
-
-export const Marquee: React.FC<MarqueeProps> = ({ children, speed = 36, reverse = false, className = '' }) => (
-  <div className={`v4-marquee ${reverse ? 'reverse' : ''} ${className}`} aria-hidden>
-    {[0, 1].map((i) => (
-      <div key={i} className="v4-marquee-track" style={{ ['--mq-speed' as string]: `${speed}s` }}>
-        {children}
-      </div>
-    ))}
-  </div>
-)
+/* O <Marquee> saiu daqui em 06/08 junto com o último lugar que o usava, a
+   faixa de logos abaixo do Hero (revisão do Francis, slide 3). O CSS
+   .v4-marquee* foi embora com ele. A cópia congelada da /1 tem os seus, em
+   src/v4-full/. */
 
 /* ── Selo circular girando (texto em círculo via SVG) ────────────────── */
 type StampProps = {

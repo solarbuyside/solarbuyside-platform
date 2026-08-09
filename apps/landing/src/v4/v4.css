@@ -351,31 +351,27 @@ html:not(.js) .v4-rise {
   background-size: 160px 160px;
 }
 
-/* ── Marquee (banda da marca entre atos) ────────────────────────────── */
-.v4-marquee {
-  display: flex;
-  overflow: hidden;
-  user-select: none;
+/* ── Tira horizontal de rolagem (páginas do índice do Manual) ──────────
+   Barra fina e discreta em vez da nativa, que no Windows é uma faixa cinza
+   grossa e some o contraste do ato escuro. `touch` no iOS mantém a inércia. */
+.v4-scroll-x {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 115, 22, 0.45) transparent;
 }
-
-.v4-marquee-track {
-  display: flex;
-  align-items: center;
-  gap: 3.5rem;
-  padding-right: 3.5rem;
-  flex-shrink: 0;
-  min-width: 100%;
-  animation: v4-marq var(--mq-speed, 36s) linear infinite;
+.v4-scroll-x::-webkit-scrollbar {
+  height: 6px;
 }
-
-.v4-marquee.reverse .v4-marquee-track {
-  animation-direction: reverse;
+.v4-scroll-x::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
 }
-
-@keyframes v4-marq {
-  to {
-    transform: translateX(-100%);
-  }
+.v4-scroll-x::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.45);
+  border-radius: 999px;
+}
+.v4-scroll-x:hover::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.7);
 }
 
 /* ── Borda cônica animada (painel do preço) ─────────────────────────── */
@@ -519,7 +515,6 @@ html:not(.js) .v4-rise {
   .v4-drip,
   .v4-dot::after,
   .v4-ring,
-  .v4-marquee-track,
   .v4-conic-frame::before,
   .v4-cells::after {
     animation: none;
@@ -584,15 +579,6 @@ html:not(.js) .v4-rise {
 @media (prefers-reduced-motion: reduce) {
   .v4-promo-glow { animation: none; }
   .v4-promo-glow::after { animation: none; opacity: 0; }
-}
-
-/* Faixa de logos (apoiadores): a emenda entre as duas cópias da trilha usava
-   o padding padrão de 3.5rem, muito maior que o gap entre os logos — abria um
-   buraco visível a cada volta. Aqui os dois valores são iguais, então o laço
-   não tem costura aparente. */
-.v4-marquee-tight .v4-marquee-track {
-  gap: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 /* Destaque do título da Autoridade. O título virou UM campo rich-text, e o

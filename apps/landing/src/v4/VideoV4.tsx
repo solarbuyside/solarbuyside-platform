@@ -1,9 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react'
 import { Play } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { comWebp, GrainOverlay, Reveal } from './atoms'
 import { track } from '../lib/analytics'
-import { criarTxt } from './cms'
+import { criarTxt, temConteudo } from './cms'
 
 /* ATO II — "SCREENING ROOM": sala de cinema (#050608). Lista-índice editorial
    dos 3 riscos com números fantasma que "acendem" no hover + player Wistia. */
@@ -35,6 +36,22 @@ export const VideoV4: React.FC = () => {
     }
     setTimeout(() => setPlayerReady(true), 800)
   }, [showPlayer])
+
+  /* Os três marcadores abaixo do título (Francis, 06/08, slide 10). Lista
+     aberta: o teto espelha os slots oferecidos no editor. Item vazio não
+     renderiza, então ele controla quantos aparecem sem passar por aqui. */
+  const MAX_BULLETS = 5
+  const bullets: string[] = []
+  for (let i = 1; i <= MAX_BULLETS; i++) {
+    const padrao =
+      [
+        'Os 3 riscos: integrador, tecnológico e financeiro',
+        'A solução: o Manual de Compra de Sistema Solar Buy-Side',
+        'O resultado: o comprador leigo vira comprador informado',
+      ][i - 1] ?? ''
+    const valor = txt(`bullet${i}`, padrao)
+    if (temConteudo(valor)) bullets.push(valor)
+  }
 
 
   /* O cabeçalho "Descubra o que o Manual ensina..." e os 3 cards (Os 3 grandes
@@ -69,6 +86,33 @@ export const VideoV4: React.FC = () => {
           <p className="v4-serif mx-auto mt-3 max-w-2xl text-xl text-slate-400 md:text-2xl">
             {txt('alertSubtitle', 'Não permita que isso aconteça com você.')}
           </p>
+
+          {/* Roteiro do vídeo em três marcadores (Francis, 06/08, slide 10:
+              "acrescentar abaixo do título"). É o índice do que os 4 minutos
+              cobrem: quem não vai clicar em play sai sabendo o argumento, e
+              quem vai clicar já sabe o que esperar.
+
+              Lista aberta (bullet1..N, vazios ignorados) para ele acrescentar
+              ou tirar um pelo admin sem pedir dev, igual às outras listas da
+              LP. Centralizada porque o cabeçalho do bloco inteiro é. */}
+          {bullets.length > 0 && (
+            <ul className="mx-auto mt-8 grid max-w-3xl gap-3 text-left sm:grid-cols-3">
+              {bullets.map((b, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3.5"
+                >
+                  <span
+                    className="mt-[0.45rem] h-2 w-2 shrink-0 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600"
+                    aria-hidden
+                  />
+                  <span className="text-[15px] leading-snug text-slate-300">
+                    <CMSText value={b} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Reveal>
 
         {/* Player */}

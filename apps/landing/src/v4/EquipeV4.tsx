@@ -72,13 +72,16 @@ export const EquipeV4: React.FC = () => {
   // A barra mais cara ocupa a trilha inteira; as demais, proporcional. Piso de
   // 7% para a última não virar um ponto invisível.
   const maior = Math.max(...linhas.map((l) => numero(l.valor)), 1)
-  const menor = Math.min(...linhas.map((l) => numero(l.valor)))
-  // Quanto o custo por pessoa cai da menor para a maior equipe. Calculado dos
-  // próprios valores dele: se ele editar a tabela no admin, o número segue.
-  const queda = maior > 0 ? Math.round((1 - menor / maior) * 100) : 0
   const capa = section?.images.teamImage || '/assets/coletiva-norm.png'
-  const primeira = linhas[0]
-  const ultima = linhas[linhas.length - 1]
+
+  /* Fecho do bloco (Francis, 06/08, slide 20: "acrescentar e destacar essa
+     frase abaixo da tabela"). É a ponte para a promo Belenergy que aparece
+     dentro da oferta, logo adiante: a régua mostra o quanto o custo por pessoa
+     cai, e esta linha diz que ainda cai mais. Some se o campo for apagado. */
+  const notaBelenergy = txt(
+    'teamNote',
+    'E tem mais economia: Integradoras Credenciadas <span class="cms-bold">Belenergy</span> garantem 15% OFF.',
+  )
 
 
   /* Respiro próprio no topo: a seção acima (apoiadores) tem o MESMO fundo
@@ -103,36 +106,10 @@ export const EquipeV4: React.FC = () => {
               </Reveal>
             )}
 
-            {/* O placar: o argumento inteiro em uma linha, antes da tabela.
-                Quem não ler as dez linhas já sai sabendo. Os três números
-                saem dos próprios dados, então acompanham o que ele editar. */}
-            {primeira && ultima && queda > 0 && (
-              <Reveal delay={130}>
-                <div className="mt-9 flex flex-wrap items-stretch gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200">
-                  {/* Sem risco no primeiro valor: R$ 399 não é preço antigo,
-                      é a opção da menor equipe. Os rótulos são as próprias
-                      linhas da tabela, então não inventam composição nenhuma. */}
-                  <div className="flex-1 bg-white px-5 py-4">
-                    <p className="v4-mono truncate text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
-                      {primeira.equipe}
-                    </p>
-                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-slate-500">{primeira.valor}</p>
-                  </div>
-                  <div className="flex-1 bg-white px-5 py-4">
-                    <p className="v4-mono truncate text-[9px] font-bold uppercase tracking-[0.16em] text-orange-500">
-                      {ultima.equipe}
-                    </p>
-                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-orange-600">{ultima.valor}</p>
-                  </div>
-                  <div className="flex-1 bg-white px-5 py-4">
-                    <p className="v4-mono text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
-                      Queda por pessoa
-                    </p>
-                    <p className="v4-mono mt-1.5 text-2xl font-bold tabular-nums text-slate-900">{`-${queda}%`}</p>
-                  </div>
-                </div>
-              </Reveal>
-            )}
+            {/* O placar de três números (R$ 399 / R$ 72 / -82%) que abria o
+                bloco saiu na revisão de 06/08 (slide 20): ele resumia a tabela
+                logo antes da própria tabela, e o Francis riscou o quadro
+                inteiro. A régua abaixo já conta a história sozinha. */}
 
             {/* Corpo e espacejamento menores no celular: a 390px os dois
                 rótulos se encostavam e viravam uma frase só. */}
@@ -143,10 +120,15 @@ export const EquipeV4: React.FC = () => {
               </div>
             </Reveal>
 
+            {/* Todas as linhas com o MESMO peso e a mesma cor (Francis, slide
+                20: "não destacar com cor diferente"). A última era negrito
+                laranja e maior, o que lia como "esta é a oferta" quando ela é
+                só o extremo da régua. A barra continua encolhendo, e é ela que
+                mostra a queda. */}
             <ul>
               {linhas.map((linha, i) => {
                 const largura = Math.max(7, (numero(linha.valor) / maior) * 100)
-                const destaque = i === linhas.length - 1
+                const ultima = i === linhas.length - 1
                 return (
                   <Reveal key={linha.equipe} delay={200 + i * 40}>
                     {/* A barra vive numa COLUNA própria, entre o rótulo e o
@@ -155,31 +137,17 @@ export const EquipeV4: React.FC = () => {
                         onde não há largura para ela dizer nada. */}
                     <li
                       className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-slate-200/70 py-2.5 md:grid-cols-[230px_minmax(0,1fr)_86px] md:gap-6 ${
-                        destaque ? 'border-b-0' : ''
+                        ultima ? 'border-b-0' : ''
                       }`}
                     >
-                      <span
-                        className={`text-[15px] md:text-base ${
-                          destaque ? 'font-bold text-slate-900' : 'text-slate-600'
-                        }`}
-                      >
-                        {linha.equipe}
-                      </span>
+                      <span className="text-[15px] text-slate-600 md:text-base">{linha.equipe}</span>
                       <span className="hidden h-1.5 w-full rounded-full bg-slate-200/80 md:block" aria-hidden>
                         <span
-                          className={`block h-full rounded-full ${
-                            destaque
-                              ? 'bg-gradient-to-r from-orange-500 to-orange-600'
-                              : 'bg-gradient-to-r from-amber-300 to-orange-400/70'
-                          }`}
+                          className="block h-full rounded-full bg-gradient-to-r from-amber-300 to-orange-400/70"
                           style={{ width: `${largura}%` }}
                         />
                       </span>
-                      <span
-                        className={`v4-mono shrink-0 text-right font-bold tabular-nums ${
-                          destaque ? 'text-lg text-orange-600 md:text-xl' : 'text-[15px] text-slate-800 md:text-base'
-                        }`}
-                      >
+                      <span className="v4-mono shrink-0 text-right text-[15px] font-bold tabular-nums text-slate-800 md:text-base">
                         {linha.valor}
                       </span>
                     </li>
@@ -187,6 +155,14 @@ export const EquipeV4: React.FC = () => {
                 )
               })}
             </ul>
+
+            {temConteudo(notaBelenergy) && (
+              <Reveal delay={240}>
+                <p className="mt-8 rounded-2xl border border-orange-500/30 bg-orange-500/[0.07] px-6 py-5 font-['Sora'] text-lg font-bold leading-snug text-slate-900 md:text-xl">
+                  <CMSText value={notaBelenergy} />
+                </p>
+              </Reveal>
+            )}
           </div>
 
           {/* Capa da Licença Coletiva, sticky, acompanhando a tabela inteira.

@@ -13,20 +13,33 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * eventos) está na MySQL do backend aposentado da Render.
  */
 
-/** Ordem narrativa real da LP — espelha SECTION_IDS de apps/landing/src/v4/AppV4.tsx. */
+/**
+ * Ordem narrativa real da LP — espelha SECTION_IDS de
+ * apps/landing/src/v4/AppV4.tsx. Se as duas divergirem, o relatório desenha um
+ * funil que sobe e desce em vez de cair: a leitura fica errada sem dar erro.
+ *
+ * Atualizada com a revisão de 06/08. Estava defasada desde 03/08 (mostrava
+ * "Autores" em 2º e "Plataforma" em 11º quando na página eram 5º e 2º).
+ *
+ * `audiencia` saiu: a seção "Para quem o Método foi desenvolvido" foi
+ * eliminada (slide 11). Não vale manter o degrau: um id que não existe mais na
+ * página fica em 0 sessões / 0% para sempre e finge uma queda de 100%.
+ */
 const SECOES: { id: string; label: string }[] = [
   { id: "hero", label: "Hero" },
-  { id: "authority", label: "Autores" },
+  { id: "plataforma", label: "Plataforma" },
+  { id: "proposito", label: "Para que servem" },
+  { id: "apoiadores", label: "Apoiadores" },
+  { id: "authority", label: "Mentores" },
   { id: "contexto", label: "Panorama" },
   { id: "video-section", label: "Vídeo" },
-  { id: "depoimento-lucas", label: "Depoimento Lucas" },
+  { id: "manual-strategic", label: "Manual e Código" },
   { id: "transformacao", label: "Transformação" },
-  { id: "audiencia", label: "Para Quem" },
-  { id: "manual-strategic", label: "Manual" },
   { id: "retorno", label: "Retorno" },
-  { id: "depoimentos", label: "Depoimentos" },
-  { id: "plataforma", label: "Plataforma" },
-  { id: "apoiadores", label: "Apoiadores" },
+  { id: "depoimento-lucas", label: "Depoimento Lucas" },
+  { id: "depoimentos", label: "Depoimento Rodrigo" },
+  { id: "compra-simples", label: "Compra simples" },
+  { id: "equipe", label: "Capacite seu time" },
   { id: "oferta", label: "Oferta" },
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contato" },

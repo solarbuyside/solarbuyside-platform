@@ -13,7 +13,6 @@ import {
   Images,
   Eye,
   EyeOff,
-  GalleryHorizontalEnd,
   GripVertical,
 } from "lucide-react";
 
@@ -22,27 +21,25 @@ import type { LandingSection } from "@/lib/landing/content-admin";
 import { MAX_LOGOS } from "@/lib/landing/field-schema";
 import { saveLandingSectionAction } from "./actions";
 import { ImageField } from "./image-field";
-import { previewSrc } from "@/lib/landing/preview-url";
 
 /**
  * Editor dos logos de "Apoiadores institucionais" (Francis, revisão 22-23/07).
  *
- * Uma lista só alimenta dois lugares da página: a faixa que rola abaixo do Hero
- * e a seção de apoiadores, agrupada por categoria. Por isso o editor tem duas
- * visões da MESMA lista (prop `view`):
+ * A lista alimenta UM lugar da página: a seção de apoiadores, agrupada por
+ * categoria (4ª dobra desde a revisão de 06/08). A visão `{ kind: "cat" }`
+ * edita uma categoria ou "todas"; a ordem das categorias na página é a ordem em
+ * que elas aparecem nesta lista.
  *
- *  - `{ kind: "cat" }`  — edição por categoria (ou "todas"). É onde se cadastra
- *    o logo, escolhe a categoria e define a ordem. A ordem das categorias na
- *    página é a ordem em que elas aparecem nesta lista.
- *  - `{ kind: "band" }` — só escolhe quem sobe para a faixa do topo. Nenhum
- *    cadastro aqui, é uma tela de marcar/desmarcar.
+ * Até 06/08 existia uma segunda visão, `{ kind: "band" }`, para escolher quem
+ * subia para a faixa de logos que rolava abaixo do Hero e em que ordem. A faixa
+ * foi eliminada (slide 3) e a visão saiu junto: sem faixa, marcar "na faixa" ou
+ * "fora" não faria nada em lugar nenhum. As chaves logoNBandOff/logoNBandPos
+ * ficaram órfãs no banco e deixaram de ser lidas e escritas.
  *
- * Dois níveis de visibilidade, de propósito:
- *  - `hidden`  → guardado, fora dos dois lugares (marca sem autorização de uso).
- *  - `bandOff` → na seção sim, na faixa não.
+ * `hidden` continua: logo guardado, fora do ar (marca sem autorização de uso).
  *
- * Grava como logo{i}Src (images) + logo{i}Name/Cat/Desc/Url/Hidden/BandOff
- * (texts), renumerando do zero a cada salvamento — mesma mecânica do editor de
+ * Grava como logo{i}Src (images) + logo{i}Name/Cat/Desc/Url/Hidden (texts),
+ * renumerando do zero a cada salvamento — mesma mecânica do editor de
  * depoimentos. O componente fica montado ao trocar de visão, então mudança não
  * salva numa categoria não se perde ao olhar outra.
  */
@@ -55,12 +52,9 @@ type Logo = {
   desc: string;
   url: string;
   hidden: boolean;
-  bandOff: boolean;
-  /** Posição na faixa do topo. A faixa tem ordem própria (logoNBandPos). */
-  bandPos: number;
 };
 
-export type LogosView = { kind: "cat"; cat: string | null } | { kind: "band" };
+export type LogosView = { kind: "cat"; cat: string | null };
 
 const blank: Logo = {
   src: "",
@@ -69,8 +63,6 @@ const blank: Logo = {
   desc: "",
   url: "",
   hidden: false,
-  bandOff: false,
-  bandPos: 0,
 };
 
 const SEM_CATEGORIA = "Sem categoria";
@@ -92,10 +84,6 @@ function parseLogos(section: LandingSection): Logo[] {
       desc: t[`logo${i}Desc`] ?? "",
       url: t[`logo${i}Url`] ?? "",
       hidden: t[`logo${i}Hidden`] === "1",
-      bandOff: t[`logo${i}BandOff`] === "1",
-      // Sem valor gravado, cai na posição da própria lista — que é como a
-      // faixa se comportava antes de ganhar ordem própria.
-      bandPos: Number(t[`logo${i}BandPos`]) || i,
     });
   }
   return logos;
@@ -138,17 +126,6 @@ export function LogosEditor({
 
   /** Índices (na lista completa) que a visão atual mostra. */
   const visiveis = React.useMemo(() => {
-    if (view.kind === "band") {
-      // A faixa só oferece quem não está guardado — logo oculto não vai a
-      // lugar nenhum, marcá-lo aqui não teria efeito e só confundiria.
-      // Ordena por bandPos: a faixa tem ordem PRÓPRIA, independente da ordem
-      // da lista (que é o que agrupa as categorias na seção de baixo).
-      return logos
-        .map((l, i) => [l, i] as const)
-        .filter(([l]) => !l.hidden)
-        .sort((a, b) => (a[0].bandPos || a[1] + 1) - (b[0].bandPos || b[1] + 1))
-        .map(([, i]) => i);
-    }
     if (view.cat == null) return logos.map((_, i) => i);
     return logos.map((l, i) => [l, i] as const).filter(([l]) => catDe(l) === view.cat).map(([, i]) => i);
   }, [logos, view]);
@@ -159,7 +136,7 @@ export function LogosEditor({
   /** Novo logo já nasce na categoria da visão aberta. */
   const add = () =>
     setLogos((ls) => {
-      const cat = view.kind === "cat" && view.cat && view.cat !== SEM_CATEGORIA ? view.cat : "";
+      const cat = view.cat && view.cat !== SEM_CATEGORIA ? view.cat : "";
       const novo = { ...blank, cat };
       if (!cat) return [...ls, novo];
       // Entra logo depois do último da mesma categoria, para não quebrar o
@@ -186,10 +163,9 @@ export function LogosEditor({
   /**
    * Move o item da posição `de` para a posição `para`, DENTRO da visão atual.
    *
-   * Na faixa isso reescreve só o bandPos: arrastar ali não pode reembaralhar a
-   * seção de baixo, onde a ordem da lista é o que agrupa as categorias.
-   * Nas categorias, mexe na lista mesmo — mas só entre vizinhos da própria
-   * categoria, senão o logo saltaria para o meio de outro grupo.
+   * Mexe na lista mesmo, mas só entre vizinhos da própria categoria: senão o
+   * logo saltaria para o meio de outro grupo, já que é a ordem da lista que
+   * define o agrupamento na página.
    */
   const reordenar = (de: number, para: number) => {
     if (de === para || para < 0 || para >= visiveis.length) return;
@@ -197,15 +173,6 @@ export function LogosEditor({
     const [movido] = nova.splice(de, 1);
     nova.splice(para, 0, movido);
 
-    if (view.kind === "band") {
-      setLogos((ls) =>
-        ls.map((l, idx) => {
-          const p = nova.indexOf(idx);
-          return p === -1 ? l : { ...l, bandPos: p + 1 };
-        }),
-      );
-      return;
-    }
     setLogos((ls) => {
       const copy = [...ls];
       // Os mesmos slots da visão, agora preenchidos na ordem nova.
@@ -234,8 +201,6 @@ export function LogosEditor({
           texts[`logo${i}Desc`] = l.desc.trim();
           texts[`logo${i}Url`] = l.url.trim();
           texts[`logo${i}Hidden`] = l.hidden ? "1" : "";
-          texts[`logo${i}BandOff`] = l.bandOff ? "1" : "";
-          texts[`logo${i}BandPos`] = String(l.bandPos || i);
         });
 
         // Zera as posições que sobraram. Apagar a chave não basta: a landing
@@ -250,8 +215,6 @@ export function LogosEditor({
           texts[`logo${i}Desc`] = "";
           texts[`logo${i}Url`] = "";
           texts[`logo${i}Hidden`] = "";
-          texts[`logo${i}BandOff`] = "";
-          texts[`logo${i}BandPos`] = "";
         }
 
         await saveLandingSectionAction("apoiadores", texts, images);
@@ -262,19 +225,6 @@ export function LogosEditor({
         setState("error");
       }
     });
-  }
-
-  if (view.kind === "band") {
-    return (
-      <BandView
-        logos={logos}
-        indices={visiveis}
-        onToggle={(i) => update(i, "bandOff", !logos[i].bandOff)}
-        onReorder={reordenar}
-        state={state}
-        onSave={save}
-      />
-    );
   }
 
   const titulo = view.cat == null ? "Todos os logos" : view.cat;
@@ -359,11 +309,6 @@ export function LogosEditor({
                   {logo.hidden && (
                     <span className="rounded bg-slate-200 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-slate-500">
                       Oculto
-                    </span>
-                  )}
-                  {!logo.hidden && logo.bandOff && (
-                    <span className="rounded bg-slate-100 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-slate-400">
-                      Fora da faixa
                     </span>
                   )}
                 </span>
@@ -462,182 +407,6 @@ export function LogosEditor({
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * Visão "Faixa do topo": marcar/desmarcar quem sobe para a faixa.
- *
- * Sem campos de cadastro de propósito — aqui ele só escolhe. Editar nome,
- * imagem ou categoria continua sendo nas visões por categoria, para não haver
- * dois lugares que fazem a mesma coisa.
- */
-function BandView({
-  logos,
-  indices,
-  onToggle,
-  onReorder,
-  state,
-  onSave,
-}: {
-  logos: Logo[];
-  indices: number[];
-  onToggle: (i: number) => void;
-  onReorder: (de: number, para: number) => void;
-  state: SaveState;
-  onSave: () => void;
-}) {
-  const naFaixa = indices.filter((i) => !logos[i].bandOff).length;
-  // Posição sendo arrastada e posição sob o cursor (para a linha-guia).
-  const [arrastando, setArrastando] = React.useState<number | null>(null);
-  const [alvo, setAlvo] = React.useState<number | null>(null);
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
-        <div className="min-w-0">
-          <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-            <GalleryHorizontalEnd className="h-4 w-4 shrink-0 text-primary" />
-            Faixa de apoiadores (topo)
-          </h3>
-          <p className="mt-0.5 text-xs text-slate-500">
-            {naFaixa} de {indices.length} na faixa que rola abaixo do topo.
-          </p>
-          <p className="mt-1.5 text-[11px] leading-snug text-slate-400">
-            Arraste pela alça{" "}
-            <GripVertical className="inline h-3 w-3 -translate-y-px text-slate-400" /> para mudar a
-            ordem do desfile. O botão liga e desliga cada logo. Tirar da faixa{" "}
-            <span className="font-semibold text-slate-500">não</span> tira da seção lá embaixo, e a
-            ordem daqui não mexe na ordem de lá.
-          </p>
-        </div>
-        <SaveButton state={state} onClick={onSave} />
-      </div>
-
-      <div className="p-6">
-        {indices.length === 0 ? (
-          <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
-            Nenhum apoiador ativo. Cadastre em “Apoiadores institucionais”.
-          </p>
-        ) : (
-          <ul className="grid gap-2">
-            {indices.map((i, pos) => {
-              const logo = logos[i];
-              const on = !logo.bandOff;
-              return (
-                <li
-                  key={i}
-                  draggable
-                  onDragStart={() => setArrastando(pos)}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    if (alvo !== pos) setAlvo(pos);
-                  }}
-                  onDragEnd={() => {
-                    setArrastando(null);
-                    setAlvo(null);
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (arrastando != null) onReorder(arrastando, pos);
-                    setArrastando(null);
-                    setAlvo(null);
-                  }}
-                  className={cn(
-                    "flex items-center gap-3 rounded-xl border p-3 transition-all",
-                    on ? "border-primary/40 bg-primary/5" : "border-slate-200 bg-slate-50/60",
-                    arrastando === pos && "opacity-40",
-                    alvo === pos && arrastando != null && arrastando !== pos && "ring-2 ring-primary/50",
-                  )}
-                >
-                  {/* Alça: dá o "isto se arrasta" sem precisar de legenda, e é
-                      onde o cursor vira grab. As setas ficam como alternativa —
-                      arrastar não funciona bem em toque nem no teclado. */}
-                  <span
-                    className="flex shrink-0 cursor-grab items-center text-slate-300 transition-colors hover:text-slate-500 active:cursor-grabbing"
-                    title="Arraste para reordenar"
-                  >
-                    <GripVertical className="h-4 w-4" />
-                  </span>
-
-                  <span className="w-5 shrink-0 text-right text-[11px] font-semibold tabular-nums text-slate-400">
-                    {pos + 1}
-                  </span>
-
-                  <span className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white">
-                    {logo.src ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={previewSrc(logo.src)} alt="" className="h-full w-full object-contain p-1" />
-                    ) : (
-                      <span className="text-[9px] text-slate-300">sem img</span>
-                    )}
-                  </span>
-
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-slate-800">
-                      {logo.name || "(sem nome)"}
-                    </span>
-                    <span className="block truncate text-[11px] text-slate-400">
-                      {logo.cat || SEM_CATEGORIA}
-                    </span>
-                  </span>
-
-                  <div className="flex shrink-0 items-center gap-0.5">
-                    <IconBtn label="Subir" onClick={() => onReorder(pos, pos - 1)} disabled={pos === 0}>
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </IconBtn>
-                    <IconBtn
-                      label="Descer"
-                      onClick={() => onReorder(pos, pos + 1)}
-                      disabled={pos === indices.length - 1}
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </IconBtn>
-                  </div>
-
-                  <Toggle on={on} onChange={() => onToggle(i)} label={on ? "Na faixa" : "Fora"} />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/** Interruptor. Um selo clicável não parecia clicável — isto parece. */
-function Toggle({ on, onChange, label }: { on: boolean; onChange: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      onClick={onChange}
-      className="flex shrink-0 items-center gap-2"
-    >
-      <span
-        className={cn(
-          "relative h-5 w-9 rounded-full transition-colors",
-          on ? "bg-primary" : "bg-slate-300",
-        )}
-      >
-        <span
-          className={cn(
-            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all",
-            on ? "left-[18px]" : "left-0.5",
-          )}
-        />
-      </span>
-      <span
-        className={cn(
-          "w-12 text-[10px] font-bold uppercase tracking-wide",
-          on ? "text-primary" : "text-slate-400",
-        )}
-      >
-        {label}
-      </span>
-    </button>
   );
 }
 

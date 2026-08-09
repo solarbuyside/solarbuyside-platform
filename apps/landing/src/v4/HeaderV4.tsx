@@ -7,13 +7,19 @@ import { criarTxt } from './cms'
 
 /* Na MESMA ordem em que as seções aparecem na página (ver SECTION_IDS no
    AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
-   navegação, e o indicador de progresso do topo anda ao contrário. */
+   navegação, e o indicador de progresso do topo anda ao contrário.
+
+   Reordenado em 06/08 junto com a página: Mentores subiu para antes do
+   Panorama. E "Para Quem" deixou de apontar para `#audiencia`, que não existe
+   mais (a seção foi eliminada, slide 11): a resposta agora vive no fim da
+   Transformação, em três linhas (slide 15). Sem essa troca o item viraria um
+   link morto no menu. */
 const NAV_ITEMS = [
   { href: '#plataforma', label: 'Plataforma' },
+  { href: '#autor', label: 'Mentor' },
   { href: '#contexto', label: 'Panorama' },
   { href: '#video-section', label: 'Vídeo' },
-  { href: '#autor', label: 'Mentor' },
-  { href: '#audiencia', label: 'Para Quem' },
+  { href: '#transformacao', label: 'Para Quem' },
   { href: '#faq', label: 'FAQ' },
 ]
 
@@ -213,7 +219,12 @@ export const FloatingCTAV4: React.FC = () => {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       }}
-      className={`fixed bottom-6 right-6 z-40 hidden max-w-[330px] items-center gap-4 rounded-full border border-white/10 bg-[#0a0c12]/95 py-2.5 pl-3 pr-6 text-slate-50 shadow-[0_24px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-500 md:flex ${
+      /* Menor no desktop desde 06/08 (Francis, slide 1: "formato computador:
+         reduzir o tamanho do CTA flutuante"). A pastilha ocupava 330px de
+         largura e ~68px de altura no canto de toda a rolagem; agora vai a
+         268px e ~54px. Encolheu a moldura e a tipografia, não o alvo de
+         clique, que continua confortável. */
+      className={`fixed bottom-5 right-5 z-40 hidden max-w-[268px] items-center gap-3 rounded-full border border-white/10 bg-[#0a0c12]/95 py-2 pl-2 pr-5 text-slate-50 shadow-[0_20px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-500 md:flex ${
         isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
       }`}
       aria-hidden={!isVisible}
@@ -222,14 +233,14 @@ export const FloatingCTAV4: React.FC = () => {
       // reportava como "aria-hidden element must not be focusable".
       tabIndex={isVisible ? undefined : -1}
     >
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
-        <ArrowRight size={19} />
+      <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
+        <ArrowRight size={16} />
       </span>
       <span className="min-w-0">
-        <span className="v4-mono block text-[9px] font-bold uppercase tracking-[0.24em] text-orange-300">
+        <span className="v4-mono block text-[8px] font-bold uppercase tracking-[0.2em] text-orange-300">
           Manual Solar Buy-Side
         </span>
-        <span className="block text-sm font-extrabold leading-tight text-slate-50">
+        <span className="block text-[13px] font-extrabold leading-tight text-slate-50">
           {txt('ctaButton', 'Garantir meu acesso agora')}
         </span>
       </span>

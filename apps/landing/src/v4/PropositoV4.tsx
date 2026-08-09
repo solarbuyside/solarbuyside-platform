@@ -47,7 +47,9 @@ export const PropositoV4: React.FC = () => {
     <section className="relative bg-[#07090d] text-white antialiased">
       <SolarCells fade="center" />
 
-      <div className="relative z-10 mx-auto max-w-5xl px-6 py-20 md:py-28">
+      {/* pb generoso: a seção de Apoiadores sobe por cima desta com o arco
+          arredondado (-mt-20) e comeria o respiro do último item da escada. */}
+      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-40 pt-20 md:pb-48 md:pt-28">
         {temConteudo(kicker) && (
           <Reveal>
             <Kicker tone="dark">{kicker}</Kicker>

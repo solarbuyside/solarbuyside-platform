@@ -235,6 +235,31 @@ const CAMPOS_NOVOS = {
   },
 }
 
+/* Seção NOVA da revisão de 06/08 (slide 19). Precisa de linha própria em
+   landing_sections: o /admin lista só o que existe no banco, e o Salvar é
+   UPDATE (não upsert), então sem a linha o editor nem mostra a seção e um
+   eventual save falharia em silêncio.
+
+   Os textos são os mesmos defaults do componente (CompraSimplesV4.tsx) — a LP
+   não depende deste seed para ficar certa; o seed é o que dá ao Francis a
+   caixa de edição já preenchida em vez de vazia. */
+const COMPRA_SIMPLES = {
+  nome: 'Compra simples',
+  texts: {
+    title: 'Compra simples. Acesso imediato. Suporte garantido.',
+    subtitle: 'Tudo o que você precisa saber antes de comprar:',
+    item1Title: 'Acesso aos materiais',
+    item1Text:
+      'Após a confirmação do pagamento, você recebe por e-mail, em poucos minutos, o <span class="cms-bold">Manual Solar Buy-Side</span> e o <span class="cms-bold">Código do Vendedor Consultivo</span>, ambos em PDF. A compra também libera <span class="cms-bold">acesso vitalício à Plataforma de Avaliação de Propostas</span>.',
+    item2Title: 'Prazo de entrega',
+    item2Text:
+      '<span class="cms-bold">É digital e imediato.</span> Confirmado o pagamento, os materiais e as instruções de acesso são enviados automaticamente para o seu e-mail.',
+    item3Title: 'Suporte',
+    item3Text:
+      'Teve alguma dúvida ou problema com a compra, recebimento ou acesso? <span class="cms-bold">Nossa equipe está disponível pelo WhatsApp para ajudar.</span>',
+  },
+}
+
 /* ── aplicação ───────────────────────────────────────────────────────── */
 
 async function pegarSecao(id) {
@@ -294,6 +319,7 @@ await criar('testimonial-lucas', LUCAS.nome, LUCAS.texts, LUCAS.images)
 await criar('transformacao', TRANSFORMACAO.nome, TRANSFORMACAO.texts, TRANSFORMACAO.images)
 await criar('retorno', RETORNO.nome, RETORNO.texts, RETORNO.images)
 await criar('apoiadores', 'Apoiadores Institucionais', apoiadoresTexts, apoiadoresImages)
+await criar('compra-simples', COMPRA_SIMPLES.nome, COMPRA_SIMPLES.texts)
 for (const [id, s] of Object.entries(CAMPOS_NOVOS)) await criar(id, s.nome, s.texts, s.images ?? {})
 
 console.log('\nPronto.', DRY ? '(nada foi gravado)' : 'Confira em /admin/landing.')

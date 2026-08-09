@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, CheckCircle2, Lock as LockIcon, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, CheckCircle2, Lock as LockIcon, ShieldCheck, Sparkles } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { CMSText } from '../components/CMSText'
@@ -101,6 +101,27 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   )
   const promoLogo = section?.images.promoLogo || '/assets/apoiadores/belenergy.png'
 
+  /* Link do formulário de credenciamento da Belenergy (Francis, 06/08, slide
+     22). O botão "Clique aqui" desta caixa já existiu e saiu em 26/07 porque
+     não levava a lugar nenhum e competia com o CTA de compra logo abaixo.
+     Volta agora com URL de verdade e em traço, não preenchido: quem está sem
+     cupom precisa dele, e quem não está não pode ser desviado da compra.
+
+     INTERRUPTOR (pedido dele no mesmo slide): `promoCtaEnabled = "0"` desliga
+     sem deploy. Apagar o rótulo ou a URL no admin também desliga, que é o
+     idioma que o resto do editor já usa. */
+  const PADRAO_CTA_LABEL = 'Formulário para cadastro (Clique aqui)'
+  const labelCms = txt('promoCtaLabel', PADRAO_CTA_LABEL)
+  // "Clique aqui" é o rótulo do botão de 26/07, que continua gravado no banco.
+  // Sozinho ele não diz para onde leva; o Francis pediu o nome do destino
+  // ("formulário para cadastro"). Tratado como legado, não como escolha dele.
+  const promoCtaLabel = labelCms.trim() === 'Clique aqui' ? PADRAO_CTA_LABEL : labelCms
+  // `promoUrl` guarda ESTA MESMA URL desde o botão antigo. Ler as duas evita
+  // que o link nasça vazio esperando ele redigitar o que já está lá.
+  const promoCtaUrl = txt('promoCtaUrl', txt('promoUrl', 'https://belenergy.com.br/seja-um-integrador-credenciado/'))
+  const promoCtaLigado =
+    section?.texts.promoCtaEnabled?.trim() !== '0' && temConteudo(promoCtaLabel) && temConteudo(promoCtaUrl)
+
   const productCards: ProductCard[] = [
     {
       tag: txt('card1Tag', 'MANUAL PRINCIPAL'),
@@ -121,13 +142,21 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       variant: 'default',
     },
     {
-      tag: txt('cardPlatformTag', 'BÔNUS ESPECIAL'),
+      /* Deixou de ser "BÔNUS ESPECIAL" (Francis, 06/08, slide 21). A
+         Plataforma é entregável do kit, não brinde: no Hero ela já se chamava
+         "FERRAMENTA EXCLUSIVA" e aqui dizia outra coisa. Com `variant`
+         default, o selo laranja girado também some deste card. O legado é
+         tratado para o banco não devolver a etiqueta antiga ao ar. */
+      tag:
+        section?.texts.cardPlatformTag?.trim() === 'BÔNUS ESPECIAL'
+          ? 'FERRAMENTA EXCLUSIVA'
+          : txt('cardPlatformTag', 'FERRAMENTA EXCLUSIVA'),
       title: txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial'),
       desc:
         txt('cardPlatformDesc', 'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.'),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
       imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
-      variant: 'bonus',
+      variant: 'default',
       wide: true,
     },
     {
@@ -307,7 +336,11 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                   </span>
                 )}
 
-                {isBonus && (
+                {/* O selo girado acompanha a etiqueta: apagar `card3Tag` no
+                    admin tira os dois do ar de uma vez. Antes o selo era texto
+                    fixo no código e sobrevivia ao campo apagado, que é a
+                    reclamação que o Francis já trouxe três vezes. */}
+                {isBonus && temConteudo(card.tag) && (
                   <span className="v4-mono absolute -top-4 z-10 rotate-[-3deg] rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.22em] text-white shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
                     Bônus Especial
                   </span>
@@ -348,7 +381,13 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                     tem heading intermediário — pular para h4 quebrava a ordem
                     da árvore. O tamanho vem das classes, então nada muda visualmente. */}
                 <h3 className="mt-2 font-['Sora'] text-lg font-bold text-white">{card.title}</h3>
-                <p className="mt-2 max-w-[300px] text-sm leading-relaxed text-slate-400">{card.desc}</p>
+                {/* Sem parágrafo fantasma: com a descrição apagada no admin, o
+                    <p> vazio continuava ocupando altura e desalinhava o card
+                    dos vizinhos. É o "o texto desapareceu" do slide 21 visto do
+                    lado do layout; o texto em si volta redigitando no admin. */}
+                {temConteudo(card.desc) && (
+                  <p className="mt-2 max-w-[300px] text-sm leading-relaxed text-slate-400">{card.desc}</p>
+                )}
               </Reveal>
             )
           })}
@@ -433,9 +472,18 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                       <CMSText value={promoNote} />
                     </p>
                   )}
-                  {/* O botão "Clique aqui" saiu (Gabriel, 26/07): o único
-                      botão deste bloco é o CTA 6 de compra, logo abaixo. Dois
-                      botões colados competiam entre si. */}
+
+                  {promoCtaLigado && (
+                    <a
+                      href={promoCtaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group mx-auto mt-5 flex w-full max-w-md items-center justify-center gap-2.5 rounded-xl border border-orange-500/45 bg-orange-500/[0.06] px-5 py-3 text-sm font-bold text-orange-200 transition-colors duration-300 hover:border-orange-400 hover:bg-orange-500/15 hover:text-white"
+                    >
+                      {promoCtaLabel}
+                      <ArrowUpRight size={16} className="shrink-0 transition-transform group-hover:-translate-y-0.5" />
+                    </a>
+                  )}
                 </div>
               )}
 

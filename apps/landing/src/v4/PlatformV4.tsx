@@ -1,9 +1,10 @@
 ﻿import React from 'react'
 import { Trophy, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
+import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
-import { criarTxt } from './cms'
+import { criarTxt, temConteudo } from './cms'
 
 /* PLATAFORMA DE AVALIAÇÃO — bloco reescrito conforme os slides do Francis
    (2026-06): copy virada pro vendedor ("sua proposta tem nota; teste antes que
@@ -11,7 +12,10 @@ import { criarTxt } from './cms'
    Estrutura da tabela (decisão do Francis):
    - índices por grupo + Índice de Confiabilidade, todos /100;
    - SEM as sub-linhas decimais "nota /10";
-   - Viabilidade é informativa → mostra "/" no lugar de um número;
+   - SEM a linha de Viabilidade (removida em 06/08, slide 5): ela existia só
+     para mostrar "/" em todas as colunas, dizendo que é informativa e não
+     pontua. Seis células vazias explicando uma ausência custavam mais atenção
+     do que informavam;
    - Decisão do comprador: só a maior nota total sai como VENCEDORA e as
      demais como descartadas (Francis, 03/08);
    - Escala de risco abaixo da tabela, em tamanho menor e na régua /100;
@@ -89,9 +93,17 @@ const DecisionTag: React.FC<{ winner: boolean }> = ({ winner }) =>
     </span>
   )
 
-/* Célula de dado padrão, com leve realce na coluna da vencedora */
+/* Realce da coluna vencedora (Francis, 06/08, slide 5: "destacar com fundo
+   laranjado"). Era `bg-orange-500/[0.04]`, praticamente invisível: no print
+   que ele mandou ele precisou desenhar um retângulo vermelho à mão em volta
+   das células para mostrar de qual coluna estava falando. Agora é fundo a 10%
+   mais fios laterais, que é o que faz o olho ler uma COLUNA e não seis células
+   soltas. Os fios ficam só nas células de dado; o cabeçalho e as duas linhas
+   de fecho têm regra própria mais abaixo. */
+const COL_VENCEDORA = 'bg-orange-500/[0.10] border-x border-orange-500/25'
+
 const fin = (i: number, extra = '') =>
-  `px-3 py-2.5 text-center ${colCls(i)} ${WINNERS.has(i) ? `bg-orange-500/[0.04] ${extra}` : extra}`
+  `px-3 py-2.5 text-center ${colCls(i)} ${WINNERS.has(i) ? `${COL_VENCEDORA} ${extra}` : extra}`
 
 const ScoreTableExample: React.FC = () => (
   <Window title="Plataforma · Pontuação Geral · exemplo real">
@@ -106,7 +118,9 @@ const ScoreTableExample: React.FC = () => (
               <th
                 key={c}
                 className={`min-w-[104px] px-3 py-3 text-center text-[11px] font-bold ${colCls(i)} ${
-                  WINNERS.has(i) ? 'text-orange-300' : 'text-slate-400'
+                  WINNERS.has(i)
+                    ? 'rounded-t-lg border-x border-t border-orange-500/25 bg-orange-500/[0.10] text-orange-300'
+                    : 'text-slate-400'
                 }`}
               >
                 {c}
@@ -147,26 +161,18 @@ const ScoreTableExample: React.FC = () => (
             ))}
           </tr>
 
-          {/* Viabilidade — informativa, não pontua (mostra "/") */}
-          <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5">
-              <span className="font-medium text-slate-300">Viabilidade</span>
-              <span className="block text-[9px] text-slate-600">informativa, não pontua</span>
-            </td>
-            {COMPANIES.map((_, i) => (
-              <td key={i} className={fin(i, 'text-slate-500')}>
-                /
-              </td>
-            ))}
-          </tr>
-
           {/* Índice de Confiabilidade Solar Buy-Side (destaque) */}
           <tr className="border-t border-white/10 bg-orange-500/[0.06]">
             <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-orange-300">
               Índice de Confiabilidade
             </td>
             {CONFIABILIDADE.map((v, i) => (
-              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${WINNERS.has(i) ? 'bg-orange-500/[0.09]' : ''}`}>
+              <td
+                key={i}
+                className={`px-3 py-3 text-center ${colCls(i)} ${
+                  WINNERS.has(i) ? 'border-x border-orange-500/25 bg-orange-500/[0.16]' : ''
+                }`}
+              >
                 <span className={`font-['Sora'] text-lg font-extrabold ${WINNERS.has(i) ? 'text-orange-400' : 'text-slate-300'}`}>
                   {v}
                 </span>
@@ -181,7 +187,12 @@ const ScoreTableExample: React.FC = () => (
               Decisão do comprador
             </td>
             {COMPANIES.map((_, i) => (
-              <td key={i} className={`px-3 py-3 text-center ${colCls(i)} ${WINNERS.has(i) ? 'bg-orange-500/[0.04]' : ''}`}>
+              <td
+                key={i}
+                className={`px-3 py-3 text-center ${colCls(i)} ${
+                  WINNERS.has(i) ? 'rounded-b-lg border-x border-b border-orange-500/25 bg-orange-500/[0.10]' : ''
+                }`}
+              >
                 <DecisionTag winner={WINNERS.has(i)} />
               </td>
             ))}
@@ -213,11 +224,40 @@ export const PlatformV4: React.FC = () => {
   const txt = criarTxt(section)
 
   const badge = txt('badge', 'Bônus Exclusivo')
-  const title = txt('title', 'No Buy-Side sua proposta comercial tem nota.')
-  const titleHighlight =
-    txt('titleHighlight', 'Teste suas propostas antes que o mercado as teste.')
+
+  /* TÍTULO EM DUAS CORES (Francis, 06/08, slide 5: "a segunda parte do título
+     deve ser de cor branca").
+
+     Até aqui era o contrário: `title` saía branco e `titleHighlight` saía
+     laranja serifado. As cores trocaram de campo, não de posição: a PRIMEIRA
+     parte é o gancho em laranja serifada e a SEGUNDA é a continuação em
+     branco.
+
+     LEGADO: no banco ele escreveu a frase INTEIRA em `titleHighlight` e
+     deixou `title` vazio (foi o que o print dele mostrou, com o título todo
+     laranja). Trocar as cores sem tratar isso deixaria o título inteiro
+     branco. Então, quando só o segundo campo tem texto, a frase é partida no
+     fim da primeira sentença: o gancho vai para o laranja e o resto para o
+     branco. Quando ele preencher os dois campos, este ramo nunca roda. */
+  const tituloCms = txt('title', '')
+  const destaqueCms = txt('titleHighlight', '')
+  const [tituloLaranja, tituloBranco] = (() => {
+    if (temConteudo(tituloCms) || temConteudo(destaqueCms)) {
+      if (temConteudo(tituloCms)) return [tituloCms, destaqueCms]
+      // Só o segundo campo preenchido: parte no primeiro ponto final.
+      const ponto = destaqueCms.indexOf('. ')
+      if (ponto === -1) return [destaqueCms, '']
+      return [destaqueCms.slice(0, ponto + 1).trim(), destaqueCms.slice(ponto + 1).trim()]
+    }
+    return ['Sua proposta tem nota.', 'Do seu concorrente também.']
+  })()
+
   const lead =
     txt('lead', 'A Plataforma de Avaliação Solar Buy-Side revela as forças e fraquezas das suas ofertas, ajudando sua empresa a entregar propostas mais competitivas, confiáveis e persuasivas.')
+  const legenda = txt(
+    'tableCaption',
+    'Seis propostas para o mesmo cliente. Venceu a de <span class="cms-bold">R$ 16.342,80</span>, nem a mais cara, nem a mais barata, porque teve o maior Índice de Confiabilidade: <span class="cms-orange">79,2 de 100</span>, com a melhor pontuação em reputação da integradora e em tecnologia proposta.',
+  )
   const bullets = [
     txt('bullet1', 'Compare propostas de fornecedores lado a lado'),
     txt('bullet2', 'Pontuação por reputação, tecnologia e viabilidade'),
@@ -243,18 +283,17 @@ export const PlatformV4: React.FC = () => {
           </Reveal>
           <Reveal delay={90}>
             <h2 className="mt-4 font-['Sora'] text-[clamp(2.1rem,4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
-              {/* Espaço dentro da expressão: dois text nodes adjacentes quebram
-                  a hidratação (ver ContextV4). Sem destaque, o título é um text
-                  node só — nada de span vazio nem espaço solto no fim da frase.
-                  (Francis, slide 3: ele escreveu a frase inteira na parte
-                  branca e deixou o destaque em branco no editor.) */}
-              {titleHighlight ? (
+              {/* Espaço DENTRO da expressão: dois text nodes adjacentes quebram
+                  a hidratação (ver ContextV4). Sem a segunda parte, o título é
+                  só o trecho laranja — nada de span vazio nem espaço solto no
+                  fim da frase. */}
+              {tituloBranco ? (
                 <>
-                  {`${title} `}
-                  <span className="v4-serif text-orange-400">{titleHighlight}</span>
+                  <span className="v4-serif text-orange-400">{`${tituloLaranja} `}</span>
+                  {tituloBranco}
                 </>
               ) : (
-                title
+                <span className="v4-serif text-orange-400">{tituloLaranja}</span>
               )}
             </h2>
           </Reveal>
@@ -271,6 +310,19 @@ export const PlatformV4: React.FC = () => {
             <RiskScale />
           </Reveal>
         </div>
+
+        {/* A legenda da tabela (Francis, 06/08, slide 5: "frase explicativa
+            para inserir"). Sem ela a tabela é um monte de número e o visitante
+            precisa achar sozinho por que a segunda coluna venceu. Texto dele,
+            com os travessões trocados por vírgulas: a LP não usa travessão em
+            texto visível. Aceita marcação do CMS para destacar os números. */}
+        {temConteudo(legenda) && (
+          <Reveal delay={90}>
+            <p className="mt-8 border-l-2 border-orange-500/50 pl-5 text-lg leading-relaxed text-slate-300 md:text-xl">
+              <CMSText value={legenda} />
+            </p>
+          </Reveal>
+        )}
 
         {/* O que isso significa na prática */}
         <Reveal delay={120} className="mt-12">

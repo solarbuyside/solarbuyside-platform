@@ -73,14 +73,103 @@ export function RichTextEditor({
     applyClass("cms-bold");
   }
 
+  /** Desembrulha toda tag de dentro de `raiz`, preservando texto e <br>. */
+  function desformatar(raiz: HTMLElement) {
+    // Lista estática: desembrulhar o pai move os filhos para o lugar dele e
+    // eles continuam no DOM, então a passada seguinte ainda os alcança.
+    raiz.querySelectorAll("*").forEach((node) => {
+      if (node.tagName === "BR") return;
+      node.replaceWith(...Array.from(node.childNodes));
+    });
+    raiz.normalize();
+  }
+
+  /**
+   * "Limpar" (Francis, 06/08, slide 5: "o limpador não funciona").
+   *
+   * Duas falhas, e as duas apareciam como "o botão não faz nada":
+   *
+   * 1. Com a seleção cobrindo EXATAMENTE o conteúdo de um <span> (que é o
+   *    estado em que o applyClass deixa a seleção, e também o de um duplo
+   *    clique na palavra colorida), o range fica com as pontas DENTRO do span.
+   *    Pela spec, deleteContents esvazia o span mas o mantém no DOM e colapsa o
+   *    range para dentro dele; o insertNode então repunha o texto COMO FILHO do
+   *    span. O destaque sobrevivia intacto.
+   * 2. Com o cursor apenas piscando (seleção colapsada) a função retornava na
+   *    primeira linha, sem nenhum retorno visual. E é razoável clicar em
+   *    "Limpar" esperando limpar a caixa, não uma seleção que não existe.
+   */
   function clearFormat() {
+    const el = ref.current;
+    if (!el) return;
     const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+
+    // Sem seleção dentro da caixa: limpa a formatação da caixa inteira.
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !el.contains(sel.anchorNode)) {
+      desformatar(el);
+      emit();
+      return;
+    }
+
     const range = sel.getRangeAt(0);
-    const text = range.toString();
+    const balde = document.createElement("div");
+    balde.appendChild(range.extractContents());
+    desformatar(balde);
+    const texto = balde.textContent ?? "";
+
+    const noTexto = document.createTextNode(texto);
+    range.insertNode(noTexto);
+
+    // Sobe do ponto de inserção até a raiz desembrulhando os spans que ficaram
+    // contendo só o texto que acabamos de repor: é o caso 1 acima.
+    let no: Node | null = noTexto.parentNode;
+    while (no && no !== el) {
+      const pai: Node | null = no.parentNode;
+      if (no instanceof HTMLElement && no.tagName !== "BR" && no.textContent === texto) {
+        no.replaceWith(...Array.from(no.childNodes));
+      }
+      no = pai;
+    }
+    // E remove o que sobrou vazio depois do recorte.
+    el.querySelectorAll("span").forEach((s) => {
+      if (!s.textContent) s.remove();
+    });
+
+    el.normalize();
+    sel.removeAllRanges();
+    emit();
+  }
+
+  /**
+   * Colar SEMPRE como texto puro. Sem isto, colar do PowerPoint ou do Word
+   * despejava <p>, <div> e <span style> crus no contentEditable: a caixa
+   * passava a mostrar a fonte do Word enquanto o valor gravado era outro, e o
+   * sanitizador removia as tags sem pôr separador, grudando as palavras
+   * ("propostatem nota"). O Francis escreve as revisões em PPTX, então este é
+   * o caminho mais provável de entrada de sujeira.
+   */
+  function onPaste(e: React.ClipboardEvent) {
+    e.preventDefault();
+    const texto = e.clipboardData.getData("text/plain");
+    if (!texto) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
     range.deleteContents();
-    range.insertNode(document.createTextNode(text));
-    sel.collapseToEnd();
+    // Quebra de linha colada vira <br>, que é o que o Enter da caixa produz.
+    const frag = document.createDocumentFragment();
+    texto.split(/\r?\n/).forEach((linha, i) => {
+      if (i > 0) frag.appendChild(document.createElement("br"));
+      frag.appendChild(document.createTextNode(linha));
+    });
+    const ultimo = frag.lastChild;
+    range.insertNode(frag);
+    if (ultimo) {
+      range.setStartAfter(ultimo);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
     emit();
   }
 
@@ -155,7 +244,7 @@ export function RichTextEditor({
             e.preventDefault();
             clearFormat();
           }}
-          title="Limpar formatação"
+          title="Limpar formatação do trecho selecionado (ou de tudo, se não houver seleção)"
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-bold text-slate-500 transition-colors hover:bg-slate-100"
         >
           <Eraser className="h-3.5 w-3.5" />
@@ -171,12 +260,14 @@ export function RichTextEditor({
         onInput={emit}
         onBlur={emit}
         onKeyDown={onKeyDown}
+        onPaste={onPaste}
         className={cn(
           "cms-rich min-h-[44px] w-full px-3 py-2 text-sm leading-relaxed text-slate-800 outline-none",
         )}
       />
       <p className="px-3 pb-2 text-[11px] text-slate-400">
-        Selecione uma palavra e clique num destaque. Enter quebra a linha.
+        Selecione uma palavra e clique num destaque. Enter quebra a linha. &quot;Limpar&quot; sem nada selecionado tira
+        a formatação do campo inteiro. Texto colado entra sem formatação.
       </p>
     </div>
   );

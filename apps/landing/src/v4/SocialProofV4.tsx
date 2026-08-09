@@ -4,8 +4,14 @@ import { useContent } from '../contexts/ContentContext'
 import { Img, Cta, CtaArrow, Reveal, Stamp } from './atoms'
 import { criarTxt } from './cms'
 
-/* Depoimento do Rodrigo — abertura do ato "paper": inversão editorial sobre o
-   dark anterior, foto em arch com selo girando + citação gigante em serif. */
+/* Depoimento do Rodrigo — segundo relato do ato "paper": foto em arch com selo
+   girando + citação gigante em serif.
+
+   SEM o arco de subida desde 06/08. Ele abria o ato claro montando sobre uma
+   seção escura, e o -mt-20 + rounded-t era essa entrada. Na ordem nova quem
+   abre o ato é o depoimento do Lucas, e o Rodrigo passa a vir logo depois
+   dele: claro sobre claro. O arco ali desenhava um degrau no meio de um bloco
+   contínuo, e o -mt-20 comia 80px do respiro entre os dois relatos. */
 export const TestimonialsV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonials')
@@ -13,7 +19,7 @@ export const TestimonialsV4: React.FC = () => {
   const rodrigoImage = section?.images.testimonialImage || '/assets/Integrador_Rodrigo_SP.png'
 
   return (
-    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] pb-20 pt-24 text-slate-900 md:rounded-t-[4.5rem] md:pt-32">
+    <section className="relative bg-[#f7f8fa] pb-20 pt-16 text-slate-900 md:pt-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-start gap-14 lg:grid-cols-12">
           {/* Figura: foto arch + selo girando + legenda */}

@@ -111,7 +111,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     groups: [
       {
         label: "Título principal",
-        note: "A frase laranja em maiúsculas que aparece logo abaixo do Hero (acima dos logos) NÃO fica aqui: ela pertence à faixa de logos, em “Apoiadores (faixa do topo + seção)”.",
         fields: [
           comp(
             "title",
@@ -131,7 +130,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       },
       {
         label: "Kit no topo (4 capas + frase + botão)",
-        note: "As CAPAS, os títulos e as etiquetas das quatro peças são os mesmos da seção “Oferta / Preço”: trocar lá troca aqui. Só as frases curtas abaixo de cada capa, a linha de resumo e o botão se editam neste grupo. Elas ficam em “Oferta / Preço > Kit do topo (Hero)”, porque pertencem àquela seção no banco.",
+        note: "As CAPAS das quatro peças são as mesmas da seção “Oferta / Preço”: trocar lá troca aqui. Os títulos, as frases curtas, a linha de resumo e o botão do topo se editam em “Oferta / Preço > Kit do topo (Hero)”, porque pertencem àquela seção no banco. A linha de etiquetas (MANUAL PRINCIPAL, DIFERENCIAL ESTRATÉGICO…) saiu do topo em 06/08 e só existe na oferta.",
         fields: [],
       },
     ],
@@ -158,7 +157,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   context: {
     label: "Contexto / Panorama",
-    order: 2,
+    order: 4,
     groups: [
       {
         label: "Topo",
@@ -213,7 +212,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   video: {
     label: "Vídeo",
-    order: 3,
+    order: 5,
     groups: [
       {
         label: "Faixa de alerta",
@@ -221,6 +220,20 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("alertBadge", "Alerta — selo", { maxLength: 40 }),
           t("alertTitle", "Alerta — título"),
           t("alertSubtitle", "Alerta — subtítulo"),
+        ],
+      },
+      {
+        // Francis, 06/08, slide 10: "acrescentar abaixo do título". É o roteiro
+        // do vídeo em três marcadores, para quem não vai dar play sair sabendo
+        // o argumento.
+        label: "Marcadores abaixo do título",
+        note: "Aparecem entre o subtítulo do alerta e o player, em três colunas. Item vazio some da lista; esvaziar todos tira a lista da página.",
+        fields: [
+          rich("bullet1", "Marcador 1"),
+          rich("bullet2", "Marcador 2"),
+          rich("bullet3", "Marcador 3"),
+          rich("bullet4", "Marcador 4", { help: "Deixe vazio para não exibir." }),
+          rich("bullet5", "Marcador 5", { help: "Deixe vazio para não exibir." }),
         ],
       },
       {
@@ -267,42 +280,58 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   },
 
   apoiadores: {
-    // A MESMA lista de logos alimenta dois lugares da página: a faixa que rola
-    // logo abaixo do Hero e esta seção, lá embaixo. O rótulo diz isso porque a
-    // faixa aparece no topo e o editor dela mora aqui, na posição 11 — sem a
-    // pista ninguém liga uma coisa na outra.
-    label: "Apoiadores (faixa do topo + seção)",
-    // Revisão 25/07 (slide 16): a seção desceu para depois da Plataforma.
-    order: 11,
+    label: "Apoiadores",
+    // Revisão 06/08 (slide 7): a seção subiu do fim da LP para a 4ª dobra, logo
+    // depois de "Para que servem". A faixa que rolava no topo foi eliminada
+    // (slide 3), então agora existe UM lugar só e o rótulo pode ser simples.
+    order: 2,
     groups: [
       {
-        label: "Faixa que rola no topo (abaixo do Hero)",
-        fields: [
-          t("bandTitle", "Título acima dos logos", {
-            help: "É a frase laranja em maiúsculas logo abaixo do Hero. Ela aparece no topo da página, mas se edita AQUI porque pertence à faixa de logos.",
-          }),
-          ml("bandSubtitle", "Texto abaixo dos logos", {
-            help: "Se tiver “:”, quebra em duas linhas: a chamada em cima, o resto embaixo. Apagar o campo tira a linha da página.",
-          }),
-        ],
-      },
-      {
-        label: "Seção completa (mais abaixo na página)",
+        label: "Topo da seção",
         fields: [
           t("title", "Título"),
           ml("subtitle", "Subtítulo"),
+          t("hoverHint", "Dica de interação", {
+            help: "Chip cinza ao lado do primeiro rótulo de categoria, avisando que os logos abrem um card. Apagar o campo tira a dica.",
+            maxLength: 60,
+          }),
+        ],
+      },
+      {
+        label: "Ressalva legal (abaixo dos logos)",
+        note: "Este texto vivia embaixo do carrossel do topo, que foi eliminado. Ele desceu para o pé da seção para não sumir da página junto com a faixa.",
+        fields: [
+          ml("disclaimer", "Ressalva", {
+            help: "Ex.: “Elas não vendem os materiais nem participam da sua receita.” Apagar o campo tira a linha da página.",
+          }),
         ],
       },
     ],
-    // Os logos têm editor próprio ("Logos dos apoiadores"), com upload de
-    // imagem, categoria e texto do card por item — não faz sentido expô-los
-    // como dezenas de campos soltos aqui.
-    hiddenKeys: LOGO_KEYS,
+    // Os logos têm editor próprio ("Todos os logos"), com upload de imagem,
+    // categoria e texto do card por item — não faz sentido expô-los como
+    // dezenas de campos soltos aqui.
+    //
+    // bandTitle/bandSubtitle e logoNBandPos: chaves da faixa do topo, que não
+    // existe mais. `bandSubtitle` continua sendo LIDA pela LP como fallback do
+    // campo "Ressalva" acima, para o texto já gravado não sumir do ar; editar
+    // passa a ser pelo campo novo.
+    hiddenKeys: [
+      ...LOGO_KEYS,
+      "bandTitle",
+      "bandSubtitle",
+      ...Array.from({ length: MAX_LOGOS }, (_, i) => `logo${i + 1}BandPos`),
+    ],
   },
 
   audience: {
     label: "Público (para quem é)",
     order: 6,
+    // ELIMINADA da LP na revisão de 06/08 (slide 11: "eliminar o bloco
+    // inteiro"). O que sobrou dela são três linhas no fim da Transformação
+    // ("Para quem o Método Solar Buy-Side foi desenvolvido"), editáveis lá.
+    // Fica arquivada, e não apagada, porque o texto dos três perfis é bom e ele
+    // pode querer de volta.
+    onlyOnV1: true,
     groups: [
       {
         label: "Topo",
@@ -366,11 +395,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   "manual-strategic": {
     label: "Manual estratégico",
-    order: 7,
+    order: 6,
     groups: [
       {
         // Francis, slide 11: "criar este título da seção MANUAL ESTRATÉGICO".
-        // Abre o bloco inteiro (Manual + Código + resultados).
+        // Abre as duas ferramentas do kit: o Manual e o Código.
         label: "Título da seção",
         fields: [
           t("kitTitle", "Título"),
@@ -435,39 +464,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           }),
         ],
       },
-      {
-        label: "Bloco 2",
-        fields: [
-          rich("section2Title", "Bloco 2 — título", {
-            help: "Selecione palavras e clique em Laranja para destacar.",
-          }),
-          t("section2Subtitle", "Bloco 2 — subtítulo"),
-        ],
-      },
-      {
-        label: "Coluna 'Sell-Side'",
-        fields: [
-          t("sellSideHeader", "Cabeçalho"),
-          t("sellCard1Title", "Card 1 — título"),
-          ml("sellCard1Desc", "Card 1 — descrição"),
-          t("sellCard2Title", "Card 2 — título"),
-          ml("sellCard2Desc", "Card 2 — descrição"),
-          t("sellCard3Title", "Card 3 — título"),
-          ml("sellCard3Desc", "Card 3 — descrição"),
-        ],
-      },
-      {
-        label: "Coluna 'Foco'",
-        fields: [
-          t("focusHeader", "Cabeçalho"),
-          t("focusCard1Title", "Card 1 — título"),
-          ml("focusCard1Desc", "Card 1 — descrição"),
-          t("focusCard2Title", "Card 2 — título"),
-          ml("focusCard2Desc", "Card 2 — descrição"),
-          t("focusCard3Title", "Card 3 — título"),
-          ml("focusCard3Desc", "Card 3 — descrição"),
-        ],
-      },
     ],
     // `manual`: chave antiga da capa, substituída por `manualImage` (a que a LP
     // realmente lê). Continua no banco, mas não é mais oferecida no editor.
@@ -475,12 +471,29 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     // codeDesc1-4 e codeTop*/codeBottom*: os parágrafos do Código viraram lista
     // no subitem "Parágrafos do Código". codeDesc* seguem no banco como
     // fallback da landing até o primeiro salvamento por lá.
+    //
+    // section2*, sellSideHeader/sellCard*, focusHeader/focusCard*: o "Bloco 2"
+    // ("Veja o que muda quando você passa a vender pelo Método Solar Buy-Side",
+    // com as colunas NA SUA FORMA DE VENDER / NO SEU FATURAMENTO) foi eliminado
+    // da LP na revisão de 06/08, slide 14. Os 17 campos saíram do editor para
+    // ninguém gastar tempo escrevendo texto que não aparece em lugar nenhum.
+    // Continuam no banco caso ele peça o bloco de volta.
     hiddenKeys: [
       "manual",
       "codeDesc1",
       "codeDesc2",
       "codeDesc3",
       "codeDesc4",
+      "section2Title",
+      "section2Subtitle",
+      "sellSideHeader",
+      "focusHeader",
+      ...Array.from({ length: 3 }, (_, i) => i + 1).flatMap((i) => [
+        `sellCard${i}Title`,
+        `sellCard${i}Desc`,
+        `focusCard${i}Title`,
+        `focusCard${i}Desc`,
+      ]),
       ...Array.from({ length: 8 }, (_, i) => i + 1).flatMap((i) => [
         `codeTop${i}`,
         `codeBottom${i}`,
@@ -490,21 +503,42 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
 
   plataforma: {
     label: "Plataforma de avaliação",
-    // Revisão 25/07: trocou de lugar com o depoimento do Rodrigo (slide 15).
-    order: 10,
+    // Revisão 06/08 (slides 4-5): subiu para a 2ª dobra, emendando direto no
+    // CTA do Hero.
+    order: 1,
     groups: [
       {
         label: "Topo",
         fields: [
           t("badge", "Selo", { maxLength: 40 }),
+          /* AS CORES TROCARAM DE PARTE em 06/08 (slide 5: "a segunda parte do
+             título deve ser de cor branca"). Agora o DESTAQUE é o começo da
+             frase e o texto normal é a continuação, então a parte destacada
+             vem PRIMEIRO na lista.
+
+             Efeito colateral bom: com o destaque na primeira posição, o texto
+             digitado depois dele cai numa parte que existe (`titleHighlight`).
+             Antes o destaque era o último e tudo o que viesse depois não tinha
+             onde ser gravado — era o "além de pirar" que ele reportou. O
+             decomposeComposite passou a tratar isso de qualquer jeito, mas
+             esta ordem já é a natural para a frase. */
           comp(
             "title",
             "Título",
-            [tx("title"), hl("titleHighlight")],
+            [hl("title"), tx("titleHighlight")],
             "cms-orange",
-            "Frase inteira numa caixa. Destaque o trecho final (o que aparece em laranja).",
+            "Frase inteira numa caixa. Destaque o COMEÇO da frase (o gancho, que sai em laranja); o resto sai em branco.",
           ),
           ml("lead", "Texto de apoio"),
+        ],
+      },
+      {
+        label: "Legenda da tabela de exemplo",
+        note: "Fica logo abaixo da tabela de pontuação e da escala de risco, com um filete laranja à esquerda. É ela que explica por que a proposta vencedora venceu.",
+        fields: [
+          rich("tableCaption", "Legenda", {
+            help: "Selecione trechos e clique em Laranja ou Negrito para destacar os números. Apagar o campo tira a legenda da página.",
+          }),
         ],
       },
       {
@@ -529,7 +563,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // selo girando e com foto retangular. Entra logo depois do vídeo.
   "testimonial-lucas": {
     label: "Depoimento do Lucas",
-    order: 4,
+    order: 9,
     groups: [
       {
         label: "Cabeçalho",
@@ -568,7 +602,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   // Transformação (Francis, slide 8). Textos dele, visual redesenhado.
   transformacao: {
     label: "Transformação",
-    order: 5,
+    order: 7,
     groups: [
       {
         label: "Topo",
@@ -600,6 +634,33 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("row5Depois", "Linha 5 — depois"),
           t("row6Hoje", "Linha 6 — hoje"),
           t("row6Depois", "Linha 6 — depois"),
+          // 7ª linha acrescentada em 06/08 (slide 15). Da 8ª em diante são
+          // reserva: linha com um dos dois lados vazio não aparece na página.
+          t("row7Hoje", "Linha 7 — hoje"),
+          t("row7Depois", "Linha 7 — depois"),
+          t("row8Hoje", "Linha 8 — hoje", { help: "Preencha os DOIS lados para a linha aparecer." }),
+          t("row8Depois", "Linha 8 — depois"),
+          t("row9Hoje", "Linha 9 — hoje", { help: "Preencha os DOIS lados para a linha aparecer." }),
+          t("row9Depois", "Linha 9 — depois"),
+          t("row10Hoje", "Linha 10 — hoje", { help: "Preencha os DOIS lados para a linha aparecer." }),
+          t("row10Depois", "Linha 10 — depois"),
+        ],
+      },
+      {
+        /* Francis, 06/08, slide 15: "acrescentar com mesmo tamanho de fonte do
+           que VEJA SUA TRANSFORMAÇÃO". É o que sobrou da seção "Para quem o
+           Método foi desenvolvido", eliminada no slide 11. Também é o destino
+           do item "Para Quem" no menu do topo. */
+        label: "Para quem o Método foi desenvolvido",
+        note: "Fecha a seção, abaixo da comparação. Apagar o título tira o bloco inteiro; perfil vazio some da lista.",
+        fields: [
+          rich("audienceTitle", "Título do bloco"),
+          t("audience1", "Perfil 1"),
+          t("audience2", "Perfil 2"),
+          t("audience3", "Perfil 3"),
+          t("audience4", "Perfil 4", { help: "Deixe vazio para não exibir." }),
+          t("audience5", "Perfil 5", { help: "Deixe vazio para não exibir." }),
+          t("audience6", "Perfil 6", { help: "Deixe vazio para não exibir." }),
         ],
       },
     ],
@@ -680,7 +741,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   testimonials: {
     label: "Depoimento do Rodrigo",
     // Revisão 25/07: trocou de lugar com a Plataforma (slide 14).
-    order: 9,
+    order: 10,
     groups: [
       {
         label: "Cabeçalho",
@@ -799,7 +860,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Autoridade (autores)",
     // Revisão 25/07 (slide 3): a seção subiu para logo depois da faixa de
     // logos, e passou a levar o primeiro botão da página.
-    order: 1,
+    order: 3,
     groups: [
       {
         label: "Topo",
@@ -850,17 +911,61 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     hiddenKeys: ["titleHighlight", ...Array.from({ length: 8 }, (_, i) => `story${i + 1}`)],
   },
 
+  /* "Compra simples. Acesso imediato. Suporte garantido." (Francis, 06/08,
+     slide 19: "novo bloco"). Fica entre o depoimento do Rodrigo e o bloco
+     "Capacite seu time", ou seja, imediatamente antes do preço: são as três
+     dúvidas que travam a mão de quem já decidiu comprar. */
+  "compra-simples": {
+    label: "Compra simples (antes da oferta)",
+    order: 11,
+    groups: [
+      {
+        label: "Topo",
+        note: "Apagar o título tira a dobra inteira da página.",
+        fields: [
+          rich("title", "Título"),
+          t("subtitle", "Linha de abertura"),
+        ],
+      },
+      {
+        label: "Tópico 1 — acesso aos materiais",
+        fields: [
+          t("item1Title", "Rótulo", { maxLength: 40 }),
+          rich("item1Text", "Texto", { help: "Selecione trechos e clique em Negrito para destacar." }),
+        ],
+      },
+      {
+        label: "Tópico 2 — prazo de entrega",
+        fields: [
+          t("item2Title", "Rótulo", { maxLength: 40 }),
+          rich("item2Text", "Texto", { help: "Selecione trechos e clique em Negrito para destacar." }),
+        ],
+      },
+      {
+        label: "Tópico 3 — suporte",
+        fields: [
+          t("item3Title", "Rótulo", { maxLength: 40 }),
+          rich("item3Text", "Texto", { help: "Selecione trechos e clique em Negrito para destacar." }),
+        ],
+      },
+    ],
+  },
+
   pricing: {
     label: "Oferta / Preço",
     order: 12,
     groups: [
       {
         label: "Kit do topo (Hero)",
-        note: "Estes campos aparecem no TOPO da página, abaixo do título, não aqui na oferta. Moram nesta seção porque usam as mesmas capas e os mesmos nomes das quatro peças.",
+        note: "Estes campos aparecem no TOPO da página, abaixo do título, não aqui na oferta. As CAPAS são as mesmas dos cards da oferta (trocar lá troca aqui); os títulos e as frases são próprios do topo, porque lá cabe uma linha e aqui cabe um parágrafo. Título vazio = usa o mesmo nome do card da oferta.",
         fields: [
+          t("heroKit1Title", "Título da capa 1 (Manual)", { maxLength: 48 }),
           t("heroKit1Desc", "Frase da capa 1 (Manual)", { maxLength: 60 }),
+          t("heroKit2Title", "Título da capa 2 (Código)", { maxLength: 48 }),
           t("heroKit2Desc", "Frase da capa 2 (Código)", { maxLength: 60 }),
+          t("heroKit3Title", "Título da capa 3 (Plataforma)", { maxLength: 48 }),
           t("heroKit3Desc", "Frase da capa 3 (Plataforma)", { maxLength: 60 }),
+          t("heroKit4Title", "Título da capa 4 (Licença Coletiva)", { maxLength: 48 }),
           t("heroKit4Desc", "Frase da capa 4 (Licença Coletiva)", { maxLength: 60 }),
           rich("heroKitNote", "Linha de resumo abaixo das capas"),
           t("heroKitCta", "Botão do topo", { maxLength: 40 }),
@@ -868,12 +973,17 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       },
       {
         label: "Bloco “Capacite seu time” (antes da oferta)",
-        note: "Bloco da Licença de Uso Coletiva, entre os apoiadores e a oferta. Os valores por pessoa NÃO são calculados: se o preço à vista mudar, atualize esta tabela na mão.",
+        note: "Bloco da Licença de Uso Coletiva, entre os depoimentos e a oferta. Os valores por pessoa NÃO são calculados: se o preço à vista mudar, atualize esta tabela na mão.",
         fields: [
           rich("teamTitle", "Título"),
           rich("teamLead", "Texto de apoio"),
           t("teamColTeam", "Cabeçalho da coluna 1", { maxLength: 40 }),
           t("teamColValue", "Cabeçalho da coluna 2", { maxLength: 40 }),
+          // Francis, 06/08, slide 20: "acrescentar e destacar essa frase abaixo
+          // da tabela".
+          rich("teamNote", "Frase destacada abaixo da tabela", {
+            help: "Caixa laranja no fim do bloco. Ex.: “E tem mais economia: Integradoras Credenciadas Belenergy garantem 15% OFF.” Deixe VAZIO para esconder.",
+          }),
           img("teamImage", "Imagem à direita"),
         ],
       },
@@ -969,11 +1079,38 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           }),
         ],
       },
+      {
+        /* Botão do formulário de credenciamento do parceiro (Francis, 06/08,
+           slide 22). Ele já existiu e saiu em 26/07 por não levar a lugar
+           nenhum; volta com URL de verdade e com interruptor, porque foi isso
+           que ele pediu: "no ADM pôr um interruptor on/off para o CTA do link
+           Belenergy". */
+        label: "Promoção — botão do formulário",
+        note: "Botão em traço dentro da caixa da promoção, abaixo da linha de reembolso. Três formas de desligar: escrever 0 no interruptor, apagar o rótulo, ou apagar o link.",
+        fields: [
+          t("promoCtaEnabled", "Interruptor (1 = ligado, 0 = desligado)", {
+            help: "Deixe 1 ou vazio para MOSTRAR o botão. Escreva 0 para esconder sem perder o rótulo nem o link.",
+            maxLength: 1,
+          }),
+          t("promoCtaLabel", "Rótulo do botão", {
+            help: "Ex.: “Formulário para cadastro (Clique aqui)”. Apagar também esconde o botão.",
+            maxLength: 60,
+          }),
+          t("promoCtaUrl", "Link do formulário", {
+            type: "url",
+            help: "Abre em nova aba. Ex.: https://belenergy.com.br/seja-um-integrador-credenciado/",
+          }),
+        ],
+      },
     ],
     // feature1Desc/bonusBadge existem no banco mas a LP não usa (bonusBadge
     // nunca foi lido; feature1Desc é resquício do fallback card1Desc).
-    // promoUrl/promoCtaLabel: o botão "Clique aqui" saiu do bloco da promo em
-    // 2026-07-26. As chaves continuam no banco, mas a LP não lê mais.
+    // promoUrl: URL do botão antigo da promo (2026-07-26). O botão voltou em
+    // 06/08 com chaves próprias (promoCtaLabel/promoCtaUrl/promoCtaEnabled),
+    // que TÊM campo no grupo acima. `promoUrl` continua sendo lido pela LP como
+    // FALLBACK de `promoCtaUrl` — é a mesma URL da Belenergy e já está gravada,
+    // então o link nasce funcionando. Fica oculto para não haver duas caixas
+    // para o mesmo endereço.
     // Selos de pagamento (guarantee/visa/mastercard/pix/boleto/securePurchase):
     // herança da LP v1. Nenhum componente do v4 lê — eram 6 campos de upload
     // que não mudavam nada na página. Auditoria de 2026-07-27.
@@ -989,7 +1126,6 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       "codeImage",
       "bonusBadge",
       "promoUrl",
-      "promoCtaLabel",
       "guarantee",
       "visa",
       "mastercard",
@@ -1173,17 +1309,37 @@ export const ALLOWED_CMS_CLASSES = [
  * re-sanitiza ao renderizar, isto é defesa em profundidade no lado do editor.
  */
 export function sanitizeCmsHtml(html: string): string {
+  /* Pilha de <span>: `true` = a abertura foi mantida, `false` = foi descartada.
+     Sem ela, o `</span>` era devolvido SEMPRE (inclusive quando a abertura
+     tinha sido jogada fora por classe não permitida ou por vir colada do
+     Word), e sobrava um `</span>` órfão gravado no banco. Órfão desses
+     desequilibra a contagem de spans do decomposeComposite e faz um pedaço da
+     frase se perder no salvamento seguinte. */
+  const abertos: boolean[] = [];
+
   return html.replace(/<[^>]+>/g, (tag) => {
     if (/^<br\s*\/?>$/i.test(tag)) return "<br>";
-    if (/^<\/span>$/i.test(tag)) return tag;
+
+    if (/^<\/span>$/i.test(tag)) {
+      // Sem abertura correspondente, o fechamento não tem o que fechar.
+      const manteve = abertos.pop();
+      return manteve ? tag : "";
+    }
+
     const spanMatch = tag.match(/^<span\s+class="([^"<>]*)"\s*>$/i);
     if (spanMatch) {
       const classes = spanMatch[1]
         .trim()
         .split(/\s+/)
         .filter((c) => (ALLOWED_CMS_CLASSES as readonly string[]).includes(c));
-      if (classes.length > 0) return `<span class="${classes.join(" ")}">`;
+      if (classes.length > 0) {
+        abertos.push(true);
+        return `<span class="${classes.join(" ")}">`;
+      }
     }
+    // Qualquer outra abertura de <span> (sem class, com style do Word, …) é
+    // descartada, e o fechamento dela também precisa ser.
+    if (/^<span[\s>]/i.test(tag)) abertos.push(false);
     return "";
   });
 }
@@ -1200,6 +1356,48 @@ export function composeComposite(field: CompositeFieldDef, texts: Record<string,
     .join(" ");
 }
 
+/**
+ * Localiza o <span> de DESTAQUE dentro do HTML da caixa.
+ *
+ * Duas coisas que a versão anterior errava e que faziam o campo "pirar":
+ *
+ * 1. Ela pegava o PRIMEIRO <span> qualquer, sem olhar a classe. O botão
+ *    Negrito também cria um <span class="cms-bold">: bastava o cliente pôr
+ *    negrito numa palavra ANTES do trecho colorido para o negrito ser lido
+ *    como "o destaque" e o resto da frase ir para o lixo.
+ * 2. Ela usava `([\s\S]*?)` até o primeiro `</span>`. Com spans ANINHADOS
+ *    (destaque com um negrito dentro, que é o que o applyClass produz quando a
+ *    seleção cruza a borda de outro span) o fechamento encontrado era o do
+ *    span de dentro, e a frase era cortada no meio.
+ *
+ * Aqui a busca é pela abertura cuja lista de classes contém a classe de
+ * destaque do campo, e o fechamento é achado contando profundidade.
+ */
+function acharDestaque(html: string, hlClass: string): { inicio: number; fim: number; miolo: string } | null {
+  const abertura = /<span\s+class="([^"<>]*)"\s*>/gi;
+  let m: RegExpExecArray | null;
+
+  while ((m = abertura.exec(html)) !== null) {
+    if (!m[1].trim().split(/\s+/).includes(hlClass)) continue;
+
+    const inicioMiolo = m.index + m[0].length;
+    const tags = /<span[\s>]|<\/span>/gi;
+    tags.lastIndex = inicioMiolo;
+    let profundidade = 1;
+    let t: RegExpExecArray | null;
+
+    while ((t = tags.exec(html)) !== null) {
+      profundidade += t[0].toLowerCase() === "</span>" ? -1 : 1;
+      if (profundidade === 0) {
+        return { inicio: m.index, fim: t.index + t[0].length, miolo: html.slice(inicioMiolo, t.index) };
+      }
+    }
+    // Abertura sem fechamento: o destaque vai até o fim da caixa.
+    return { inicio: m.index, fim: html.length, miolo: html.slice(inicioMiolo) };
+  }
+  return null;
+}
+
 /** Desmonta a frase (HTML do editor) de volta nas chaves originais da landing. */
 export function decomposeComposite(field: CompositeFieldDef, html: string): Record<string, string> {
   const strip = (s: string) =>
@@ -1210,19 +1408,50 @@ export function decomposeComposite(field: CompositeFieldDef, html: string): Reco
       .replace(/\s+/g, " ")
       .trim();
 
-  const m = html.match(/<span[^>]*>([\s\S]*?)<\/span>/i);
-  const hlText = m ? strip(m[1]) : "";
-  const before = m ? html.slice(0, m.index) : html;
-  const after = m ? html.slice((m.index ?? 0) + m[0].length) : "";
-  const beforeText = strip(before);
-  const afterText = strip(after);
+  const achado = acharDestaque(html, field.hlClass);
+  const hlText = achado ? strip(achado.miolo) : "";
+  const beforeText = strip(achado ? html.slice(0, achado.inicio) : html);
+  const afterText = achado ? strip(html.slice(achado.fim)) : "";
 
   const hlIdx = field.parts.findIndex((p) => p.role === "highlight");
+  const antes = field.parts.filter((_, i) => i < hlIdx);
+  const depois = field.parts.filter((_, i) => i > hlIdx);
+
+  /* NADA PODE SUMIR. Antes, um campo de duas partes com o destaque no fim
+     (que é o caso do título da Plataforma) descartava em silêncio tudo o que
+     fosse digitado DEPOIS do trecho colorido: `afterText` era calculado e
+     nunca atribuído, porque nenhuma parte tinha índice maior que o do
+     destaque. A caixa continuava mostrando o texto (ela é uncontrolled), então
+     o cliente só descobria a perda ao recarregar. Era o "além de pirar" do
+     Francis, slide 5 de 06/08.
+
+     Quando não existe uma parte do lado onde sobrou texto, o texto vai para a
+     parte de texto mais próxima que existe, no lugar certo da frase. Pior caso
+     ele aparece num campo vizinho, visível e corrigível; nunca é apagado. */
   const out: Record<string, string> = {};
-  field.parts.forEach((p, i) => {
-    if (p.role === "highlight") out[p.key] = hlText;
-    else out[p.key] = i < hlIdx ? beforeText : afterText;
+  field.parts.forEach((p) => {
+    out[p.key] = p.role === "highlight" ? hlText : "";
   });
+
+  const juntar = (...partes: string[]) => partes.filter(Boolean).join(" ");
+
+  if (antes.length > 0) {
+    out[antes[antes.length - 1].key] = beforeText;
+  } else if (depois.length > 0) {
+    // Destaque na frente e sobrou texto atrás dele: prefixa a parte seguinte.
+    out[depois[0].key] = beforeText;
+  } else if (beforeText) {
+    out[field.parts[hlIdx].key] = juntar(beforeText, out[field.parts[hlIdx].key]);
+  }
+
+  if (depois.length > 0) {
+    out[depois[0].key] = juntar(out[depois[0].key], afterText);
+  } else if (antes.length > 0) {
+    out[antes[antes.length - 1].key] = juntar(out[antes[antes.length - 1].key], afterText);
+  } else if (afterText) {
+    out[field.parts[hlIdx].key] = juntar(out[field.parts[hlIdx].key], afterText);
+  }
+
   return out;
 }
 

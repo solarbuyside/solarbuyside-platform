@@ -22,7 +22,6 @@ import {
   Rocket,
   Archive,
   ChevronDown,
-  GalleryHorizontalEnd,
   Tag,
   ListOrdered,
   Pilcrow,
@@ -49,8 +48,6 @@ const TESTIMONIALS_VIEW = "__testimonials__";
 /** Logos: "__logos__" = todos; "__logos__:<categoria>" = uma categoria. */
 const LOGOS_VIEW = "__logos__";
 const LOGOS_CAT_PREFIX = "__logos__:";
-/** Escolha de quem sobe para a faixa do topo (vive junto do Hero na lista). */
-const BAND_VIEW = "__faixa__";
 /** Blocos repetíveis com editor próprio (adicionar/remover/reordenar). */
 const FAQ_VIEW = "__faq__";
 const CODE_PARAGRAFOS_VIEW = "__code-paragrafos__";
@@ -68,18 +65,21 @@ const SECTION_ANCHOR: Record<string, string> = {
   hero: "hero",
   authority: "authority",
   context: "contexto",
-  // O vídeo é renderizado DENTRO do Panorama (ContextV4), não tem âncora própria.
-  video: "contexto",
+  // O vídeo é renderizado DENTRO do Panorama (ContextV4), mas o player tem
+  // âncora própria: apontar para "contexto" fazia o preview parar no início do
+  // Panorama, longe do campo que o cliente acabou de editar.
+  video: "video-section",
   "testimonial-lucas": "depoimento-lucas",
   transformacao: "transformacao",
-  audience: "audiencia",
   "manual-strategic": "manual-strategic",
   retorno: "retorno",
   testimonials: "depoimentos",
   plataforma: "plataforma",
   apoiadores: "apoiadores",
+  "compra-simples": "compra-simples",
   pricing: "oferta",
   faq: "faq",
+  // `audience` saiu do mapa junto com a seção (revisão de 06/08, slide 11).
 };
 
 /**
@@ -267,7 +267,6 @@ export function LandingEditor({
 
   /** Qual visão do editor de logos está aberta (null = nenhuma). */
   const logosView: LogosView | null = React.useMemo(() => {
-    if (selectedId === BAND_VIEW) return { kind: "band" };
     if (selectedId === LOGOS_VIEW) return { kind: "cat", cat: null };
     if (selectedId.startsWith(LOGOS_CAT_PREFIX)) {
       return { kind: "cat", cat: selectedId.slice(LOGOS_CAT_PREFIX.length) };
@@ -484,17 +483,10 @@ export function LandingEditor({
                 pending={localPending.has(s.sectionId)}
                 onSelect={() => setSelectedId(s.sectionId)}
               >
-                {/* A faixa de logos é renderizada logo abaixo do Hero, então a
-                    escolha de quem sobe para ela mora aqui em cima, junto do
-                    Hero — e não lá na posição 11, onde ninguém a encontrava. */}
-                {s.sectionId === "hero" && apoiadores ? (
-                  <SubRow
-                    icon={GalleryHorizontalEnd}
-                    label="Faixa de apoiadores (rolagem)"
-                    active={selectedId === BAND_VIEW}
-                    onSelect={() => setSelectedId(BAND_VIEW)}
-                  />
-                ) : null}
+                {/* A faixa de logos que rolava abaixo do Hero foi ELIMINADA na
+                    revisão de 06/08 (slide 3), e com ela este subeditor: não
+                    há mais faixa para escolher quem sobe nem em que ordem. Os
+                    logos seguem sendo cadastrados em "Apoiadores". */}
                 {/* A história fica entre o título e os autores. */}
                 {s.sectionId === "authority" && authoritySection ? (
                   <SubRow

@@ -1,8 +1,7 @@
 ﻿import React from 'react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Img, Cta, CtaArrow, Reveal, SolarCells } from './atoms'
-import { scrollToId } from './scroll'
+import { Img, Reveal, SolarCells } from './atoms'
 import { criarTxt } from './cms'
 
 /* "O DUELO" — Francis (azul, buy-side) à esquerda vs. Ovídio (laranja,
@@ -147,10 +146,19 @@ export const AuthorityV4: React.FC = () => {
     .filter((v) => v.trim().length > 0)
 
   return (
-    <section id="autor" className="relative overflow-hidden bg-[#07090d] py-24 pb-32 text-white md:py-32">
-      {/* fade "top" (era "center"): a grade entra cheia, emendando na faixa de
-          logos logo acima, e vai apagando até sumir no meio da seção. É a
-          continuação do crepúsculo do Hero, não uma textura isolada. */}
+    /* Reabertura do ato escuro: esta seção sobe por cima dos Apoiadores
+       (claros) com o arco arredondado, espelhando o movimento que a oferta faz
+       lá embaixo. Antes de 06/08 ela vinha depois do vídeo, escuro sobre
+       escuro, e não precisava de emenda nenhuma.
+
+       rounded-t + overflow-hidden já estavam aqui; o que entra é o -mt-20 e o
+       z-10 para ela realmente montar sobre a seção anterior. */
+    <section
+      id="autor"
+      className="relative z-10 -mt-20 overflow-hidden rounded-t-[3rem] bg-[#07090d] pb-32 pt-28 text-white md:rounded-t-[4.5rem] md:pt-36"
+    >
+      {/* fade "top": a grade entra cheia no topo da seção e vai apagando até
+          sumir no meio. É a retomada do crepúsculo, não uma textura isolada. */}
       <SolarCells fade="top" />
 
       <div className="relative z-10 mx-auto max-w-6xl px-6">
@@ -228,15 +236,10 @@ export const AuthorityV4: React.FC = () => {
           </div>
         </div>
 
-        {/* CTA 1 (Francis, slide 3: "CTA para inserir"). É o primeiro botão da
-            página: o Hero deixou de ter CTA nesta revisão. Fica FORA do bloco
-            do duelo para a linha central não descer até ele. */}
-        <Reveal delay={220} className="mt-16 flex justify-center">
-          <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {txt('ctaButton', 'Quero vender pela perspectiva do comprador')}
-            <CtaArrow size={20} />
-          </Cta>
-        </Reveal>
+        {/* O CTA que fechava esta seção saiu na revisão de 06/08 (slide 8:
+            "eliminar este CTA"). O Hero voltou a ter botão em 03/08, então o
+            primeiro botão da página não é mais este, e a seção termina no
+            duelo, que é o argumento dela. A chave `ctaButton` segue no banco. */}
       </div>
     </section>
   )

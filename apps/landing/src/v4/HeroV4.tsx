@@ -15,54 +15,82 @@ import { criarTxt, temConteudo } from './cms'
 
 /* As quatro peças do kit, embaixo da subfrase do Hero (Francis, slide 1).
 
-   A arte e os nomes vêm da MESMA seção que alimenta a oferta lá embaixo, para
-   não existirem duas verdades sobre o que é o kit. As frases curtas são
-   próprias do Hero: aqui cabe uma linha, e na oferta cabe um parágrafo.
+   A ARTE vem da MESMA seção que alimenta a oferta lá embaixo (`pricing`), para
+   não existirem duas capas do mesmo produto. Os TEXTOS são próprios do Hero
+   (`heroKitNTitle` / `heroKitNDesc`): aqui cabe uma linha e na oferta cabe um
+   parágrafo, e em 06/08 o Francis pediu o Manual com um nome no Hero ("Manual
+   de Compra de Sistema Solar", slide 2) sem tocar no nome que a oferta usa
+   (slide 21, onde ele deixou "Manual Solar Buy-Side" intacto). Os títulos da
+   oferta seguem valendo como padrão, então quem não editar o Hero continua
+   vendo a mesma coisa nos dois lugares.
 
    Sem cartões e sem molduras: as capas flutuam sobre o horizonte do Hero, com
    um "+" entre elas, como no slide. Cartão aqui brigaria com o chip do produto
-   e com o botão, e o Hero já vai ficar cheio. */
+   e com o botão, e o Hero já vai ficar cheio.
+
+   SEM a linha de etiquetas (MANUAL PRINCIPAL · DIFERENCIAL ESTRATÉGICO · …):
+   removida em 06/08 (slide 2, "eliminar a linha"). Ela repetia em caixa alta o
+   que o título logo abaixo já dizia, e roubava a altura que subiu o CTA. As
+   etiquetas continuam na seção de oferta, onde classificam os quatro itens. */
 const HeroKitV4: React.FC = () => {
   const { getSection, globalSettings } = useContent()
   const section = getSection('pricing')
   const txt = criarTxt(section)
 
+  /* As três frases que o Francis reescreveu em 06/08 (slide 2) já existiam no
+     banco com o texto de 03/08. Chave presente vence o padrão do código, então
+     sem tratar o valor antigo como LEGADO a revisão dele não apareceria na
+     página até alguém redigitar campo a campo no admin. É o mesmo mecanismo
+     usado no resto da LP; a comparação é exata para não capturar uma frase
+     futura dele que comece igual. */
+  const comLegado = (chave: string, antigos: string[], novo: string) => {
+    const atual = txt(chave, novo)
+    return antigos.includes(atual.trim()) ? novo : atual
+  }
+
   const pecas = [
     {
-      tag: txt('card1Tag', 'MANUAL PRINCIPAL'),
-      title: txt('card1Title', 'Manual Solar Buy-Side'),
-      desc: txt('heroKit1Desc', '130 páginas e 160 tópicos'),
+      title: txt('heroKit1Title', 'Manual de Compra de Sistema Solar'),
+      desc: comLegado('heroKit1Desc', ['130 páginas e 160 tópicos'], 'Método de Compra de Sistema Solar'),
       image: section?.images.card1Image || '/assets/manual-norm.png',
     },
     {
-      tag: txt('card2Tag', 'DIFERENCIAL ESTRATÉGICO'),
-      title: txt('card2Title', 'Código do Vendedor Consultivo'),
-      desc: txt('heroKit2Desc', 'Método de venda consultiva'),
+      title: txt('heroKit2Title', txt('card2Title', 'Código do Vendedor Consultivo')),
+      desc: comLegado('heroKit2Desc', ['Método de venda consultiva'], 'Método de Venda Consultivo Buy-Side'),
       image: section?.images.card2Image || '/assets/codigo-norm.png',
     },
     {
-      tag: txt('cardPlatformTag', 'FERRAMENTA EXCLUSIVA'),
-      title: txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial'),
-      desc: txt('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
+      title: txt('heroKit3Title', txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
+      desc: comLegado(
+        'heroKit3Desc',
+        ['Teste a sua proposta antes de enviar', 'Teste sua proposta antes de enviar'],
+        'Teste sua proposta antes que seu cliente a teste.',
+      ),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
     },
     {
-      tag: txt('card3Tag', 'BÔNUS ESPECIAL'),
-      title: txt('card3Title', 'Turbine sua Equipe de Venda'),
+      title: txt('heroKit4Title', txt('card3Title', 'Turbine sua Equipe de Venda')),
       desc: txt('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
       image: section?.images.card3Image || '/assets/coletiva-norm.png',
     },
   ]
 
-  const nota = txt(
-    'heroKitNote',
-    'Kit Completo para integradoras e vendedores: 2 Ebooks + acesso à Plataforma de Avaliação de propostas',
-  )
+  /* A linha de resumo entre as capas e o botão. Encurtada em 06/08 (slide 2:
+     "Kit Completo: 2 Ebooks + Plataforma"): a frase antiga tinha duas linhas e
+     era a maior parte da distância entre as capas e o CTA. O texto anterior é
+     tratado como legado para o banco não devolver a versão longa ao ar. */
+  const notaCms = txt('heroKitNote', '')
+  const nota = !notaCms || notaCms.startsWith('Kit Completo para integradoras')
+    ? 'Kit Completo: 2 Ebooks + Plataforma'
+    : notaCms
   const cta = txt('heroKitCta', 'Quero o Kit Completo Agora')
 
+  /* Respiros menores em toda a pilha (Francis, slide 2: "tentar subir o CTA").
+     Somados à linha de etiquetas que saiu e à nota que encurtou, o botão sobe
+     cerca de 90px sem que nada precise encolher de tamanho. */
   return (
-    <div className="v4-rise mt-14 w-full md:mt-16" style={{ ['--d' as string]: '760ms' }}>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-9 md:grid-cols-4 md:gap-x-2">
+    <div className="v4-rise mt-11 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-2">
         {pecas.map((peca, i) => (
           <div key={peca.title} className="group relative flex flex-col items-center text-center">
             {/* O "+" entre as peças, só no desktop: no mobile a grade é 2x2 e
@@ -80,15 +108,10 @@ const HeroKitV4: React.FC = () => {
               loading="lazy"
               className="h-[86px] w-auto max-w-none drop-shadow-[0_18px_26px_rgba(0,0,0,0.6)] transition duration-500 group-hover:-translate-y-1.5 md:h-[104px]"
             />
-            {temConteudo(peca.tag) && (
-              <span className="v4-mono mt-4 text-[8px] font-bold uppercase tracking-[0.22em] text-orange-400/80">
-                {peca.tag}
-              </span>
-            )}
             {/* Altura mínima de duas linhas: "Plataforma de Avaliação de Proposta
                 Comercial" quebra em duas e, sem isto, a frase daquela peça
                 descia sozinha e as quatro deixavam de alinhar. */}
-            <p className="mt-1.5 min-h-[2.6em] text-[13px] font-bold leading-snug text-white md:text-sm">
+            <p className="mt-3.5 min-h-[2.6em] text-[13px] font-bold leading-snug text-white md:text-sm">
               {peca.title}
             </p>
             {temConteudo(peca.desc) && (
@@ -99,7 +122,7 @@ const HeroKitV4: React.FC = () => {
       </div>
 
       {temConteudo(nota) && (
-        <p className="mx-auto mt-10 max-w-2xl text-balance text-[15px] leading-relaxed text-slate-300 md:text-base">
+        <p className="mx-auto mt-8 max-w-2xl text-balance text-[15px] leading-relaxed text-slate-300 md:text-base">
           <CMSText value={nota} />
         </p>
       )}
@@ -110,7 +133,7 @@ const HeroKitV4: React.FC = () => {
           target={globalSettings.purchaseLink ? '_blank' : undefined}
           rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
           onClick={trackBuyClick}
-          className="v4-cta-shine group relative mx-auto mt-7 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:text-lg"
+          className="v4-cta-shine group relative mx-auto mt-6 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:text-lg"
         >
           <span className="relative z-10">{cta}</span>
           <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />

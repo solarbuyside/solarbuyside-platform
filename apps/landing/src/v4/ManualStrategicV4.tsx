@@ -1,17 +1,14 @@
 import React from 'react'
-import { BarChart3, Layout, MinusCircle, Target, TrendingUp, Users } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { scrollToId } from './scroll'
-import { criarTxt } from './cms'
+import { criarTxt, temConteudo } from './cms'
 
-type ItemProps = {
-  Icon: React.ComponentType<{ size?: number }>
-  title: string
-  desc: React.ReactNode
-  delay?: number
-}
+/* Páginas do índice do Manual, renderizadas do PDF por
+   apps/platform/scripts/gerar-indice-manual.mjs. Strings, e não números, para
+   casar com o zero à esquerda do nome do arquivo. */
+const PAGINAS_INDICE = ['08', '09', '10', '11', '12', '13', '14'] as const
 
 /* Lista numerada do ato escuro: rótulo mono laranja + itens 01..N com fio.
    Nasceu no bloco do Código e virou compartilhada quando o Francis pediu a
@@ -40,26 +37,6 @@ const NumberedList: React.FC<{ title?: string; items: string[] }> = ({ title, it
       ))}
     </ul>
   </>
-)
-
-/* Item editorial sem caixa: anel hairline + hairline inferior, inversão laranja no hover */
-const FeatureItem: React.FC<ItemProps> = ({ Icon, title, desc, delay = 0 }) => (
-  <Reveal
-    as="li"
-    delay={delay}
-    className="group grid grid-cols-[48px_1fr] gap-5 border-b border-white/[0.08] py-6 transition-transform duration-500 hover:translate-x-1"
-  >
-    <span
-      className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 text-orange-500 transition-all duration-500 group-hover:border-orange-500 group-hover:bg-orange-500 group-hover:text-white"
-      aria-hidden
-    >
-      <Icon size={20} />
-    </span>
-    <div className="min-w-0 space-y-1.5">
-      <h4 className="text-lg font-bold text-white">{title}</h4>
-      <p className="leading-relaxed text-slate-400">{desc}</p>
-    </div>
-  </Reveal>
 )
 
 export const ManualStrategicV4: React.FC = () => {
@@ -131,43 +108,12 @@ export const ManualStrategicV4: React.FC = () => {
   const manualItems = lerItens('manualItem')
   const codeItems = lerItens('codeItem')
 
-  /* Cards do bloco 2. O default do código só vale quando a chave NÃO existe no
-     banco: chave presente e vazia é o cliente dizendo "tira este card".
-
-     Era `texts.x || 'default'`, e `||` trata "" como ausente. O Francis apagou
-     os cards 3 das duas colunas no admin em 30/07 e os textos antigos
-     continuaram na LP, porque o componente caía de volta no hardcoded. O trim
-     cobre o `"\n"` que o editor grava quando o campo é esvaziado. */
-  const card = (
-    Icon: React.ComponentType<{ size?: number }>,
-    titleKey: string,
-    descKey: string,
-    defTitle: string,
-    defDesc: string,
-  ) => ({
-    Icon,
-    title: (section?.texts[titleKey] ?? defTitle).trim(),
-    desc: (section?.texts[descKey] ?? defDesc).trim(),
-  })
-  const comConteudo = (c: { title: string; desc: string }) => Boolean(c.title || c.desc)
-
-  const sellCards = [
-    card(Target, 'sellCard1Title', 'sellCard1Desc', 'Dores reais do cliente',
-      'Compreende o que realmente pesa na decisão, não apenas o que ele diz na reunião.'),
-    card(Users, 'sellCard2Title', 'sellCard2Desc', 'Postura consultiva',
-      'Conduz a conversa como conselheiro técnico, não como tirador de pedido. O cliente percebe a diferença logo na primeira reunião.'),
-    card(TrendingUp, 'sellCard3Title', 'sellCard3Desc', 'Valor técnico e econômico',
-      'Demonstra, de forma fundamentada, como o valor técnico da solução se converte em benefício econômico.'),
-  ].filter(comConteudo)
-
-  const focusCards = [
-    card(Layout, 'focusCard1Title', 'focusCard1Desc', 'Apresentações persuasivas',
-      'Estruture propostas objetivas e transparentes que facilitam a decisão do cliente.'),
-    card(BarChart3, 'focusCard2Title', 'focusCard2Desc', 'Autoridade na mesa',
-      'Constrói autoridade e conexões reais, que fecham negócio sem desconto.'),
-    card(MinusCircle, 'focusCard3Title', 'focusCard3Desc', 'Menos desconto, mais margem',
-      'Argumente com precisão e preserve sua comissão sem perder vendas.'),
-  ].filter(comConteudo)
+  /* Textos da tira do índice. Apagar o título tira a tira inteira do ar. */
+  const indiceTitulo = txt('indexTitle', 'As 7 páginas de índice do Manual')
+  const indiceLead = txt(
+    'indexLead',
+    'São 160 tópicos organizados em 4 fases, do primeiro cálculo de consumo à assinatura do contrato. É este roteiro que o seu próximo cliente vai usar para avaliar a sua proposta.',
+  )
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#07090d] to-[#0b0907] text-slate-100 antialiased">
@@ -177,8 +123,16 @@ export const ManualStrategicV4: React.FC = () => {
           é a seção Retorno (RetornoV4), logo abaixo. */}
       <div className="relative mx-auto max-w-7xl px-6 py-24 md:py-32">
         {/* ── Título da seção (Francis, slide 11: "criar este título da seção
-            MANUAL ESTRATÉGICO"). Cobre o bloco inteiro: Manual, Código e os
-            resultados, que são as duas ferramentas do "kit". ───────────── */}
+            MANUAL ESTRATÉGICO"). Cobre as duas ferramentas do "kit": o Manual
+            e o Código.
+
+            A "Parte 2: resultados" ("Veja o que muda quando você passa a
+            vender pelo Método Solar Buy-Side", com as colunas NA SUA FORMA DE
+            VENDER / NO SEU FATURAMENTO) saiu inteira na revisão de 06/08,
+            slide 14. As chaves de CMS dela (section2Title, section2Subtitle,
+            sellCard1..3, focusCard1..3, sellSideHeader, focusHeader) ficaram
+            órfãs no banco de propósito: apagá-las seria uma migration
+            destrutiva por texto que ele pode querer de volta. ───────────── */}
         <Reveal>
           <h2 className="font-['Sora'] text-[clamp(2rem,4.4vw,3.4rem)] font-extrabold leading-[1.08] tracking-tight text-white">
             {txt('kitTitle', 'Kit Completo Solar Buy-Side')}
@@ -269,6 +223,71 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
         </div>
 
+        {/* ── As 7 páginas do índice ────────────────────────────────────
+            Francis, 06/08, slide 12: "criar mockup do manual com as 7 páginas
+            do ÍNDICE, p. 8 a 14".
+
+            A promessa do bloco acima é "130 páginas, 160 tópicos". Isso é um
+            número; o índice é a PROVA dele, e é a única parte do Manual que dá
+            para mostrar inteira sem entregar o conteúdo.
+
+            As páginas aparecem pequenas de propósito: aqui elas provam volume e
+            organização, não servem para leitura. Quem quiser ler, compra.
+
+            Tira de rolagem horizontal em vez de leque sobreposto: leque só
+            funciona com hover, e no celular (metade do tráfego) não há hover.
+            Aqui o dedo arrasta e o mouse arrasta, do mesmo jeito.
+
+            Os arquivos saem de apps/platform/scripts/gerar-indice-manual.mjs,
+            que renderiza direto do PDF do Manual. Quando o Manual for revisado,
+            é rodar o script de novo. Por isso NÃO são campos de imagem no
+            admin: são derivados do PDF, não uma escolha editorial. */}
+        {temConteudo(indiceTitulo) && (
+          <div className="mt-20">
+            <Reveal>
+              <Kicker tone="dark">{txt('indexKicker', 'O índice completo')}</Kicker>
+            </Reveal>
+            <Reveal delay={80}>
+              <h3 className="mt-4 max-w-3xl font-['Sora'] text-2xl font-bold leading-snug tracking-tight text-white md:text-3xl">
+                <CMSText value={indiceTitulo} />
+              </h3>
+            </Reveal>
+            {temConteudo(indiceLead) && (
+              <Reveal delay={140}>
+                <p className="mt-3 max-w-2xl leading-relaxed text-slate-400">
+                  <CMSText value={indiceLead} />
+                </p>
+              </Reveal>
+            )}
+
+            <Reveal delay={200}>
+              {/* -mx-6 px-6: a tira sangra até as bordas da tela, então a
+                  última página não parece cortada por acaso, e o primeiro
+                  item continua alinhado com o texto acima. */}
+              <ul className="v4-scroll-x -mx-6 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4">
+                {PAGINAS_INDICE.map((pagina) => (
+                  <li
+                    key={pagina}
+                    className="group w-[180px] shrink-0 snap-start md:w-[210px]"
+                  >
+                    <div className="overflow-hidden rounded-lg border border-white/10 bg-white shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)] transition-transform duration-500 group-hover:-translate-y-1.5">
+                      <Img
+                        src={`/assets/manual-indice-p${pagina}.png`}
+                        alt={`Página ${Number(pagina)} do Manual Solar Buy-Side: índice interativo`}
+                        loading="lazy"
+                        className="h-auto w-full"
+                      />
+                    </div>
+                    <p className="v4-mono mt-2.5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                      {`p. ${Number(pagina)}`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+        )}
+
         {/* ── Código do Vendedor: vem logo após o Manual (ordem do Francis) ─
             items-start (era items-center): a capa ficava centralizada na
             vertical enquanto a do Manual alinha pelo topo, com o título. */}
@@ -345,58 +364,6 @@ export const ManualStrategicV4: React.FC = () => {
             <CtaArrow size={20} />
           </Cta>
         </Reveal>
-
-        <div className="my-16 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
-
-        {/* ── Parte 2: resultados ───────────────────────────────────────── */}
-        <Reveal className="max-w-4xl">
-          <h2 className="text-[clamp(2rem,4vw,3.2rem)] font-extrabold leading-[1.15] tracking-tight text-white">
-            <CMSText
-              value={
-                section?.texts.section2Title?.trim()
-                  ? section.texts.section2Title
-                  : 'Veja os resultados <span class="cms-orange">concretos</span> que você pode alcançar ao aplicar o <span class="cms-orange">Método Solar Buy-Side</span> no seu processo de venda.'
-              }
-            />
-          </h2>
-          {section?.texts.section2Subtitle && (
-            <p className="mt-4 text-xl font-medium text-slate-400 md:text-2xl">{section.texts.section2Subtitle}</p>
-          )}
-        </Reveal>
-
-        <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-12 lg:grid-cols-2">
-          {sellCards.length > 0 && (
-          <div>
-            <Reveal as="header" className="flex items-center gap-4">
-              <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
-              <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{txt('sellSideHeader', 'O que o vendedor desenvolve')}</span>
-              </h3>
-            </Reveal>
-            <ul className="mt-2">
-              {sellCards.map((c, i) => (
-                <FeatureItem key={i} Icon={c.Icon} delay={(i + 1) * 80} title={c.title} desc={c.desc} />
-              ))}
-            </ul>
-          </div>
-          )}
-
-          {focusCards.length > 0 && (
-          <div>
-            <Reveal as="header" className="flex items-center gap-4">
-              <span className="h-8 w-1 rounded-full bg-orange-500" aria-hidden />
-              <h3 className="text-xs uppercase tracking-[0.3em] text-orange-500">
-                <span className="v4-mono font-bold">{txt('focusHeader', 'Principais focos e habilidades')}</span>
-              </h3>
-            </Reveal>
-            <ul className="mt-2">
-              {focusCards.map((c, i) => (
-                <FeatureItem key={i} Icon={c.Icon} delay={(i + 1) * 80} title={c.title} desc={c.desc} />
-              ))}
-            </ul>
-          </div>
-          )}
-        </div>
       </div>
     </section>
   )
