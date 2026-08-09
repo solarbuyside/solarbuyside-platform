@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react'
  *
  *   a — "Amanhecer" (a atual): centrada, simétrica, cinematográfica.
  *   b — "Editorial": assimétrica, texto à esquerda, produto à direita.
- *   c — "Duelo": a tese do produto virada em layout, comprador x vendedor.
+ *   c — "Vitrine": a tela real da Plataforma como imagem principal.
  *
  * COMO ABRIR: `?hero=b` na URL. O seletor no cabeçalho só aparece em MODO DE
  * AVALIAÇÃO, que é uma destas duas coisas:
@@ -29,7 +29,7 @@ export type VarianteHero = 'a' | 'b' | 'c'
 export const VARIANTES: { id: VarianteHero; nome: string; resumo: string }[] = [
   { id: 'a', nome: 'Amanhecer', resumo: 'Centrada e simétrica' },
   { id: 'b', nome: 'Editorial', resumo: 'Texto à esquerda, produto à direita' },
-  { id: 'c', nome: 'Duelo', resumo: 'Comprador x vendedor' },
+  { id: 'c', nome: 'Vitrine', resumo: 'A tela da Plataforma como herói' },
 ]
 
 /** Trocar de variante não navega, então não dispara popstate: avisamos nós. */

@@ -3,7 +3,7 @@ import './v4.css'
 import { trackPageView, observeSection } from '../utils/analytics'
 import { FloatingCTAV4, HeaderV4 } from './HeaderV4'
 import { HeroV4 } from './HeroV4'
-import { HeroDueloV4, HeroEditorialV4 } from './HeroVariantesV4'
+import { HeroEditorialV4, HeroVitrineV4 } from './HeroVariantesV4'
 import { useVarianteHero } from './heroVariante'
 import { ContextV4 } from './ContextV4'
 import { ApoiadoresV4 } from './ApoiadoresV4'
@@ -127,7 +127,7 @@ export default function AppV4() {
       <main>
       {/* ─────────────────── ATO 1 · ESCURO ─────────────────── */}
       <div id="hero">
-        {variante === 'b' ? <HeroEditorialV4 /> : variante === 'c' ? <HeroDueloV4 /> : <HeroV4 />}
+        {variante === 'b' ? <HeroEditorialV4 /> : variante === 'c' ? <HeroVitrineV4 /> : <HeroV4 />}
       </div>
       {/* A Plataforma emenda DIRETO no CTA do Hero (slide 4: "plataforma para
           encaixar +/- assim"). Era a faixa de logos que ocupava este lugar. */}
