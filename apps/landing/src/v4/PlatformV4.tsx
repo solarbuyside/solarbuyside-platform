@@ -103,7 +103,7 @@ export const PlatformV4: React.FC = () => {
     txt('lead', 'A Plataforma de Avaliação Solar Buy-Side revela as forças e fraquezas das suas ofertas, ajudando sua empresa a entregar propostas mais competitivas, confiáveis e persuasivas.')
   const legenda = txt(
     'tableCaption',
-    'Seis propostas para o mesmo cliente. Venceu a de <span class="cms-bold">R$ 16.342,80</span>, nem a mais cara, nem a mais barata, porque teve o maior Índice de Confiabilidade: <span class="cms-orange">79,2 de 100</span>, com a melhor pontuação em reputação da integradora e em tecnologia proposta.',
+    'Seis propostas para o mesmo cliente. Venceu a de <span class="cms-bold">R$ 16.342,80</span>, nem a mais cara, nem a mais barata, porque teve o maior Índice de Confiabilidade: <span class="cms-orange">79,2 de 100</span>, com a melhor pontuação em confiabilidade da integradora e em reputação da tecnologia proposta.',
   )
   const bullets = [
     txt('bullet1', 'Compare propostas de fornecedores lado a lado'),

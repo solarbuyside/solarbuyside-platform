@@ -10,6 +10,11 @@ export const ContextV4: React.FC = () => {
   const section = getSection('context')
   const txt = criarTxt(section)
 
+  /* Título do fecho, em campo próprio desde 09/08. Enquanto o banco não tiver
+     `closingTitle`, o padrão abaixo cobre — e o parágrafo continua rodando sem
+     ele se alguém apagar o campo. */
+  const tituloFecho = txt('closingTitle', 'Uma janela de 90 dias para sair na frente')
+
   // Slide 4: "No ADM, inserir este texto". Sem travessão (regra da LP) e com
   // ponto final, que faltava no original dele.
   const fechoPanorama = txt(
@@ -87,12 +92,36 @@ export const ContextV4: React.FC = () => {
         {/* Fecho do Panorama (Francis, slide 4): a janela de 90 dias antes do
             lançamento para o consumidor final. Entra DEPOIS das três previsões
             porque é a consequência delas ("antes disso" = antes de o novo
-            padrão chegar ao comprador). Aceita marcação do CMS. */}
-        {temConteudo(fechoPanorama) && (
+            padrão chegar ao comprador). Aceita marcação do CMS.
+
+            O TÍTULO GANHOU CAMPO PRÓPRIO (Francis, 09/08: "transformar a frase
+            em subtítulo do bloco Panorama com um espaço do texto abaixo").
+            Antes ele estava DENTRO do parágrafo, como um <span> em negrito
+            seguido de <br>: parecia um subtítulo, mas era a primeira linha de
+            um texto corrido, com o mesmo corpo e sem respiro. Agora é um <h3>
+            de verdade, com tamanho, cor e espaço próprios — e um campo
+            separado no admin, para ele editar o título sem mexer no parágrafo.
+
+            Os dois dividem o mesmo filete laranja à esquerda, senão o título
+            se desprenderia do bloco que ele nomeia. */}
+        {(temConteudo(tituloFecho) || temConteudo(fechoPanorama)) && (
           <Reveal delay={120}>
-            <p className="mt-10 max-w-3xl border-l-2 border-orange-500/40 pl-5 text-lg leading-relaxed text-slate-300 md:text-xl">
-              <CMSText value={fechoPanorama} />
-            </p>
+            <div className="mt-10 max-w-3xl border-l-2 border-orange-500/40 pl-5">
+              {temConteudo(tituloFecho) && (
+                <h3 className="font-['Sora'] text-xl font-bold leading-snug tracking-tight text-white md:text-2xl">
+                  <CMSText value={tituloFecho} />
+                </h3>
+              )}
+              {temConteudo(fechoPanorama) && (
+                <p
+                  className={`text-lg leading-relaxed text-slate-300 md:text-xl ${
+                    temConteudo(tituloFecho) ? 'mt-4' : ''
+                  }`}
+                >
+                  <CMSText value={fechoPanorama} />
+                </p>
+              )}
+            </div>
           </Reveal>
         )}
 

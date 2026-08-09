@@ -186,9 +186,17 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       },
       {
         label: "Fecho (abaixo dos 3 cards)",
+        /* O TÍTULO GANHOU CAMPO PRÓPRIO em 09/08 (Francis: "transformar a
+           frase em subtítulo do bloco Panorama"). Ele estava embutido no
+           começo do parágrafo, em negrito, e por isso não dava para mexer no
+           título sem editar o texto inteiro. */
         fields: [
+          t("closingTitle", "Subtítulo do fecho", {
+            maxLength: 70,
+            help: "Sai em destaque, acima do parágrafo. Apagar o campo tira só o subtítulo; o parágrafo continua.",
+          }),
           rich("closing", "Parágrafo de fecho", {
-            help: "Fica logo abaixo dos três itens, com um filete laranja à esquerda. Apagar o campo tira o parágrafo da página.",
+            help: "Fica logo abaixo do subtítulo, com um filete laranja à esquerda. Apagar o campo tira o parágrafo da página.",
           }),
         ],
       },

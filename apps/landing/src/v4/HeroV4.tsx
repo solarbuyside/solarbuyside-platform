@@ -71,45 +71,47 @@ const HeroKitV4: React.FC = () => {
        senão a conta desencontra de novo. */
   ]
 
-  /* A linha de resumo entre as capas e o botão. Encurtada em 06/08 (slide 2:
-     "Kit Completo: 2 Ebooks + Plataforma"): a frase antiga tinha duas linhas e
-     era a maior parte da distância entre as capas e o CTA. O texto anterior é
-     tratado como legado para o banco não devolver a versão longa ao ar. */
+  /* A linha que nomeia o kit. Encurtada em 06/08 (slide 2: "Kit Completo: 2
+     Ebooks + Plataforma"): a frase antiga tinha duas linhas e era a maior
+     parte da distância entre as capas e o CTA. O texto anterior é tratado como
+     legado para o banco não devolver a versão longa ao ar.
+
+     A LICENÇA DE USO VOLTOU AO RÓTULO em 09/08 ("+ Licença de uso até 10
+     vendedores"). Em 06/08 a quarta capa saiu da dobra porque o rótulo
+     prometia três coisas e apareciam quatro objetos; o comentário de então
+     registrou que, se a Licença voltasse, o caminho certo era o RÓTULO passar
+     a nomeá-la. É exatamente o que o Francis pediu agora: a licença é nomeada
+     e continua sem capa, porque ela não é um livro. A conta bate: três capas,
+     e a quarta linha do kit é um direito de uso. */
   const notaCms = txt('heroKitNote', '')
   const nota = !notaCms || notaCms.startsWith('Kit Completo para integradoras')
-    ? 'Kit Completo: 2 Ebooks + Plataforma'
+    ? 'Kit Completo: 2 Ebooks + Plataforma + Licença de uso até 10 vendedores'
     : notaCms
   const cta = txt('heroKitCta', 'Quero o Kit Completo Agora')
 
-  /* ORDEM: botão, depois a linha que nomeia o kit, depois as capas.
-     Antes era o contrário, e o catálogo ficava ENTRE a promessa e a ação:
-     quem se convencia na headline tinha que atravessar quatro colunas de
-     texto para achar o botão. Agora quem está pronto clica em três segundos e
-     quem precisa de prova encontra as capas logo abaixo, sem que elas tenham
-     barrado o caminho de ninguém. As quatro capas continuam na primeira
-     dobra, que é o que o Francis pediu em 03/08 e reconfirmou em 06/08. */
+  /* ORDEM: a linha que nomeia o kit, as capas, e o BOTÃO POR ÚLTIMO.
+
+     O botão vinha primeiro desde 03/08, pelo argumento de que o catálogo não
+     podia ficar entre a promessa e a ação. O Francis reabriu a questão em
+     09/08 ("o CTA abaixo dos produtos não seria mais lógico?") e a razão dele
+     é melhor: com o botão em cima, ele pede a compra antes de mostrar o que
+     está sendo comprado. Embaixo, ele fecha o argumento — o visitante lê a
+     promessa, vê as três peças e encontra a ação no ponto em que ela faz
+     sentido. A distância que isso cria é de meia dobra, não de meia página.
+   */
   return (
     <div className="v4-hero-kit v4-rise mt-10 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
-      {temConteudo(cta) && (
-        <a
-          href={globalSettings.purchaseLink || '#oferta'}
-          target={globalSettings.purchaseLink ? '_blank' : undefined}
-          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
-          onClick={trackBuyClick}
-          className="v4-cta-shine group relative mx-auto inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-9 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:px-10 md:py-5 md:text-lg"
-        >
-          <span className="relative z-10">{cta}</span>
-          <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
-        </a>
-      )}
-
       {/* Esta linha passou a NOMEAR o conjunto, no lugar dos oito fragmentos
           de texto que ficavam sob as capas. Ela já resumia a grade toda em
           cinco palavras, o que era a prova de que a grade não estava sendo
           lida. Em mono e caixa alta: vira rótulo do que vem abaixo, não mais
-          um parágrafo disputando leitura com a subfrase. */}
+          um parágrafo disputando leitura com a subfrase.
+
+          `max-w-4xl` e entreletra um pouco menor desde 09/08: com a Licença de
+          Uso no fim, a frase passou a rachar em duas linhas dentro dos 42rem
+          antigos, e um rótulo de duas linhas deixa de ser rótulo. */}
       {temConteudo(nota) && (
-        <p className="v4-mono mx-auto mt-9 max-w-2xl text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 md:text-xs">
+        <p className="v4-mono mx-auto max-w-4xl text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 md:text-xs">
           <CMSText value={nota} />
         </p>
       )}
@@ -169,6 +171,22 @@ const HeroKitV4: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* O BOTÃO, agora no fim (Francis, 09/08). `mt-10` e não o `mt-9` que a
+          linha do kit usava: ele fecha o bloco, e fechar pede mais respiro do
+          que separar duas partes do meio. */}
+      {temConteudo(cta) && (
+        <a
+          href={globalSettings.purchaseLink || '#oferta'}
+          target={globalSettings.purchaseLink ? '_blank' : undefined}
+          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
+          onClick={trackBuyClick}
+          className="v4-cta-shine group relative mx-auto mt-10 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-9 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:mt-12 md:px-10 md:py-5 md:text-lg"
+        >
+          <span className="relative z-10">{cta}</span>
+          <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
+        </a>
+      )}
     </div>
   )
 }
