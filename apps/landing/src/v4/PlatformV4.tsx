@@ -2,7 +2,7 @@
 import { Trophy, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Cta, CtaArrow, Kicker, Reveal, SolarCells } from './atoms'
+import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 import { criarTxt, temConteudo } from './cms'
 
@@ -273,7 +273,37 @@ export const PlatformV4: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-slate-100 antialiased">
-      <SolarCells fade="center" />
+      {/* GRADE PLENA, e não `center` (Gabriel, 09/08: "a segunda seção tem que
+          continuar a primeira").
+
+          A cor nunca foi o problema: as duas seções são #07090d, o mesmo preto
+          do disco solar. O que criava a linha de costura era a GRADE. O Hero
+          termina com as células acesas na borda de baixo, e o `fade="center"`
+          é uma máscara radial que zera a grade justamente na borda de cima
+          desta seção. Grade acima, nada abaixo: o olho lê a diferença de
+          textura como diferença de cor, porque as linhas a 7% de branco
+          clareiam a média do preto.
+
+          Com `full` a grade atravessa a emenda inteira. E ela casa sozinha,
+          sem calibragem: `.v4-cells` usa `background-attachment: fixed`, então
+          a fase das linhas é a mesma em todas as seções e os quadrados de 40px
+          continuam alinhados de uma para a outra. É exatamente o caso de ponte
+          para o qual o `full` existe (ver `SolarCells` em atoms.tsx). */}
+      <SolarCells fade="full" />
+      {/* O GRÃO, que faltava. Com a grade corrigida ainda sobrava uma linha
+          visível na emenda, então em vez de continuar no olho eu medi os pixels
+          dos dois lados: acima 11,21 de luminância média com desvio 0,161;
+          abaixo 9,67 com desvio ZERO. Ou seja, o lado do Hero tem textura e
+          este era liso — e liso encostado em granulado o olho lê como duas
+          cores, mesmo os dois sendo #07090d.
+
+          O Hero cobre a seção inteira com `v4-noise` a 3%, que soma ~1,5 nível
+          de claridade e o grão. `GrainOverlay` é o mesmo recurso já usado em
+          quase toda seção escura da LP (Manual, Retorno, Transformação,
+          Pricing, Vídeo, fechamento); estas duas eram as que tinham ficado de
+          fora. 0.03 e não o 0.028 padrão do átomo, para bater exatamente com o
+          valor do Hero e o degrau fechar em zero. */}
+      <GrainOverlay opacity={0.03} />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 md:py-32">
         {/* Header em largura própria: o texto deixa de disputar com a tabela */}

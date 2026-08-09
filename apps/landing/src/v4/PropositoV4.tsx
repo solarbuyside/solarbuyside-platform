@@ -1,7 +1,7 @@
 import React from 'react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Kicker, Reveal, SolarCells } from './atoms'
+import { GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { criarTxt, temConteudo } from './cms'
 
 /* "PARA QUE SERVEM O MANUAL, O CÓDIGO E A PLATAFORMA DE AVALIAÇÃO?"
@@ -45,7 +45,21 @@ export const PropositoV4: React.FC = () => {
 
   return (
     <section className="relative bg-[#07090d] text-white antialiased">
-      <SolarCells fade="center" />
+      {/* GRADE PLENA, pelo mesmo motivo da seção da Plataforma logo acima: o
+          Ato 1 (Hero → Plataforma → Propósito) é UM bloco escuro contínuo, e a
+          máscara radial do `center` apagava a grade na borda de cima de cada
+          seção, criando uma linha de costura visível a cada emenda. Corrigir
+          só a Plataforma teria empurrado a costura para cá.
+
+          Esta é a última seção escura do ato: embaixo dela vem a de Apoiadores,
+          que é clara. Ali a grade pode terminar seca, porque a troca de fundo
+          já é total e ninguém procura continuidade de textura entre preto e
+          claro. */}
+      <SolarCells fade="full" />
+      {/* O mesmo grão do Hero e da seção da Plataforma. Sem ele esta seção
+          voltaria a ser a lisa do ato, e a costura só andaria mais um degrau
+          para baixo. Ver o comentário em PlatformV4 para a medição. */}
+      <GrainOverlay opacity={0.03} />
 
       {/* pb generoso: a seção de Apoiadores sobe por cima desta com o arco
           arredondado (-mt-20) e comeria o respiro do último item da escada. */}

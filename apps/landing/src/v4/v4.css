@@ -211,6 +211,75 @@ html:not(.js) .v4-rise {
   transition: none !important;
 }
 
+/* ── Mockup da Plataforma no Hero da variante C (TelaPlataformaV4) ───── */
+
+/* A FOLHA DO MANUAL rolando dentro do leitor. Começa mostrando o topo da
+   página e para com o trecho grifado no meio do quadro. Sai de -2% para dar a
+   impressão de que já vinha rolando antes de a cena entrar, em vez de o papel
+   nascer parado e arrancar. */
+@keyframes v4-tela-folha {
+  from {
+    transform: translateY(-2%);
+  }
+  to {
+    transform: translateY(-42%);
+  }
+}
+
+.v4-tela-folha {
+  animation: v4-tela-folha 4.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* O GRIFO. Espera a folha chegar (2,6s) e então varre a linha da esquerda para
+   a direita, na velocidade de quem passa um marca-texto. */
+@keyframes v4-tela-grifo {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.v4-tela-grifo {
+  transform: scaleX(0);
+  animation: v4-tela-grifo 0.85s cubic-bezier(0.33, 1, 0.68, 1) 2.6s forwards;
+}
+
+/* A barrinha que mostra quanto falta para a cena trocar sozinha. `--dur` vem
+   do componente, que é quem sabe a duração de cada cena. */
+@keyframes v4-tela-progresso {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.v4-tela-progresso {
+  animation: v4-tela-progresso var(--dur, 6s) linear forwards;
+}
+
+/* Quem pediu menos movimento vê as duas cenas paradas, com a folha já na
+   altura do grifo e o grifo já aplicado: mesma informação, sem animação. */
+@media (prefers-reduced-motion: reduce) {
+  .v4-tela-folha {
+    animation: none;
+    transform: translateY(-42%);
+  }
+
+  .v4-tela-grifo {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+  .v4-tela-progresso {
+    animation: none;
+    transform: scaleX(0);
+  }
+}
+
 /* ── Rotação contínua (raios, selos, anéis) ─────────────────────────── */
 @keyframes v4-rotate {
   to {
@@ -515,14 +584,13 @@ html:not(.js) .v4-rise {
   .v4-drip,
   .v4-dot::after,
   .v4-ring,
-  .v4-conic-frame::before,
-  .v4-cells::after {
+  .v4-conic-frame::before {
     animation: none;
   }
 }
 
-/* ── Células fotovoltaicas: grade sutil + brilho do sol passando ─────────
-   Motivo recorrente de energia solar no fundo de seções escuras. Bem leve.
+/* ── Células fotovoltaicas: grade sutil no fundo das seções escuras ──────
+   Motivo recorrente de energia solar. Bem leve.
    background-attachment fixed ancora a grade no viewport: a fase é a mesma
    em todas as seções, então hero→panorama lê como uma grade contínua,
    sem linha de costura. (iOS degrada para scroll; aceitável.) */
@@ -533,25 +601,23 @@ html:not(.js) .v4-rise {
   background-size: 40px 40px;
   background-attachment: fixed;
 }
-.v4-cells::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 38%, rgba(253, 186, 116, 0.06) 50%, transparent 62%);
-  background-size: 260% 100%;
-  /* fixed: o brilho é um só, ancorado no viewport — atravessa todas as
-     seções na mesma velocidade e no mesmo instante, sem dessincronia */
-  background-attachment: fixed;
-  animation: v4-panel-sheen 16s linear infinite;
-}
-@keyframes v4-panel-sheen {
-  from {
-    background-position: 210% 0;
-  }
-  to {
-    background-position: -60% 0;
-  }
-}
+
+/* O BRILHO QUE VARRIA A GRADE SAIU (Gabriel, 09/08: "tira essa luz que fica
+   passando a cada x segundos").
+
+   Era um `.v4-cells::after` com um gradiente diagonal âmbar animado em 16s. A
+   intenção era um reflexo de sol atravessando o painel; o defeito é que a
+   animação roda POR ELEMENTO. Cada seção escura tem a sua camada de células,
+   cada camada tem o seu `::after`, e cada um começa a contar o ciclo quando o
+   próprio elemento entra em cena. O comentário antigo alegava que o
+   `background-attachment: fixed` mantinha "um brilho só, sem dessincronia":
+   fixed ancora a POSIÇÃO no viewport, não sincroniza o RELÓGIO das animações.
+
+   Resultado: o brilho passava no Hero e não passava na seção logo abaixo,
+   parando na emenda. Uma luz que atravessa metade do fundo e morre numa linha
+   reta denuncia a divisão de seções em vez de escondê-la — exatamente o
+   contrário do que ela existia para fazer. A grade contínua, essa sim, já
+   costura as seções sozinha. */
 
 /* Promo Belenergy (Francis, slide 7: "criar alguns efeitos para destacar").
    Halo laranja que respira + varredura de brilho suave. Respeita
