@@ -59,8 +59,33 @@ const lerVariante = (): VarianteHero => {
 }
 const varianteCongelada = (): VarianteHero => 'a'
 
-const lerModo = (): boolean => new URLSearchParams(window.location.search).has('hero') || localHost()
-const modoCongelado = (): boolean => false
+/* SELETOR SEMPRE VISÍVEL (Gabriel, 09/08, pedindo pela segunda vez: "eu pedi
+   as versões A B C no header, cadê?").
+
+   Antes ele só aparecia em MODO DE AVALIAÇÃO: com `?hero=` na URL ou em
+   localhost. A intenção era boa e continua verdadeira — um seletor de layout
+   visível para um lead pago é caro —, mas ela dependia de alguém saber o
+   truque da URL, e o Francis precisa achar as três variantes sozinho, abrindo
+   o endereço normal.
+
+   PARA FECHAR DE NOVO quando a campanha começar, é UMA PALAVRA: `false` na
+   constante abaixo. O portão antigo continua escrito e volta inteiro, sem
+   mexer em mais nada. */
+const SELETOR_SEMPRE_VISIVEL = true
+
+const lerModo = (): boolean =>
+  SELETOR_SEMPRE_VISIVEL || new URLSearchParams(window.location.search).has('hero') || localHost()
+
+/* O snapshot de hidratação TEM QUE CONCORDAR com o que o HTML congelado traz.
+   O prerender captura o DOM depois de hidratar, então, com o seletor sempre
+   visível, ele passou a sair gravado no HTML. Se este `getServerSnapshot`
+   continuasse devolvendo `false`, o React hidrataria esperando um cabeçalho
+   sem o seletor, encontraria três botões a mais e quebraria a hidratação
+   (#418) — o mesmo erro que este arquivo inteiro existe para evitar.
+
+   Quando o portão voltar (constante acima em `false`), este também volta a
+   `false` sozinho, porque os dois leem a mesma constante. */
+const modoCongelado = (): boolean => SELETOR_SEMPRE_VISIVEL
 
 export function useVarianteHero(): {
   variante: VarianteHero

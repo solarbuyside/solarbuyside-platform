@@ -58,17 +58,21 @@ const HeroKitV4: React.FC = () => {
       title: txt('heroKit3Title', txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
     },
-    /* A Licença de Uso Coletiva SAIU da primeira dobra (Gabriel, 09/08).
-       O rótulo logo acima promete "2 Ebooks + Plataforma", que são três
-       coisas, e apareciam quatro capas: o visitante contava os objetos, batia
-       com o texto e sobrava uma. A quarta continua na página inteira, com
-       seção própria ("Capacite todo o seu time comercial") e card na oferta,
-       então nada se perde; ela só deixa de ser prometida sem nome na dobra.
+    /* A LICENÇA DE USO COLETIVA VOLTOU (Gabriel, 09/08, mandando a capa).
+       Ela tinha saído da dobra mais cedo no mesmo dia, porque o rótulo
+       prometia "2 Ebooks + Plataforma", que são três coisas, e apareciam
+       quatro capas: o visitante contava os objetos, batia com o texto e
+       sobrava uma.
 
-       ATENÇÃO: é o único ponto em que esta versão se afasta do slide 2 do
-       Francis, que pediu as quatro capas no Hero. Se ele quiser as quatro de
-       volta, o caminho certo é a capa voltar E o rótulo passar a nomeá-la,
-       senão a conta desencontra de novo. */
+       Agora a conta fecha ao contrário. O rótulo passou a nomear a Licença
+       ("+ Licença de uso até 10 vendedores"), então eram quatro nomes para
+       três objetos, e faltava justamente esta. Com ela de volta são quatro e
+       quatro — que é o caminho que o comentário anterior deixou escrito, e
+       também o que o Francis tinha pedido no slide 2 de 06/08. */
+    {
+      title: txt('heroKit4Title', txt('card3Title', 'Licença de Uso Coletiva')),
+      image: section?.images.card3Image || '/assets/coletiva-norm.png',
+    },
   ]
 
   /* A linha que nomeia o kit. Encurtada em 06/08 (slide 2: "Kit Completo: 2
@@ -139,7 +143,7 @@ const HeroKitV4: React.FC = () => {
           Maiores também: 124px num canvas de 1900px liam como selinho, e
           selinho diz "isto é secundário" justamente sobre o produto. Sem o
           texto competindo, elas aguentam 180px sem poluir. */}
-      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-3 items-end gap-x-6 md:mt-8 md:gap-x-10">
+      <div className="mx-auto mt-6 grid max-w-4xl grid-cols-2 items-end gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-y-0 md:mt-8 md:gap-x-8">
         {pecas.map((peca, i) => (
           <div key={peca.title} className="group relative flex items-end justify-center">
             {/* O "+" entre as peças. Alinhado pelo meio da capa, não da
