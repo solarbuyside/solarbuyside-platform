@@ -70,40 +70,8 @@ export const HeaderV4: React.FC = () => {
           : 'border-b border-transparent bg-transparent'
       }`}
     >
-      {/* Barra de AVALIAÇÃO das variantes do Hero. Só aparece em modo de
-          avaliação (`?hero=` na URL ou host local) — ver heroVariante.ts. No
-          domínio de produção, sem parâmetro, ela não existe: um seletor de
-          layout visível para um lead pago seria a coisa mais cara da página. */}
-      {modoAvaliacao && (
-        <div className="border-b border-white/10 bg-[#0a0c12]">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-1.5 px-6 py-1.5">
-            <span className="v4-mono text-[9px] font-bold uppercase tracking-[0.24em] text-slate-500">
-              Hero
-            </span>
-            {VARIANTES.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => trocar(v.id)}
-                title={v.resumo}
-                aria-pressed={variante === v.id}
-                className={`v4-mono rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                  variante === v.id
-                    ? 'bg-orange-500 text-white'
-                    : 'text-slate-400 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {`${v.id.toUpperCase()} · ${v.nome}`}
-              </button>
-            ))}
-            <span className="hidden text-[10px] text-slate-600 sm:block">
-              {VARIANTES.find((v) => v.id === variante)?.resumo}
-            </span>
-          </div>
-        </div>
-      )}
-
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="flex items-center">
         <a href="#hero" className="flex items-center gap-3">
           <Img
             src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
@@ -118,6 +86,30 @@ export const HeaderV4: React.FC = () => {
             <span className="text-orange-500">Buy-Side</span>
           </span>
         </a>
+
+        {/* Seletor de variante do Hero: tres letras, dentro da linha que o
+            cabecalho ja ocupa. Antes era uma faixa propria acima dele, que
+            comia ~56px de altura da primeira dobra so para existir. So
+            aparece em modo de avaliacao (ver heroVariante.ts). */}
+        {modoAvaliacao && (
+          <div className="ml-3 flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-0.5">
+            {VARIANTES.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => trocar(v.id)}
+                title={`${v.nome}: ${v.resumo}`}
+                aria-pressed={variante === v.id}
+                className={`v4-mono flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold uppercase transition-colors ${
+                  variante === v.id ? 'bg-orange-500 text-white' : 'text-slate-500 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {v.id}
+              </button>
+            ))}
+          </div>
+        )}
+        </div>
 
         <nav className="hidden items-center gap-0.5 md:flex">
           {NAV_ITEMS.map((item) => (

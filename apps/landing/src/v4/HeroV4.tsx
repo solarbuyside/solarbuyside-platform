@@ -198,7 +198,6 @@ export const HeroV4: React.FC = () => {
     if (i === -1) return [subtitle, '']
     return [subtitle.slice(0, i + 1).trim(), subtitle.slice(i + 1).trim()]
   })()
-  const manualTitle = txt('manualTitle', 'Manual Solar Buy-Side')
 
   /* Parallax sutil do brilho solar seguindo o mouse (desligado p/ reduced motion) */
   useEffect(() => {
@@ -287,12 +286,15 @@ export const HeroV4: React.FC = () => {
 
           Foi assim que o selo deixou de colar na barra fixa em tela de 1080px
           (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-28 text-center md:pb-[30vh]">
-        {/* chip do produto */}
-        <div className="v4-rise mb-7 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-3 pr-5 backdrop-blur-sm" style={{ ['--d' as string]: '0ms' }}>
-          <span className="h-2 w-2 rotate-45 rounded-[1px] bg-gradient-to-br from-orange-400 to-orange-600" aria-hidden />
-          <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-slate-300">{manualTitle}</span>
-        </div>
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-44 text-center md:pb-[30vh]">
+        {/* O selo "MÉTODO SOLAR BUY-SIDE" saiu em 09/08 (Gabriel). Ele
+            repetia, em letra miúda, a marca que o cabeçalho fixo já mostra a
+            30px dali, e nessa distância os dois liam como um bloco só de
+            miudezas. Sem ele a headline abre a dobra, que é o trabalho dela.
+
+            `manualTitle` continua no banco e no editor: as variantes B e C do
+            Hero ainda usam o selo, então o campo tem leitor. Ver
+            HeroVariantesV4.tsx. */}
 
         {/* headline massiva */}
         {/* clamp: mobile 41.6px e desktop 77.6px. O teto caiu 4px (era 5.1rem =
