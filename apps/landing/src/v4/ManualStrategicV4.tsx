@@ -1,14 +1,152 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { ZoomIn } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
+import { LightboxV4 } from './LightboxV4'
 import { scrollToId } from './scroll'
 import { criarTxt, temConteudo } from './cms'
 
-/* Páginas do índice do Manual, renderizadas do PDF por
-   apps/platform/scripts/gerar-indice-manual.mjs. Strings, e não números, para
-   casar com o zero à esquerda do nome do arquivo. */
-const PAGINAS_INDICE = ['08', '09', '10', '11', '12', '13', '14'] as const
+/* OS DOIS ÍNDICES, do Manual e do Código.
+
+   As páginas são renderizadas do PDF de cada livro por
+   apps/platform/scripts/gerar-indice.mjs. Strings, e não números, para casar
+   com o zero à esquerda do nome do arquivo.
+
+   Por que NÃO são campos de imagem no admin: são derivadas do PDF, não uma
+   escolha editorial. Quando um livro for revisado, é rodar o script de novo —
+   o que também explica por que os intervalos vivem lá e são repetidos aqui:
+   lá para gerar, aqui para exibir.
+
+   O índice do Manual ocupa 7 páginas e o do Código ocupa 2. Não é desleixo:
+   são livros de tamanhos diferentes, e o do Código cabe em duas. */
+type Livro = {
+  prefixo: string
+  paginas: readonly string[]
+  /** Como a página é chamada no `alt` e no lightbox. */
+  nome: string
+}
+
+const LIVROS: Record<'manual' | 'codigo', Livro> = {
+  manual: {
+    prefixo: 'manual-indice',
+    paginas: ['08', '09', '10', '11', '12', '13', '14'],
+    nome: 'Manual Solar Buy-Side',
+  },
+  codigo: {
+    prefixo: 'codigo-indice',
+    paginas: ['03', '04'],
+    nome: 'Código do Vendedor Consultivo',
+  },
+}
+
+const paginasDoLivro = (livro: Livro) =>
+  livro.paginas.map((pagina) => ({
+    src: `/assets/${livro.prefixo}-p${pagina}.png`,
+    alt: `Página ${Number(pagina)} do ${livro.nome}: índice de conteúdo`,
+    rotulo: `p. ${Number(pagina)}`,
+  }))
+
+/* ── A TIRA DE PÁGINAS DE ÍNDICE ────────────────────────────────────────────
+
+   Nasceu no Manual (Francis, 06/08, slide 12: "criar mockup do manual com as 7
+   páginas do ÍNDICE, p. 8 a 14") e virou componente quando o Código pediu a
+   mesma coisa (Gabriel, 09/08). Os dois blocos eram idênticos menos por três
+   textos e o prefixo dos arquivos.
+
+   POR QUE MOSTRAR O ÍNDICE: o bloco acima promete um número ("130 páginas, 160
+   tópicos"); o índice é a PROVA dele, e é a única parte de um livro que dá
+   para mostrar inteira sem entregar o conteúdo.
+
+   TIRA DE ROLAGEM, e não leque sobreposto: leque só funciona com hover, e no
+   celular (metade do tráfego) não há hover. Aqui o dedo arrasta e o mouse
+   arrasta, do mesmo jeito. */
+const TiraIndice: React.FC<{
+  livro: Livro
+  kicker: string
+  titulo: string
+  lead: string
+  aoAmpliar: (indice: number) => void
+}> = ({ livro, kicker, titulo, lead, aoAmpliar }) => {
+  /* Apagar o título no admin tira a tira inteira do ar. */
+  if (!temConteudo(titulo)) return null
+
+  return (
+    <div className="mt-20">
+      {temConteudo(kicker) && (
+        <Reveal>
+          <Kicker tone="dark">{kicker}</Kicker>
+        </Reveal>
+      )}
+      <Reveal delay={80}>
+        <h3 className="mt-4 max-w-3xl font-['Sora'] text-2xl font-bold leading-snug tracking-tight text-white md:text-3xl">
+          <CMSText value={titulo} />
+        </h3>
+      </Reveal>
+      {temConteudo(lead) && (
+        <Reveal delay={140}>
+          <p className="mt-3 max-w-2xl leading-relaxed text-slate-400">
+            <CMSText value={lead} />
+          </p>
+        </Reveal>
+      )}
+
+      <Reveal delay={200}>
+        {/* -mx-6 px-6: a tira sangra até as bordas da tela, então a última
+            página não parece cortada por acaso, e o primeiro item continua
+            alinhado com o texto acima. */}
+        <ul className="v4-scroll-x -mx-6 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4">
+          {paginasDoLivro(livro).map((pagina, i) => (
+            /* MINIATURA MAIOR QUANDO O ÍNDICE É CURTO. As 7 do Manual preenchem
+               a linha a 180px; as 2 do Código, no mesmo tamanho, deixavam dois
+               terços da faixa vazios e liam como sobra de layout. Maiores, elas
+               ocupam a largura e ainda ficam mais legíveis — o que é bem-vindo
+               num índice de duas páginas, onde cabe ler os títulos das fases
+               antes mesmo de ampliar. */
+            <li
+              key={pagina.src}
+              className={`group shrink-0 snap-start ${
+                livro.paginas.length <= 3 ? 'w-[250px] md:w-[300px]' : 'w-[180px] md:w-[210px]'
+              }`}
+            >
+              {/* A miniatura é BOTÃO (Gabriel, 09/08: "se eu clicar em alguma
+                  página tem que acontecer alguma coisa"). Ela já parecia
+                  clicável — sobe no hover, tem sombra de cartão — e não fazia
+                  nada. Pior: a 180px ninguém lê um sumário, então a prova do
+                  "160 tópicos" estava ali sem poder ser conferida. Agora abre
+                  no lightbox, em ~80% da altura da tela. */}
+              <button
+                type="button"
+                onClick={() => aoAmpliar(i)}
+                aria-label={`Ampliar a ${pagina.rotulo} do índice do ${livro.nome}`}
+                className="block w-full cursor-zoom-in text-left"
+              >
+                <div className="relative overflow-hidden rounded-lg border border-white/10 bg-white shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)] transition-transform duration-500 group-hover:-translate-y-1.5">
+                  <Img src={pagina.src} alt={pagina.alt} loading="lazy" className="h-auto w-full" />
+                  {/* A lupa só aparece no hover, e no celular nunca: lá o dedo
+                      descobre tocando, e um ícone fixo em cima de cada
+                      miniatura taparia justamente o texto que a tira existe
+                      para mostrar. */}
+                  <span
+                    className="pointer-events-none absolute inset-0 hidden items-center justify-center bg-slate-900/45 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex"
+                    aria-hidden
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-900">
+                      <ZoomIn size={18} />
+                    </span>
+                  </span>
+                </div>
+                <p className="v4-mono mt-2.5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 transition-colors group-hover:text-slate-300">
+                  {pagina.rotulo}
+                </p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+    </div>
+  )
+}
 
 /* Lista numerada do ato escuro: rótulo mono laranja + itens 01..N com fio.
    Nasceu no bloco do Código e virou compartilhada quando o Francis pediu a
@@ -108,11 +246,26 @@ export const ManualStrategicV4: React.FC = () => {
   const manualItems = lerItens('manualItem')
   const codeItems = lerItens('codeItem')
 
-  /* Textos da tira do índice. Apagar o título tira a tira inteira do ar. */
+  /* Qual página está ampliada, e de qual livro. Um lightbox só serve às duas
+     tiras: são o mesmo componente e nunca ficam abertas ao mesmo tempo. */
+  const [ampliada, setAmpliada] = useState<{ livro: 'manual' | 'codigo'; indice: number } | null>(null)
+
+  /* Textos das tiras de índice. Apagar o título tira a tira inteira do ar. */
   const indiceTitulo = txt('indexTitle', 'As 7 páginas de índice do Manual')
   const indiceLead = txt(
     'indexLead',
     'São 160 tópicos organizados em 4 fases, do primeiro cálculo de consumo à assinatura do contrato. É este roteiro que o seu próximo cliente vai usar para avaliar a sua proposta.',
+  )
+
+  /* O lead do Código não cita contagem de tópicos de propósito. Cada afirmação
+     dele dá para conferir na própria imagem do índice, que é o que a tira
+     mostra: as 4 fases, as 3 etapas do roteiro, o mapa e o checklist. Número
+     redondo inventado num lugar onde a prova está do lado é o tipo de coisa
+     que derruba a credibilidade do resto da página. */
+  const codigoIndiceTitulo = txt('codeIndexTitle', 'Tudo o que o Código cobre, tópico a tópico')
+  const codigoIndiceLead = txt(
+    'codeIndexLead',
+    'Da imersão no olhar do comprador à rodada final de negociação: 4 fases, um roteiro de treinamento em 3 etapas, o mapa do essencial e o checklist Buy-Side.',
   )
 
   return (
@@ -223,75 +376,27 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
         </div>
 
-        {/* ── As 7 páginas do índice ────────────────────────────────────
-            Francis, 06/08, slide 12: "criar mockup do manual com as 7 páginas
-            do ÍNDICE, p. 8 a 14".
-
-            A promessa do bloco acima é "130 páginas, 160 tópicos". Isso é um
-            número; o índice é a PROVA dele, e é a única parte do Manual que dá
-            para mostrar inteira sem entregar o conteúdo.
-
-            As páginas aparecem pequenas de propósito: aqui elas provam volume e
-            organização, não servem para leitura. Quem quiser ler, compra.
-
-            Tira de rolagem horizontal em vez de leque sobreposto: leque só
-            funciona com hover, e no celular (metade do tráfego) não há hover.
-            Aqui o dedo arrasta e o mouse arrasta, do mesmo jeito.
-
-            Os arquivos saem de apps/platform/scripts/gerar-indice-manual.mjs,
-            que renderiza direto do PDF do Manual. Quando o Manual for revisado,
-            é rodar o script de novo. Por isso NÃO são campos de imagem no
-            admin: são derivados do PDF, não uma escolha editorial. */}
-        {temConteudo(indiceTitulo) && (
-          <div className="mt-20">
-            <Reveal>
-              <Kicker tone="dark">{txt('indexKicker', 'O índice completo')}</Kicker>
-            </Reveal>
-            <Reveal delay={80}>
-              <h3 className="mt-4 max-w-3xl font-['Sora'] text-2xl font-bold leading-snug tracking-tight text-white md:text-3xl">
-                <CMSText value={indiceTitulo} />
-              </h3>
-            </Reveal>
-            {temConteudo(indiceLead) && (
-              <Reveal delay={140}>
-                <p className="mt-3 max-w-2xl leading-relaxed text-slate-400">
-                  <CMSText value={indiceLead} />
-                </p>
-              </Reveal>
-            )}
-
-            <Reveal delay={200}>
-              {/* -mx-6 px-6: a tira sangra até as bordas da tela, então a
-                  última página não parece cortada por acaso, e o primeiro
-                  item continua alinhado com o texto acima. */}
-              <ul className="v4-scroll-x -mx-6 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4">
-                {PAGINAS_INDICE.map((pagina) => (
-                  <li
-                    key={pagina}
-                    className="group w-[180px] shrink-0 snap-start md:w-[210px]"
-                  >
-                    <div className="overflow-hidden rounded-lg border border-white/10 bg-white shadow-[0_18px_40px_-18px_rgba(0,0,0,0.9)] transition-transform duration-500 group-hover:-translate-y-1.5">
-                      <Img
-                        src={`/assets/manual-indice-p${pagina}.png`}
-                        alt={`Página ${Number(pagina)} do Manual Solar Buy-Side: índice interativo`}
-                        loading="lazy"
-                        className="h-auto w-full"
-                      />
-                    </div>
-                    <p className="v4-mono mt-2.5 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                      {`p. ${Number(pagina)}`}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </div>
-        )}
+        <TiraIndice
+          livro={LIVROS.manual}
+          kicker={txt('indexKicker', 'O índice completo')}
+          titulo={indiceTitulo}
+          lead={indiceLead}
+          aoAmpliar={(i) => setAmpliada({ livro: 'manual', indice: i })}
+        />
 
         {/* ── Código do Vendedor: vem logo após o Manual (ordem do Francis) ─
             items-start (era items-center): a capa ficava centralizada na
-            vertical enquanto a do Manual alinha pelo topo, com o título. */}
-        <div className="mt-24 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+            vertical enquanto a do Manual alinha pelo topo, com o título.
+
+            `id="codigo"`: âncora de rolagem, nada mais — sem efeito visual. O
+            Código é a única das três peças do kit que não tinha endereço
+            próprio (o Manual tem `#manual-strategic`, a Plataforma tem
+            `#plataforma`), porque ele mora DENTRO da seção do Manual. O leque
+            do Hero da variante B leva cada capa para a sua explicação, e sem
+            isto a do Código cairia no começo do bloco do Manual, ou seja, na
+            explicação errada. O `scroll-margin-top: 76px` de `.v4-root [id]`
+            já desconta o cabeçalho fixo. */}
+        <div id="codigo" className="mt-24 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
               <Kicker tone="dark">{txt('codeBadge', 'Diferencial estratégico')}</Kicker>
@@ -352,6 +457,21 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
         </div>
 
+        {/* A mesma tira, agora com o índice do Código (Gabriel, 09/08: "do
+            mesmo jeito que tu fez isso aqui, faça no bloco do Código do
+            Vendedor Consultivo, com o índice do Código").
+
+            Fica DEPOIS do bloco do Código e antes do CTA, no mesmo lugar
+            relativo que a do Manual ocupa no bloco dele: primeiro o argumento,
+            depois a prova, depois o convite. */}
+        <TiraIndice
+          livro={LIVROS.codigo}
+          kicker={txt('codeIndexKicker', 'O índice completo')}
+          titulo={codigoIndiceTitulo}
+          lead={codigoIndiceLead}
+          aoAmpliar={(i) => setAmpliada({ livro: 'codigo', indice: i })}
+        />
+
         {/* CTA 3 — depois do Código, antes dos resultados (ordem do Francis).
             Texto novo na revisão de 25/07, slide 12. O valor antigo ("Quero
             vender com estratégia") é tratado como legado para a LP não
@@ -365,6 +485,20 @@ export const ManualStrategicV4: React.FC = () => {
           </Cta>
         </Reveal>
       </div>
+
+      {/* UM lightbox para as duas tiras: ele recebe as páginas do livro que
+          está aberto. Dois componentes dariam dois travamentos de rolagem e
+          dois ouvintes de teclado disputando o Esc.
+
+          Fica FORA do <div> de conteúdo, no fim da seção, porque na prática se
+          monta num portal para o <body> — a posição aqui é só onde o React o
+          mantém na árvore. Não renderiza nada enquanto `ampliada` for `null`. */}
+      <LightboxV4
+        itens={paginasDoLivro(LIVROS[ampliada?.livro ?? 'manual'])}
+        indice={ampliada?.indice ?? null}
+        aoFechar={() => setAmpliada(null)}
+        aoTrocar={(i) => setAmpliada((a) => (a ? { ...a, indice: i } : a))}
+      />
     </section>
   )
 }

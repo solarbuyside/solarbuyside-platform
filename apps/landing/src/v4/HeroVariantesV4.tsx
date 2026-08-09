@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, PlayCircle } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, PlayCircle } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Img, WordReveal } from './atoms'
@@ -49,6 +49,19 @@ function useTextosHero() {
   }
 }
 
+/* As três peças do kit.
+
+   Cada uma ganhou FRASE e ENDEREÇO, porque só a capa não estava contando nada
+   (Gabriel, 09/08: "eles não sabem o que é cada um dos livros").
+
+   A frase vem de `heroKitNDesc`, que são as legendas curtas que ficavam sob as
+   capas na variante A e saíram de lá em 06/08. Elas continuaram no banco e no
+   editor do admin sem ninguém lendo; aqui voltam a ter leitor, com o texto que
+   o Francis já aprovou ("130 páginas e 160 tópicos", e por aí).
+
+   O `alvo` é a seção da LP que explica aquela peça. O Código não tinha id
+   próprio porque mora dentro da seção do Manual — foi preciso criar um lá (ver
+   ManualStrategicV4). Sem isso ele cairia na explicação do Manual. */
 function useKit() {
   const { getSection, globalSettings } = useContent()
   const pricing = getSection('pricing')
@@ -59,19 +72,241 @@ function useKit() {
       {
         title: t('heroKit1Title', 'Manual de Compra de Sistema Solar'),
         image: pricing?.images.card1Image || '/assets/manual-norm.png',
+        frase: t('heroKit1Desc', '130 páginas e 160 tópicos'),
+        alvo: 'manual-strategic',
       },
       {
         title: t('heroKit2Title', t('card2Title', 'Código do Vendedor Consultivo')),
         image: pricing?.images.card2Image || '/assets/codigo-norm.png',
+        frase: t('heroKit2Desc', 'Método de venda consultiva'),
+        alvo: 'codigo',
       },
       {
         title: t('heroKit3Title', t('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
         image: pricing?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
+        frase: t('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
+        alvo: 'plataforma',
       },
     ],
     cta: t('heroKitCta', 'Quero o Kit Completo Agora'),
     link: globalSettings.purchaseLink || '#oferta',
     externo: Boolean(globalSettings.purchaseLink),
+  }
+}
+
+type Peca = ReturnType<typeof useKit>['pecas'][number]
+
+/* ── O LEQUE NAVEGÁVEL DA VARIANTE B ────────────────────────────────────────
+
+   Era uma pilha decorativa: três capas empilhadas, `aria-hidden`, sem clique.
+   Bonita e muda. Quem não conhece o produto via "uns livros" e seguia em
+   frente.
+
+   Agora é um controle. Uma peça fica na frente, as outras duas atrás; embaixo,
+   o nome e a frase da que está na frente, com um link para a seção que
+   explica ela. Troca de três formas, e as três importam:
+
+     - CLICANDO NUMA CAPA DE TRÁS. É o gesto direto, o que as pessoas tentam
+       primeiro num objeto empilhado.
+     - PELAS SETAS, que são o convite visível. Sem elas nada na tela avisa que
+       a pilha se mexe (foi o que o Gabriel pediu).
+     - SOZINHO, a cada 4,5s, até o primeiro toque. Sem o rodízio automático,
+       quem não interage continua sem saber o que são as três peças, que é
+       justamente o problema que isto veio resolver. Depois do primeiro
+       clique ele para de vez: pilha que se mexe sozinha debaixo da mão de
+       quem está usando é hostil.
+
+   POSIÇÃO SÓ POR `transform`. Cada pose é um translate + rotate + scale sobre
+   a MESMA âncora, em vez de left/right/width diferentes por peça. É o que
+   permite a transição animada: `left` e `width` também transicionam, mas
+   forçam layout a cada quadro e não interpolam bem com rotação. Assim as capas
+   deslizam de uma pose para a outra em GPU, e é essa passagem que faz o leque
+   parecer um objeto físico sendo folheado. */
+
+const POSES = [
+  /* 0 — FRENTE: maior, reta e centrada. Reta no meio de duas inclinadas é o
+     que elege a principal sem precisar de rótulo. */
+  'translateX(-50%) translateY(0) rotate(0deg) scale(1)',
+  /* 1 — ATRÁS À DIREITA: é esta que sangra pela borda da tela. */
+  'translateX(30%) translateY(-9%) rotate(11deg) scale(0.8)',
+  /* 2 — ATRÁS À ESQUERDA. */
+  'translateX(-118%) translateY(-11%) rotate(-15deg) scale(0.76)',
+]
+const CAMADAS = ['z-30', 'z-10', 'z-20']
+
+const RODIZIO = 4500
+
+const KitLequeV4: React.FC<{
+  pecas: Peca[]
+  ativo: number
+  aoTrocar: (i: number) => void
+  /** No celular o leque entra no fluxo e fica mais baixo. */
+  compacto?: boolean
+}> = ({ pecas, ativo, aoTrocar, compacto = false }) => (
+  /* DUAS FAIXAS EMPILHADAS, não uma camada só com tudo posicionado por cima.
+
+     O palco das capas é `flex-1` e a legenda é `shrink-0`: a legenda reserva a
+     altura dela e as capas só podem ocupar o que sobrou. Antes as três eram
+     absolutas na mesma caixa, com a legenda encostada no pé — e as capas eram
+     dimensionadas pela LARGURA do container (`w-[42%]`), então em tela larga e
+     baixa elas cresciam para cima e para baixo até cair em cima do texto
+     (Gabriel: "os livros estão tocando nas frases"). Com as faixas separadas
+     esse encontro deixa de ser possível em qualquer proporção de tela. */
+  <div className="flex h-full w-full flex-col">
+    <div className="relative min-h-0 flex-1">
+      {/* Fonte de luz atrás do produto: é ela que faz o objeto existir no
+          espaço, em vez de parecer colado sobre um fundo. */}
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[58vmin] w-[58vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/25 blur-[130px]"
+        aria-hidden
+      />
+      {/* Elipse de contato, a mesma solução do pedestal da variante A: sem ela
+          três objetos com sombra própria continuam boiando, porque nada no
+          quadro diz onde é o chão. */}
+      <div
+        className="pointer-events-none absolute bottom-1 left-1/2 h-8 w-[62%] -translate-x-1/2 rounded-[100%] bg-orange-400/20 blur-2xl"
+        aria-hidden
+      />
+
+      {pecas.map((peca, i) => {
+        /* Distância até a frente: 0 = na frente, 1 = atrás à direita, 2 = atrás
+           à esquerda. Trocar o ativo só muda esta conta, e as três capas
+           deslizam para as poses novas. */
+        const d = (i - ativo + pecas.length) % pecas.length
+        const naFrente = d === 0
+        return (
+          <button
+            key={peca.title}
+            type="button"
+            onClick={() => aoTrocar(i)}
+            tabIndex={naFrente ? -1 : 0}
+            aria-label={naFrente ? undefined : `Ver ${peca.title}`}
+            aria-hidden={naFrente}
+            /* ALTURA em % do palco, e a largura sai da proporção da imagem.
+               Era o contrário (largura em % do container), e por isso a altura
+               das capas dependia de quão LARGA a tela era: num monitor
+               widescreen elas viravam gigantes e transbordavam. Preso à altura
+               do palco, o leque cabe sempre.
+
+               `pointer-events-auto` é obrigatório aqui: a camada que envolve o
+               leque no desktop é `pointer-events-none` (para não roubar cliques
+               da coluna de texto, que ela encosta), e isso é HERDADO. Botão não
+               reativa evento sozinho — era esta a razão de nada no leque
+               responder a clique. */
+            className={`group pointer-events-auto absolute bottom-0 left-1/2 origin-bottom transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${
+              CAMADAS[d]
+            } ${compacto ? 'h-[74%]' : 'h-[68%]'} ${naFrente ? 'cursor-default' : 'cursor-pointer'}`}
+            style={{ transform: POSES[d], opacity: naFrente ? 1 : 0.85 }}
+          >
+            <Img
+              src={peca.image}
+              alt={peca.title}
+              loading="lazy"
+              className={`h-full w-auto max-w-none drop-shadow-[0_40px_60px_rgba(0,0,0,0.85)] transition-transform duration-500 ${
+                naFrente ? '' : 'group-hover:-translate-y-2'
+              }`}
+            />
+          </button>
+        )
+      })}
+    </div>
+
+    {/* A LEGENDA. Ela é o motivo de tudo isto existir: é aqui que a capa deixa
+        de ser "um livro" e vira uma coisa com nome, tamanho e endereço.
+        `pointer-events-auto` pelo mesmo motivo das capas. */}
+    <div
+      className={`pointer-events-auto relative z-40 flex shrink-0 flex-col items-center gap-2 px-4 text-center ${
+        compacto ? 'pt-4' : 'pt-5'
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <SetaLeque
+          direcao="anterior"
+          aoClicar={() => aoTrocar((ativo - 1 + pecas.length) % pecas.length)}
+          rotulo={`Ver ${pecas[(ativo - 1 + pecas.length) % pecas.length].title}`}
+        />
+
+        {/* Altura travada e `key` no ativo: o texto troca por fade sem que a
+            linha mude de altura, senão as setas dançam a cada troca (os três
+            nomes têm comprimentos bem diferentes). */}
+        <div key={ativo} className="v4-troca-suave flex h-[46px] min-w-0 flex-col justify-center">
+          <p className="truncate text-[13px] font-bold leading-tight text-white sm:text-sm">{pecas[ativo].title}</p>
+          {temConteudo(pecas[ativo].frase) && (
+            <p className="truncate text-[11px] leading-tight text-slate-400 sm:text-xs">{pecas[ativo].frase}</p>
+          )}
+        </div>
+
+        <SetaLeque
+          direcao="proximo"
+          aoClicar={() => aoTrocar((ativo + 1) % pecas.length)}
+          rotulo={`Ver ${pecas[(ativo + 1) % pecas.length].title}`}
+        />
+      </div>
+
+      {/* O link que o Gabriel pediu: leva direto para a seção que explica esta
+          peça. Fica separado das setas porque é uma ação de outra natureza —
+          as setas mexem no leque, este tira o visitante da dobra. */}
+      <button
+        type="button"
+        onClick={() => scrollToId(pecas[ativo].alvo)}
+        className="group pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-bold text-slate-300 transition-colors hover:border-orange-400/40 hover:bg-orange-500/10 hover:text-white"
+      >
+        Ver o que é
+        <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" aria-hidden />
+      </button>
+
+      {/* Marcadores de posição: dizem quantas peças existem, o que nem a seta
+          nem a legenda contam. */}
+      <div className="flex items-center gap-1.5" aria-hidden>
+        {pecas.map((peca, i) => (
+          <span
+            key={peca.title}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i === ativo ? 'w-5 bg-orange-400' : 'w-1 bg-white/25'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+)
+
+const SetaLeque: React.FC<{ direcao: 'anterior' | 'proximo'; aoClicar: () => void; rotulo: string }> = ({
+  direcao,
+  aoClicar,
+  rotulo,
+}) => {
+  const Icone = direcao === 'anterior' ? ChevronLeft : ChevronRight
+  return (
+    <button
+      type="button"
+      onClick={aoClicar}
+      aria-label={rotulo}
+      className="pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-slate-300 backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-white/12 hover:text-white active:scale-95"
+    >
+      <Icone size={16} aria-hidden />
+    </button>
+  )
+}
+
+/** Rodízio automático que morre no primeiro toque. */
+function useRodizio(total: number): { ativo: number; escolher: (i: number) => void } {
+  const [ativo, setAtivo] = React.useState(0)
+  const [auto, setAuto] = React.useState(true)
+
+  React.useEffect(() => {
+    if (!auto) return
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setTimeout(() => setAtivo((a) => (a + 1) % total), RODIZIO)
+    return () => window.clearTimeout(id)
+  }, [ativo, auto, total])
+
+  return {
+    ativo,
+    escolher: (i: number) => {
+      setAuto(false)
+      setAtivo(i)
+    },
   }
 }
 
@@ -158,68 +393,16 @@ export const HeroEditorialV4: React.FC = () => {
   const { titlePrefix, titleHighlight, titleSuffix, subtitle, selo } = useTextosHero()
   const { pecas, cta, link, externo } = useKit()
 
-  /* HIERARQUIA DO LEQUE (Gabriel, 09/08): o MANUAL é o produto principal e
-     precisa estar no centro e na frente. Antes o centro era o Código do
-     Vendedor, e o Manual ficava atrás, à esquerda, com o título tapado pela
-     capa da frente: a peça que dá nome à oferta era a única ilegível dos três.
+  /* O leque começa no MANUAL (índice 0) porque é a peça que dá nome à oferta,
+     e daí roda sozinho pelas outras duas. Antes o centro era fixo no Código do
+     Vendedor e o Manual ficava atrás, com o título tapado pela capa da frente:
+     a principal era a única ilegível das três.
 
-     As três também DIMINUÍRAM. Ocupando quase toda a metade direita elas se
-     cobriam demais (do tablet sobrava uma tira) e a dobra lia como amontoado.
-     Menores, cada uma se separa da vizinha e o leque volta a ter ar entre as
-     camadas, que é o que faz a profundidade aparecer.
-
-     A ordem de `pecas` é [manual, código, plataforma] e as poses seguem esse
-     índice, então trocar a ordem lá troca quem fica no centro. */
-  /* As alturas sobem juntas para o leque ficar na MESMA faixa vertical do
-     texto. Encostado no pé da dobra ele desequilibrava o quadro: coluna de
-     texto no meio à esquerda, bloco de capas no rodapé à direita, e uma banda
-     escura vazia ocupando o quarto superior direito. */
-  const POSES = [
-    /* MANUAL: centro, na frente, o maior e o único reto. Reto no meio de dois
-       inclinados é o que elege o principal sem precisar de rótulo. */
-    'left-[52%] bottom-[13%] w-[42%] -translate-x-1/2 z-30',
-    /* CÓDIGO: atrás e à esquerda, tombado para dentro. Mais estreito e mais
-       inclinado que o Manual, para ler como camada de fundo: a capa da frente
-       come o fim do título dele de qualquer jeito, e meia palavra legível a
-       13° passa por sobreposição, a 0° passa por erro. */
-    'left-[-1%] bottom-[24%] w-[31%] -rotate-[15deg] opacity-90 z-20',
-    /* PLATAFORMA: atrás e à direita, e é ESTA que sangra pela tela. A -1% ela
-       parava dentro do quadro em 1366px e o gesto das referências sumia justo
-       na largura de notebook mais comum. A -8% sai ~40% dela em qualquer
-       largura, que é o "não cabe" que se quer dizer. */
-    'right-[-8%] bottom-[22%] w-[35%] rotate-[11deg] opacity-85 z-10',
-  ]
-
-  const leque = (
-    <div className="relative h-full w-full">
-      {/* Fonte de luz atrás do produto: é ela que faz o objeto existir no
-          espaço, em vez de parecer colado sobre um fundo. */}
-      <div
-        className="absolute left-1/2 top-1/2 h-[58vmin] w-[58vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/25 blur-[130px]"
-        aria-hidden
-      />
-      {/* Elipse de contato, a mesma solução do pedestal da variante A: sem ela
-          três objetos com sombra própria continuam boiando, porque nada no
-          quadro diz onde é o chão. */}
-      <div
-        className="absolute bottom-[10%] left-1/2 h-8 w-[62%] -translate-x-1/2 rounded-[100%] bg-orange-400/20 blur-2xl"
-        aria-hidden
-      />
-      {pecas.map((peca, i) => (
-        <div
-          key={peca.title}
-          className={`group absolute ${POSES[i]} transition-transform duration-700 hover:-translate-y-3`}
-        >
-          <Img
-            src={peca.image}
-            alt={peca.title}
-            loading="lazy"
-            className="h-auto w-full drop-shadow-[0_40px_60px_rgba(0,0,0,0.85)]"
-          />
-        </div>
-      ))}
-    </div>
-  )
+     O estado mora AQUI e não dentro do leque porque existem duas instâncias na
+     página, a de desktop e a de celular. Compartilhando o estado, as duas
+     mostram sempre a mesma peça — o que importa no meio, entre 1024px e o
+     ponto em que uma some e a outra aparece, e para quem gira o aparelho. */
+  const { ativo, escolher } = useRodizio(pecas.length)
 
   return (
     <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
@@ -247,9 +430,16 @@ export const HeroEditorialV4: React.FC = () => {
           Estreitou de 52% para 47% junto com as capas, e a sangria caiu de 6%
           para 3%: quem sangra agora é só o tablet do fundo, não o leque
           inteiro. Cortar o objeto principal pela borda diria "não coube"; o
-          que se quer dizer é "tem mais atrás". */}
-      <div className="pointer-events-none absolute bottom-0 right-[-3%] top-24 hidden w-[47%] lg:block" aria-hidden>
-        {leque}
+          que se quer dizer é "tem mais atrás".
+
+          `pointer-events-none` fica no CONTAINER e as peças reativam o clique
+          por dentro (o `<button>` volta a receber eventos por conta própria).
+          A camada é larga e encosta na coluna de texto; sem isso ela engoliria
+          cliques destinados ao texto numa faixa invisível. E saiu o
+          `aria-hidden`: agora tem conteúdo navegável aqui dentro, e esconder
+          do leitor de tela um controle focável é a pior combinação possível. */}
+      <div className="pointer-events-none absolute bottom-[7%] right-[-3%] top-20 hidden w-[47%] lg:block">
+        <KitLequeV4 pecas={pecas} ativo={ativo} aoTrocar={escolher} />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-6 pb-16 pt-28 md:pt-32">
@@ -321,8 +511,13 @@ export const HeroEditorialV4: React.FC = () => {
 
       {/* O mesmo leque, agora no fluxo, para o celular. Sem o px-6: no desktop
           o gesto é o produto encostando na borda, e a versão de celular não
-          tem motivo para ser a única com margem dos dois lados. */}
-      <div className="relative z-10 h-[340px] w-full pb-8 sm:h-[420px] lg:hidden">{leque}</div>
+          tem motivo para ser a única com margem dos dois lados.
+
+          Mais alto que antes (340→400) porque agora carrega a legenda, as
+          setas e os marcadores embaixo das capas. */}
+      <div className="relative z-10 h-[400px] w-full pb-6 sm:h-[460px] md:h-[540px] lg:hidden">
+        <KitLequeV4 pecas={pecas} ativo={ativo} aoTrocar={escolher} compacto />
+      </div>
     </section>
   )
 }

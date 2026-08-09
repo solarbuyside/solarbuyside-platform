@@ -589,6 +589,32 @@ html:not(.js) .v4-rise {
   }
 }
 
+/* ── Troca de legenda do leque do kit (variante B do Hero) ──────────────
+   O nome e a frase entram subindo um fio, quando a peça da frente muda. A
+   `key` no React reinicia a animação a cada troca. Curta de propósito: as
+   capas levam 700ms deslizando e o texto tem que chegar junto com elas, não
+   depois. */
+@keyframes v4-troca-suave {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.v4-troca-suave {
+  animation: v4-troca-suave 0.45s var(--v4-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v4-troca-suave {
+    animation: none;
+  }
+}
+
 /* ── Células fotovoltaicas: grade sutil no fundo das seções escuras ──────
    Motivo recorrente de energia solar. Bem leve.
    background-attachment fixed ancora a grade no viewport: a fase é a mesma

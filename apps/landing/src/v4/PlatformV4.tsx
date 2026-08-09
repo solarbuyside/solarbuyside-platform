@@ -1,10 +1,10 @@
 ﻿import React from 'react'
-import { Trophy, X } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
 import { criarTxt, temConteudo } from './cms'
+import { JornadaPlataformaV4 } from './JornadaPlataformaV4'
 
 /* PLATAFORMA DE AVALIAÇÃO — bloco reescrito conforme os slides do Francis
    (2026-06): copy virada pro vendedor ("sua proposta tem nota; teste antes que
@@ -24,27 +24,16 @@ import { criarTxt, temConteudo } from './cms'
    v4-serif laranja e lead em slate (sem o lead âmbar, que é exclusivo do
    spotlight do Manual). */
 
-const COMPANIES = ['Renova', 'Soli Brasil', 'Energia SGE', 'TAP Solar', 'Fotovolta Express', 'Self Solar'] as const
-const INVESTMENTS = [17690, 16342.8, 15900, 14500, 17325.75, 17497]
-const EMPRESAS_INDICE = [66.9, 84.5, 26.8, 55.5, 69.1, 69.3]
-const TECNOLOGIAS_INDICE = [61.1, 73.7, 57.9, 55.8, 53.7, 74.7]
-const CONFIABILIDADE = [64.1, 79.2, 41.9, 55.6, 61.6, 72.0]
-/* Vencedora do exemplo: só a maior nota total (Índice de Confiabilidade) —
-   Soli Brasil (1), 79.2. As demais são descartadas.
+/* OS DADOS E A TABELA DO EXEMPLO MUDARAM DE ARQUIVO.
 
-   "Vencedora", não "Finalista" (Francis, slide 3 de 03/08): no produto o
-   comprador escolhe DOIS finalistas e depois decide entre eles, mas neste
-   exemplo só uma empresa chega ao fim, e "finalista" ficava sem par. A troca
-   vale só para a ilustração da LP; o domínio da plataforma continua com dois
-   finalistas. */
-const WINNERS = new Set([1])
+   Eles viraram o painel 4 da jornada, em JornadaPlataformaV4.tsx, junto com os
+   outros quatro (preenchimento, pontuacao de empresas, pontuacao tecnologica e
+   a escolhida). Nada se perdeu: a tabela que ficava aqui e o penultimo quadro
+   de la, com os mesmos numeros, a mesma coluna vencedora em laranja e a mesma
+   regua /100 que a Escala de Risco logo abaixo usa.
 
-/* No mobile a tabela mostra só 4 fornecedores (a vencedora + a melhor e a
-   pior pontuação); TAP Solar e Fotovolta Express aparecem a partir de md. */
-const MOBILE_HIDDEN = new Set([3, 4])
-const colCls = (i: number) => (MOBILE_HIDDEN.has(i) ? 'hidden md:table-cell' : '')
-
-const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 })
+   A Escala de Risco continua AQUI porque ela nao e um passo da jornada: e a
+   legenda da regua, e vale para a tabela inteira. */
 
 /* Escala na MESMA régua da tabela (/100) — a versão /10 da plataforma não faz
    sentido aqui porque as sub-linhas "nota /10" foram removidas do exemplo.
@@ -60,148 +49,6 @@ const RISK = [
   { range: '61–80', label: 'Risco Baixo', cls: 'bg-emerald-500' },
   { range: '81–100', label: 'Risco Mínimo', cls: 'bg-blue-500' },
 ] as const
-
-/* Moldura de janela (mesma da experiência do produto) */
-const Window: React.FC<{ title: string; children: React.ReactNode; className?: string }> = ({
-  title,
-  children,
-  className = '',
-}) => (
-  <div
-    className={`relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0e18]/90 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] backdrop-blur-xl ${className}`}
-  >
-    <div className="flex items-center gap-3 border-b border-white/[0.06] px-4 py-3">
-      <span className="flex gap-1.5" aria-hidden>
-        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-        <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-      </span>
-      <span className="v4-mono text-[10px] uppercase tracking-[0.25em] text-slate-400">{title}</span>
-    </div>
-    {children}
-  </div>
-)
-
-const DecisionTag: React.FC<{ winner: boolean }> = ({ winner }) =>
-  winner ? (
-    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-1 text-[10px] font-bold text-emerald-300">
-      <Trophy size={11} aria-hidden /> Vencedora
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[10px] font-bold text-slate-500">
-      <X size={11} aria-hidden /> Descartada
-    </span>
-  )
-
-/* Realce da coluna vencedora (Francis, 06/08, slide 5: "destacar com fundo
-   laranjado"). Era `bg-orange-500/[0.04]`, praticamente invisível: no print
-   que ele mandou ele precisou desenhar um retângulo vermelho à mão em volta
-   das células para mostrar de qual coluna estava falando. Agora é fundo a 10%
-   mais fios laterais, que é o que faz o olho ler uma COLUNA e não seis células
-   soltas. Os fios ficam só nas células de dado; o cabeçalho e as duas linhas
-   de fecho têm regra própria mais abaixo. */
-const COL_VENCEDORA = 'bg-orange-500/[0.10] border-x border-orange-500/25'
-
-const fin = (i: number, extra = '') =>
-  `px-3 py-2.5 text-center ${colCls(i)} ${WINNERS.has(i) ? `${COL_VENCEDORA} ${extra}` : extra}`
-
-const ScoreTableExample: React.FC = () => (
-  <Window title="Plataforma · Pontuação Geral · exemplo real">
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left">
-        <thead>
-          <tr className="border-b border-white/[0.08]">
-            <th className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500">
-              Item
-            </th>
-            {COMPANIES.map((c, i) => (
-              <th
-                key={c}
-                className={`min-w-[104px] px-3 py-3 text-center text-[11px] font-bold ${colCls(i)} ${
-                  WINNERS.has(i)
-                    ? 'rounded-t-lg border-x border-t border-orange-500/25 bg-orange-500/[0.10] text-orange-300'
-                    : 'text-slate-400'
-                }`}
-              >
-                {c}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="text-[12px]">
-          {/* Investimentos */}
-          <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Investimentos</td>
-            {INVESTMENTS.map((v, i) => (
-              <td key={i} className={fin(i, 'text-slate-400')}>
-                {BRL.format(v)}
-              </td>
-            ))}
-          </tr>
-
-          {/* Empresas — Índice */}
-          <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Empresas · Índice</td>
-            {EMPRESAS_INDICE.map((v, i) => (
-              <td key={i} className={fin(i, 'text-slate-300')}>
-                {v}
-                <span className="text-slate-600">/100</span>
-              </td>
-            ))}
-          </tr>
-
-          {/* Tecnologias — Índice */}
-          <tr className="border-b border-white/[0.05]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-2.5 font-medium text-slate-300">Tecnologias · Índice</td>
-            {TECNOLOGIAS_INDICE.map((v, i) => (
-              <td key={i} className={fin(i, 'text-slate-300')}>
-                {v}
-                <span className="text-slate-600">/100</span>
-              </td>
-            ))}
-          </tr>
-
-          {/* Índice de Confiabilidade Solar Buy-Side (destaque) */}
-          <tr className="border-t border-white/10 bg-orange-500/[0.06]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-3 text-[11px] font-bold uppercase tracking-wide text-orange-300">
-              Índice de Confiabilidade
-            </td>
-            {CONFIABILIDADE.map((v, i) => (
-              <td
-                key={i}
-                className={`px-3 py-3 text-center ${colCls(i)} ${
-                  WINNERS.has(i) ? 'border-x border-orange-500/25 bg-orange-500/[0.16]' : ''
-                }`}
-              >
-                <span className={`font-['Sora'] text-lg font-extrabold ${WINNERS.has(i) ? 'text-orange-400' : 'text-slate-300'}`}>
-                  {v}
-                </span>
-                <span className="text-[9px] text-slate-500">/100</span>
-              </td>
-            ))}
-          </tr>
-
-          {/* Decisão do comprador */}
-          <tr className="border-t border-white/[0.08]">
-            <td className="sticky left-0 z-10 bg-[#0a0e18] px-4 py-3 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-              Decisão do comprador
-            </td>
-            {COMPANIES.map((_, i) => (
-              <td
-                key={i}
-                className={`px-3 py-3 text-center ${colCls(i)} ${
-                  WINNERS.has(i) ? 'rounded-b-lg border-x border-b border-orange-500/25 bg-orange-500/[0.10]' : ''
-                }`}
-              >
-                <DecisionTag winner={WINNERS.has(i)} />
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </Window>
-)
 
 /* Escala de risco — abaixo da tabela, compacta (tamanho menor, pedido do Francis) */
 const RiskScale: React.FC = () => (
@@ -336,7 +183,7 @@ export const PlatformV4: React.FC = () => {
         <div className="relative mt-12">
           <div className="pointer-events-none absolute -inset-10 rounded-full bg-orange-500/[0.07] blur-[130px]" aria-hidden />
           <Reveal className="relative">
-            <ScoreTableExample />
+            <JornadaPlataformaV4 />
             <RiskScale />
           </Reveal>
         </div>
