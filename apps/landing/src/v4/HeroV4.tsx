@@ -36,40 +36,30 @@ const HeroKitV4: React.FC = () => {
   const section = getSection('pricing')
   const txt = criarTxt(section)
 
-  /* As três frases que o Francis reescreveu em 06/08 (slide 2) já existiam no
-     banco com o texto de 03/08. Chave presente vence o padrão do código, então
-     sem tratar o valor antigo como LEGADO a revisão dele não apareceria na
-     página até alguém redigitar campo a campo no admin. É o mesmo mecanismo
-     usado no resto da LP; a comparação é exata para não capturar uma frase
-     futura dele que comece igual. */
-  const comLegado = (chave: string, antigos: string[], novo: string) => {
-    const atual = txt(chave, novo)
-    return antigos.includes(atual.trim()) ? novo : atual
-  }
+  /* Os títulos sobrevivem só no `alt` das capas: leitor de tela e buscador
+     continuam sabendo o nome de cada peça, o olho não precisa mais ler.
 
+     As chaves `heroKit1Desc`..`heroKit4Desc` (as frases curtas que ficavam sob
+     cada capa) DEIXARAM de ser lidas aqui. Elas continuam no banco e no editor
+     do admin de propósito, porque esta versão do Hero está em avaliação; se
+     ficar, o passo seguinte é tirar os quatro campos do field-schema, senão o
+     cliente digita neles e não vê nada acontecer, que é a reclamação que o
+     Francis já trouxe outras vezes. */
   const pecas = [
     {
       title: txt('heroKit1Title', 'Manual de Compra de Sistema Solar'),
-      desc: comLegado('heroKit1Desc', ['130 páginas e 160 tópicos'], 'Método de Compra de Sistema Solar'),
       image: section?.images.card1Image || '/assets/manual-norm.png',
     },
     {
       title: txt('heroKit2Title', txt('card2Title', 'Código do Vendedor Consultivo')),
-      desc: comLegado('heroKit2Desc', ['Método de venda consultiva'], 'Método de Venda Consultivo Buy-Side'),
       image: section?.images.card2Image || '/assets/codigo-norm.png',
     },
     {
       title: txt('heroKit3Title', txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
-      desc: comLegado(
-        'heroKit3Desc',
-        ['Teste a sua proposta antes de enviar', 'Teste sua proposta antes de enviar'],
-        'Teste sua proposta antes que seu cliente a teste.',
-      ),
       image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
     },
     {
       title: txt('heroKit4Title', txt('card3Title', 'Turbine sua Equipe de Venda')),
-      desc: txt('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
       image: section?.images.card3Image || '/assets/coletiva-norm.png',
     },
   ]
@@ -84,18 +74,62 @@ const HeroKitV4: React.FC = () => {
     : notaCms
   const cta = txt('heroKitCta', 'Quero o Kit Completo Agora')
 
-  /* Respiros menores em toda a pilha (Francis, slide 2: "tentar subir o CTA").
-     Somados à linha de etiquetas que saiu e à nota que encurtou, o botão sobe
-     cerca de 90px sem que nada precise encolher de tamanho. */
+  /* ORDEM: botão, depois a linha que nomeia o kit, depois as capas.
+     Antes era o contrário, e o catálogo ficava ENTRE a promessa e a ação:
+     quem se convencia na headline tinha que atravessar quatro colunas de
+     texto para achar o botão. Agora quem está pronto clica em três segundos e
+     quem precisa de prova encontra as capas logo abaixo, sem que elas tenham
+     barrado o caminho de ninguém. As quatro capas continuam na primeira
+     dobra, que é o que o Francis pediu em 03/08 e reconfirmou em 06/08. */
   return (
-    <div className="v4-hero-kit v4-rise mt-11 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-2">
+    <div className="v4-hero-kit v4-rise mt-10 w-full md:mt-12" style={{ ['--d' as string]: '760ms' }}>
+      {temConteudo(cta) && (
+        <a
+          href={globalSettings.purchaseLink || '#oferta'}
+          target={globalSettings.purchaseLink ? '_blank' : undefined}
+          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
+          onClick={trackBuyClick}
+          className="v4-cta-shine group relative mx-auto inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-9 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:px-10 md:py-5 md:text-lg"
+        >
+          <span className="relative z-10">{cta}</span>
+          <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
+        </a>
+      )}
+
+      {/* Esta linha passou a NOMEAR o conjunto, no lugar dos oito fragmentos
+          de texto que ficavam sob as capas. Ela já resumia a grade toda em
+          cinco palavras, o que era a prova de que a grade não estava sendo
+          lida. Em mono e caixa alta: vira rótulo do que vem abaixo, não mais
+          um parágrafo disputando leitura com a subfrase. */}
+      {temConteudo(nota) && (
+        <p className="v4-mono mx-auto mt-9 max-w-2xl text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 md:text-xs">
+          <CMSText value={nota} />
+        </p>
+      )}
+
+      {/* AS CAPAS SEM TEXTO. Cada uma tinha um título e uma frase embaixo, e
+          as duas diziam quase a mesma coisa ("Manual de Compra de Sistema
+          Solar" / "Método de Compra de Sistema Solar"). Eram 48 das ~85
+          palavras da dobra, gastas num catálogo que a seção de oferta já faz
+          lá embaixo com as MESMAS capas e mais detalhe.
+
+          Capa em Hero é âncora visual, não item de leitura: a 124px de altura
+          ninguém lê a lombada. Sem o texto elas ficam maiores e o nome de cada
+          peça sobrevive no `alt`, para leitor de tela e para o Google. */}
+      {/* max-w própria, menor que a do Hero: soltas nos 1152px do container as
+          quatro capas viravam quatro objetos isolados em tela larga. Juntas,
+          lêem como UM kit, que é o que a linha acima acabou de anunciar. */}
+      <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 items-center gap-x-6 gap-y-6 md:mt-6 md:grid-cols-4 md:gap-x-4">
         {pecas.map((peca, i) => (
-          <div key={peca.title} className="group relative flex flex-col items-center text-center">
+          <div key={peca.title} className="group relative flex items-center justify-center">
             {/* O "+" entre as peças, só no desktop: no mobile a grade é 2x2 e
-                o sinal cairia no meio do nada. */}
+                o sinal cairia no meio do nada. Agora centrado na própria
+                célula, que só tem a imagem. */}
             {i > 0 && (
-              <span className="absolute -left-3 top-[38px] hidden text-2xl font-light text-orange-500/40 md:block" aria-hidden>
+              <span
+                className="absolute -left-4 top-1/2 hidden -translate-y-1/2 text-2xl font-light text-orange-500/40 md:block"
+                aria-hidden
+              >
                 +
               </span>
             )}
@@ -105,39 +139,11 @@ const HeroKitV4: React.FC = () => {
               // A primeira dobra: estas quatro imagens competem com o <h1>,
               // que é o LCP. Todas lazy, como as capas da oferta.
               loading="lazy"
-              className="h-[86px] w-auto max-w-none drop-shadow-[0_18px_26px_rgba(0,0,0,0.6)] transition duration-500 group-hover:-translate-y-1.5 md:h-[104px]"
+              className="h-[100px] w-auto max-w-none drop-shadow-[0_18px_26px_rgba(0,0,0,0.6)] transition duration-500 group-hover:-translate-y-1.5 md:h-[124px]"
             />
-            {/* Altura mínima de duas linhas: "Plataforma de Avaliação de Proposta
-                Comercial" quebra em duas e, sem isto, a frase daquela peça
-                descia sozinha e as quatro deixavam de alinhar. */}
-            <p className="mt-3.5 min-h-[2.6em] text-[13px] font-bold leading-snug text-white md:text-sm">
-              {peca.title}
-            </p>
-            {temConteudo(peca.desc) && (
-              <p className="mt-1 max-w-[190px] text-[12px] leading-snug text-slate-400">{peca.desc}</p>
-            )}
           </div>
         ))}
       </div>
-
-      {temConteudo(nota) && (
-        <p className="mx-auto mt-8 max-w-2xl text-balance text-[15px] leading-relaxed text-slate-300 md:text-base">
-          <CMSText value={nota} />
-        </p>
-      )}
-
-      {temConteudo(cta) && (
-        <a
-          href={globalSettings.purchaseLink || '#oferta'}
-          target={globalSettings.purchaseLink ? '_blank' : undefined}
-          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
-          onClick={trackBuyClick}
-          className="v4-cta-shine group relative mx-auto mt-6 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:text-lg"
-        >
-          <span className="relative z-10">{cta}</span>
-          <ArrowRight size={19} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
-        </a>
-      )}
     </div>
   )
 }
