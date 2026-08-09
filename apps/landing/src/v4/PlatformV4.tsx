@@ -72,31 +72,35 @@ export const PlatformV4: React.FC = () => {
 
   const badge = txt('badge', 'Bônus Exclusivo')
 
-  /* TÍTULO EM DUAS CORES (Francis, 06/08, slide 5: "a segunda parte do título
-     deve ser de cor branca").
+  /* TÍTULO EM DUAS CORES — AS CORES INVERTERAM DE NOVO (Francis, 09/08:
+     "gostaria inverter as cores: branco 'Sua Proposta Tem Nota', laranja 'A do
+     Seu Concorrente Também'").
 
-     Até aqui era o contrário: `title` saía branco e `titleHighlight` saía
-     laranja serifado. As cores trocaram de campo, não de posição: a PRIMEIRA
-     parte é o gancho em laranja serifada e a SEGUNDA é a continuação em
-     branco.
+     Em 06/08 ele tinha pedido o contrário (slide 5: "a segunda parte do título
+     deve ser de cor branca"). Mudou de ideia, e a nova versão é melhor: o
+     laranja agora cai na virada da frase, que é onde está o argumento, em vez
+     de no começo, que é só a constatação.
 
-     LEGADO: no banco ele escreveu a frase INTEIRA em `titleHighlight` e
-     deixou `title` vazio (foi o que o print dele mostrou, com o título todo
-     laranja). Trocar as cores sem tratar isso deixaria o título inteiro
-     branco. Então, quando só o segundo campo tem texto, a frase é partida no
-     fim da primeira sentença: o gancho vai para o laranja e o resto para o
-     branco. Quando ele preencher os dois campos, este ramo nunca roda. */
+     Ele anotou "o ADM não permite", e estava certo: no banco a frase INTEIRA
+     estava em `titleHighlight`, com `title` vazio. Uma parte só não tem como
+     ter duas cores. Junto com esta mudança o texto foi separado nos dois
+     campos, então agora ele controla as duas metades pelo editor.
+
+     LEGADO: o ramo que parte a frase no primeiro ponto final continua, para
+     instalações que ainda tenham tudo num campo só. Ele agora entrega a
+     primeira sentença em BRANCO e o resto em laranja, acompanhando a
+     inversão. */
   const tituloCms = txt('title', '')
   const destaqueCms = txt('titleHighlight', '')
-  const [tituloLaranja, tituloBranco] = (() => {
+  const [tituloBranco, tituloLaranja] = (() => {
     if (temConteudo(tituloCms) || temConteudo(destaqueCms)) {
       if (temConteudo(tituloCms)) return [tituloCms, destaqueCms]
       // Só o segundo campo preenchido: parte no primeiro ponto final.
       const ponto = destaqueCms.indexOf('. ')
-      if (ponto === -1) return [destaqueCms, '']
+      if (ponto === -1) return ['', destaqueCms]
       return [destaqueCms.slice(0, ponto + 1).trim(), destaqueCms.slice(ponto + 1).trim()]
     }
-    return ['Sua proposta tem nota.', 'Do seu concorrente também.']
+    return ['Sua proposta tem nota.', 'A do seu concorrente também.']
   })()
 
   const lead =
@@ -166,8 +170,8 @@ export const PlatformV4: React.FC = () => {
                   fim da frase. */}
               {tituloBranco ? (
                 <>
-                  <span className="v4-serif text-orange-400">{`${tituloLaranja} `}</span>
-                  {tituloBranco}
+                  {`${tituloBranco} `}
+                  <span className="v4-serif text-orange-400">{tituloLaranja}</span>
                 </>
               ) : (
                 <span className="v4-serif text-orange-400">{tituloLaranja}</span>

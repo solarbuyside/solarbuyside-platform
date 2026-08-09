@@ -519,23 +519,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Topo",
         fields: [
           t("badge", "Selo", { maxLength: 40 }),
-          /* AS CORES TROCARAM DE PARTE em 06/08 (slide 5: "a segunda parte do
-             título deve ser de cor branca"). Agora o DESTAQUE é o começo da
-             frase e o texto normal é a continuação, então a parte destacada
-             vem PRIMEIRO na lista.
+          /* AS CORES INVERTERAM DE NOVO em 09/08 ("gostaria inverter as
+             cores: branco 'Sua Proposta Tem Nota', laranja 'A do Seu
+             Concorrente Também'"). Em 06/08 ele tinha pedido o contrário.
 
-             Efeito colateral bom: com o destaque na primeira posição, o texto
-             digitado depois dele cai numa parte que existe (`titleHighlight`).
-             Antes o destaque era o último e tudo o que viesse depois não tinha
-             onde ser gravado — era o "além de pirar" que ele reportou. O
-             decomposeComposite passou a tratar isso de qualquer jeito, mas
-             esta ordem já é a natural para a frase. */
+             Como o DESTAQUE agora é o FIM da frase, `hl()` passou para a
+             segunda parte. Ela é a última da lista, então o que for digitado
+             depois do trecho destacado continua caindo dentro dele, sem texto
+             órfão — o `decomposeComposite` já trata, e esta ordem casa com a
+             frase. */
           comp(
             "title",
             "Título",
-            [hl("title"), tx("titleHighlight")],
+            [tx("title"), hl("titleHighlight")],
             "cms-orange",
-            "Frase inteira numa caixa. Destaque o COMEÇO da frase (o gancho, que sai em laranja); o resto sai em branco.",
+            "Frase inteira numa caixa. Destaque o FIM da frase (a virada, que sai em laranja); o começo sai em branco.",
           ),
           ml("lead", "Texto de apoio"),
         ],
