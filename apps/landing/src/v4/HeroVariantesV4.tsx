@@ -87,6 +87,18 @@ function useKit() {
         frase: t('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
         alvo: 'plataforma',
       },
+      /* A LICENÇA DE USO COLETIVA (Gabriel, 09/08: "faltou o outro livro, o de
+         10 licenças; você colocou no A e não no B"). O rótulo do kit já a
+         nomeia desde hoje de manhã, e a variante A já mostra a quarta capa;
+         faltava a B. Ela leva para `#equipe`, que é a seção "Capacite todo o
+         seu time comercial" — a única das quatro peças cuja explicação não
+         está no bloco do Manual nem no da Plataforma. */
+      {
+        title: t('heroKit4Title', t('card3Title', 'Licença de Uso Coletiva')),
+        image: pricing?.images.card3Image || '/assets/coletiva-norm.png',
+        frase: t('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
+        alvo: 'equipe',
+      },
     ],
     cta: t('heroKitCta', 'Quero o Kit Completo Agora'),
     link: globalSettings.purchaseLink || '#oferta',
@@ -123,16 +135,35 @@ type Peca = ReturnType<typeof useKit>['pecas'][number]
    deslizam de uma pose para a outra em GPU, e é essa passagem que faz o leque
    parecer um objeto físico sendo folheado. */
 
+/* QUATRO POSES, uma por peça do kit. Eram três, e a quarta entrou com a
+   Licença de Uso Coletiva.
+
+   Com quatro objetos e três lugares na primeira fila, a saída é uma FILA DO
+   FUNDO: a peça mais distante fica atrás da da frente, centrada, menor e um
+   pouco mais alta, aparecendo só como uma lombada acima das outras. É como uma
+   pilha se comporta de verdade, e é o que permite girar as quatro sem que duas
+   disputem o mesmo ponto do quadro. */
 const POSES = [
-  /* 0 — FRENTE: maior, reta e centrada. Reta no meio de duas inclinadas é o
-     que elege a principal sem precisar de rótulo. */
+  /* 0 — FRENTE: maior, reta e centrada. Reta no meio de inclinadas é o que
+     elege a principal sem precisar de rótulo. */
   'translateX(-50%) translateY(0) rotate(0deg) scale(1)',
   /* 1 — ATRÁS À DIREITA: é esta que sangra pela borda da tela. */
   'translateX(30%) translateY(-9%) rotate(11deg) scale(0.8)',
-  /* 2 — ATRÁS À ESQUERDA. */
-  'translateX(-118%) translateY(-11%) rotate(-15deg) scale(0.76)',
+  /* 2 — FUNDO, ao centro: só a lombada aparece por cima da capa da frente.
+
+     A CONTA DO -50% não é estética, é geometria. A âncora do `scale` é a BASE
+     da capa (`origin-bottom`), então encolher para 60% empurra o topo dela 40%
+     da altura para baixo. Um deslocamento de 26%, que era o primeiro palpite,
+     devolvia menos do que a escala tinha tirado e a capa sumia inteira atrás
+     da da frente. Para o topo passar ~10% acima, o deslocamento tem que cobrir
+     os 40% da escala mais a folga: 50%. */
+  'translateX(-50%) translateY(-50%) rotate(0deg) scale(0.6)',
+  /* 3 — ATRÁS À ESQUERDA. Recuou de -118% para -112% e encolheu um fio: com
+     quatro capas no quadro, a da esquerda é a que chega mais perto da coluna
+     de texto, e agora ela tem uma vizinha atrás disputando o mesmo canto. */
+  'translateX(-112%) translateY(-11%) rotate(-14deg) scale(0.74)',
 ]
-const CAMADAS = ['z-30', 'z-10', 'z-20']
+const CAMADAS = ['z-40', 'z-20', 'z-10', 'z-30']
 
 const RODIZIO = 4500
 
