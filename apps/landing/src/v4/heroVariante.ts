@@ -71,19 +71,22 @@ const lerVariante = (): VarianteHero | null => {
 }
 const varianteCongelada = (): VarianteHero | null => null
 
-/* SELETOR SEMPRE VISÍVEL (Gabriel, 09/08, pedindo pela segunda vez: "eu pedi
-   as versões A B C no header, cadê?").
+/* O SELETOR VOLTOU A SER ESCONDIDO (Gabriel, 09/08: "não esqueça de remover do
+   header as opções A B e C").
 
-   Antes ele só aparecia em MODO DE AVALIAÇÃO: com `?hero=` na URL ou em
-   localhost. A intenção era boa e continua verdadeira — um seletor de layout
-   visível para um lead pago é caro —, mas ela dependia de alguém saber o
-   truque da URL, e o Francis precisa achar as três variantes sozinho, abrindo
-   o endereço normal.
+   Ele tinha sido aberto mais cedo hoje, para o Francis achar as três variantes
+   sem precisar saber do parâmetro na URL. Essa fase acabou: a decisão foi
+   tomada (B no desktop, A no celular), e um seletor de layout visível para um
+   lead pago é a coisa mais cara desta página.
 
-   PARA FECHAR DE NOVO quando a campanha começar, é UMA PALAVRA: `false` na
-   constante abaixo. O portão antigo continua escrito e volta inteiro, sem
-   mexer em mais nada. */
-const SELETOR_SEMPRE_VISIVEL = true
+   NÃO É REMOÇÃO, É O PORTÃO DE VOLTA. Com `false` aqui, o seletor some para
+   qualquer visitante do endereço normal e continua aparecendo em duas
+   situações: com `?hero=` na URL e em localhost. Ou seja, você e o Francis
+   continuam comparando pelos links de sempre
+   (solarbuyside.com.br/?hero=a | ?hero=b | ?hero=c) e o desenvolvimento
+   continua com o controle à mão. Se um dia quiser abrir de novo, é a mesma
+   palavra: `true`. */
+const SELETOR_SEMPRE_VISIVEL = false
 
 const lerModo = (): boolean =>
   SELETOR_SEMPRE_VISIVEL || new URLSearchParams(window.location.search).has('hero') || localHost()
