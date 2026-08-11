@@ -126,8 +126,41 @@ export default function AppV4() {
           do Lighthouse). Header/CTAs/rodapé ficam fora, como manda a semântica. */}
       <main>
       {/* ─────────────────── ATO 1 · ESCURO ─────────────────── */}
+      {/* O HERO DEPENDE DA LARGURA DA TELA (Gabriel, 09/08: "deixa a B como
+          fixa no desktop e no mobile será a A").
+
+          Faz sentido: a B é uma composição horizontal, com o texto de um lado
+          e o leque do outro, e no celular ela vira uma coluna com as capas
+          empilhadas embaixo — perdendo justamente o gesto que a define. A A é
+          centrada e simétrica, que é o que o celular pede.
+
+          As DUAS são renderizadas e o CSS mostra uma. Escolher em JavaScript
+          seria mais econômico em markup, e errado: o HTML desta LP é congelado
+          no build, numa largura só. O visitante de celular receberia o Hero de
+          desktop e o React remendaria a árvore inteira na hidratação, que é o
+          erro #418. Com media query o navegador esconde a que não serve antes
+          do primeiro quadro, sem JavaScript nenhum. As capas são todas
+          `loading="lazy"`, então a escondida não baixa imagem.
+
+          Com `?hero=` na URL o seletor manda, e aí a variante escolhida vale em
+          qualquer largura — é assim que o Francis compara as três. */}
       <div id="hero">
-        {variante === 'b' ? <HeroEditorialV4 /> : variante === 'c' ? <HeroVitrineV4 /> : <HeroV4 />}
+        {variante === null ? (
+          <>
+            <div className="lg:hidden">
+              <HeroV4 />
+            </div>
+            <div className="hidden lg:block">
+              <HeroEditorialV4 />
+            </div>
+          </>
+        ) : variante === 'b' ? (
+          <HeroEditorialV4 />
+        ) : variante === 'c' ? (
+          <HeroVitrineV4 />
+        ) : (
+          <HeroV4 />
+        )}
       </div>
       {/* A Plataforma emenda DIRETO no CTA do Hero (slide 4: "plataforma para
           encaixar +/- assim"). Era a faixa de logos que ocupava este lugar. */}

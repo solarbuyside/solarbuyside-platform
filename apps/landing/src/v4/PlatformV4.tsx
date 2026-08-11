@@ -156,7 +156,10 @@ export const PlatformV4: React.FC = () => {
           valor do Hero e o degrau fechar em zero. */}
       <GrainOverlay opacity={0.03} />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-24 md:py-32">
+      {/* pt menor no celular (Francis, 09/08): junto com o pé encurtado do Hero,
+          é o que faz o título desta seção aparecer logo depois do CTA em vez de
+          depois de uma tela de céu vazio. No desktop nada muda. */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-12 md:py-32">
         {/* Header em largura própria: o texto deixa de disputar com a tabela */}
         <div className="max-w-3xl">
           <Reveal>

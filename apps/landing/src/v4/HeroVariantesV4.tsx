@@ -94,7 +94,11 @@ function useKit() {
          seu time comercial" — a única das quatro peças cuja explicação não
          está no bloco do Manual nem no da Plataforma. */
       {
-        title: t('heroKit4Title', t('card3Title', 'Licença de Uso Coletiva')),
+        /* NÃO cai em `card3Title` como as outras caem nos títulos da oferta:
+           lá ele vale "Licença de uso para até 10 vendedores", que é exatamente
+           o texto da FRASE logo abaixo — o leque mostrava a mesma linha duas
+           vezes (Francis, 09/08: "trocar título: Licença de uso coletivo"). */
+        title: t('heroKit4Title', 'Licença de uso coletivo'),
         image: pricing?.images.card3Image || '/assets/coletiva-norm.png',
         frase: t('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
         alvo: 'equipe',
@@ -165,7 +169,12 @@ const POSES = [
 ]
 const CAMADAS = ['z-40', 'z-20', 'z-10', 'z-30']
 
-const RODIZIO = 4500
+/* 2s (Francis, 09/08: "aumentar um pouco a velocidade de troca de produto, de
+   3 para 2 segundos"). Eram 4,5s. Com quatro peças o ciclo inteiro caiu de 18s
+   para 8s, que é mais perto do tempo que alguém passa na primeira dobra antes
+   de rolar — e o ciclo só vale para quem NÃO interage; no primeiro clique ele
+   para de vez. */
+const RODIZIO = 2000
 
 const KitLequeV4: React.FC<{
   pecas: Peca[]

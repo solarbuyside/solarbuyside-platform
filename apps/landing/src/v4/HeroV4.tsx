@@ -265,7 +265,7 @@ export const HeroV4: React.FC = () => {
         {/* brilho central do amanhecer (com parallax) */}
         <div ref={glowRef} className="absolute inset-0 will-change-transform">
           <div
-            className="absolute left-1/2 top-[73%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-[87%] h-[60vmax] w-[60vmax] -translate-x-1/2 -translate-y-1/2 md:top-[73%]"
             style={{
               background:
                 'radial-gradient(circle at 50% 62%, rgba(253,186,116,0.32) 0%, rgba(249,115,22,0.16) 22%, transparent 52%)',
@@ -273,10 +273,10 @@ export const HeroV4: React.FC = () => {
           />
         </div>
         {/* raios cônicos girando muito devagar */}
-        <div className="v4-rays absolute left-1/2 top-[79%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10]" />
+        <div className="v4-rays absolute left-1/2 top-[93%] h-[160vmax] w-[160vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.10] md:top-[79%]" />
         {/* o disco solar: silhueta gigante com aresta incandescente */}
         <div
-          className="absolute left-1/2 top-[79%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d]"
+          className="absolute left-1/2 top-[93%] h-[260vmax] w-[260vmax] -translate-x-1/2 rounded-full bg-[#07090d] md:top-[79%]"
           style={{
             boxShadow:
               '0 -1px 0 0 rgba(255,221,180,0.95), 0 -3px 18px 0 rgba(253,186,116,0.65), 0 -14px 70px 4px rgba(249,115,22,0.4), 0 -40px 180px 20px rgba(249,115,22,0.18)',
@@ -307,8 +307,21 @@ export const HeroV4: React.FC = () => {
           selo para o cabeçalho e ~23px de folga do botão para a aresta.
 
           Foi assim que o selo deixou de colar na barra fixa em tela de 1080px
-          (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz. */}
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[32vh] pt-32 text-center md:pb-[30vh]">
+          (Gabriel, 09/08) sem que o botão passasse a ser cortado pela luz.
+
+          NO CELULAR O PÉ ENCOLHEU (Francis, 09/08: "reduzir o espaço para que,
+          ao rolar na tela, logo após o CTA o título do bloco Plataforma
+          apareça"). Eram 32vh de pé, ~270px num aparelho de 844: o visitante
+          passava o CTA e via quase uma tela inteira de céu vazio antes da
+          próxima seção.
+
+          Reduzir o pé sozinho NÃO funcionaria, e é a armadilha que o parágrafo
+          acima descreve: a aresta do sol é posicionada em % da altura da SEÇÃO,
+          então encurtar a seção sobe a aresta e ela passa a cortar o botão. Por
+          isso o disco, os raios e o brilho descem juntos no celular (79%→93% e
+          73%→87%), mantendo a mesma folga entre o CTA e a luz. No desktop nada
+          muda. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center v4-hero-conteudo px-6 pb-[9vh] pt-28 text-center md:pb-[30vh] md:pt-32">
         {/* O selo "MÉTODO SOLAR BUY-SIDE" saiu em 09/08 (Gabriel). Ele
             repetia, em letra miúda, a marca que o cabeçalho fixo já mostra a
             30px dali, e nessa distância os dois liam como um bloco só de

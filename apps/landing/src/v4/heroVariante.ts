@@ -52,12 +52,24 @@ function assinar(avisar: () => void): () => void {
 }
 
 /* Os snapshots devolvem PRIMITIVOS. Objeto novo a cada leitura faria o
-   useSyncExternalStore entender que mudou sempre e entrar em laço. */
-const lerVariante = (): VarianteHero => {
+   useSyncExternalStore entender que mudou sempre e entrar em laço.
+
+   `null` = AUTOMÁTICO, que passou a ser o padrão em 09/08 (Gabriel: "deixa a B
+   como fixa no desktop e no mobile será a A"). Sem `?hero=` na URL, quem
+   escolhe é a LARGURA DA TELA, e não este arquivo: o AppV4 renderiza as duas e
+   deixa o CSS mostrar uma por vez.
+
+   Por que CSS e não `matchMedia` aqui: o HTML da LP é congelado no build, numa
+   largura só. Se a escolha fosse feita em JavaScript, o visitante de celular
+   receberia o HTML da variante de desktop e o React teria que remendar a
+   árvore inteira do Hero na hidratação — o erro #418 que este arquivo existe
+   para evitar. Com media query as duas vêm no HTML e o navegador esconde a que
+   não serve antes do primeiro quadro, sem JavaScript nenhum. */
+const lerVariante = (): VarianteHero | null => {
   const p = new URLSearchParams(window.location.search).get('hero')
-  return ehVariante(p) ? p : 'a'
+  return ehVariante(p) ? p : null
 }
-const varianteCongelada = (): VarianteHero => 'a'
+const varianteCongelada = (): VarianteHero | null => null
 
 /* SELETOR SEMPRE VISÍVEL (Gabriel, 09/08, pedindo pela segunda vez: "eu pedi
    as versões A B C no header, cadê?").
@@ -88,7 +100,8 @@ const lerModo = (): boolean =>
 const modoCongelado = (): boolean => SELETOR_SEMPRE_VISIVEL
 
 export function useVarianteHero(): {
-  variante: VarianteHero
+  /** `null` = automático: desktop vê a B, celular vê a A (quem decide é o CSS). */
+  variante: VarianteHero | null
   modoAvaliacao: boolean
   trocar: (v: VarianteHero) => void
 } {

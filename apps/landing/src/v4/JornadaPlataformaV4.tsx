@@ -139,8 +139,10 @@ const PAINEIS: Painel[] = [
     passo: 'Empresas',
     icone: Building2,
     janela: 'Comparativo · Pontuação Empresas',
-    frase:
-      'Cada resposta vira nota, com o peso que ela tem na decisão. Garantia vale 14%; quem instala com equipe própria pontua mais do que quem terceiriza.',
+    /* Uma frase só (Francis, 09/08: "eliminar a segunda frase"). A segunda
+       explicava a régua de dois critérios, e a tabela ao lado já mostra o peso
+       de cada um em letra miúda: era a legenda repetindo o painel. */
+    frase: 'Cada resposta vira nota, com o peso que ela tem na decisão.',
     duracao: 7000,
   },
   {
@@ -159,8 +161,11 @@ const PAINEIS: Painel[] = [
     passo: 'Pontuação Geral',
     icone: BarChart3,
     janela: 'Comparativo · Pontuação Geral',
+    /* Segunda frase trocada por ele (Francis, 09/08), e ganhou o que faltava:
+       diz que as empresas são FICTÍCIAS. Seis nomes com nota ao lado, sem esse
+       aviso, lêem como avaliação de empresas reais. */
     frase:
-      'As seis lado a lado no Índice de Confiabilidade. A mais barata, de R$ 14.500, é a quarta colocada.',
+      'As seis lado a lado no Índice de Confiabilidade. Neste exemplo com empresas fictícias, a Soli Brasil alcançou 79,2 pontos em 100.',
     duracao: 8000,
   },
   {
@@ -169,7 +174,7 @@ const PAINEIS: Painel[] = [
     passo: 'Decisão',
     icone: Trophy,
     janela: 'Finalistas · Decisão do comprador',
-    frase: 'A decisão continua sendo sua. A diferença é que agora ela tem números atrás.',
+    frase: 'A decisão continua sendo sua. A diferença é que agora ela é embasada em números.',
     duracao: 7000,
   },
 ]

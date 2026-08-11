@@ -93,20 +93,42 @@ export const HeaderV4: React.FC = () => {
             aparece em modo de avaliacao (ver heroVariante.ts). */}
         {modoAvaliacao && (
           <div className="ml-3 flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-0.5">
-            {VARIANTES.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => trocar(v.id)}
-                title={`${v.nome}: ${v.resumo}`}
-                aria-pressed={variante === v.id}
-                className={`v4-mono flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold uppercase transition-colors ${
-                  variante === v.id ? 'bg-orange-500 text-white' : 'text-slate-500 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {v.id}
-              </button>
-            ))}
+            {VARIANTES.map((v) => {
+              /* NO AUTOMÁTICO (sem `?hero=`) quem está no ar depende da
+                 largura: A no celular, B no desktop. O aceso segue a mesma
+                 media query do Hero, POR CSS — se a letra acesa fosse decidida
+                 em JavaScript, ela discordaria do HTML congelado e o React
+                 remendaria o cabeçalho na hidratação.
+
+                 `aria-pressed` não tem como acompanhar media query, então no
+                 automático ele fica `undefined`: melhor não afirmar nada para
+                 o leitor de tela do que afirmar a letra errada em metade dos
+                 aparelhos. Com `?hero=` na URL ele volta a ser exato. */
+              const auto = variante === null
+              const aceso = 'bg-orange-500 text-white'
+              const apagado = 'text-slate-500 hover:bg-white/10 hover:text-white'
+              const cor = auto
+                ? v.id === 'a'
+                  ? `${aceso} lg:bg-transparent lg:text-slate-500 lg:hover:bg-white/10 lg:hover:text-white`
+                  : v.id === 'b'
+                    ? `${apagado} lg:bg-orange-500 lg:text-white`
+                    : apagado
+                : variante === v.id
+                  ? aceso
+                  : apagado
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => trocar(v.id)}
+                  title={`${v.nome}: ${v.resumo}`}
+                  aria-pressed={auto ? undefined : variante === v.id}
+                  className={`v4-mono flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold uppercase transition-colors ${cor}`}
+                >
+                  {v.id}
+                </button>
+              )
+            })}
           </div>
         )}
         </div>
@@ -246,12 +268,21 @@ export const FloatingCTAV4: React.FC = () => {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
       }}
-      /* Menor no desktop desde 06/08 (Francis, slide 1: "formato computador:
-         reduzir o tamanho do CTA flutuante"). A pastilha ocupava 330px de
-         largura e ~68px de altura no canto de toda a rolagem; agora vai a
-         268px e ~54px. Encolheu a moldura e a tipografia, não o alvo de
-         clique, que continua confortável. */
-      className={`fixed bottom-5 right-5 z-40 hidden max-w-[268px] items-center gap-3 rounded-full border border-white/10 bg-[#0a0c12]/95 py-2 pl-2 pr-5 text-slate-50 shadow-[0_20px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-500 md:flex ${
+      /* ENCOLHEU DE NOVO, e bastante (Francis, 09/08: "atrapalha um pouco a
+         leitura em tela; reduzir muito seu tamanho ou eliminar").
+
+         Em 06/08 ele já tinha pedido menor e foi de 330x68 para 268x54. Ainda
+         era uma placa cobrindo o canto inferior direito da página inteira, e
+         é justamente ali que a legenda dos painéis da jornada e o fim das
+         tabelas aparecem. Agora é uma pastilha de ~190x40.
+
+         O que saiu foi a linha de cima ("MANUAL SOLAR BUY-SIDE"), que repetia
+         a marca que o cabeçalho mostra o tempo todo, e uma tipografia inteira
+         de altura. Ficou o que faz o trabalho: a seta e a ação. Eliminar de
+         vez era a outra opção dele, mas o botão é o único CTA presente
+         durante a rolagem inteira — encolher entrega a leitura de volta sem
+         abrir mão da conversão. */
+      className={`fixed bottom-5 right-5 z-40 hidden max-w-[264px] items-center gap-2 rounded-full border border-white/10 bg-[#0a0c12]/95 py-1.5 pl-1.5 pr-4 text-slate-50 shadow-[0_16px_36px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-500 md:flex ${
         isVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-8 opacity-0'
       }`}
       aria-hidden={!isVisible}
@@ -260,16 +291,11 @@ export const FloatingCTAV4: React.FC = () => {
       // reportava como "aria-hidden element must not be focusable".
       tabIndex={isVisible ? undefined : -1}
     >
-      <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_8px_20px_-6px_rgba(249,115,22,0.7)]">
-        <ArrowRight size={16} />
+      <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_6px_16px_-6px_rgba(249,115,22,0.7)]">
+        <ArrowRight size={14} />
       </span>
-      <span className="min-w-0">
-        <span className="v4-mono block text-[8px] font-bold uppercase tracking-[0.2em] text-orange-300">
-          Manual Solar Buy-Side
-        </span>
-        <span className="block text-[13px] font-extrabold leading-tight text-slate-50">
-          {txt('ctaButton', 'Garantir meu acesso agora')}
-        </span>
+      <span className="truncate text-[12px] font-bold leading-tight text-slate-50">
+        {txt('ctaButton', 'Garantir meu acesso agora')}
       </span>
     </a>
   )
