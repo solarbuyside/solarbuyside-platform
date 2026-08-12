@@ -2,9 +2,15 @@
 import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
-import { Img, WordReveal } from './atoms'
+import { WordReveal } from './atoms'
 import { trackBuyClick } from '../utils/analytics'
 import { criarTxt, temConteudo } from './cms'
+/* O leque é da variante B e vive lá porque é lá que ele nasceu e onde está o
+   grosso do raciocínio dele. Importar em vez de duplicar mantém as duas
+   dobras com o MESMO controle: o que se ajusta no leque vale para o desktop e
+   para o celular ao mesmo tempo. */
+import { KitLequeV4 } from './HeroVariantesV4'
+import { useKit, useRodizio } from './kit'
 
 /* HERO "SOLAR DAWN" — sem foto stock, sem card 3D. Um horizonte solar
    gráfico: disco gigante com aresta incandescente, raios cônicos lentos,
@@ -32,48 +38,31 @@ import { criarTxt, temConteudo } from './cms'
    que o título logo abaixo já dizia, e roubava a altura que subiu o CTA. As
    etiquetas continuam na seção de oferta, onde classificam os quatro itens. */
 const HeroKitV4: React.FC = () => {
-  const { getSection, globalSettings } = useContent()
-  const section = getSection('pricing')
-  const txt = criarTxt(section)
+  const { getSection } = useContent()
+  const txt = criarTxt(getSection('pricing'))
 
-  /* Os títulos sobrevivem só no `alt` das capas: leitor de tela e buscador
-     continuam sabendo o nome de cada peça, o olho não precisa mais ler.
+  /* AS QUATRO CAPAS VIRARAM O MESMO LEQUE DO DESKTOP (Gabriel, 11/08: "pega
+     esses quatro livros e organiza pra ficarem igual da versão do desktop").
 
-     As chaves `heroKit1Desc`..`heroKit4Desc` (as frases curtas que ficavam sob
-     cada capa) DEIXARAM de ser lidas aqui. Elas continuam no banco e no editor
-     do admin de propósito, porque esta versão do Hero está em avaliação; se
-     ficar, o passo seguinte é tirar os quatro campos do field-schema, senão o
-     cliente digita neles e não vê nada acontecer, que é a reclamação que o
-     Francis já trouxe outras vezes. */
-  const pecas = [
-    {
-      title: txt('heroKit1Title', 'Manual de Compra de Sistema Solar'),
-      image: section?.images.card1Image || '/assets/manual-norm.png',
-    },
-    {
-      title: txt('heroKit2Title', txt('card2Title', 'Código do Vendedor Consultivo')),
-      image: section?.images.card2Image || '/assets/codigo-norm.png',
-    },
-    {
-      title: txt('heroKit3Title', txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
-      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
-    },
-    /* A LICENÇA DE USO COLETIVA VOLTOU (Gabriel, 09/08, mandando a capa).
-       Ela tinha saído da dobra mais cedo no mesmo dia, porque o rótulo
-       prometia "2 Ebooks + Plataforma", que são três coisas, e apareciam
-       quatro capas: o visitante contava os objetos, batia com o texto e
-       sobrava uma.
+     Eram uma grade — 2×2 no celular, quatro colunas acima de sm. Quatro
+     objetos de tamanhos e proporções diferentes lado a lado, cada um com sua
+     elipse de contato, não liam como kit: liam como quatro coisas soltas
+     ocupando duas fileiras. E custavam caro em altura justo na dobra onde o
+     pé já tinha sido encurtado para o bloco seguinte aparecer na rolagem.
 
-       Agora a conta fecha ao contrário. O rótulo passou a nomear a Licença
-       ("+ Licença de uso até 10 vendedores"), então eram quatro nomes para
-       três objetos, e faltava justamente esta. Com ela de volta são quatro e
-       quatro — que é o caminho que o comentário anterior deixou escrito, e
-       também o que o Francis tinha pedido no slide 2 de 06/08. */
-    {
-      title: txt('heroKit4Title', txt('card3Title', 'Licença de Uso Coletiva')),
-      image: section?.images.card3Image || '/assets/coletiva-norm.png',
-    },
-  ]
+     O leque resolve os dois: uma peça por vez, com nome e frase embaixo (que
+     a grade tinha perdido junto com o texto), e a pilha inteira na altura de
+     UMA capa. As peças vêm de `useKit`, o mesmo hook da variante B, então o
+     `alvo` de cada uma vem junto e clicar na capa da frente leva para a seção
+     que a explica. */
+  const { pecas, cta, link, externo } = useKit()
+  const { ativo, escolher } = useRodizio(pecas.length)
+
+  /* AS FRASES CURTAS VOLTARAM A TER LEITOR. `heroKit1Desc`..`heroKit4Desc`
+     tinham deixado de ser lidas quando as capas ficaram sem texto na grade;
+     o leque as mostra de novo, sob o nome da peça da frente, uma por vez —
+     que era a objeção original ao texto na grade (oito fragmentos disputando
+     leitura com a subfrase), e não existe com uma peça de cada vez. */
 
   /* A linha que nomeia o kit. Encurtada em 06/08 (slide 2: "Kit Completo: 2
      Ebooks + Plataforma"): a frase antiga tinha duas linhas e era a maior
@@ -91,7 +80,6 @@ const HeroKitV4: React.FC = () => {
   const nota = !notaCms || notaCms.startsWith('Kit Completo para integradoras')
     ? 'Kit Completo: 2 Ebooks + Plataforma + Licença de uso até 10 vendedores'
     : notaCms
-  const cta = txt('heroKitCta', 'Quero o Kit Completo Agora')
 
   /* ORDEM: a linha que nomeia o kit, as capas, e o BOTÃO POR ÚLTIMO.
 
@@ -120,60 +108,26 @@ const HeroKitV4: React.FC = () => {
         </p>
       )}
 
-      {/* AS CAPAS SEM TEXTO. Cada uma tinha um título e uma frase embaixo, e
-          as duas diziam quase a mesma coisa ("Manual de Compra de Sistema
-          Solar" / "Método de Compra de Sistema Solar"). Eram 48 das ~85
-          palavras da dobra, gastas num catálogo que a seção de oferta já faz
-          lá embaixo com as MESMAS capas e mais detalhe.
+      {/* O LEQUE, no lugar da grade.
 
-          Capa em Hero é âncora visual, não item de leitura: a 124px de altura
-          ninguém lê a lombada. Sem o texto elas ficam maiores e o nome de cada
-          peça sobrevive no `alt`, para leitor de tela e para o Google. */}
-      {/* max-w própria, menor que a do Hero: soltas nos 1152px do container as
-          quatro capas viravam quatro objetos isolados em tela larga. Juntas,
-          lêem como UM kit, que é o que a linha acima acabou de anunciar. */}
-      {/* CAPAS ASSENTADAS NO HORIZONTE.
-          Antes elas eram atravessadas pela aresta incandescente: a linha
-          passava pelo terço inferior e a base ficava no escuro, o que lia
-          como colisão de z-index e não como intenção. Agora a base encosta na
-          linha (ver o pb da seção, que é calibrado para isso) e cada capa
-          ganha a ELIPSE DE CONTATO que a seção do Manual já usava no pedestal
-          de luz. Sem o contato, objeto sobre horizonte flutua.
+          ALTURA FIXA porque é assim que o leque se dimensiona: o palco é
+          `flex-1` e as capas têm altura em % DELE (é o que impede a capa de
+          crescer com a largura da tela e transbordar). Sem uma altura aqui, o
+          `flex-1` não tem de que tirar percentual e o palco colapsa.
 
-          Maiores também: 124px num canvas de 1900px liam como selinho, e
-          selinho diz "isto é secundário" justamente sobre o produto. Sem o
-          texto competindo, elas aguentam 180px sem poluir. */}
-      <div className="mx-auto mt-6 grid max-w-4xl grid-cols-2 items-end gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-y-0 md:mt-8 md:gap-x-8">
-        {pecas.map((peca, i) => (
-          <div key={peca.title} className="group relative flex items-end justify-center">
-            {/* O "+" entre as peças. Alinhado pelo meio da capa, não da
-                célula: as capas têm alturas visuais diferentes e o sinal
-                dançava de uma para outra. */}
-            {i > 0 && (
-              <span
-                className="absolute -left-5 bottom-[38%] text-2xl font-light text-orange-500/40 md:-left-7"
-                aria-hidden
-              >
-                +
-              </span>
-            )}
-            <div className="relative">
-              <Img
-                src={peca.image}
-                alt={peca.title}
-                // A primeira dobra: estas imagens competem com o <h1>, que é
-                // o LCP. Todas lazy, como as capas da oferta.
-                loading="lazy"
-                className="relative z-10 h-[126px] w-auto max-w-none drop-shadow-[0_22px_30px_rgba(0,0,0,0.7)] transition duration-500 group-hover:-translate-y-1.5 sm:h-[150px] md:h-[180px]"
-              />
-              {/* Elipse de contato: a sombra que prende a capa no chão. */}
-              <span
-                className="absolute -bottom-1.5 left-1/2 h-3 w-[78%] -translate-x-1/2 rounded-[100%] bg-orange-400/25 blur-md transition-opacity duration-500 group-hover:opacity-70"
-                aria-hidden
-              />
-            </div>
-          </div>
-        ))}
+          O número é a altura da pilha MAIS a legenda (~100px: nome, frase,
+          setas e marcadores). Em 340px sobram ~240px de palco e a capa da
+          frente fica em ~178px — maior que os 126px que a grade dava no
+          celular, e ainda assim o bloco inteiro é mais baixo, porque a grade
+          gastava duas fileiras de capa. É o espaço vertical que sobra para o
+          CTA e para o bloco seguinte entrar antes na rolagem.
+
+          `max-w-2xl` e centrado: solto na largura do Hero, o leque abriria
+          demais no desktop (esta variante também é vista inteira com
+          `?hero=a`) e as capas de trás se afastariam da da frente até deixar
+          de parecer uma pilha. */}
+      <div className="mx-auto mt-6 h-[340px] w-full max-w-2xl sm:h-[400px] md:mt-8 md:h-[440px]">
+        <KitLequeV4 pecas={pecas} ativo={ativo} aoTrocar={escolher} compacto />
       </div>
 
       {/* O BOTÃO, agora no fim (Francis, 09/08). `mt-10` e não o `mt-9` que a
@@ -181,9 +135,9 @@ const HeroKitV4: React.FC = () => {
           que separar duas partes do meio. */}
       {temConteudo(cta) && (
         <a
-          href={globalSettings.purchaseLink || '#oferta'}
-          target={globalSettings.purchaseLink ? '_blank' : undefined}
-          rel={globalSettings.purchaseLink ? 'noopener noreferrer' : undefined}
+          href={link}
+          target={externo ? '_blank' : undefined}
+          rel={externo ? 'noopener noreferrer' : undefined}
           onClick={trackBuyClick}
           className="v4-cta-shine group relative mx-auto mt-10 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-9 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:mt-12 md:px-10 md:py-5 md:text-lg"
         >

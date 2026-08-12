@@ -37,11 +37,6 @@ const EVENTO = 'sbs:hero-variante'
 
 const ehVariante = (v: string | null): v is VarianteHero => v === 'a' || v === 'b' || v === 'c'
 
-function localHost(): boolean {
-  const h = window.location.hostname
-  return h === 'localhost' || h === '127.0.0.1' || h === '' || /^\d+\.\d+\.\d+\.\d+$/.test(h)
-}
-
 function assinar(avisar: () => void): () => void {
   window.addEventListener('popstate', avisar)
   window.addEventListener(EVENTO, avisar)
@@ -80,16 +75,20 @@ const varianteCongelada = (): VarianteHero | null => null
    lead pago é a coisa mais cara desta página.
 
    NÃO É REMOÇÃO, É O PORTÃO DE VOLTA. Com `false` aqui, o seletor some para
-   qualquer visitante do endereço normal e continua aparecendo em duas
-   situações: com `?hero=` na URL e em localhost. Ou seja, você e o Francis
-   continuam comparando pelos links de sempre
-   (solarbuyside.com.br/?hero=a | ?hero=b | ?hero=c) e o desenvolvimento
-   continua com o controle à mão. Se um dia quiser abrir de novo, é a mesma
-   palavra: `true`. */
+   qualquer visitante do endereço normal. Se um dia quiser abrir de novo, é a
+   mesma palavra: `true`.
+
+   E SAIU TAMBÉM DO LOCALHOST (Gabriel, 11/08). Ele aparecia em
+   desenvolvimento pela ideia de "o controle à mão", mas o efeito prático era
+   outro: o seletor ocupava um canto do cabeçalho em toda sessão de trabalho,
+   sujando justamente a tela que se está olhando para julgar o desenho. E ele
+   não era necessário nem para isso, porque o link com `?hero=` funciona igual
+   em localhost. Fica UMA porta em vez de duas, e ela é a mesma nos dois
+   ambientes: `?hero=a | ?hero=b | ?hero=c`. */
 const SELETOR_SEMPRE_VISIVEL = false
 
 const lerModo = (): boolean =>
-  SELETOR_SEMPRE_VISIVEL || new URLSearchParams(window.location.search).has('hero') || localHost()
+  SELETOR_SEMPRE_VISIVEL || new URLSearchParams(window.location.search).has('hero')
 
 /* O snapshot de hidratação TEM QUE CONCORDAR com o que o HTML congelado traz.
    O prerender captura o DOM depois de hidratar, então, com o seletor sempre

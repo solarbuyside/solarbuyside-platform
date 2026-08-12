@@ -7,6 +7,7 @@ import { useApoiadores } from './ApoiadoresV4'
 import { scrollToId } from './scroll'
 import { trackBuyClick } from '../utils/analytics'
 import { criarTxt, temConteudo } from './cms'
+import { useKit, useRodizio, type Peca } from './kit'
 import { TelaPlataformaV4 } from './TelaPlataformaV4'
 
 /* VARIANTES DO HERO, para comparar direções lado a lado (ver heroVariante.ts).
@@ -49,68 +50,6 @@ function useTextosHero() {
   }
 }
 
-/* As três peças do kit.
-
-   Cada uma ganhou FRASE e ENDEREÇO, porque só a capa não estava contando nada
-   (Gabriel, 09/08: "eles não sabem o que é cada um dos livros").
-
-   A frase vem de `heroKitNDesc`, que são as legendas curtas que ficavam sob as
-   capas na variante A e saíram de lá em 06/08. Elas continuaram no banco e no
-   editor do admin sem ninguém lendo; aqui voltam a ter leitor, com o texto que
-   o Francis já aprovou ("130 páginas e 160 tópicos", e por aí).
-
-   O `alvo` é a seção da LP que explica aquela peça. O Código não tinha id
-   próprio porque mora dentro da seção do Manual — foi preciso criar um lá (ver
-   ManualStrategicV4). Sem isso ele cairia na explicação do Manual. */
-function useKit() {
-  const { getSection, globalSettings } = useContent()
-  const pricing = getSection('pricing')
-  const t = criarTxt(pricing)
-
-  return {
-    pecas: [
-      {
-        title: t('heroKit1Title', 'Manual de Compra de Sistema Solar'),
-        image: pricing?.images.card1Image || '/assets/manual-norm.png',
-        frase: t('heroKit1Desc', '130 páginas e 160 tópicos'),
-        alvo: 'manual-strategic',
-      },
-      {
-        title: t('heroKit2Title', t('card2Title', 'Código do Vendedor Consultivo')),
-        image: pricing?.images.card2Image || '/assets/codigo-norm.png',
-        frase: t('heroKit2Desc', 'Método de venda consultiva'),
-        alvo: 'codigo',
-      },
-      {
-        title: t('heroKit3Title', t('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
-        image: pricing?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
-        frase: t('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
-        alvo: 'plataforma',
-      },
-      /* A LICENÇA DE USO COLETIVA (Gabriel, 09/08: "faltou o outro livro, o de
-         10 licenças; você colocou no A e não no B"). O rótulo do kit já a
-         nomeia desde hoje de manhã, e a variante A já mostra a quarta capa;
-         faltava a B. Ela leva para `#equipe`, que é a seção "Capacite todo o
-         seu time comercial" — a única das quatro peças cuja explicação não
-         está no bloco do Manual nem no da Plataforma. */
-      {
-        /* NÃO cai em `card3Title` como as outras caem nos títulos da oferta:
-           lá ele vale "Licença de uso para até 10 vendedores", que é exatamente
-           o texto da FRASE logo abaixo — o leque mostrava a mesma linha duas
-           vezes (Francis, 09/08: "trocar título: Licença de uso coletivo"). */
-        title: t('heroKit4Title', 'Licença de uso coletivo'),
-        image: pricing?.images.card3Image || '/assets/coletiva-norm.png',
-        frase: t('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
-        alvo: 'equipe',
-      },
-    ],
-    cta: t('heroKitCta', 'Quero o Kit Completo Agora'),
-    link: globalSettings.purchaseLink || '#oferta',
-    externo: Boolean(globalSettings.purchaseLink),
-  }
-}
-
-type Peca = ReturnType<typeof useKit>['pecas'][number]
 
 /* ── O LEQUE NAVEGÁVEL DA VARIANTE B ────────────────────────────────────────
 
@@ -169,20 +108,44 @@ const POSES = [
 ]
 const CAMADAS = ['z-40', 'z-20', 'z-10', 'z-30']
 
-/* 2s (Francis, 09/08: "aumentar um pouco a velocidade de troca de produto, de
-   3 para 2 segundos"). Eram 4,5s. Com quatro peças o ciclo inteiro caiu de 18s
-   para 8s, que é mais perto do tempo que alguém passa na primeira dobra antes
-   de rolar — e o ciclo só vale para quem NÃO interage; no primeiro clique ele
-   para de vez. */
-const RODIZIO = 2000
 
-const KitLequeV4: React.FC<{
+export const KitLequeV4: React.FC<{
   pecas: Peca[]
   ativo: number
   aoTrocar: (i: number) => void
   /** No celular o leque entra no fluxo e fica mais baixo. */
   compacto?: boolean
-}> = ({ pecas, ativo, aoTrocar, compacto = false }) => (
+}> = ({ pecas, ativo, aoTrocar, compacto = false }) => {
+  /* ARRASTAR O DEDO TROCA A PEÇA (Gabriel, 11/08). No celular o leque é o
+     objeto principal da dobra, e num objeto que se folheia o primeiro gesto
+     que a mão tenta é o arrasto lateral — não a seta.
+
+     Só o eixo X conta, e só a partir de 40px: abaixo disso é tremor de dedo,
+     e um arrasto mais vertical que horizontal é a pessoa ROLANDO a página por
+     cima das capas, que não pode virar troca de peça. Por isso também não há
+     `touch-action: none` aqui: a rolagem vertical continua sendo do navegador,
+     e o gesto só é interpretado no fim (`touchend`), quando já se sabe qual
+     dos dois eixos venceu. */
+  const toque = React.useRef<{ x: number; y: number } | null>(null)
+
+  const aoTocarInicio = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    toque.current = { x: t.clientX, y: t.clientY }
+  }
+
+  const aoTocarFim = (e: React.TouchEvent) => {
+    const inicio = toque.current
+    toque.current = null
+    if (!inicio) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - inicio.x
+    const dy = t.clientY - inicio.y
+    if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return
+    /* Arrastar para a ESQUERDA traz a próxima, como folhear para frente. */
+    aoTrocar((ativo + (dx < 0 ? 1 : pecas.length - 1)) % pecas.length)
+  }
+
+  return (
   /* DUAS FAIXAS EMPILHADAS, não uma camada só com tudo posicionado por cima.
 
      O palco das capas é `flex-1` e a legenda é `shrink-0`: a legenda reserva a
@@ -193,7 +156,16 @@ const KitLequeV4: React.FC<{
      (Gabriel: "os livros estão tocando nas frases"). Com as faixas separadas
      esse encontro deixa de ser possível em qualquer proporção de tela. */
   <div className="flex h-full w-full flex-col">
-    <div className="relative min-h-0 flex-1">
+    {/* `pointer-events-auto` no palco só no compacto: no desktop esta camada é
+        larga e encosta na coluna de texto, e reativar o evento aqui faria a
+        faixa vazia ao redor das capas engolir cliques do texto. No celular ela
+        é o próprio bloco do leque, e precisa receber o arrasto mesmo quando o
+        dedo começa fora de uma capa. */}
+    <div
+      className={`relative min-h-0 flex-1 ${compacto ? 'pointer-events-auto' : ''}`}
+      onTouchStart={aoTocarInicio}
+      onTouchEnd={aoTocarFim}
+    >
       {/* Fonte de luz atrás do produto: é ela que faz o objeto existir no
           espaço, em vez de parecer colado sobre um fundo. */}
       <div
@@ -218,10 +190,14 @@ const KitLequeV4: React.FC<{
           <button
             key={peca.title}
             type="button"
-            onClick={() => aoTrocar(i)}
-            tabIndex={naFrente ? -1 : 0}
-            aria-label={naFrente ? undefined : `Ver ${peca.title}`}
-            aria-hidden={naFrente}
+            /* A CAPA DA FRENTE LEVA PARA A SEÇÃO DELA (Gabriel, 11/08), e é o
+               que aposentou o botão "Ver o que é" que ficava sob a legenda.
+               Clicar no objeto é o gesto óbvio; um botão a três linhas dali
+               dizendo a mesma coisa era um segundo caminho para o mesmo lugar,
+               gastando altura da dobra. As de trás continuam trocando a peça,
+               que é o que o olho espera de uma capa parcialmente tapada. */
+            onClick={() => (naFrente ? scrollToId(peca.alvo) : aoTrocar(i))}
+            aria-label={naFrente ? `Ver a seção de ${peca.title}` : `Ver ${peca.title}`}
             /* ALTURA em % do palco, e a largura sai da proporção da imagem.
                Era o contrário (largura em % do container), e por isso a altura
                das capas dependia de quão LARGA a tela era: num monitor
@@ -235,7 +211,7 @@ const KitLequeV4: React.FC<{
                responder a clique. */
             className={`group pointer-events-auto absolute bottom-0 left-1/2 origin-bottom transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.22,0.61,0.36,1)] ${
               CAMADAS[d]
-            } ${compacto ? 'h-[74%]' : 'h-[68%]'} ${naFrente ? 'cursor-default' : 'cursor-pointer'}`}
+            } ${compacto ? 'h-[74%]' : 'h-[68%]'} cursor-pointer`}
             style={{ transform: POSES[d], opacity: naFrente ? 1 : 0.85 }}
           >
             <Img
@@ -283,17 +259,27 @@ const KitLequeV4: React.FC<{
         />
       </div>
 
-      {/* O link que o Gabriel pediu: leva direto para a seção que explica esta
-          peça. Fica separado das setas porque é uma ação de outra natureza —
-          as setas mexem no leque, este tira o visitante da dobra. */}
-      <button
-        type="button"
-        onClick={() => scrollToId(pecas[ativo].alvo)}
-        className="group pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-bold text-slate-300 transition-colors hover:border-orange-400/40 hover:bg-orange-500/10 hover:text-white"
-      >
-        Ver o que é
-        <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" aria-hidden />
-      </button>
+      {/* O LINK PARA A SEÇÃO DA PEÇA, SÓ NO DESKTOP (Gabriel, 11/08).
+
+          Ele saiu no celular porque lá o clique na capa já leva ao mesmo
+          lugar, e o gesto de tocar no objeto é o primeiro que a mão tenta —
+          um botão a três linhas dali repetindo a ação custava altura na dobra
+          mais apertada das duas.
+
+          No desktop a conta é outra: quem usa mouse não tem como saber que a
+          capa é clicável até passar por cima dela, e a dobra tem altura de
+          sobra. O botão é o que ANUNCIA que existe uma seção explicando
+          aquela peça. */}
+      {!compacto && (
+        <button
+          type="button"
+          onClick={() => scrollToId(pecas[ativo].alvo)}
+          className="group pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] font-bold text-slate-300 transition-colors hover:border-orange-400/40 hover:bg-orange-500/10 hover:text-white"
+        >
+          Ver o que é
+          <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" aria-hidden />
+        </button>
+      )}
 
       {/* Marcadores de posição: dizem quantas peças existem, o que nem a seta
           nem a legenda contam. */}
@@ -309,7 +295,8 @@ const KitLequeV4: React.FC<{
       </div>
     </div>
   </div>
-)
+  )
+}
 
 const SetaLeque: React.FC<{ direcao: 'anterior' | 'proximo'; aoClicar: () => void; rotulo: string }> = ({
   direcao,
@@ -327,27 +314,6 @@ const SetaLeque: React.FC<{ direcao: 'anterior' | 'proximo'; aoClicar: () => voi
       <Icone size={16} aria-hidden />
     </button>
   )
-}
-
-/** Rodízio automático que morre no primeiro toque. */
-function useRodizio(total: number): { ativo: number; escolher: (i: number) => void } {
-  const [ativo, setAtivo] = React.useState(0)
-  const [auto, setAuto] = React.useState(true)
-
-  React.useEffect(() => {
-    if (!auto) return
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const id = window.setTimeout(() => setAtivo((a) => (a + 1) % total), RODIZIO)
-    return () => window.clearTimeout(id)
-  }, [ativo, auto, total])
-
-  return {
-    ativo,
-    escolher: (i: number) => {
-      setAuto(false)
-      setAtivo(i)
-    },
-  }
 }
 
 const BotaoPrimario: React.FC<{ texto: string; link: string; externo: boolean }> = ({ texto, link, externo }) => (
