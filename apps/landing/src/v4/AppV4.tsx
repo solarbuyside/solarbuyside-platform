@@ -99,6 +99,9 @@ export default function AppV4() {
     // Preview do admin (plataforma) abre a LP num iframe e manda
     // scrollToSection para navegar até a seção selecionada no editor.
     const handleMessage = (event: MessageEvent) => {
+      const allowedOrigin = event.origin === 'https://plataforma.solarbuyside.com.br' ||
+        event.origin === 'http://localhost:3000' || event.origin === 'http://127.0.0.1:3000'
+      if (!allowedOrigin) return
       if (event.data?.type === 'scrollToSection' && event.data.hash) {
         const element = document.getElementById(event.data.hash)
         if (element) {

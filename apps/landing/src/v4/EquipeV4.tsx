@@ -72,7 +72,7 @@ export const EquipeV4: React.FC = () => {
   // A barra mais cara ocupa a trilha inteira; as demais, proporcional. Piso de
   // 7% para a última não virar um ponto invisível.
   const maior = Math.max(...linhas.map((l) => numero(l.valor)), 1)
-  const capa = section?.images.teamImage || '/assets/coletiva-norm.png'
+  const capa = section?.images.teamImage ?? '/assets/coletiva-norm.png'
 
   /* Fecho do bloco (Francis, 06/08, slide 20: "acrescentar e destacar essa
      frase abaixo da tabela"). É a ponte para a promo Belenergy que aparece

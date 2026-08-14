@@ -43,7 +43,7 @@ function useTextosHero() {
     titleSuffix: t('titleSuffix', 'em Sistema Solar'),
     // Mesma regra de legado da variante A: o texto antigo do banco cai no novo.
     subtitle:
-      !subCms || subCms.startsWith('O método Buy-Side')
+      subCms.startsWith('O método Buy-Side')
         ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do <span class="cms-semibold">comprador</span>'
         : subCms,
     selo: t('manualTitle', 'Manual Solar Buy-Side'),

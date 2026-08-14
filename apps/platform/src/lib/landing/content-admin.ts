@@ -31,8 +31,11 @@ function asStringMap(value: unknown): Record<string, string> {
   return out;
 }
 
-const sameMap = (a: Record<string, string>, b: Record<string, string>) =>
-  JSON.stringify(a) === JSON.stringify(b);
+const sameMap = (a: Record<string, string>, b: Record<string, string>) => {
+  const keysA = Object.keys(a).sort();
+  const keysB = Object.keys(b).sort();
+  return keysA.length === keysB.length && keysA.every((key, index) => key === keysB[index] && a[key] === b[key]);
+};
 
 export async function listLandingSections(): Promise<LandingSection[]> {
   const admin = createAdminClient();

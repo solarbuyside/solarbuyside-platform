@@ -54,10 +54,13 @@ const CODE_PARAGRAFOS_VIEW = "__code-paragrafos__";
 const HISTORIA_VIEW = "__historia__";
 const EQUIPE_VIEW = "__equipe__";
 const PROPOSITO_VIEW = "__proposito__";
+const MANUAL_INDEX_VIEW = "__manual-index__";
+const CODE_INDEX_VIEW = "__code-index__";
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
-const LP_URL = "https://solarbuyside.com.br/";
+const LP_ORIGIN = "https://solarbuyside.com.br";
+const LP_URL = `${LP_ORIGIN}/?cmsPreview=1`;
 
 // section_id -> âncora (id) na landing, para o scroll do preview.
 // Espelha os `<div id="...">` de apps/landing/src/v4/AppV4.tsx.
@@ -204,6 +207,40 @@ const CODE_GROUPS: ListGroup[] = [
   },
 ];
 
+const MANUAL_INDEX_GROUPS: ListGroup[] = [{
+  prefix: "manualIndexPage",
+  label: "Páginas",
+  itemLabel: "Página",
+  max: 12,
+  storage: "mixed",
+  defaultItems: ["08", "09", "10", "11", "12", "13", "14"].map((p) => ({
+    Src: `/assets/manual-indice-p${p}.png`, Label: `p. ${Number(p)}`,
+    Alt: `Página ${Number(p)} do Manual Solar Buy-Side: índice de conteúdo`,
+  })),
+  fields: [
+    { suffix: "Src", label: "Imagem", kind: "image" },
+    { suffix: "Label", label: "Rótulo", kind: "text" },
+    { suffix: "Alt", label: "Descrição acessível", kind: "text" },
+  ],
+}];
+
+const CODE_INDEX_GROUPS: ListGroup[] = [{
+  prefix: "codeIndexPage",
+  label: "Páginas",
+  itemLabel: "Página",
+  max: 6,
+  storage: "mixed",
+  defaultItems: ["03", "04"].map((p) => ({
+    Src: `/assets/codigo-indice-p${p}.png`, Label: `p. ${Number(p)}`,
+    Alt: `Página ${Number(p)} do Código do Vendedor Consultivo: índice de conteúdo`,
+  })),
+  fields: [
+    { suffix: "Src", label: "Imagem", kind: "image" },
+    { suffix: "Label", label: "Rótulo", kind: "text" },
+    { suffix: "Alt", label: "Descrição acessível", kind: "text" },
+  ],
+}];
+
 export function LandingEditor({
   sections: rawSections,
   globals,
@@ -264,6 +301,34 @@ export function LandingEditor({
   const [iframeKey, setIframeKey] = React.useState(0);
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
   const modalIframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  const sendPreviewContent = React.useCallback(() => {
+    const previewSections = sections.map((section) => ({
+      id: section.sectionId,
+      name: section.name ?? section.sectionId,
+      texts: drafts[section.sectionId]?.texts ?? section.texts,
+      images: drafts[section.sectionId]?.images ?? section.images,
+    }));
+    const message = { type: "cmsPreviewContent", sections: previewSections, globals };
+    iframeRef.current?.contentWindow?.postMessage(message, LP_ORIGIN);
+    modalIframeRef.current?.contentWindow?.postMessage(message, LP_ORIGIN);
+  }, [drafts, globals, sections]);
+
+  React.useEffect(() => {
+    if (mode !== "preview") return;
+    const id = window.setTimeout(sendPreviewContent, 80);
+    return () => window.clearTimeout(id);
+  }, [mode, iframeKey, device, sendPreviewContent]);
+
+  React.useEffect(() => {
+    if (mode !== "preview") return;
+    const onReady = (event: MessageEvent) => {
+      const expectedFrame = event.source === iframeRef.current?.contentWindow || event.source === modalIframeRef.current?.contentWindow;
+      if (event.origin === LP_ORIGIN && expectedFrame && event.data?.type === "cmsPreviewReady") sendPreviewContent();
+    };
+    window.addEventListener("message", onReady);
+    return () => window.removeEventListener("message", onReady);
+  }, [mode, sendPreviewContent]);
 
   /** Qual visão do editor de logos está aberta (null = nenhuma). */
   const logosView: LogosView | null = React.useMemo(() => {
@@ -352,8 +417,8 @@ export function LandingEditor({
     const hash = SECTION_ANCHOR[selectedId] ?? selectedId;
     const id = window.setTimeout(() => {
       const msg = { type: "scrollToSection", hash };
-      iframeRef.current?.contentWindow?.postMessage(msg, "*");
-      modalIframeRef.current?.contentWindow?.postMessage(msg, "*");
+      iframeRef.current?.contentWindow?.postMessage(msg, LP_ORIGIN);
+      modalIframeRef.current?.contentWindow?.postMessage(msg, LP_ORIGIN);
     }, 400);
     return () => window.clearTimeout(id);
   }, [mode, selectedId, iframeKey, device]);
@@ -362,14 +427,18 @@ export function LandingEditor({
   // que distingue "campo que ele esvaziou de propósito" de "campo que nasceu
   // vazio porque o manifesto declara e o banco nunca teve".
   const [touched, setTouched] = React.useState<Set<string>>(() => new Set());
-  const markTouched = (k: string) => setTouched((t) => (t.has(k) ? t : new Set(t).add(k)));
+  const touchId = (kind: "text" | "image", k: string) => `${selectedId}:${kind}:${k}`;
+  const markTouched = (kind: "text" | "image", k: string) => {
+    const id = touchId(kind, k);
+    setTouched((t) => (t.has(id) ? t : new Set(t).add(id)));
+  };
 
   function setText(k: string, v: string) {
-    markTouched(k);
+    markTouched("text", k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
   }
   function setImage(k: string, v: string) {
-    markTouched(k);
+    markTouched("image", k);
     setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], images: { ...d[selectedId].images, [k]: v } } }));
   }
   /**
@@ -384,10 +453,10 @@ export function LandingEditor({
    * depois limpou precisa ir para o banco como "" — é assim que se desliga o
    * bloco da promo Belenergy, cuja chave ainda não existe lá.
    */
-  function pruneUntouched(next: Record<string, string>, original: Record<string, string>) {
+  function pruneUntouched(kind: "text" | "image", next: Record<string, string>, original: Record<string, string>) {
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(next)) {
-      if (!(k in original) && !touched.has(k)) continue;
+      if (!(k in original) && !touched.has(`${selectedId}:${kind}:${k}`)) continue;
       out[k] = v;
     }
     return out;
@@ -399,11 +468,12 @@ export function LandingEditor({
       try {
         await saveLandingSectionAction(
           selectedId,
-          pruneUntouched(draft.texts, selected?.texts ?? {}),
-          pruneUntouched(draft.images, selected?.images ?? {}),
+          pruneUntouched("text", draft.texts, selected?.texts ?? {}),
+          pruneUntouched("image", draft.images, selected?.images ?? {}),
         );
         // O que está na tela passa a ser o "já salvo" desta seção.
         setBaselines((b) => ({ ...b, [selectedId]: stableStringify(draft) }));
+        setTouched((current) => new Set([...current].filter((id) => !id.startsWith(`${selectedId}:`))));
         setLocalPending((p) => new Set(p).add(selectedId));
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
@@ -412,6 +482,18 @@ export function LandingEditor({
       }
     });
   }
+
+  function syncSpecialEditor(id: string, next: Draft) {
+    setDrafts((current) => ({ ...current, [id]: next }));
+    setBaselines((current) => ({ ...current, [id]: stableStringify(next) }));
+    setLocalPending((current) => new Set(current).add(id));
+  }
+
+  const withCurrentDraft = (section: LandingSection): LandingSection => ({
+    ...section,
+    texts: drafts[section.sectionId]?.texts ?? section.texts,
+    images: drafts[section.sectionId]?.images ?? section.images,
+  });
 
   // No buyer-wave, os campos testimonial* são editados na aba "Depoimentos".
   const hideTestimonial = selectedId === "buyer-wave";
@@ -519,12 +601,11 @@ export function LandingEditor({
                 {/* Parágrafos do bloco "Código do Vendedor", que antes eram 4
                     slots fixos — não havia como quebrar um em dois. */}
                 {s.sectionId === "manual-strategic" && manualSection ? (
-                  <SubRow
-                    icon={Pilcrow}
-                    label="Parágrafos do Código"
-                    active={selectedId === CODE_PARAGRAFOS_VIEW}
-                    onSelect={() => setSelectedId(CODE_PARAGRAFOS_VIEW)}
-                  />
+                  <>
+                    <SubRow icon={ImageIcon} label="Páginas do índice do Manual" active={selectedId === MANUAL_INDEX_VIEW} onSelect={() => setSelectedId(MANUAL_INDEX_VIEW)} />
+                    <SubRow icon={Pilcrow} label="Parágrafos do Código" active={selectedId === CODE_PARAGRAFOS_VIEW} onSelect={() => setSelectedId(CODE_PARAGRAFOS_VIEW)} />
+                    <SubRow icon={ImageIcon} label="Páginas do índice do Código" active={selectedId === CODE_INDEX_VIEW} onSelect={() => setSelectedId(CODE_INDEX_VIEW)} />
+                  </>
                 ) : null}
                 {/* Cadastro dos logos, um subitem por categoria. As categorias
                     saem dos próprios dados: criar uma nova é digitar o nome no
@@ -620,44 +701,53 @@ export function LandingEditor({
           />
         ) : selectedId === HISTORIA_VIEW && authoritySection ? (
           <ListEditor
-            section={authoritySection}
+            key={HISTORIA_VIEW}
+            section={withCurrentDraft(authoritySection)}
             title="História (aparece abaixo do título)"
             icon={Pilcrow}
             groups={HISTORIA_GROUPS}
-            onSaved={() => setLocalPending((p) => new Set(p).add("authority"))}
+            onSaved={(next) => syncSpecialEditor("authority", next)}
           />
         ) : selectedId === FAQ_VIEW && faqSection ? (
           <ListEditor
-            section={faqSection}
+            key={FAQ_VIEW}
+            section={withCurrentDraft(faqSection)}
             title="Perguntas e respostas"
             icon={ListOrdered}
             groups={FAQ_GROUPS}
-            onSaved={() => setLocalPending((p) => new Set(p).add("faq"))}
+            onSaved={(next) => syncSpecialEditor("faq", next)}
           />
         ) : selectedId === EQUIPE_VIEW && pricingSection ? (
           <ListEditor
-            section={pricingSection}
+            key={EQUIPE_VIEW}
+            section={withCurrentDraft(pricingSection)}
             title="Tabela “Capacite todo o seu time comercial”"
             icon={ListOrdered}
             groups={EQUIPE_GROUPS}
-            onSaved={() => setLocalPending((p) => new Set(p).add("pricing"))}
+            onSaved={(next) => syncSpecialEditor("pricing", next)}
           />
         ) : selectedId === PROPOSITO_VIEW && apoiadores ? (
           <ListEditor
-            section={apoiadores}
+            key={PROPOSITO_VIEW}
+            section={withCurrentDraft(apoiadores)}
             title="“Para que servem o Manual, o Código e a Plataforma?”"
             icon={Pilcrow}
             groups={PROPOSITO_GROUPS}
-            onSaved={() => setLocalPending((p) => new Set(p).add("apoiadores"))}
+            onSaved={(next) => syncSpecialEditor("apoiadores", next)}
           />
         ) : selectedId === CODE_PARAGRAFOS_VIEW && manualSection ? (
           <ListEditor
-            section={manualSection}
+            key={CODE_PARAGRAFOS_VIEW}
+            section={withCurrentDraft(manualSection)}
             title="Parágrafos do Código do Vendedor"
             icon={Pilcrow}
             groups={CODE_GROUPS}
-            onSaved={() => setLocalPending((p) => new Set(p).add("manual-strategic"))}
+            onSaved={(next) => syncSpecialEditor("manual-strategic", next)}
           />
+        ) : selectedId === MANUAL_INDEX_VIEW && manualSection ? (
+          <ListEditor key={MANUAL_INDEX_VIEW} section={withCurrentDraft(manualSection)} title="Páginas do índice do Manual" icon={ImageIcon} groups={MANUAL_INDEX_GROUPS} onSaved={(next) => syncSpecialEditor("manual-strategic", next)} />
+        ) : selectedId === CODE_INDEX_VIEW && manualSection ? (
+          <ListEditor key={CODE_INDEX_VIEW} section={withCurrentDraft(manualSection)} title="Páginas do índice do Código" icon={ImageIcon} groups={CODE_INDEX_GROUPS} onSaved={(next) => syncSpecialEditor("manual-strategic", next)} />
         ) : logosView && apoiadores ? (
           // Mesma posição na árvore para todas as visões: trocar de categoria
           // (ou ir para a faixa) não remonta o editor, então edição ainda não
@@ -709,12 +799,13 @@ export function LandingEditor({
                   key={`inline-${iframeKey}`}
                   ref={iframeRef}
                   src={LP_URL}
+                  onLoad={sendPreviewContent}
                   title="Preview da landing"
                   className={cn("rounded-lg border border-slate-200", device === "mobile" ? "h-[78vh] w-[390px]" : "h-[70vh] w-full")}
                 />
               </div>
               <p className="px-2 pt-2 text-[11px] text-slate-400">
-                Após salvar, clique em “Recarregar” para ver as alterações na preview.
+                A preview acompanha o rascunho desta tela. Nada é publicado até você usar “Publicar”.
               </p>
 
               {/* modal desktop (tela cheia) */}
@@ -743,6 +834,7 @@ export function LandingEditor({
                     key={`modal-${iframeKey}`}
                     ref={modalIframeRef}
                     src={LP_URL}
+                    onLoad={sendPreviewContent}
                     title="Preview desktop"
                     className="w-full flex-1 rounded-lg border border-white/20 bg-white"
                   />
@@ -794,7 +886,8 @@ export function LandingEditor({
                         key={field.key}
                         field={field}
                         folder={selectedId}
-                        value={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) ?? ""}
+                        value={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) ?? field.defaultValue ?? ""}
+                        inherited={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) === undefined && field.defaultValue !== undefined}
                         onChange={(v) => (field.type === "image" ? setImage(field.key, v) : setText(field.key, v))}
                       />
                     ),
@@ -937,12 +1030,14 @@ function FieldInput({
   value,
   onChange,
   folder,
+  inherited = false,
 }: {
   field: FieldDef;
   value: string;
   onChange: (v: string) => void;
   /** Pasta no bucket de imagens (= section_id). Só usada em type "image". */
   folder: string;
+  inherited?: boolean;
 }) {
   const len = value.length;
   const over = field.maxLength != null && len > field.maxLength;
@@ -955,7 +1050,9 @@ function FieldInput({
   return (
     <div className="grid gap-1.5">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-[13px] font-semibold text-slate-700">{field.label}</span>
+        <span className="text-[13px] font-semibold text-slate-700">
+          {field.label}{inherited ? <span className="ml-2 text-[10px] font-medium text-amber-600">padrão atual</span> : null}
+        </span>
         {field.maxLength != null && (
           <span className={cn("text-[11px] tabular-nums", over ? "font-bold text-amber-600" : "text-slate-400")}>
             {len}/{field.maxLength}

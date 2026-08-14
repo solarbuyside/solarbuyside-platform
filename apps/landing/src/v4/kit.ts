@@ -33,19 +33,19 @@ export function useKit() {
     pecas: [
       {
         title: t('heroKit1Title', 'Manual de Compra de Sistema Solar'),
-        image: pricing?.images.card1Image || '/assets/manual-norm.png',
+        image: pricing?.images.card1Image ?? '/assets/manual-norm.png',
         frase: t('heroKit1Desc', '130 páginas e 160 tópicos'),
         alvo: 'manual-strategic',
       },
       {
         title: t('heroKit2Title', t('card2Title', 'Código do Vendedor Consultivo')),
-        image: pricing?.images.card2Image || '/assets/codigo-norm.png',
+        image: pricing?.images.card2Image ?? '/assets/codigo-norm.png',
         frase: t('heroKit2Desc', 'Método de venda consultiva'),
         alvo: 'codigo',
       },
       {
         title: t('heroKit3Title', t('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial')),
-        image: pricing?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
+        image: pricing?.images.cardPlatformImage ?? '/assets/capa-plataforma-tablet.png',
         frase: t('heroKit3Desc', 'Teste a sua proposta antes de enviar'),
         alvo: 'plataforma',
       },
@@ -60,7 +60,7 @@ export function useKit() {
            o texto da FRASE logo abaixo — o leque mostrava a mesma linha duas
            vezes (Francis, 09/08: "trocar título: Licença de uso coletivo"). */
         title: t('heroKit4Title', 'Licença de uso coletivo'),
-        image: pricing?.images.card3Image || '/assets/coletiva-norm.png',
+        image: pricing?.images.card3Image ?? '/assets/coletiva-norm.png',
         frase: t('heroKit4Desc', 'Licença de uso para até 10 vendedores'),
         alvo: 'equipe',
       },

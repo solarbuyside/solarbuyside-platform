@@ -93,6 +93,7 @@ export const PlatformV4: React.FC = () => {
   const tituloCms = txt('title', '')
   const destaqueCms = txt('titleHighlight', '')
   const [tituloBranco, tituloLaranja] = (() => {
+    const titleWasConfigured = section?.texts.title !== undefined || section?.texts.titleHighlight !== undefined
     if (temConteudo(tituloCms) || temConteudo(destaqueCms)) {
       if (temConteudo(tituloCms)) return [tituloCms, destaqueCms]
       // Só o segundo campo preenchido: parte no primeiro ponto final.
@@ -100,7 +101,7 @@ export const PlatformV4: React.FC = () => {
       if (ponto === -1) return ['', destaqueCms]
       return [destaqueCms.slice(0, ponto + 1).trim(), destaqueCms.slice(ponto + 1).trim()]
     }
-    return ['Sua proposta tem nota.', 'A do seu concorrente também.']
+    return titleWasConfigured ? ['', ''] : ['Sua proposta tem nota.', 'A do seu concorrente também.']
   })()
 
   const lead =
@@ -118,7 +119,7 @@ export const PlatformV4: React.FC = () => {
   // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
   // é tratado como legado para a LP não depender do seed.
   const ctaCms = txt('ctaButton', '')
-  const ctaButton = !ctaCms || ctaCms === 'Quero o Manual + Plataforma'
+  const ctaButton = ctaCms === 'Quero o Manual + Plataforma'
     ? 'Quero o Manual + o Código + acesso à Plataforma'
     : ctaCms
 
@@ -222,12 +223,12 @@ export const PlatformV4: React.FC = () => {
 
         {/* Botão laranja cheio (era ghost-dark, apagado demais) e sem a nota
             "Acesso por 6 meses..." embaixo. Gabriel, 26/07. */}
-        <Reveal delay={200} className="mt-12 flex justify-center">
+        {temConteudo(ctaButton) && <Reveal delay={200} className="mt-12 flex justify-center">
           <Cta size="lg" onClick={() => scrollToId('oferta')}>
             {ctaButton}
             <CtaArrow size={20} />
           </Cta>
-        </Reveal>
+        </Reveal>}
       </div>
     </section>
   )

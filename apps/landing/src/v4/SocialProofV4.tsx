@@ -16,7 +16,7 @@ export const TestimonialsV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonials')
   const txt = criarTxt(section)
-  const rodrigoImage = section?.images.testimonialImage || '/assets/Integrador_Rodrigo_SP.png'
+  const rodrigoImage = section?.images.testimonialImage ?? '/assets/Integrador_Rodrigo_SP.png'
 
   return (
     <section className="relative bg-[#f7f8fa] pb-20 pt-16 text-slate-900 md:pt-20">
@@ -127,7 +127,7 @@ export const TestimonialLucasV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('testimonial-lucas')
   const txt = criarTxt(section)
-  const foto = section?.images.testimonialImage || '/assets/Integrador_Lucas_BH.jpg'
+  const foto = section?.images.testimonialImage ?? '/assets/Integrador_Lucas_BH.jpg'
 
   return (
     <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] pb-20 pt-24 text-slate-900 md:rounded-t-[4.5rem] md:pt-32">
@@ -254,7 +254,7 @@ export const StoryBridgeV4: React.FC = () => {
             <div className="group v4-hard-shadow rounded-[2rem] bg-[#e9e0d0] p-10">
               {/* multiply: o fundo branco do PNG some sobre o paper */}
               <Img
-                src={section?.images.manualImage || '/assets/Manual de Compra -OF.png'}
+                src={section?.images.manualImage ?? '/assets/Manual de Compra -OF.png'}
                 alt="Manual de Compra Solar Buy-Side"
                 className="h-auto w-full rotate-[-2deg] mix-blend-multiply transition-transform duration-700 ease-out group-hover:rotate-0"
                 loading="lazy"

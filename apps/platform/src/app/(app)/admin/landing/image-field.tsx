@@ -131,14 +131,14 @@ export function ImageField({
             </button>
           </div>
           <p className="mt-1.5 text-[11px] leading-snug text-slate-400">
-            Arraste o arquivo aqui ou clique em enviar. PNG, JPG, WEBP, GIF ou SVG, até 5 MB.
+            Arraste o arquivo aqui ou clique em enviar. PNG, JPG, WEBP ou GIF, até 5 MB. Remover deixa a imagem oculta.
           </p>
         </div>
 
         <input
           ref={inputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+          accept="image/png,image/jpeg,image/webp,image/gif"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];

@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import type { LandingSection } from "@/lib/landing/content-admin";
 import { saveLandingSectionAction } from "./actions";
 import { RichTextEditor } from "./rich-text";
+import { ImageField } from "./image-field";
 
 /**
  * Editor de blocos repetíveis com chave numerada (`faq1Question`, `codeTop1`…).
@@ -40,7 +41,7 @@ export type ListField = {
   suffix: string;
   label: string;
   /** `rich` usa o editor com destaque de marca (só onde a LP renderiza HTML). */
-  kind?: "text" | "area" | "rich";
+  kind?: "text" | "area" | "rich" | "image";
   placeholder?: string;
 };
 
@@ -54,6 +55,8 @@ export type ListGroup = {
   itemLabel: string;
   fields: ListField[];
   max: number;
+  storage?: "text" | "mixed";
+  defaultItems?: Item[];
   /**
    * Chaves antigas que alimentavam as primeiras posições deste grupo. Na
    * primeira abertura, servem de conteúdo inicial — sem isso o editor viria
@@ -66,12 +69,15 @@ type Item = Record<string, string>;
 
 function parseGroup(section: LandingSection, g: ListGroup): Item[] {
   const t = section.texts;
+  const images = section.images;
   const itens: Item[] = [];
+  const hasStored = g.fields.some((f) => `${g.prefix}1${f.suffix}` in (f.kind === "image" ? images : t));
+  if (!hasStored && g.defaultItems) return g.defaultItems.map((item) => ({ ...item }));
   for (let i = 1; i <= g.max; i++) {
     const item: Item = {};
     let temConteudo = false;
     for (const f of g.fields) {
-      const novo = t[`${g.prefix}${i}${f.suffix}`];
+      const novo = (f.kind === "image" ? images : t)[`${g.prefix}${i}${f.suffix}`];
       const legado = g.legacyKeys?.[i - 1] ? t[g.legacyKeys[i - 1]] : undefined;
       const valor = novo ?? legado ?? "";
       item[f.suffix] = valor;
@@ -94,7 +100,7 @@ export function ListEditor({
   groups: ListGroup[];
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  onSaved?: () => void;
+  onSaved?: (next: { texts: Record<string, string>; images: Record<string, string> }) => void;
 }) {
   const [dados, setDados] = React.useState<Record<string, Item[]>>(() =>
     Object.fromEntries(groups.map((g) => [g.prefix, parseGroup(section, g)])),
@@ -132,20 +138,27 @@ export function ListEditor({
     start(async () => {
       try {
         const texts: Record<string, string> = { ...section.texts };
+        const images: Record<string, string> = { ...section.images };
         for (const g of groups) {
           const itens = dados[g.prefix].filter((x) => g.fields.some((f) => x[f.suffix].trim()));
           itens.forEach((x, idx) => {
-            for (const f of g.fields) texts[`${g.prefix}${idx + 1}${f.suffix}`] = x[f.suffix].trim();
+            for (const f of g.fields) {
+              const target = f.kind === "image" ? images : texts;
+              target[`${g.prefix}${idx + 1}${f.suffix}`] = x[f.suffix].trim();
+            }
           });
           for (let i = itens.length + 1; i <= g.max; i++) {
-            for (const f of g.fields) texts[`${g.prefix}${i}${f.suffix}`] = "";
+            for (const f of g.fields) {
+              const target = f.kind === "image" ? images : texts;
+              target[`${g.prefix}${i}${f.suffix}`] = "";
+            }
           }
           // As chaves antigas viraram fallback na landing. Depois de gravar as
           // novas, precisam sair de cena — senão voltariam a mandar no render.
           for (const k of g.legacyKeys ?? []) if (k in texts) texts[k] = "";
         }
-        await saveLandingSectionAction(section.sectionId, texts, section.images);
-        onSaved?.();
+        await saveLandingSectionAction(section.sectionId, texts, images);
+        onSaved?.({ texts, images });
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
       } catch {
@@ -236,7 +249,9 @@ export function ListEditor({
                   {g.fields.map((f) => (
                     <label key={f.suffix} className="grid gap-1.5">
                       <span className="text-[11px] font-semibold text-slate-500">{f.label}</span>
-                      {f.kind === "rich" ? (
+                      {f.kind === "image" ? (
+                        <ImageField value={item[f.suffix]} onChange={(v) => update(g.prefix, i, f.suffix, v)} folder={`${section.sectionId}-index`} compact />
+                      ) : f.kind === "rich" ? (
                         <RichTextEditor
                           value={item[f.suffix]}
                           onChange={(v) => update(g.prefix, i, f.suffix, v)}

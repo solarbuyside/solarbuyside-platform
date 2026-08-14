@@ -596,7 +596,7 @@ export const FooterV4: React.FC = () => {
         <div className="flex flex-col items-center justify-between gap-6 pt-10 sm:flex-row">
           <div className="flex items-center gap-3">
             <Img
-              src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
+              src={globalAssets.logo ?? '/assets/LOGOSOLARBUYSIDE3.png'}
               alt="Solar Buy-Side"
               className="h-10 w-auto"
               onError={(e) => {

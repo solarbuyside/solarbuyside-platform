@@ -139,7 +139,7 @@ export const VideoV4: React.FC = () => {
                   <div
                     className="absolute inset-0 bg-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                     style={{
-                      backgroundImage: `url('${comWebp(section?.images.videoPoster || '/assets/capa-video-solar.jpeg')}')`,
+                      backgroundImage: section?.images.videoPoster === '' ? undefined : `url('${comWebp(section?.images.videoPoster ?? '/assets/capa-video-solar.jpeg')}')`,
                       backgroundPosition: '50% 50%',
                       filter: 'saturate(0.82) contrast(1.05)',
                     }}

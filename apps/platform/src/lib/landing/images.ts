@@ -17,7 +17,6 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/jpeg",
   "image/webp",
-  "image/svg+xml",
   "image/gif",
 ] as const;
 
@@ -27,7 +26,6 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "image/webp": "webp",
-  "image/svg+xml": "svg",
   "image/gif": "gif",
 };
 
@@ -57,7 +55,7 @@ export type UploadResult = { url: string; path: string };
 
 export async function uploadLandingImage(file: File, folder: string): Promise<UploadResult> {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
-    throw new Error("Formato não aceito. Use PNG, JPG, WEBP, GIF ou SVG.");
+    throw new Error("Formato não aceito. Use PNG, JPG, WEBP ou GIF.");
   }
   if (file.size > MAX_IMAGE_BYTES) {
     throw new Error("Imagem muito grande (máximo 5 MB).");

@@ -164,7 +164,7 @@ export const ApoiadoresV4: React.FC = () => {
   // como legado para o banco não sobrescrever o texto certo.
   const subtitleCms = txt('subtitle', '')
   const subtitle =
-    !subtitleCms || /^(Empresas nacionais|Players nacionais)/.test(subtitleCms)
+    /^(Empresas nacionais|Players nacionais)/.test(subtitleCms)
       ? 'Empresas referência no mercado solar apoiam o Movimento Solar Buy-Side e contribuem para um novo padrão de profissionalismo, transparência e geração de valor no setor.'
       : subtitleCms
 

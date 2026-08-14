@@ -19,6 +19,8 @@ export type FieldDef = {
   /** Limite sugerido de caracteres (não quebra layout). */
   maxLength?: number;
   type: FieldType;
+  /** Valor efetivo da LP quando a chave ainda não existe no banco. */
+  defaultValue?: string;
 };
 
 /**
@@ -109,6 +111,18 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     label: "Topo (Hero)",
     order: 0,
     groups: [
+      {
+        label: "Cabeçalho e navegação",
+        fields: [
+          t("navPlatform", "Menu — Plataforma", { defaultValue: "Plataforma" }),
+          t("navMentor", "Menu — Mentor", { defaultValue: "Mentor" }),
+          t("navPanorama", "Menu — Panorama", { defaultValue: "Panorama" }),
+          t("navVideo", "Menu — Vídeo", { defaultValue: "Vídeo" }),
+          t("navAudience", "Menu — Para Quem", { defaultValue: "Para Quem" }),
+          t("navFaq", "Menu — FAQ", { defaultValue: "FAQ" }),
+          t("headerCta", "Botão do cabeçalho", { defaultValue: "Garantir Acesso" }),
+        ],
+      },
       {
         label: "Título principal",
         fields: [
@@ -237,9 +251,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Marcadores abaixo do título",
         note: "Aparecem entre o subtítulo do alerta e o player, em três colunas. Item vazio some da lista; esvaziar todos tira a lista da página.",
         fields: [
-          rich("bullet1", "Marcador 1"),
-          rich("bullet2", "Marcador 2"),
-          rich("bullet3", "Marcador 3"),
+          rich("bullet1", "Marcador 1", { defaultValue: "Os 3 riscos: integrador, tecnológico e financeiro" }),
+          rich("bullet2", "Marcador 2", { defaultValue: "A solução: o Manual de Compra de Sistema Solar Buy-Side" }),
+          rich("bullet3", "Marcador 3", { defaultValue: "O resultado: o comprador leigo vira comprador informado" }),
           rich("bullet4", "Marcador 4", { help: "Deixe vazio para não exibir." }),
           rich("bullet5", "Marcador 5", { help: "Deixe vazio para não exibir." }),
         ],
@@ -252,6 +266,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("videoDuration", "Duração", { maxLength: 20 }),
           img("videoPoster", "Capa do vídeo", {
             help: "Imagem que aparece antes de o vídeo começar.",
+            defaultValue: "/assets/capa-video-solar.jpeg",
           }),
         ],
       },
@@ -302,6 +317,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("hoverHint", "Dica de interação", {
             help: "Chip cinza ao lado do primeiro rótulo de categoria, avisando que os logos abrem um card. Apagar o campo tira a dica.",
             maxLength: 60,
+            defaultValue: "Passe o mouse ou toque nos logos",
           }),
         ],
       },
@@ -428,6 +444,19 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           // ninguém lê: trocar a capa pelo admin não surtia efeito nenhum.
           img("manualImage", "Imagem do manual (capa)", {
             help: "Capa que aparece ao lado do texto do Manual.",
+            defaultValue: "/assets/Capa-manual-buy-side-definitiva.png",
+          }),
+        ],
+      },
+      {
+        label: "Índice do Manual",
+        fields: [
+          t("indexKicker", "Selo", { defaultValue: "O índice completo" }),
+          ml("indexTitle", "Título", {
+            defaultValue: "As 7 páginas de índice do Manual",
+          }),
+          ml("indexLead", "Texto de apoio", {
+            defaultValue: "São 160 tópicos organizados em 4 fases, do primeiro cálculo de consumo à assinatura do contrato. É este roteiro que o seu próximo cliente vai usar para avaliar a sua proposta.",
           }),
         ],
       },
@@ -469,6 +498,19 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           ml("codeItem6", "Lista — item 6", { help: "Deixe vazio para não exibir." }),
           img("codeImage", "Imagem do Código (capa)", {
             help: "Capa que aparece ao lado do bloco do Código do Vendedor.",
+            defaultValue: "/assets/codigo-oficial-norm.png",
+          }),
+        ],
+      },
+      {
+        label: "Índice do Código",
+        fields: [
+          t("codeIndexKicker", "Selo", { defaultValue: "O índice completo" }),
+          ml("codeIndexTitle", "Título", {
+            defaultValue: "Tudo o que o Código cobre, tópico a tópico",
+          }),
+          ml("codeIndexLead", "Texto de apoio", {
+            defaultValue: "Da imersão no olhar do comprador à rodada final de negociação: 4 fases, um roteiro de treinamento em 3 etapas, o mapa do essencial e o checklist Buy-Side.",
           }),
         ],
       },
@@ -505,6 +547,14 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       ...Array.from({ length: 8 }, (_, i) => i + 1).flatMap((i) => [
         `codeTop${i}`,
         `codeBottom${i}`,
+      ]),
+      ...Array.from({ length: 12 }, (_, i) => i + 1).flatMap((i) => [
+        `manualIndexPage${i}Src`,
+        `manualIndexPage${i}Label`,
+        `manualIndexPage${i}Alt`,
+        `codeIndexPage${i}Src`,
+        `codeIndexPage${i}Label`,
+        `codeIndexPage${i}Alt`,
       ]),
     ],
   },
@@ -642,8 +692,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("row6Depois", "Linha 6 — depois"),
           // 7ª linha acrescentada em 06/08 (slide 15). Da 8ª em diante são
           // reserva: linha com um dos dois lados vazio não aparece na página.
-          t("row7Hoje", "Linha 7 — hoje"),
-          t("row7Depois", "Linha 7 — depois"),
+          t("row7Hoje", "Linha 7 — hoje", { defaultValue: "Sem diferencial na reunião" }),
+          t("row7Depois", "Linha 7 — depois", { defaultValue: "Autoridade desde o início" }),
           t("row8Hoje", "Linha 8 — hoje", { help: "Preencha os DOIS lados para a linha aparecer." }),
           t("row8Depois", "Linha 8 — depois"),
           t("row9Hoje", "Linha 9 — hoje", { help: "Preencha os DOIS lados para a linha aparecer." }),
@@ -660,10 +710,10 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Para quem o Método foi desenvolvido",
         note: "Fecha a seção, abaixo da comparação. Apagar o título tira o bloco inteiro; perfil vazio some da lista.",
         fields: [
-          rich("audienceTitle", "Título do bloco"),
-          t("audience1", "Perfil 1"),
-          t("audience2", "Perfil 2"),
-          t("audience3", "Perfil 3"),
+          rich("audienceTitle", "Título do bloco", { defaultValue: "Para quem o Método Solar Buy-Side foi desenvolvido" }),
+          t("audience1", "Perfil 1", { defaultValue: "Empresas de integração solar" }),
+          t("audience2", "Perfil 2", { defaultValue: "Empresas iniciantes" }),
+          t("audience3", "Perfil 3", { defaultValue: "Representantes comerciais" }),
           t("audience4", "Perfil 4", { help: "Deixe vazio para não exibir." }),
           t("audience5", "Perfil 5", { help: "Deixe vazio para não exibir." }),
           t("audience6", "Perfil 6", { help: "Deixe vazio para não exibir." }),
@@ -965,11 +1015,11 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         label: "Kit do topo (Hero)",
         note: "Estes campos aparecem no TOPO da página, abaixo do título, não aqui na oferta. As CAPAS são as mesmas dos cards da oferta (trocar lá troca aqui); os títulos e as frases são próprios do topo, porque lá cabe uma linha e aqui cabe um parágrafo. Título vazio = usa o mesmo nome do card da oferta.",
         fields: [
-          t("heroKit1Title", "Título da capa 1 (Manual)", { maxLength: 48 }),
+          t("heroKit1Title", "Título da capa 1 (Manual)", { maxLength: 48, defaultValue: "Manual de Compra de Sistema Solar" }),
           t("heroKit1Desc", "Frase da capa 1 (Manual)", { maxLength: 60 }),
-          t("heroKit2Title", "Título da capa 2 (Código)", { maxLength: 48 }),
+          t("heroKit2Title", "Título da capa 2 (Código)", { maxLength: 48, defaultValue: "Código do Vendedor Consultivo" }),
           t("heroKit2Desc", "Frase da capa 2 (Código)", { maxLength: 60 }),
-          t("heroKit3Title", "Título da capa 3 (Plataforma)", { maxLength: 48 }),
+          t("heroKit3Title", "Título da capa 3 (Plataforma)", { maxLength: 48, defaultValue: "Plataforma de Avaliação de Proposta Comercial" }),
           t("heroKit3Desc", "Frase da capa 3 (Plataforma)", { maxLength: 60 }),
           t("heroKit4Title", "Título da capa 4 (Licença Coletiva)", { maxLength: 48 }),
           t("heroKit4Desc", "Frase da capa 4 (Licença Coletiva)", { maxLength: 60 }),
@@ -989,8 +1039,9 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           // da tabela".
           rich("teamNote", "Frase destacada abaixo da tabela", {
             help: "Caixa laranja no fim do bloco. Ex.: “E tem mais economia: Integradoras Credenciadas Belenergy garantem 15% OFF.” Deixe VAZIO para esconder.",
+            defaultValue: "E tem mais economia: Integradoras Credenciadas <span class=\"cms-bold\">Belenergy</span> garantem 15% OFF.",
           }),
-          img("teamImage", "Imagem à direita"),
+          img("teamImage", "Imagem à direita", { defaultValue: "/assets/coletiva-norm.png" }),
         ],
       },
       {
@@ -1044,7 +1095,7 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           t("cardPlatformTag", "Etiqueta", { maxLength: 30 }),
           t("cardPlatformTitle", "Título"),
           ml("cardPlatformDesc", "Descrição"),
-          img("cardPlatformImage", "Imagem"),
+          img("cardPlatformImage", "Imagem", { defaultValue: "/assets/capa-plataforma-tablet.png" }),
         ],
       },
       {

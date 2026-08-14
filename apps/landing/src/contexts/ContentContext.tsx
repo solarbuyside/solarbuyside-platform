@@ -477,9 +477,35 @@ export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }
     frozen ? frozenGlobalSettings() : getStoredGlobalSettings(),
   )
 
+  const previewMode = !frozen && new URLSearchParams(window.location.search).get('cmsPreview') === '1'
+
+  useEffect(() => {
+    if (!previewMode) return
+    const allowed = (origin: string) =>
+      origin === 'https://plataforma.solarbuyside.com.br' ||
+      origin === 'http://localhost:3000' ||
+      origin === 'http://127.0.0.1:3000'
+    const receivePreview = (event: MessageEvent) => {
+      if (!allowed(event.origin) || event.data?.type !== 'cmsPreviewContent') return
+      setContent(mergeSections(initialContent, event.data.sections, true))
+      const values = isRecord(event.data.globals) ? event.data.globals : {}
+      setGlobalAssets((previous) => ({
+        favicon: typeof values.favicon === 'string' ? values.favicon : previous.favicon,
+        logo: typeof values.logo === 'string' ? values.logo : previous.logo,
+      }))
+      setGlobalSettings((previous) => ({
+        whatsappNumber: typeof values.whatsappNumber === 'string' ? values.whatsappNumber : previous.whatsappNumber,
+        purchaseLink: typeof values.purchaseLink === 'string' ? values.purchaseLink : previous.purchaseLink,
+      }))
+    }
+    window.addEventListener('message', receivePreview)
+    window.parent.postMessage({ type: 'cmsPreviewReady' }, '*')
+    return () => window.removeEventListener('message', receivePreview)
+  }, [previewMode])
+
   // Load content from backend on mount
   useEffect(() => {
-    if (frozen) return // salvaguarda: nada de rede, nada de cache
+    if (frozen || previewMode) return // salvaguarda/preview: nada de rede nem cache concorrendo com o rascunho
     const loadContent = async () => {
       try {
         const [sectionsRes, assetsRes, settingsRes] = await Promise.all([
@@ -591,7 +617,7 @@ export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }
 
     void loadContent // CMS Render aposentado (mantido só como referência)
     void loadFromSupabase()
-  }, [frozen])
+  }, [frozen, previewMode])
 
   const persistSection = async (section: SectionContent): Promise<boolean> => {
     const token = localStorage.getItem('admin-token')

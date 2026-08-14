@@ -48,6 +48,9 @@ function dimensoes(src: string): { width: number; height: number } | null {
 
 export const Img: React.FC<React.ImgHTMLAttributes<HTMLImageElement>> = (props) => {
   const src = typeof props.src === 'string' ? props.src : undefined
+  // Chave presente e vazia no CMS significa "ocultar", não "carregar o
+  // default" nem emitir <img src=""> (que pode requisitar a própria página).
+  if (src === '') return null
   const webp = src ? comWebp(src) : src
   // width/height explícitos no call site vencem o manifesto.
   const dim = src && props.width == null && props.height == null ? dimensoes(src) : null

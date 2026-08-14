@@ -40,12 +40,23 @@ const LIVROS: Record<'manual' | 'codigo', Livro> = {
   },
 }
 
-const paginasDoLivro = (livro: Livro) =>
-  livro.paginas.map((pagina) => ({
+const paginasDoLivro = (livro: Livro, section?: { texts: Record<string, string>; images: Record<string, string> }, cmsPrefix?: string) => {
+  const firstKey = cmsPrefix ? `${cmsPrefix}1Src` : ''
+  if (cmsPrefix && section && firstKey in section.images) {
+    return Array.from({ length: 12 }, (_, i) => i + 1)
+      .map((i) => ({
+        src: section.images[`${cmsPrefix}${i}Src`] ?? '',
+        alt: section.texts[`${cmsPrefix}${i}Alt`] ?? `Página ${i} do ${livro.nome}: índice de conteúdo`,
+        rotulo: section.texts[`${cmsPrefix}${i}Label`] ?? `p. ${i}`,
+      }))
+      .filter((pagina) => pagina.src.trim())
+  }
+  return livro.paginas.map((pagina) => ({
     src: `/assets/${livro.prefixo}-p${pagina}.png`,
     alt: `Página ${Number(pagina)} do ${livro.nome}: índice de conteúdo`,
     rotulo: `p. ${Number(pagina)}`,
   }))
+}
 
 /* ── A TIRA DE PÁGINAS DE ÍNDICE ────────────────────────────────────────────
 
@@ -66,8 +77,9 @@ const TiraIndice: React.FC<{
   kicker: string
   titulo: string
   lead: string
+  paginas: ReturnType<typeof paginasDoLivro>
   aoAmpliar: (indice: number) => void
-}> = ({ livro, kicker, titulo, lead, aoAmpliar }) => {
+}> = ({ livro, kicker, titulo, lead, paginas, aoAmpliar }) => {
   /* Apagar o título no admin tira a tira inteira do ar. */
   if (!temConteudo(titulo)) return null
 
@@ -96,7 +108,7 @@ const TiraIndice: React.FC<{
             página não parece cortada por acaso, e o primeiro item continua
             alinhado com o texto acima. */}
         <ul className="v4-scroll-x -mx-6 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4">
-          {paginasDoLivro(livro).map((pagina, i) => (
+          {paginas.map((pagina, i) => (
             /* MINIATURA MAIOR QUANDO O ÍNDICE É CURTO. As 7 do Manual preenchem
                a linha a 180px; as 2 do Código, no mesmo tamanho, deixavam dois
                terços da faixa vazios e liam como sobra de layout. Maiores, elas
@@ -106,7 +118,7 @@ const TiraIndice: React.FC<{
             <li
               key={pagina.src}
               className={`group shrink-0 snap-start ${
-                livro.paginas.length <= 3 ? 'w-[250px] md:w-[300px]' : 'w-[180px] md:w-[210px]'
+                paginas.length <= 3 ? 'w-[250px] md:w-[300px]' : 'w-[180px] md:w-[210px]'
               }`}
             >
               {/* A miniatura é BOTÃO (Gabriel, 09/08: "se eu clicar em alguma
@@ -182,8 +194,10 @@ export const ManualStrategicV4: React.FC = () => {
   const section = getSection('manual-strategic')
   const txt = criarTxt(section)
 
-  const manualImage = section?.images.manualImage || '/assets/Capa-manual-buy-side-definitiva.png'
-  const codeImage = section?.images.codeImage || '/assets/codigo-oficial-norm.png'
+  const manualImage = section?.images.manualImage === undefined ? '/assets/Capa-manual-buy-side-definitiva.png' : section.images.manualImage
+  const codeImage = section?.images.codeImage === undefined ? '/assets/codigo-oficial-norm.png' : section.images.codeImage
+  const paginasManual = paginasDoLivro(LIVROS.manual, section, 'manualIndexPage')
+  const paginasCodigo = paginasDoLivro(LIVROS.codigo, section, 'codeIndexPage')
 
   /* Bloco "Código do Vendedor" (dentro do Manual, na LP oficial): era texto
      fixo no código e por isso não aparecia no editor do admin — reportado pelo
@@ -338,7 +352,7 @@ export const ManualStrategicV4: React.FC = () => {
           </div>
 
           {/* Pedestal de luz: glow + capa flutuando + elipse no chão + reflexo */}
-          <div className="lg:sticky lg:top-24 lg:col-span-5">
+          {manualImage && <div className="lg:sticky lg:top-24 lg:col-span-5">
             <Reveal delay={180}>
               <div className="relative flex justify-center">
                 <div className="absolute -inset-12 rounded-full bg-orange-500/25 blur-[120px]" aria-hidden />
@@ -373,7 +387,7 @@ export const ManualStrategicV4: React.FC = () => {
                 </div>
               </div>
             </Reveal>
-          </div>
+          </div>}
         </div>
 
         <TiraIndice
@@ -381,6 +395,7 @@ export const ManualStrategicV4: React.FC = () => {
           kicker={txt('indexKicker', 'O índice completo')}
           titulo={indiceTitulo}
           lead={indiceLead}
+          paginas={paginasManual}
           aoAmpliar={(i) => setAmpliada({ livro: 'manual', indice: i })}
         />
 
@@ -436,7 +451,7 @@ export const ManualStrategicV4: React.FC = () => {
             )}
           </div>
 
-          <div className="lg:col-span-5">
+          {codeImage && <div className="lg:col-span-5">
             <Reveal delay={180}>
               <div className="relative flex justify-center">
                 <div className="absolute -inset-10 rounded-full bg-orange-500/20 blur-[110px]" aria-hidden />
@@ -454,7 +469,7 @@ export const ManualStrategicV4: React.FC = () => {
                 </div>
               </div>
             </Reveal>
-          </div>
+          </div>}
         </div>
 
         {/* A mesma tira, agora com o índice do Código (Gabriel, 09/08: "do
@@ -469,6 +484,7 @@ export const ManualStrategicV4: React.FC = () => {
           kicker={txt('codeIndexKicker', 'O índice completo')}
           titulo={codigoIndiceTitulo}
           lead={codigoIndiceLead}
+          paginas={paginasCodigo}
           aoAmpliar={(i) => setAmpliada({ livro: 'codigo', indice: i })}
         />
 
@@ -476,14 +492,14 @@ export const ManualStrategicV4: React.FC = () => {
             Texto novo na revisão de 25/07, slide 12. O valor antigo ("Quero
             vender com estratégia") é tratado como legado para a LP não
             depender do seed. */}
-        <Reveal delay={120} className="mt-12">
+        {temConteudo(txt('ctaButton', 'Quero vender mais e com estratégia')) && <Reveal delay={120} className="mt-12">
           <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {!section?.texts.ctaButton || section.texts.ctaButton === 'Quero vender com estratégia'
+            {section?.texts.ctaButton === undefined || section.texts.ctaButton === 'Quero vender com estratégia'
               ? 'Quero vender mais e com estratégia'
               : section.texts.ctaButton}
             <CtaArrow size={20} />
           </Cta>
-        </Reveal>
+        </Reveal>}
       </div>
 
       {/* UM lightbox para as duas tiras: ele recebe as páginas do livro que
@@ -494,7 +510,7 @@ export const ManualStrategicV4: React.FC = () => {
           monta num portal para o <body> — a posição aqui é só onde o React o
           mantém na árvore. Não renderiza nada enquanto `ampliada` for `null`. */}
       <LightboxV4
-        itens={paginasDoLivro(LIVROS[ampliada?.livro ?? 'manual'])}
+        itens={(ampliada?.livro ?? 'manual') === 'manual' ? paginasManual : paginasCodigo}
         indice={ampliada?.indice ?? null}
         aoFechar={() => setAmpliada(null)}
         aoTrocar={(i) => setAmpliada((a) => (a ? { ...a, indice: i } : a))}

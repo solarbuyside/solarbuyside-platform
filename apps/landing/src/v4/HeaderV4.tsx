@@ -15,21 +15,22 @@ import { VARIANTES, useVarianteHero } from './heroVariante'
    mais (a seção foi eliminada, slide 11): a resposta agora vive no fim da
    Transformação, em três linhas (slide 15). Sem essa troca o item viraria um
    link morto no menu. */
-const NAV_ITEMS = [
-  { href: '#plataforma', label: 'Plataforma' },
-  { href: '#autor', label: 'Mentor' },
-  { href: '#contexto', label: 'Panorama' },
-  { href: '#video-section', label: 'Vídeo' },
-  { href: '#transformacao', label: 'Para Quem' },
-  { href: '#faq', label: 'FAQ' },
-]
-
 export const HeaderV4: React.FC = () => {
   const { variante, modoAvaliacao, trocar } = useVarianteHero()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const progressRef = useRef<HTMLDivElement | null>(null)
-  const { globalAssets } = useContent()
+  const { globalAssets, getSection } = useContent()
+  const txt = criarTxt(getSection('hero'))
+  const navItems = [
+    { href: '#plataforma', label: txt('navPlatform', 'Plataforma') },
+    { href: '#autor', label: txt('navMentor', 'Mentor') },
+    { href: '#contexto', label: txt('navPanorama', 'Panorama') },
+    { href: '#video-section', label: txt('navVideo', 'Vídeo') },
+    { href: '#transformacao', label: txt('navAudience', 'Para Quem') },
+    { href: '#faq', label: txt('navFaq', 'FAQ') },
+  ].filter((item) => item.label)
+  const headerCta = txt('headerCta', 'Garantir Acesso')
 
   useEffect(() => {
     let rafId = 0
@@ -74,7 +75,7 @@ export const HeaderV4: React.FC = () => {
         <div className="flex items-center">
         <a href="#hero" className="flex items-center gap-3">
           <Img
-            src={globalAssets.logo || '/assets/LOGOSOLARBUYSIDE3.png'}
+            src={globalAssets.logo ?? '/assets/LOGOSOLARBUYSIDE3.png'}
             alt="Solar Buy-Side"
             className="h-11 w-auto sm:h-12"
             onError={(e) => {
@@ -134,7 +135,7 @@ export const HeaderV4: React.FC = () => {
         </div>
 
         <nav className="hidden items-center gap-0.5 md:flex">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
@@ -144,13 +145,13 @@ export const HeaderV4: React.FC = () => {
               <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 scale-0 rounded-full bg-orange-500 transition-transform duration-300 group-hover:scale-100" />
             </a>
           ))}
-          <a
+          {headerCta && <a
             href="#oferta"
             className="group ml-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-8px_rgba(249,115,22,0.8)]"
           >
-            Garantir Acesso
+            {headerCta}
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </a>
+          </a>}
         </nav>
 
         <button
@@ -183,7 +184,7 @@ export const HeaderV4: React.FC = () => {
         }`}
       >
         <div className="flex flex-col gap-1 p-4">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
@@ -193,14 +194,14 @@ export const HeaderV4: React.FC = () => {
               {item.label}
             </a>
           ))}
-          <a
+          {headerCta && <a
             href="#oferta"
             className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg"
             onClick={() => setIsMenuOpen(false)}
           >
-            Garantir Acesso
+            {headerCta}
             <ArrowRight className="h-4 w-4" />
-          </a>
+          </a>}
         </div>
       </div>
     </header>

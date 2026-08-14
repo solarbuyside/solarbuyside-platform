@@ -99,7 +99,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
     'promoNote',
     'Compra agora e reembolsamos a diferença de <span class="cms-orange">R$ 119,55</span> sob apresentação do cupom!',
   )
-  const promoLogo = section?.images.promoLogo || '/assets/apoiadores/belenergy.png'
+  const promoLogo = section?.images.promoLogo ?? '/assets/apoiadores/belenergy.png'
 
   /* Link do formulário de credenciamento da Belenergy (Francis, 06/08, slide
      22). O botão "Clique aqui" desta caixa já existiu e saiu em 26/07 porque
@@ -128,7 +128,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: txt('card1Title', txt('feature1Title', 'Manual Solar Buy-Side')),
       desc:
         txt('card1Desc', 'Acesso vitalício: 130 páginas e 160 tópicos com o Método em 4 Fases, do primeiro contato à assinatura do contrato.'),
-      image: section?.images.card1Image || section?.images.manualImage || '/assets/manual-norm.png',
+      image: section?.images.card1Image ?? section?.images.manualImage ?? '/assets/manual-norm.png',
       imageAlt: 'Capa do Manual Solar Buy-Side',
       variant: 'default',
     },
@@ -137,7 +137,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: txt('card2Title', txt('bonusTitle', 'Código do Vendedor Consultivo')),
       desc:
         txt('card2Desc', txt('bonusSubtitle', '26 páginas sobre postura consultiva, estratégia anti-leilão e fechamento técnico. Para vender decisão, não desconto.')),
-      image: section?.images.card2Image || section?.images.codeImage || '/assets/codigo-norm.png',
+      image: section?.images.card2Image ?? section?.images.codeImage ?? '/assets/codigo-norm.png',
       imageAlt: 'Capa do Código do Vendedor Consultivo',
       variant: 'default',
     },
@@ -154,7 +154,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: txt('cardPlatformTitle', 'Plataforma de Avaliação de Proposta Comercial'),
       desc:
         txt('cardPlatformDesc', 'Valide a força das suas propostas antes de enviá-las e aumente sua confiança na hora de vender.'),
-      image: section?.images.cardPlatformImage || '/assets/capa-plataforma-tablet.png',
+      image: section?.images.cardPlatformImage ?? '/assets/capa-plataforma-tablet.png',
       imageAlt: 'Plataforma de Avaliação de Proposta Comercial',
       variant: 'default',
       wide: true,
@@ -164,7 +164,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       title: txt('card3Title', 'Turbine sua Equipe de Venda'),
       desc:
         txt('card3Desc', 'Licença de Uso Coletiva: até 10 cópias para o mesmo CNPJ. O time comercial inteiro alinhado pagando uma vez só.'),
-      image: section?.images.card3Image || '/assets/coletiva-norm.png',
+      image: section?.images.card3Image ?? '/assets/coletiva-norm.png',
       imageAlt: 'Licença de Uso Coletiva',
       variant: 'bonus',
     },

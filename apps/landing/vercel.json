@@ -2,6 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/admin/:path*",
+      "destination": "https://plataforma.solarbuyside.com.br/admin/landing",
+      "permanent": true
+    },
+    {
+      "source": "/admin",
+      "destination": "https://plataforma.solarbuyside.com.br/admin/landing",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {

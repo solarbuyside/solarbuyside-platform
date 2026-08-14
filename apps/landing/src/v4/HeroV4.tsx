@@ -163,7 +163,7 @@ export const HeroV4: React.FC = () => {
   // se o banco ainda tiver ele, cai no novo. Assim a LP não depende do seed
   // para mostrar a frase certa.
   const subtitleCms = txt('subtitle', txt('subtitle1', ''))
-  const subtitle = !subtitleCms || subtitleCms.startsWith('O método Buy-Side')
+  const subtitle = subtitleCms.startsWith('O método Buy-Side')
     ? 'O Movimento Solar Buy-Side promove uma nova forma de vender: pela perspectiva do <span class="cms-semibold">comprador</span>'
     : subtitleCms
 
