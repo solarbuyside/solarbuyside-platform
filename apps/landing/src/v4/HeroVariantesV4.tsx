@@ -411,7 +411,11 @@ export const HeroEditorialV4: React.FC = () => {
   const { ativo, escolher } = useRodizio(pecas.length)
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
+    /* pb-20 = a altura do -mt-20 com que os Apoiadores sobem por cima daqui
+       (V5, slide 2). Sem a folga o arco cobriria a linha "Apoiado por empresas
+       de referência do setor", que fecha esta variante — e cobriria justamente
+       a frase que apresenta a seção que vem logo abaixo. */
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-20">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"
@@ -561,7 +565,7 @@ export const HeroVitrineV4: React.FC = () => {
   const { cta, link, externo } = useKit()
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d]">
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-20">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"

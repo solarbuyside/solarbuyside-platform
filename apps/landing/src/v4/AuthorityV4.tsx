@@ -98,7 +98,11 @@ const DuelSide: React.FC<DuelSideProps> = ({
       </Reveal>
 
       <Reveal delay={baseDelay + 260} className="relative">
-        <p className="text-lg leading-relaxed text-slate-400">{description}</p>
+        {/* v4-nojust: a seção justifica no desktop (V5, slide 16), mas estas
+            duas bios ficam numa grade de 456px por coluna — medida curta
+            demais, e o justify abria rio de espaço no meio da linha. Ver a
+            escotilha no v4.css. */}
+        <p className="v4-nojust text-lg leading-relaxed text-slate-400">{description}</p>
       </Reveal>
 
       <Reveal delay={baseDelay + 340} className="relative">
@@ -146,16 +150,18 @@ export const AuthorityV4: React.FC = () => {
     .filter((v) => v.trim().length > 0)
 
   return (
-    /* Reabertura do ato escuro: esta seção sobe por cima dos Apoiadores
-       (claros) com o arco arredondado, espelhando o movimento que a oferta faz
-       lá embaixo. Antes de 06/08 ela vinha depois do vídeo, escuro sobre
-       escuro, e não precisava de emenda nenhuma.
+    /* SEM ARCO. Entre 06/08 e a V5 esta seção abria o ato escuro por cima dos
+       Apoiadores (claros) e carregava o -mt-20 + rounded-t. Na V5 os
+       Apoiadores subiram para a 2ª dobra e quem passou a vir logo depois deles
+       é a seção "Como o método funciona em 3 passos" — o arco foi para lá
+       (PropositoV4). Aqui a vizinha de cima voltou a ser escura (Transformação),
+       ou seja, emenda escuro sobre escuro: um arco aqui recortaria um degrau
+       no meio do ato, exatamente o que ele existe para evitar.
 
-       rounded-t + overflow-hidden já estavam aqui; o que entra é o -mt-20 e o
-       z-10 para ela realmente montar sobre a seção anterior. */
+       overflow-hidden fica: segura o SolarCells dentro da seção. */
     <section
       id="autor"
-      className="relative z-10 -mt-20 overflow-hidden rounded-t-[3rem] bg-[#07090d] pb-32 pt-28 text-white md:rounded-t-[4.5rem] md:pt-36"
+      className="relative overflow-hidden bg-[#07090d] pb-32 pt-28 text-white md:pt-36"
     >
       {/* fade "top": a grade entra cheia no topo da seção e vai apagando até
           sumir no meio. É a retomada do crepúsculo, não uma textura isolada. */}

@@ -330,7 +330,7 @@ export const ManualStrategicV4: React.FC = () => {
               </p>
             </Reveal>
 
-            <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
+            <Reveal delay={270} className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-slate-400">
               <p>
                 {txt('description1', 'O Manual de Compra Solar Buy-Side é uma leitura essencial para profissionais do setor de vendas (Sell-Side) que desejam se destacar em um mercado ultracompetitivo.')}
               </p>
@@ -428,7 +428,7 @@ export const ManualStrategicV4: React.FC = () => {
                 </p>
               </Reveal>
             )}
-            <Reveal delay={180} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
+            <Reveal delay={180} className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-slate-400">
               {codeParagraphsTop.map((paragraph, i) => (
                 <p key={i}>
                   <CMSText value={paragraph} />
@@ -441,7 +441,7 @@ export const ManualStrategicV4: React.FC = () => {
               </Reveal>
             )}
             {codeParagraphsBottom.length > 0 && (
-              <Reveal delay={300} className="mt-8 max-w-2xl space-y-5 text-justify text-lg leading-relaxed text-slate-400">
+              <Reveal delay={300} className="mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-slate-400">
                 {codeParagraphsBottom.map((paragraph, i) => (
                   <p key={i}>
                     <CMSText value={paragraph} />

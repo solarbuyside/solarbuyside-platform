@@ -1572,6 +1572,7 @@ export function buildSectionGroups(
     // O par disto está no editor: campo que continua vazio e não existia no
     // banco NÃO é gravado, senão o primeiro "Salvar" escreveria "" por cima e
     // apagaria o texto que hoje vem do ContentData da landing.
+    //
     // `note`/`noteJumpTo` VIAJAM JUNTO. Ficaram de fora deste push desde que o
     // recado foi criado, então o editor tinha o box âmbar pronto para renderizar
     // e nunca recebia texto nenhum: nenhum grupo do painel jamais exibiu aviso.

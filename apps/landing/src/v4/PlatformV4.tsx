@@ -110,11 +110,15 @@ export const PlatformV4: React.FC = () => {
     'tableCaption',
     'Seis propostas para o mesmo cliente. Venceu a de <span class="cms-bold">R$ 16.342,80</span>, nem a mais cara, nem a mais barata, porque teve o maior Índice de Confiabilidade: <span class="cms-orange">79,2 de 100</span>, com a melhor pontuação em confiabilidade da integradora e em reputação da tecnologia proposta.',
   )
-  const bullets = [
-    txt('bullet1', 'Compare propostas de fornecedores lado a lado'),
-    txt('bullet2', 'Pontuação por reputação, tecnologia e viabilidade'),
-    txt('bullet3', 'Índice de Confiabilidade de 0 a 100 para cada fornecedor'),
-  ]
+  /* Os três bullets ("Compare propostas lado a lado", "Pontuação por
+     reputação…", "Índice de Confiabilidade de 0 a 100") saíram na V5, slide 4:
+     "Eliminar os 3 bullets".
+
+     Faz sentido depois da própria seção ter crescido: a tabela comparativa, a
+     escala de risco e a legenda do caso real já dizem as três coisas, e com
+     mais evidência do que uma lista de promessas. `bullet1..3` continuam
+     gravados no banco e ocultos no admin — se ele quiser de volta, é
+     descomentar aqui, não redigitar. */
   // CTA 5 (Francis, slide 15: "criar CTA 5"). O botão já existia aqui, o que
   // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
   // é tratado como legado para a LP não depender do seed.
@@ -209,17 +213,9 @@ export const PlatformV4: React.FC = () => {
           </Reveal>
         )}
 
-        {/* O que isso significa na prática */}
-        <Reveal delay={120} className="mt-12">
-          <ul className="grid gap-x-10 gap-y-4 border-t border-white/[0.08] pt-8 sm:grid-cols-2 lg:grid-cols-3">
-            {bullets.map((b, i) => (
-              <li key={i} className="flex items-start gap-3 text-[15px] leading-relaxed text-slate-300">
-                <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rotate-45 rounded-[2px] bg-gradient-to-br from-orange-500 to-amber-400" aria-hidden />
-                {b}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
+        {/* Aqui ficava a lista "O que isso significa na prática", com os três
+            bullets eliminados no slide 4 da V5. Ver o comentário na leitura de
+            `bullet1..3` acima. */}
 
         {/* Botão laranja cheio (era ghost-dark, apagado demais) e sem a nota
             "Acesso por 6 meses..." embaixo. Gabriel, 26/07. */}

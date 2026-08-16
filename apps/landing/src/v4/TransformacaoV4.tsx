@@ -42,8 +42,19 @@ const MAX_PARES = 10
 /* "Para quem o Método Solar Buy-Side foi desenvolvido!" (Francis, 06/08,
    slide 15). É o que sobrou da seção "Para quem o Método foi desenvolvido?",
    eliminada inteira no slide 11: três painéis com ícone, emblema girando e
-   texto viraram três linhas. Ele pediu no mesmo corpo de "Veja sua
-   transformação", então divide o mesmo nível de título com a comparação. */
+   texto viraram três linhas.
+
+   MUDOU DE DOBRA na V5 (15/08). Ele pedia o bloco no mesmo corpo de "Veja sua
+   transformação"; agora quer abaixo do player de vídeo ("Para quem é
+   transferido abaixo do VÍDEO", slide 5; "Inserir PARA QUEM aqui", slide 8).
+   O componente saiu daqui e virou o `ParaQuemV4` no fim deste arquivo,
+   renderizado por ContextV4.
+
+   AS CHAVES CONTINUAM NA SEÇÃO `transformacao` DO BANCO. Mover o texto para a
+   seção do vídeo obrigaria a migrar linhas e o Francis perderia o que já
+   escreveu, além de mudar o lugar de edição no admin sem ele ter pedido. É
+   render que muda de lugar, não conteúdo — por isso o componente fica neste
+   arquivo, junto da fonte de dados dele. */
 const PERFIS_PADRAO = ['Empresas de integração solar', 'Empresas iniciantes', 'Representantes comerciais']
 const MAX_PERFIS = 6
 
@@ -65,13 +76,6 @@ export const TransformacaoV4: React.FC = () => {
     const depois = txt(`row${i}Depois`, padrao?.[1] ?? '')
     if (temConteudo(hoje) && temConteudo(depois)) pares.push([hoje, depois])
   }
-
-  const perfis: string[] = []
-  for (let i = 1; i <= MAX_PERFIS; i++) {
-    const perfil = txt(`audience${i}`, PERFIS_PADRAO[i - 1] ?? '')
-    if (temConteudo(perfil)) perfis.push(perfil)
-  }
-  const perfisTitulo = txt('audienceTitle', 'Para quem o Método Solar Buy-Side foi desenvolvido')
 
   const hojeLabel = txt('hojeLabel', 'Hoje')
   const depoisLabel = txt('depoisLabel', 'Depois')
@@ -173,32 +177,60 @@ export const TransformacaoV4: React.FC = () => {
           </div>
         </Reveal>
 
-        {/* Para quem o Método foi desenvolvido */}
-        {perfis.length > 0 && temConteudo(perfisTitulo) && (
-          <>
-            <Reveal delay={340}>
-              <h3 className="mt-16 font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">
-                <CMSText value={perfisTitulo} />
-              </h3>
-            </Reveal>
-            <Reveal delay={400}>
-              <ul className="mt-7 grid gap-3 sm:grid-cols-3">
-                {perfis.map((perfil, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-4"
-                  >
-                    <span className="v4-mono shrink-0 text-sm font-bold text-orange-400/70">{`0${i + 1}`}</span>
-                    <span className="text-[15px] font-semibold leading-snug text-slate-200 md:text-base">
-                      {perfil}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </>
-        )}
       </div>
     </section>
+  )
+}
+
+/* "PARA QUEM O MÉTODO SOLAR BUY-SIDE FOI DESENVOLVIDO"
+
+   Era o fecho desta seção e virou bloco próprio, renderizado logo abaixo do
+   player pelo ContextV4 (V5, slides 5 e 8). Lê a mesma seção `transformacao`
+   do banco — ver o comentário em PERFIS_PADRAO.
+
+   Traz o `id="para-quem"`: é o alvo do item "Para Quem" no menu e o degrau
+   novo do funil. Enquanto era o rodapé da Transformação, o menu apontava para
+   `#transformacao` e caía no topo da comparação Hoje/Depois, vários parágrafos
+   acima da resposta.
+
+   Some inteiro se o Francis apagar o título, como já era. */
+export const ParaQuemV4: React.FC = () => {
+  const { getSection } = useContent()
+  const section = getSection('transformacao')
+  const txt = criarTxt(section)
+
+  const perfis: string[] = []
+  for (let i = 1; i <= MAX_PERFIS; i++) {
+    const perfil = txt(`audience${i}`, PERFIS_PADRAO[i - 1] ?? '')
+    if (temConteudo(perfil)) perfis.push(perfil)
+  }
+  const perfisTitulo = txt('audienceTitle', 'Para quem o Método Solar Buy-Side foi desenvolvido')
+
+  if (perfis.length === 0 || !temConteudo(perfisTitulo)) return null
+
+  return (
+    /* mt-20: separa do vídeo o suficiente para não virar legenda do player.
+       Sem padding lateral próprio — ele é montado dentro do container do
+       Panorama, que já tem o px-6 e a largura de leitura da seção. */
+    <div id="para-quem" className="mt-20">
+      <Reveal>
+        <h3 className="font-['Sora'] text-2xl font-bold tracking-tight text-white md:text-3xl">
+          <CMSText value={perfisTitulo} />
+        </h3>
+      </Reveal>
+      <Reveal delay={60}>
+        <ul className="mt-7 grid gap-3 sm:grid-cols-3">
+          {perfis.map((perfil, i) => (
+            <li
+              key={i}
+              className="flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-5 py-4"
+            >
+              <span className="v4-mono shrink-0 text-sm font-bold text-orange-400/70">{`0${i + 1}`}</span>
+              <span className="text-[15px] font-semibold leading-snug text-slate-200 md:text-base">{perfil}</span>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+    </div>
   )
 }

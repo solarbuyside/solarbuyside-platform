@@ -10,11 +10,19 @@ import { VARIANTES, useVarianteHero } from './heroVariante'
    AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
    navegação, e o indicador de progresso do topo anda ao contrário.
 
-   Reordenado em 06/08 junto com a página: Mentores subiu para antes do
-   Panorama. E "Para Quem" deixou de apontar para `#audiencia`, que não existe
-   mais (a seção foi eliminada, slide 11): a resposta agora vive no fim da
-   Transformação, em três linhas (slide 15). Sem essa troca o item viraria um
-   link morto no menu. */
+   Na V5 (15/08) a Plataforma desceu da 2ª para a 4ª dobra e os Mentores da 5ª
+   para a 6ª. A ORDEM RELATIVA dos itens não mudou (4 < 6 < 7 < 8 < 9), então a
+   lista fica como estava.
+
+   O que muda é o ALVO do "Para Quem": `#para-quem` no lugar de
+   `#transformacao`. Ele apontava para lá porque a resposta era o fecho daquela
+   seção; agora o bloco vive abaixo do vídeo, com id só dele (slides 5 e 8).
+   Mantido o link velho, o item levaria o visitante ao topo da comparação
+   Hoje/Depois, vários parágrafos acima da resposta.
+
+   Os RÓTULOS vêm do CMS desde 14/08 (`navPlatform`, `navMentor`…, na seção
+   `hero`); rótulo vazio tira o item do menu. O href continua no código: é
+   âncora de estrutura, não texto de cliente. */
 export const HeaderV4: React.FC = () => {
   const { variante, modoAvaliacao, trocar } = useVarianteHero()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -27,7 +35,7 @@ export const HeaderV4: React.FC = () => {
     { href: '#autor', label: txt('navMentor', 'Mentor') },
     { href: '#contexto', label: txt('navPanorama', 'Panorama') },
     { href: '#video-section', label: txt('navVideo', 'Vídeo') },
-    { href: '#transformacao', label: txt('navAudience', 'Para Quem') },
+    { href: '#para-quem', label: txt('navAudience', 'Para Quem') },
     { href: '#faq', label: txt('navFaq', 'FAQ') },
   ].filter((item) => item.label)
   const headerCta = txt('headerCta', 'Garantir Acesso')

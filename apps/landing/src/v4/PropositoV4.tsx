@@ -3,6 +3,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { criarTxt, temConteudo } from './cms'
+import { useKit } from './kit'
 
 /* "PARA QUE SERVEM O MANUAL, O CÓDIGO E A PLATAFORMA DE AVALIAÇÃO?"
    (Francis, slide 2 da revisão de 03/08: "novo texto abaixo do carrossel").
@@ -27,10 +28,32 @@ const PADRAO = [
 
 const MAX_ITENS = 6
 
+/* AS CAPAS DOS TRÊS PASSOS (V5, slide 3: "A inserção das capas deve ser feito
+   para o formato DESKTOP").
+
+   Cada passo nomeia uma peça do kit — Manual, Código, Plataforma —, nesta
+   ordem, que é a mesma do leque do Hero e a mesma dos cards da oferta. Então a
+   capa vem de `useKit()` por índice, sem campo novo no admin: trocar a arte na
+   oferta troca no Hero e troca aqui, um lugar só.
+
+   O 4º item (Licença Coletiva) fica de fora de propósito: os passos são três e
+   a licença não é um passo, é o modo de distribuir os outros. Se o Francis
+   acrescentar um 4º passo pelo admin, ele sai sem capa em vez de ganhar a capa
+   errada.
+
+   NO CELULAR ele perguntou se ficaria bom, "a menos que vc tiver um jeitinho".
+   O jeitinho é escala: 44px encostado no número do passo, na mesma linha, em
+   vez dos 96px do desktop ao lado do parágrafo. Some do fluxo vertical quase
+   nada e mantém o par capa/passo, que é o que o bloco quer dizer. Esconder no
+   celular era a alternativa segura, e jogaria fora o reconhecimento justo no
+   aparelho onde ele mais conta. */
+const CAPAS_NOS_PASSOS = 3
+
 export const PropositoV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('apoiadores')
   const txt = criarTxt(section)
+  const { pecas } = useKit()
 
   const titulo = txt('purposeTitle', 'Para que servem o Manual, o Código e a Plataforma de Avaliação?')
   const kicker = txt('purposeKicker', 'O que você leva')
@@ -44,26 +67,29 @@ export const PropositoV4: React.FC = () => {
   if (!temConteudo(titulo) || itens.length === 0) return null
 
   return (
-    <section className="relative bg-[#07090d] text-white antialiased">
-      {/* GRADE PLENA, pelo mesmo motivo da seção da Plataforma logo acima: o
-          Ato 1 (Hero → Plataforma → Propósito) é UM bloco escuro contínuo, e a
-          máscara radial do `center` apagava a grade na borda de cima de cada
-          seção, criando uma linha de costura visível a cada emenda. Corrigir
-          só a Plataforma teria empurrado a costura para cá.
-
-          Esta é a última seção escura do ato: embaixo dela vem a de Apoiadores,
-          que é clara. Ali a grade pode terminar seca, porque a troca de fundo
-          já é total e ninguém procura continuidade de textura entre preto e
-          claro. */}
-      <SolarCells fade="full" />
+    /* REABERTURA DO ATO ESCURO (V5, slide 3). Esta seção sobe por cima dos
+       Apoiadores (claros) com o arco arredondado. O arco era da seção de
+       Mentores (AuthorityV4), que na ordem de 06/08 era quem vinha logo depois
+       do bloco claro; a V5 pôs os "3 passos" nesse lugar e a emenda veio junto.
+       Sem isso, a troca preto→claro→preto aconteceria numa aresta reta. */
+    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#07090d] text-white antialiased md:rounded-t-[4.5rem]">
+      {/* GRADE com fade "top", como toda seção que ABRE um ato escuro: ela
+          entra cheia na borda do arco e vai apagando. Era `full` porque aqui
+          era miolo de um bloco escuro contínuo (Hero → Plataforma → Propósito)
+          e uma máscara radial deixava linha de costura visível a cada emenda.
+          Agora não há emenda escuro-escuro acima: acima é o claro dos
+          Apoiadores, e a grade cheia encostada no arco marcava a curva. */}
+      <SolarCells fade="top" />
       {/* O mesmo grão do Hero e da seção da Plataforma. Sem ele esta seção
           voltaria a ser a lisa do ato, e a costura só andaria mais um degrau
           para baixo. Ver o comentário em PlatformV4 para a medição. */}
       <GrainOverlay opacity={0.03} />
 
-      {/* pb generoso: a seção de Apoiadores sobe por cima desta com o arco
-          arredondado (-mt-20) e comeria o respiro do último item da escada. */}
-      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-40 pt-20 md:pb-48 md:pt-28">
+      {/* pt generoso porque o arco come o topo da seção; pb normal porque
+          embaixo agora vem a Plataforma, escura e sem arco. O pb-40/48 de
+          antes existia para os Apoiadores subirem por cima daqui — eles não
+          vêm mais depois, e o vão sobrava como buraco no meio do ato. */}
+      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-24 pt-28 md:pb-32 md:pt-36">
         {temConteudo(kicker) && (
           <Reveal>
             <Kicker tone="dark">{kicker}</Kicker>
@@ -76,37 +102,73 @@ export const PropositoV4: React.FC = () => {
           </h2>
         </Reveal>
 
-        <div className="mt-12 space-y-5">
-          {itens.map((item, i) => (
-            <Reveal key={item} delay={140 + i * 110}>
-              {/* A escada: recuo e intensidade do filete crescem com o índice.
-                  Só a partir de md — no celular a largura é curta demais para
-                  gastar 96px com recuo, e a numeração já dá a progressão. */}
-              <div
-                className="group flex items-start gap-5 md:gap-7"
-                style={{ ['--passo' as string]: `${i * 48}px` }}
-              >
-                <span className="hidden shrink-0 md:block" style={{ width: 'var(--passo)' }} aria-hidden />
+        <div className="mt-12 space-y-6 md:space-y-5">
+          {itens.map((item, i) => {
+            const capa = i < CAPAS_NOS_PASSOS ? pecas[i] : undefined
+            return (
+              <Reveal key={item} delay={140 + i * 110}>
+                {/* A escada: recuo e intensidade do filete crescem com o índice.
+                    Só a partir de md — no celular a largura é curta demais para
+                    gastar 96px com recuo, e a numeração já dá a progressão. */}
+                <div
+                  className="group flex items-start gap-4 md:gap-7"
+                  style={{ ['--passo' as string]: `${i * 48}px` }}
+                >
+                  <span className="hidden shrink-0 md:block" style={{ width: 'var(--passo)' }} aria-hidden />
 
-                <span
-                  className="mt-1 w-1 shrink-0 self-stretch rounded-full transition-all duration-500 group-hover:opacity-100"
-                  style={{
-                    background: 'linear-gradient(180deg, #fbbf24, #f97316)',
-                    opacity: 0.35 + i * 0.3,
-                  }}
-                  aria-hidden
-                />
+                  <span
+                    className="mt-1 w-1 shrink-0 self-stretch rounded-full transition-all duration-500 group-hover:opacity-100"
+                    style={{
+                      background: 'linear-gradient(180deg, #fbbf24, #f97316)',
+                      opacity: 0.35 + i * 0.3,
+                    }}
+                    aria-hidden
+                  />
 
-                <span className="v4-mono mt-0.5 shrink-0 text-sm font-bold text-orange-400/70">
-                  {`0${i + 1}`}
-                </span>
+                  {/* CELULAR: a capa ocupa o lugar do número. Os dois juntos
+                      empilhariam duas colunas estreitas antes de o texto
+                      começar, e a capa já identifica a peça melhor que "01". */}
+                  {capa ? (
+                    <img
+                      src={capa.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="mt-0.5 w-11 shrink-0 rounded-[3px] shadow-lg shadow-black/50 ring-1 ring-white/10 md:hidden"
+                      aria-hidden
+                    />
+                  ) : (
+                    <span className="v4-mono mt-0.5 shrink-0 text-sm font-bold text-orange-400/70 md:hidden">
+                      {`0${i + 1}`}
+                    </span>
+                  )}
 
-                <p className="text-[17px] leading-relaxed text-slate-300 md:text-lg">
-                  <CMSText value={item} />
-                </p>
-              </div>
-            </Reveal>
-          ))}
+                  <span className="v4-mono mt-0.5 hidden shrink-0 text-sm font-bold text-orange-400/70 md:block">
+                    {`0${i + 1}`}
+                  </span>
+
+                  <p className="text-[17px] leading-relaxed text-slate-300 md:text-lg">
+                    <CMSText value={item} />
+                  </p>
+
+                  {/* DESKTOP: a capa fecha a linha, à direita. Empilhadas, as
+                      três formam a coluna de capas do print do Francis, mas
+                      cada uma alinhada com o passo que ela nomeia — se ele
+                      reescrever um passo e o texto crescer, a capa acompanha. */}
+                  {capa && (
+                    <img
+                      src={capa.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="ml-auto hidden w-24 shrink-0 rounded-[4px] shadow-xl shadow-black/60 ring-1 ring-white/10 md:block"
+                      aria-hidden
+                    />
+                  )}
+                </div>
+              </Reveal>
+            )
+          })}
         </div>
       </div>
     </section>

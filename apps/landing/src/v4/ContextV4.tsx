@@ -3,6 +3,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Kicker, Reveal, SolarCells } from './atoms'
 import { VideoSubtitleV4, VideoV4 } from './VideoV4'
+import { ParaQuemV4 } from './TransformacaoV4'
 import { criarTxt, temConteudo } from './cms'
 
 export const ContextV4: React.FC = () => {
@@ -135,9 +136,18 @@ export const ContextV4: React.FC = () => {
 
         {/* A faixa "Quem não entender essa nova jornada" e o painel "Ainda há
             tempo para reverter" foram substituídos pelo bloco das duas frases
-            (Gabriel, 26/07). Ele fecha o ato do vídeo e emenda direto no
-            depoimento do Lucas. Ver VideoSubtitleV4. */}
+            (Gabriel, 26/07). Ele fecha o ato do vídeo. Ver VideoSubtitleV4. */}
         <VideoSubtitleV4 />
+
+        {/* "Para quem o Método foi desenvolvido" (V5, slides 5 e 8: "Para quem
+            é transferido abaixo do VÍDEO" / "Inserir PARA QUEM aqui"). No
+            print do Francis ele aparece depois do painel das duas frases, não
+            colado no player — é assim que está aqui.
+
+            O componente mora em TransformacaoV4.tsx porque continua lendo a
+            seção `transformacao` do banco: o Francis edita o texto onde sempre
+            editou, e nada precisou ser migrado. */}
+        <ParaQuemV4 />
       </div>
     </section>
   )

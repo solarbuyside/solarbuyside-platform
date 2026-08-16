@@ -18,8 +18,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * apps/landing/src/v4/AppV4.tsx. Se as duas divergirem, o relatório desenha um
  * funil que sobe e desce em vez de cair: a leitura fica errada sem dar erro.
  *
- * Atualizada com a revisão de 06/08. Estava defasada desde 03/08 (mostrava
- * "Autores" em 2º e "Plataforma" em 11º quando na página eram 5º e 2º).
+ * Atualizada com a revisão V5 de 15/08, que reordenou os cinco primeiros
+ * blocos: Apoiadores para 2º, "3 passos" antes da Plataforma, Transformação
+ * subindo para 5º. Da Retorno para baixo nada mudou.
+ *
+ * `para-quem` ENTROU como degrau próprio: o bloco saiu do fim da Transformação
+ * e passou a viver abaixo do vídeo (slides 5 e 8). Sem degrau, ele deixaria de
+ * ser medido justamente na rodada em que mudou de lugar — que é quando medir
+ * importa.
  *
  * `audiencia` saiu: a seção "Para quem o Método foi desenvolvido" foi
  * eliminada (slide 11). Não vale manter o degrau: um id que não existe mais na
@@ -27,14 +33,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
  */
 const SECOES: { id: string; label: string }[] = [
   { id: "hero", label: "Hero" },
-  { id: "plataforma", label: "Plataforma" },
-  { id: "proposito", label: "Para que servem" },
   { id: "apoiadores", label: "Apoiadores" },
+  { id: "proposito", label: "Como o método funciona" },
+  { id: "plataforma", label: "Plataforma" },
+  { id: "transformacao", label: "Transformação" },
   { id: "authority", label: "Mentores" },
   { id: "contexto", label: "Panorama" },
   { id: "video-section", label: "Vídeo" },
+  { id: "para-quem", label: "Para quem" },
   { id: "manual-strategic", label: "Manual e Código" },
-  { id: "transformacao", label: "Transformação" },
   { id: "retorno", label: "Retorno" },
   { id: "depoimento-lucas", label: "Depoimento Lucas" },
   { id: "depoimentos", label: "Depoimento Rodrigo" },

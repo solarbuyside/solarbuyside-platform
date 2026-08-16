@@ -78,6 +78,79 @@
   scroll-margin-top: 76px;
 }
 
+/* ── Texto justificado (V5, slide 16) ────────────────────────────────────
+   "Daria para justificar os textos na versão Desktop e na versão Celular?"
+
+   NO DESKTOP, sim. Na largura de leitura desta LP o justificado fecha o bloco
+   e é o que ele quer.
+
+   NO CELULAR, NÃO — ressalva técnica, não preferência. Justificar distribui a
+   sobra da linha nos espaços entre palavras; numa coluna de ~350px, com o
+   vocabulário desta página ("confiabilidade", "fotovoltaico", "integradora"),
+   a sobra por linha é grande e vira "rio": faixas brancas verticais cortando o
+   parágrafo. O efeito é o oposto do pedido. No celular fica alinhado à
+   esquerda com hifenização, que regulariza a borda direita sem abrir espaço.
+
+   PARA LIGAR NO CELULAR TAMBÉM: apague a linha do @media abaixo (e o } do
+   fim). O resto já está no lugar.
+
+   POR QUE OPT-IN, E NÃO `.v4-root p`. A regra ampla foi tentada primeiro e
+   pegou 71 parágrafos, dos quais 20 quebrados: as citações centradas embaixo
+   do vídeo viraram "Os   vendedores   Buy-Side   aprendem", e os cartões de
+   272px e o endereço de 217px no rodapé ficaram só rio. Justify é para COLUNA
+   DE LEITURA; cartão estreito, rótulo e endereço não são. A classe vai nos
+   wrappers de seção em AppV4.tsx — um lugar só, e dá para tirar de uma seção
+   sem mexer no componente dela.
+
+   Parágrafo de UMA linha nunca é afetado: a última linha não é esticada. */
+.v4-root p {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+@media (min-width: 768px) {
+  .v4-just p {
+    text-align: justify;
+    text-justify: inter-word;
+  }
+
+  /* EXCEÇÕES DENTRO DE UMA SEÇÃO JUSTIFICADA. Vêm depois de propósito: todas
+     empatam em especificidade com a regra acima, e no empate vence a última.
+
+     - centrado/à direita, no próprio <p> ou herdado do contêiner: justificar
+       texto centrado dá centralizado com buracos;
+     - .v4-serif: as citações em itálico (o "E tem mais:" do Retorno, a
+       chamada do Código). São display, não corpo de texto — o itálico já
+       inclina a borda direita e o espaço esticado fica evidente;
+     - v4-mono: rótulos em caixa alta com tracking largo ("Empresas · clique
+       para trocar"), onde o espaço extra soma ao tracking e racha a palavra;
+     - Sora: é a fonte de TÍTULO deste sistema. Um <p> em Sora não é corpo de
+       texto, é display — os números do Retorno, as células da tabela de
+       simulação ("12 a 24 sistemas adicionais", que quebra em duas linhas e
+       teria a primeira esticada). Se está em Sora, não se justifica. */
+  .v4-just [class*="text-center"] p,
+  .v4-just [class*="text-right"] p,
+  .v4-just p[class*="text-center"],
+  .v4-just p[class*="text-right"],
+  .v4-just p[class*="v4-mono"],
+  .v4-just p[class*="Sora"],
+  .v4-just p.v4-serif {
+    text-align: inherit;
+  }
+
+  /* ESCOTILHA DE SAÍDA para um parágrafo específico dentro de uma seção
+     justificada. Vem por último e ganha de tudo acima.
+
+     Em uso hoje: as bios dos dois mentores. Elas são prosa de verdade, mas
+     vivem numa grade de duas colunas de 456px, e a medida é curta demais para
+     o vocabulário delas — "passagens por marketplaces, distribuidores," abria
+     um rio visível numa linha só. É o mesmo motivo pelo qual o celular inteiro
+     fica sem justificar: não é o tipo do texto, é a largura da coluna. */
+  .v4-just p.v4-nojust {
+    text-align: inherit;
+  }
+}
+
 /* ── Tipografia expressiva ──────────────────────────────────────────── */
 .v4-serif {
   font-family: 'Fraunces', 'Fraunces Fallback', Georgia, serif;

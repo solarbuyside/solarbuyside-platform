@@ -21,55 +21,59 @@ import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
 
 /* V4 "SOLAR DAWN" — a LP oficial, na raiz "/".
 
-   ORDEM DAS SEÇÕES = ordem dos slides do PPTX "V2 REVISÃO 06.08.2026" do
+   ORDEM DAS SEÇÕES = ordem dos slides do PPTX "V5 REVISÃO 15.08.2026" do
    Francis. Ele monta a revisão como um deck: um slide por dobra, na sequência
-   em que quer ver a página. O slide 1 é o único que fala de outro assunto (o
-   tamanho do CTA flutuante) e não entra na contagem.
+   em que quer ver a página. Nesta rodada os slides 2, 6, 7 e 9 a 15 vêm SEM
+   anotação nenhuma — são screenshots puros, e a mensagem deles é justamente a
+   posição em que aparecem.
 
-   O que mudou de lugar em relação à revisão de 03/08:
-   - a Plataforma passou na frente do "Para que servem" (slides 4-5 antes do 6);
-   - os Apoiadores subiram da 13ª para a 4ª posição (slide 7): "este bloco no
-     final da LP deveria estar bem no início para transferir a credibilidade
-     dessas marcas desde os primeiros instantes do lead na página";
-   - os Mentores subiram para antes do Panorama (slide 8 antes do 9);
-   - a Transformação desceu para depois do Manual (slide 15 depois do 12-13);
-   - o depoimento do Lucas desceu para depois do Retorno (slide 17 depois do 16).
+   O que mudou de lugar em relação à revisão de 06/08 (ele reordenou os cinco
+   primeiros blocos depois de cruzar as auditorias de Claude e ChatGPT):
+   - os Apoiadores subiram da 4ª para a 2ª dobra, colados no Hero;
+   - "Como o método funciona em 3 passos" passou na frente da Plataforma
+     (slide 3 antes do 4) — o método antes da ferramenta que o executa;
+   - a Transformação subiu de 8ª para 5ª (slide 5), logo depois da Plataforma;
+   - Mentores e Panorama desceram uma casa cada, empurrados pela Transformação.
 
-   O que saiu: a faixa de logos do topo (slide 3), a seção "Para quem o Método
-   foi desenvolvido" (slide 11) e o bloco "Veja o que muda" que fechava o
-   Manual (slide 14).
+   Da seção Retorno (slide 11) para baixo nada mudou.
 
-   O que entrou: "Compra simples. Acesso imediato. Suporte garantido."
-   (slide 19).
+   O "PARA QUEM" MUDOU DE DONO. Ele era o fecho da Transformação e agora fica
+   logo abaixo do player de vídeo (slides 5 e 8: "Para quem é transferido
+   abaixo do VÍDEO" / "Inserir PARA QUEM aqui"). As chaves seguem gravadas na
+   seção `transformacao` do banco — só o render mudou de lugar, para o Francis
+   não perder o texto nem o ponto de edição no admin.
 
-   RITMO CLARO/ESCURO. A ordem nova deixaria duas ilhas de cor (Apoiadores
-   claro sozinho no meio do escuro; Retorno escuro sozinho no meio do claro).
-   Resolvido em cinco atos, com as emendas feitas pelo arco arredondado que a
-   LP já usava:
+   RITMO CLARO/ESCURO. Apoiadores é a única seção clara desta metade da página,
+   e subir para a 2ª posição move as fronteiras dos cinco atos sem quebrá-los:
 
-     ESCURO  Hero · Plataforma · Para que servem
-     CLARO   Apoiadores                                    (sobe com arco)
-     ESCURO  Mentores · Panorama+Vídeo · Manual+Código ·
-             Transformação · Retorno                       (sobe com arco)
-     CLARO   Lucas · Rodrigo · Compra simples · Equipe      (sobe com arco)
-     ESCURO  Oferta · FAQ · Contato                         (sobe com arco)
+     ESCURO  Hero
+     CLARO   Apoiadores                                     (sobe com arco)
+     ESCURO  3 passos · Plataforma · Transformação ·
+             Mentores · Panorama+Vídeo+Para quem ·
+             Manual+Código · Retorno                        (sobe com arco)
+     CLARO   Lucas · Rodrigo · Compra simples · Equipe       (sobe com arco)
+     ESCURO  Oferta · FAQ · Contato                          (sobe com arco)
 
-   A Transformação era clara e virou escura para o 3º ato não ter buraco; o
-   Retorno ficou como estava (o Francis marcou o slide 16 "SEM ALTERAÇÃO"). */
+   Continuam cinco atos e nenhuma ilha de cor solta. O arco que abria o ato
+   escuro TROCOU DE DONO junto com a ordem: era dos Mentores (AuthorityV4) e
+   passou para "Como o método funciona" (PropositoV4), que é quem agora vem
+   logo depois do bloco claro. Mexer na ordem aqui sem mover o arco lá deixa
+   um degrau de cor no meio da página. */
 
 /* Ids observados pelo IntersectionObserver do funil. É lista MANUAL: seção
    sem entrada aqui nunca aparece no relatório de conversão do admin.
    Espelhada em apps/platform/src/lib/landing/funnel.ts, que dá os rótulos. */
 const SECTION_IDS = [
   'hero',
-  'plataforma',
-  'proposito',
   'apoiadores',
+  'proposito',
+  'plataforma',
+  'transformacao',
   'authority',
   'contexto',
   'video-section',
+  'para-quem',
   'manual-strategic',
-  'transformacao',
   'retorno',
   'depoimento-lucas',
   'depoimentos',
@@ -165,51 +169,65 @@ export default function AppV4() {
           <HeroV4 />
         )}
       </div>
-      {/* A Plataforma emenda DIRETO no CTA do Hero (slide 4: "plataforma para
-          encaixar +/- assim"). Era a faixa de logos que ocupava este lugar. */}
-      <div id="plataforma">
-        <PlatformV4 />
-      </div>
-      {/* "Para que servem o Manual, o Código e a Plataforma?" responde a
-          pergunta que a seção da ferramenta acabou de levantar (slide 6). */}
-      <div id="proposito">
-        <PropositoV4 />
-      </div>
+
+      {/* `v4-just` = texto justificado no desktop (V5, slide 16). Fica nos
+          wrappers, e não numa regra global, porque justify só serve para
+          COLUNA DE LEITURA: as seções de fora — Hero, Compra simples, Oferta,
+          Contato, rodapé — são cartão estreito, rótulo e endereço, onde
+          justificar só abre rio de espaço. Ver o bloco no v4.css. */}
 
       {/* ─────────────────── ATO 2 · CLARO ──────────────────── */}
-      <div id="apoiadores">
+      {/* Colado no Hero (V5, slide 2). O argumento do Francis para ter subido
+          os Apoiadores continua valendo, agora levado ao limite: "transferir a
+          credibilidade dessas marcas desde os primeiros instantes do lead na
+          página". Antes ele era a 4ª dobra; agora é a primeira coisa depois do
+          topo. */}
+      <div id="apoiadores" className="v4-just">
         <ApoiadoresV4 />
       </div>
 
       {/* ─────────────────── ATO 3 · ESCURO ─────────────────── */}
+      {/* "Como o método funciona em 3 passos" (slide 3) abre o ato escuro e
+          carrega o arco. O MÉTODO vem antes da FERRAMENTA que o executa: os
+          três passos nomeiam Manual, Código e Plataforma, e a dobra seguinte
+          mostra a Plataforma funcionando. Na ordem antiga a ferramenta chegava
+          primeiro e os passos explicavam algo já visto. */}
+      <div id="proposito" className="v4-just">
+        <PropositoV4 />
+      </div>
+      <div id="plataforma" className="v4-just">
+        <PlatformV4 />
+      </div>
+      {/* A Transformação subiu para logo depois da Plataforma (slide 5). Ela
+          perdeu o "Para quem" do fim, que agora vive abaixo do vídeo. */}
+      <div id="transformacao" className="v4-just">
+        <TransformacaoV4 />
+      </div>
       {/* Dois ids na mesma seção: `authority` é o do funil e o do preview do
           admin; `autor` fica no <section> e é o alvo do menu "Mentor". */}
-      <div id="authority">
+      <div id="authority" className="v4-just">
         <AuthorityV4 />
       </div>
-      {/* O vídeo vive DENTRO do Panorama e leva o id `video-section`. */}
-      <div id="contexto">
+      {/* O vídeo vive DENTRO do Panorama e leva o id `video-section`; logo
+          abaixo dele, ainda dentro desta seção, vem o "Para quem" (id
+          `para-quem`, alvo do menu). */}
+      <div id="contexto" className="v4-just">
         <ContextV4 />
       </div>
-      <div id="manual-strategic">
+      <div id="manual-strategic" className="v4-just">
         <ManualStrategicV4 />
-      </div>
-      {/* A Transformação também é o destino do menu "Para Quem": o bloco que
-          respondia isso saiu (slide 11) e virou as três linhas do fim dela. */}
-      <div id="transformacao">
-        <TransformacaoV4 />
       </div>
       {/* Retorno fecha o ato escuro com pb-44: o arco claro do Lucas o
           sobrepõe. */}
-      <div id="retorno">
+      <div id="retorno" className="v4-just">
         <RetornoV4 />
       </div>
 
       {/* ─────────────────── ATO 4 · CLARO ──────────────────── */}
-      <div id="depoimento-lucas">
+      <div id="depoimento-lucas" className="v4-just">
         <TestimonialLucasV4 />
       </div>
-      <div id="depoimentos">
+      <div id="depoimentos" className="v4-just">
         <TestimonialsV4 />
       </div>
       {/* "Compra simples. Acesso imediato. Suporte garantido." (slide 19):
@@ -219,7 +237,7 @@ export default function AppV4() {
       </div>
       {/* "Capacite todo o seu time comercial": justifica o preço antes de o
           preço aparecer. */}
-      <div id="equipe">
+      <div id="equipe" className="v4-just">
         <EquipeV4 />
       </div>
 
@@ -227,7 +245,7 @@ export default function AppV4() {
       {/* O id vem por prop: envolver num <div id="oferta"> criaria id
           duplicado, e este é o alvo mais referenciado da LP. */}
       <PricingV4 id="oferta" />
-      <div id="faq">
+      <div id="faq" className="v4-just">
         <FAQV4 />
       </div>
       <ContactV4 />
