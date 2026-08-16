@@ -199,7 +199,7 @@ export const HeroV4: React.FC = () => {
        daqui (V5, slide 2: eles passaram a ser a dobra logo abaixo do Hero).
        Sem essa folga o arco morderia os últimos 5rem da dobra, que é onde
        terminam as capas do kit e o botão. */
-    <section className="v4-hero relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-20">
+    <section className="v4-hero relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
       {/* ── Céu ───────────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         {/* gradiente vertical da noite */}

@@ -84,7 +84,11 @@ export const ContextV4: React.FC = () => {
                 <h3 className="font-['Sora'] text-2xl font-bold text-white transition-transform duration-500 group-hover:translate-x-2 md:text-3xl">
                   {item.title}
                 </h3>
-                <p className="text-base leading-relaxed text-slate-400 md:text-lg">{item.desc}</p>
+                {/* v4-nojust: a descrição de cada item do Panorama é a coluna
+                    secundária de uma grade de duas, e fica entre 333px (tablet)
+                    e 506px (desktop largo). Estreita demais para justificar em
+                    qualquer uma dessas larguras. Ver a escotilha no v4.css. */}
+                <p className="v4-nojust text-base leading-relaxed text-slate-400 md:text-lg">{item.desc}</p>
               </div>
             </Reveal>
           ))}

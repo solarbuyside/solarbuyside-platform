@@ -415,7 +415,7 @@ export const HeroEditorialV4: React.FC = () => {
        (V5, slide 2). Sem a folga o arco cobriria a linha "Apoiado por empresas
        de referência do setor", que fecha esta variante — e cobriria justamente
        a frase que apresenta a seção que vem logo abaixo. */
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-20">
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"
@@ -448,7 +448,17 @@ export const HeroEditorialV4: React.FC = () => {
           cliques destinados ao texto numa faixa invisível. E saiu o
           `aria-hidden`: agora tem conteúdo navegável aqui dentro, e esconder
           do leitor de tela um controle focável é a pior combinação possível. */}
-      <div className="pointer-events-none absolute bottom-[7%] right-[-3%] top-20 hidden w-[47%] lg:block">
+      {/* bottom = 7% + 5rem. Os 5rem são EXATAMENTE o -mt-20 com que a seção de
+          Apoiadores sobe por cima do Hero desde a V5 (slide 2: eles passaram a
+          ser a dobra logo abaixo do topo).
+
+          Só aumentar o `pb` da seção não resolvia, e vale registrar por quê: a
+          seção é `min-h-[100svh]` com box-sizing border-box, então em tela de
+          900px o padding cabe DENTRO dos 900 e a altura não muda. Como o 7% é
+          medido sobre a mesma altura, o leque não saía do lugar. Em 900px eram
+          63px de folga contra 80px de arco: o arco branco entrava por cima e
+          cortava os marcadores embaixo do botão "Ver o que é". */}
+      <div className="pointer-events-none absolute bottom-[calc(7%+8rem)] right-[-3%] top-20 hidden w-[47%] lg:block">
         <KitLequeV4 pecas={pecas} ativo={ativo} aoTrocar={escolher} />
       </div>
 
@@ -565,7 +575,7 @@ export const HeroVitrineV4: React.FC = () => {
   const { cta, link, externo } = useKit()
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-20">
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"
