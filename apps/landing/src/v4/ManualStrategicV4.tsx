@@ -325,7 +325,10 @@ export const ManualStrategicV4: React.FC = () => {
               </h2>
             </Reveal>
             <Reveal delay={180}>
-              <p className="v4-serif mt-5 max-w-md border-l-2 border-orange-500 pl-5 text-2xl leading-snug text-amber-200/90">
+              {/* v4-nojust: chamada em itálico num `max-w-md` (448px). As
+                  outras duas chamadas serif da página são de 576px e 768px e
+                  justificam bem; esta é curta demais para abrir os espaços. */}
+              <p className="v4-nojust v4-serif mt-5 max-w-md border-l-2 border-orange-500 pl-5 text-2xl leading-snug text-amber-200/90">
                 {txt('subtitle', 'A ferramenta estratégica que todo vendedor do setor solar precisa ter.')}
               </p>
             </Reveal>

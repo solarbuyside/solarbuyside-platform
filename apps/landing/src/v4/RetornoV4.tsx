@@ -188,7 +188,10 @@ export const RetornoV4: React.FC = () => {
                     <p className="v4-mono mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-600 md:hidden">
                       {colTrad}
                     </p>
-                    <p className="font-['Sora'] text-xl font-bold leading-tight tracking-tight text-slate-600 md:text-2xl">
+                    {/* v4-nojust: célula de tabela, não parágrafo. "12 a 24
+                        sistemas adicionais" quebra em duas linhas num vão de
+                        312px e teria a primeira esticada. */}
+                    <p className="v4-nojust font-['Sora'] text-xl font-bold leading-tight tracking-tight text-slate-600 md:text-2xl">
                       {trad}
                     </p>
                   </div>
@@ -199,7 +202,7 @@ export const RetornoV4: React.FC = () => {
                       {colBuy}
                     </p>
                     <p
-                      className={`font-['Sora'] text-xl font-extrabold leading-tight tracking-tight md:text-2xl ${
+                      className={`v4-nojust font-['Sora'] text-xl font-extrabold leading-tight tracking-tight md:text-2xl ${
                         ultima ? 'v4-grad-text' : 'text-white'
                       }`}
                     >

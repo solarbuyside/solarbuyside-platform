@@ -123,18 +123,23 @@
        chamada do Código). São display, não corpo de texto — o itálico já
        inclina a borda direita e o espaço esticado fica evidente;
      - v4-mono: rótulos em caixa alta com tracking largo ("Empresas · clique
-       para trocar"), onde o espaço extra soma ao tracking e racha a palavra;
-     - Sora: é a fonte de TÍTULO deste sistema. Um <p> em Sora não é corpo de
-       texto, é display — os números do Retorno, as células da tabela de
-       simulação ("12 a 24 sistemas adicionais", que quebra em duas linhas e
-       teria a primeira esticada). Se está em Sora, não se justifica. */
+       para trocar"), onde o espaço extra soma ao tracking e racha a palavra.
+
+     NÃO estão aqui, e é decisão revista: `.v4-serif` e `font-['Sora']`.
+     As duas foram exclusões amplas demais e derrubavam parágrafo de verdade.
+     A serif pegava as chamadas em itálico do Retorno e do Código, que são
+     texto corrido de 576px e 768px; ela tinha entrado por causa da citação
+     centrada abaixo do vídeo, que a regra do `text-center` acima já cobre. A
+     Sora pegava o destaque "E tem mais economia…" da seção de Equipe, um
+     parágrafo de quatro linhas em 796px que só usa a fonte de título por ser
+     um box de realce. Os poucos casos que essas duas protegiam de verdade
+     (células de tabela, chamada estreita) levam `v4-nojust` no componente,
+     que é preciso em vez de categórico. */
   .v4-just [class*="text-center"] p,
   .v4-just [class*="text-right"] p,
   .v4-just p[class*="text-center"],
   .v4-just p[class*="text-right"],
-  .v4-just p[class*="v4-mono"],
-  .v4-just p[class*="Sora"],
-  .v4-just p.v4-serif {
+  .v4-just p[class*="v4-mono"] {
     text-align: inherit;
   }
 
