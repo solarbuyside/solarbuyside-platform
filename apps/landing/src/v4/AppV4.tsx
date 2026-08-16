@@ -43,22 +43,25 @@ import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
    seção `transformacao` do banco — só o render mudou de lugar, para o Francis
    não perder o texto nem o ponto de edição no admin.
 
-   RITMO CLARO/ESCURO. Apoiadores é a única seção clara desta metade da página,
-   e subir para a 2ª posição move as fronteiras dos cinco atos sem quebrá-los:
+   RITMO CLARO/ESCURO — agora em TRÊS atos, não cinco (Gabriel, 16/08: "a seção
+   de logo ficou muito ruim, tira o branco e deixa na cor do fundo"):
 
-     ESCURO  Hero
-     CLARO   Apoiadores                                     (sobe com arco)
-     ESCURO  3 passos · Plataforma · Transformação ·
-             Mentores · Panorama+Vídeo+Para quem ·
-             Manual+Código · Retorno                        (sobe com arco)
+     ESCURO  Hero · Apoiadores · 3 passos · Plataforma ·
+             Transformação · Mentores · Panorama+Vídeo+Para quem ·
+             Manual+Código · Retorno
      CLARO   Lucas · Rodrigo · Compra simples · Equipe       (sobe com arco)
      ESCURO  Oferta · FAQ · Contato                          (sobe com arco)
 
-   Continuam cinco atos e nenhuma ilha de cor solta. O arco que abria o ato
-   escuro TROCOU DE DONO junto com a ordem: era dos Mentores (AuthorityV4) e
-   passou para "Como o método funciona" (PropositoV4), que é quem agora vem
-   logo depois do bloco claro. Mexer na ordem aqui sem mover o arco lá deixa
-   um degrau de cor no meio da página. */
+   Os Apoiadores eram a única seção clara da primeira metade e agora são
+   escuros, o que devolve a LP ao conceito do design-landing.md: canvas escuro
+   contínuo com UMA inversão editorial no meio (o ato dos depoimentos).
+
+   SOBROU UM ARCO SÓ POR FRONTEIRA, e é assim que tem que ser. O arco existe
+   para emendar troca de COR; dentro de um bloco contínuo ele vira degrau. Por
+   isso, quando os Apoiadores escureceram, dois arcos saíram junto: o deles
+   (sobre o Hero) e o do PropositoV4 (sobre eles). Antes disso a V5 já tinha
+   tirado o do AuthorityV4. Se um dia alguma destas seções voltar a ser clara,
+   o arco volta para quem abre a troca — não para quem fecha. */
 
 /* Ids observados pelo IntersectionObserver do funil. É lista MANUAL: seção
    sem entrada aqui nunca aparece no relatório de conversão do admin.

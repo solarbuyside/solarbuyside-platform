@@ -67,29 +67,24 @@ export const PropositoV4: React.FC = () => {
   if (!temConteudo(titulo) || itens.length === 0) return null
 
   return (
-    /* REABERTURA DO ATO ESCURO (V5, slide 3). Esta seção sobe por cima dos
-       Apoiadores (claros) com o arco arredondado. O arco era da seção de
-       Mentores (AuthorityV4), que na ordem de 06/08 era quem vinha logo depois
-       do bloco claro; a V5 pôs os "3 passos" nesse lugar e a emenda veio junto.
-       Sem isso, a troca preto→claro→preto aconteceria numa aresta reta. */
-    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#07090d] text-white antialiased md:rounded-t-[4.5rem]">
-      {/* GRADE com fade "top", como toda seção que ABRE um ato escuro: ela
-          entra cheia na borda do arco e vai apagando. Era `full` porque aqui
-          era miolo de um bloco escuro contínuo (Hero → Plataforma → Propósito)
-          e uma máscara radial deixava linha de costura visível a cada emenda.
-          Agora não há emenda escuro-escuro acima: acima é o claro dos
-          Apoiadores, e a grade cheia encostada no arco marcava a curva. */}
-      <SolarCells fade="top" />
+    /* SEM ARCO. Ele existiu por uma revisão só: na V5 esta seção passou a vir
+       logo depois dos Apoiadores, que eram CLAROS, e herdou deles a emenda em
+       arco. Os Apoiadores viraram escuros em 16/08 e a emenda perdeu a razão
+       de ser — daqui até o Retorno é um bloco escuro contínuo, e arco no meio
+       de bloco contínuo é degrau, não costura. */
+    <section className="relative bg-[#07090d] text-white antialiased">
+      {/* GRADE PLENA: de novo miolo de bloco escuro contínuo. Com `top` a
+          máscara apagava a textura na borda de cima e a emenda com os
+          Apoiadores reaparecia como linha. */}
+      <SolarCells fade="full" />
       {/* O mesmo grão do Hero e da seção da Plataforma. Sem ele esta seção
           voltaria a ser a lisa do ato, e a costura só andaria mais um degrau
           para baixo. Ver o comentário em PlatformV4 para a medição. */}
       <GrainOverlay opacity={0.03} />
 
-      {/* pt generoso porque o arco come o topo da seção; pb normal porque
-          embaixo agora vem a Plataforma, escura e sem arco. O pb-40/48 de
-          antes existia para os Apoiadores subirem por cima daqui — eles não
-          vêm mais depois, e o vão sobrava como buraco no meio do ato. */}
-      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-24 pt-28 md:pb-32 md:pt-36">
+      {/* Sem arco em cima nem embaixo, o padding volta ao ritmo normal de
+          seção do meio do ato. O pt-28/36 era a folga que o arco comia. */}
+      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-24 pt-20 md:pb-32 md:pt-24">
         {temConteudo(kicker) && (
           <Reveal>
             <Kicker tone="dark">{kicker}</Kicker>

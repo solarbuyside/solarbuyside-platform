@@ -411,11 +411,7 @@ export const HeroEditorialV4: React.FC = () => {
   const { ativo, escolher } = useRodizio(pecas.length)
 
   return (
-    /* pb-20 = a altura do -mt-20 com que os Apoiadores sobem por cima daqui
-       (V5, slide 2). Sem a folga o arco cobriria a linha "Apoiado por empresas
-       de referência do setor", que fecha esta variante — e cobriria justamente
-       a frase que apresenta a seção que vem logo abaixo. */
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-8">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"
@@ -429,6 +425,24 @@ export const HeroEditorialV4: React.FC = () => {
           }}
         />
         <div className="v4-rays absolute left-[80%] top-1/2 h-[120vmax] w-[120vmax] -translate-x-1/2 -translate-y-1/2 opacity-[0.08]" />
+        {/* FADE PARA O PRETO DA PRÓXIMA SEÇÃO, e a ORDEM AQUI É O TRUQUE.
+
+            Enquanto os Apoiadores eram claros, a troca de cor era o assunto e o
+            arco resolvia. Agora eles são #07090d chapado e o fundo daqui é um
+            degradê azulado (#0b1220 → #0d0906): sem nada, a emenda vira uma
+            linha horizontal nítida atravessando a tela.
+
+            O fade tem que vir ANTES de `v4-cells`, não depois. Depois, ele
+            apagava a grade nos últimos 160px do Hero e a grade voltava cheia no
+            topo da seção seguinte — trocando a linha de cor por uma falha na
+            textura, que salta igual. Antes, ele resolve só a COR e a grade
+            passa por cima inteira; como `.v4-cells` usa
+            `background-attachment: fixed`, ela fica alinhada de uma seção para
+            a outra e a emenda some de vez.
+
+            A variante A não precisa disto: a curva do sol já faz a passagem por
+            conta própria e termina em preto. */}
+        <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-b from-transparent to-[#07090d]" />
         <div className="v4-cells absolute inset-0 opacity-30" />
         <div className="v4-noise absolute inset-0 opacity-[0.03]" />
       </div>
@@ -448,17 +462,18 @@ export const HeroEditorialV4: React.FC = () => {
           cliques destinados ao texto numa faixa invisível. E saiu o
           `aria-hidden`: agora tem conteúdo navegável aqui dentro, e esconder
           do leitor de tela um controle focável é a pior combinação possível. */}
-      {/* bottom = 7% + 5rem. Os 5rem são EXATAMENTE o -mt-20 com que a seção de
-          Apoiadores sobe por cima do Hero desde a V5 (slide 2: eles passaram a
-          ser a dobra logo abaixo do topo).
+      {/* bottom-[7%] é o valor original. Ele chegou a 7%+8rem porque o arco
+          BRANCO dos Apoiadores subia por cima do Hero e cortava os marcadores
+          embaixo do botão "Ver o que é". Com a seção de logos escura (16/08) o
+          arco saiu: não há mais nada de que desviar, e manter o desvio só
+          encolheria o leque de graça.
 
-          Só aumentar o `pb` da seção não resolvia, e vale registrar por quê: a
-          seção é `min-h-[100svh]` com box-sizing border-box, então em tela de
-          900px o padding cabe DENTRO dos 900 e a altura não muda. Como o 7% é
-          medido sobre a mesma altura, o leque não saía do lugar. Em 900px eram
-          63px de folga contra 80px de arco: o arco branco entrava por cima e
-          cortava os marcadores embaixo do botão "Ver o que é". */}
-      <div className="pointer-events-none absolute bottom-[calc(7%+8rem)] right-[-3%] top-20 hidden w-[47%] lg:block">
+          Fica registrado o que se aprendeu ali, porque vale para qualquer arco
+          futuro sobre o Hero: aumentar o `pb` da seção NÃO afasta este leque.
+          A seção é `min-h-[100svh]` com box-sizing border-box, então o padding
+          cabe dentro dos 100svh e a altura não muda; como o 7% é medido sobre
+          essa mesma altura, o leque fica parado. Tem que mexer aqui. */}
+      <div className="pointer-events-none absolute bottom-[7%] right-[-3%] top-20 hidden w-[47%] lg:block">
         <KitLequeV4 pecas={pecas} ativo={ativo} aoTrocar={escolher} />
       </div>
 
@@ -575,7 +590,7 @@ export const HeroVitrineV4: React.FC = () => {
   const { cta, link, externo } = useKit()
 
   return (
-    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-8">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div
           className="absolute inset-0"

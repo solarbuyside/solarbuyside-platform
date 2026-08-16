@@ -1,7 +1,7 @@
 import React from 'react'
 import { ArrowUpRight, Hand } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
-import { Img, Reveal } from './atoms'
+import { Img, Reveal, SolarCells } from './atoms'
 import { criarTxt, temConteudo } from './cms'
 
 /* APOIADORES INSTITUCIONAIS (Francis, revisão 22-23/07/2026).
@@ -21,10 +21,20 @@ import { criarTxt, temConteudo } from './cms'
    chaves de CMS dela (bandTitle, bandSubtitle, logoNBandOff, logoNBandPos)
    ficaram órfãs no banco.
 
-   PALETA: branco-gelo NEUTRO (#f7f8fa), não o bege/creme que a LP usava — o
-   creme puxava para entardecer e brigava com a ideia de painel solar. Claro
-   (e não escuro) porque boa parte dos logos é texto escuro sobre branco
-   (Huawei, LONGi, SolarView, Unipower) e sumiria no fundo escuro.
+   PALETA: ESCURA (#07090d), como o resto do ato (Gabriel, 16/08: "a seção de
+   logo ficou muito ruim, tira o branco e deixa na cor do fundo").
+
+   Ela era branco-gelo por um motivo real: boa parte dos logos é texto escuro
+   sobre transparente (Electro, SolarView, PVClean) e sumiria no escuro. O que
+   mudou é que o problema deixou de ser da SEÇÃO e passou a ser do TILE: cada
+   logo já vinha numa placa branca própria, e é ela que garante o contraste.
+   Com a seção escura as placas viram o elemento aceso da dobra, em vez de
+   quase sumirem contra um fundo quase branco — que era exatamente o que
+   deixava o bloco sem graça.
+
+   Isto também devolve a LP ao conceito do design-landing.md: canvas escuro
+   contínuo com UMA inversão editorial (o ato dos depoimentos). Esta seção era
+   a exceção que sobrava.
 
    Os logos vêm do CMS: images.logoNSrc + texts.logoNName/logoNDesc/logoNCat.
    Um logo só entra na lista se tiver imagem — assim o cliente adiciona e
@@ -95,7 +105,14 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
         onClick={() => temCard && setOpen((v) => !v)}
         aria-expanded={temCard ? open : undefined}
         aria-label={logo.name}
-        className="flex h-20 w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-500/60 hover:shadow-[0_12px_28px_rgba(15,23,42,0.10)]"
+        /* A PLACA BRANCA é o que faz a seção escura funcionar: logo de texto
+           escuro (Electro, SolarView, PVClean) precisa de fundo claro, e é a
+           placa que dá isso, não a seção.
+
+           Sombra externa trocada por brilho: no claro a placa afundava com uma
+           sombra cinza; no escuro sombra não aparece. O que lê como relevo aqui
+           é a placa ACENDER — halo laranja e um anel de luz em volta. */
+        className="flex h-20 w-full items-center justify-center rounded-xl bg-white px-4 ring-1 ring-white/10 transition-all duration-300 hover:-translate-y-0.5 hover:ring-orange-500/70 hover:shadow-[0_10px_30px_-6px_rgba(249,115,22,0.35)]"
       >
         <Img src={logo.src} alt={logo.name} loading="lazy" className="max-h-10 w-auto object-contain" />
       </button>
@@ -104,26 +121,31 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
         <>
           {/* Véu só no mobile: fecha ao tocar fora e destaca a barra. */}
           <span
-            className="fixed inset-0 z-40 bg-slate-900/20 md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
             onClick={() => setOpen(false)}
             aria-hidden
           />
+          {/* O CARD ACOMPANHOU A SEÇÃO e virou escuro. Um balão branco saltando
+              de uma placa branca sobre fundo escuro lia como um segundo tile
+              gigante, não como camada por cima. Escuro com anel claro é o mesmo
+              vocabulário dos outros cartões da LP. */}
           <div
             role="tooltip"
             /* Sem v4-rise aqui: a animação define `transform` e atropelava o
                -translate-x-1/2, jogando o card para a direita do logo. */
-            className="fixed inset-x-3 bottom-3 z-50 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-[0_24px_60px_rgba(0,0,0,0.28)] md:absolute md:inset-x-auto md:bottom-[calc(100%+12px)] md:left-1/2 md:w-[330px] md:-translate-x-1/2 md:p-4"
+            className="fixed inset-x-3 bottom-3 z-50 rounded-2xl border border-white/[0.12] bg-[#12151c] p-4 text-left shadow-[0_24px_60px_rgba(0,0,0,0.6)] md:absolute md:inset-x-auto md:bottom-[calc(100%+12px)] md:left-1/2 md:w-[330px] md:-translate-x-1/2 md:p-4"
           >
             <div className="flex items-start gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white p-2">
+              {/* A miniatura mantém a placa branca pelo mesmo motivo do tile. */}
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white p-2 ring-1 ring-white/10">
                 <Img src={logo.src} alt="" aria-hidden className="max-h-full w-auto object-contain" />
               </span>
               <div className="min-w-0">
                 {logo.cat && (
-                  <p className="v4-mono text-[9px] font-bold uppercase tracking-[0.22em] text-orange-600">{logo.cat}</p>
+                  <p className="v4-mono text-[9px] font-bold uppercase tracking-[0.22em] text-orange-400">{logo.cat}</p>
                 )}
-                <p className="mt-1 font-['Sora'] text-sm font-bold leading-tight text-slate-900">{logo.name}</p>
-                {logo.desc && <p className="mt-1.5 text-xs leading-relaxed text-slate-600">{logo.desc}</p>}
+                <p className="mt-1 font-['Sora'] text-sm font-bold leading-tight text-white">{logo.name}</p>
+                {logo.desc && <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{logo.desc}</p>}
               </div>
             </div>
 
@@ -132,7 +154,7 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
                 href={logo.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="v4-mono mt-3.5 flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-700 transition-colors hover:border-orange-500/60 hover:text-orange-600"
+                className="v4-mono mt-3.5 flex items-center justify-between gap-2 rounded-lg border border-white/[0.12] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300 transition-colors hover:border-orange-500/60 hover:text-orange-400"
               >
                 Visitar site
                 <ArrowUpRight size={13} aria-hidden />
@@ -141,7 +163,7 @@ const LogoCard: React.FC<{ logo: Apoiador }> = ({ logo }) => {
 
             {/* Bico do balão só no desktop */}
             <span
-              className="absolute left-1/2 top-full hidden h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-slate-200 bg-white md:block"
+              className="absolute left-1/2 top-full hidden h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-white/[0.12] bg-[#12151c] md:block"
               aria-hidden
             />
           </div>
@@ -187,23 +209,32 @@ export const ApoiadoresV4: React.FC = () => {
   )
 
   return (
-    /* 4ª dobra, subindo por cima do ato escuro com o arco arredondado — o
-       mesmo movimento que os depoimentos e a oferta já fazem. Antes de 06/08
-       esta seção ficava no fim da LP, entre dois blocos claros, e o topo era
-       um degradê de creme para branco-gelo; aqui em cima ela nasce sobre o
-       "Para que servem", que é escuro, então o degradê saiu e entrou o arco.
+    /* SEM ARCO. Enquanto a seção era clara, ela subia por cima do Hero com o
+       -mt-20 + rounded-t: o arco existe para emendar troca de COR. Agora é
+       escura sobre escura, e um arco aqui recortaria um degrau visível no meio
+       de um bloco contínuo — o oposto do que ele serve para fazer. Mesma
+       decisão que tirou o arco do AuthorityV4 na V5. */
+    /* pt CURTO de propósito (Gabriel, 16/08: "esse espaço tá muito grande").
+       Seção que abre ATO precisa de pt generoso para descolar do arco; esta
+       não abre nada, é continuação do escuro do Hero, e o Hero já entrega a
+       própria folga embaixo da curva do sol. Os dois paddings somados viravam
+       264px de vão entre o botão do topo e este título. */
+    <section className="relative bg-[#07090d] px-6 pb-24 pt-12 text-slate-400 md:pb-28 md:pt-16">
+      {/* Grade PLENA, o modo "ponte" (ver SolarCells em atoms.tsx). Esta seção
+          virou miolo de bloco escuro contínuo: tem grade acesa em cima (o
+          Hero) e embaixo (os 3 passos). Com `top` a textura apagava no pé da
+          dobra e voltava cheia na seguinte, e essa falha salta tanto quanto a
+          linha de cor que o fade do Hero acabou de resolver. */}
+      <SolarCells fade="full" />
 
-       O pb generoso é o espaço que a seção de Mentores ocupa ao subir por
-       cima desta com o próprio arco, escuro. */
-    <section className="relative z-10 -mt-20 rounded-t-[3rem] bg-[#f7f8fa] px-6 pb-36 pt-24 text-slate-700 md:rounded-t-[4.5rem] md:pb-44 md:pt-32">
-      <div className="mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto max-w-6xl">
         <Reveal>
-          <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-slate-900">
+          <h2 className="font-['Sora'] text-[clamp(1.8rem,3.6vw,2.8rem)] font-extrabold leading-tight tracking-tight text-white">
             {title}
           </h2>
         </Reveal>
         <Reveal delay={90}>
-          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-600">{subtitle}</p>
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-400">{subtitle}</p>
         </Reveal>
 
         <div className="mt-12 space-y-10">
@@ -211,10 +242,12 @@ export const ApoiadoresV4: React.FC = () => {
             <Reveal key={cat} delay={120 + ci * 60}>
               {/* A dica acompanha o PRIMEIRO rótulo de categoria: é onde o
                   olho pousa antes de encontrar o primeiro logo. */}
-              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-slate-200 pb-2.5">
-                <h3 className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-orange-600">{cat}</h3>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 border-b border-white/[0.08] pb-2.5">
+                {/* orange-400, não o -600 do fundo claro: no escuro o laranja
+                    escuro fica quase marrom e some contra o #07090d. */}
+                <h3 className="v4-mono text-[10px] font-bold uppercase tracking-[0.28em] text-orange-400">{cat}</h3>
                 {ci === 0 && temConteudo(dica) && (
-                  <p className="v4-mono inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  <p className="v4-mono inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
                     <Hand size={12} aria-hidden />
                     {dica}
                   </p>
@@ -233,7 +266,7 @@ export const ApoiadoresV4: React.FC = () => {
 
         {temConteudo(disclaimer) && (
           <Reveal delay={160}>
-            <p className="mt-14 max-w-3xl border-t border-slate-200 pt-6 text-[13px] leading-relaxed text-slate-500">
+            <p className="mt-14 max-w-3xl border-t border-white/[0.08] pt-6 text-[13px] leading-relaxed text-slate-500">
               {disclaimer}
             </p>
           </Reveal>

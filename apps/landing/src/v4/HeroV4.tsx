@@ -195,11 +195,11 @@ export const HeroV4: React.FC = () => {
   }, [])
 
   return (
-    /* pb-20 = a altura exata do -mt-20 com que os Apoiadores sobem por cima
-       daqui (V5, slide 2: eles passaram a ser a dobra logo abaixo do Hero).
-       Sem essa folga o arco morderia os últimos 5rem da dobra, que é onde
-       terminam as capas do kit e o botão. */
-    <section className="v4-hero relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-36 md:pb-40">
+    /* pb modesto. Ele chegou a pb-36/40 para o arco BRANCO dos Apoiadores não
+       morder as capas e o botão; com a seção de logos escura (16/08) o arco
+       saiu, o Hero emenda direto no escuro e a folga extra virava só um vão
+       preto no meio de um bloco contínuo. */
+    <section className="v4-hero relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-8">
       {/* ── Céu ───────────────────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         {/* gradiente vertical da noite */}
