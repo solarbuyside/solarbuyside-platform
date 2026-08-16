@@ -52,6 +52,16 @@ export type GroupDef = {
   fields: AnyField[];
   /** Recado exibido acima dos campos do grupo. Não é campo, não vai pro banco. */
   note?: string;
+  /**
+   * section_id para onde o recado manda ir. Vira um botão dentro do aviso, que
+   * troca a seção selecionada no editor.
+   *
+   * Existe porque recado passivo não resolveu: a frase mora numa seção do
+   * banco e aparece em OUTRA na tela, e mandar o cliente "procurar em Oferta /
+   * Preço" é pedir que ele refaça o caminho que já não encontrou. Grupo com
+   * `noteJumpTo` e `fields: []` é um atalho puro — ver o Kit no topo (Hero).
+   */
+  noteJumpTo?: string;
 };
 
 export type SectionSchema = {
@@ -144,7 +154,8 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
       },
       {
         label: "Kit no topo (4 capas + frase + botão)",
-        note: "As CAPAS das quatro peças são as mesmas da seção “Oferta / Preço”: trocar lá troca aqui. Os títulos, as frases curtas, a linha de resumo e o botão do topo se editam em “Oferta / Preço > Kit do topo (Hero)”, porque pertencem àquela seção no banco. A linha de etiquetas (MANUAL PRINCIPAL, DIFERENCIAL ESTRATÉGICO…) saiu do topo em 06/08 e só existe na oferta.",
+        note: "O botão laranja do topo (“Quero o Kit Completo Agora”), os títulos das quatro capas e as frases curtas abaixo delas NÃO se editam aqui: pertencem à seção “Oferta / Preço” no banco, mesmo aparecendo no topo da página. Use o botão abaixo. As CAPAS são as mesmas dos cards da oferta: trocar lá troca aqui.",
+        noteJumpTo: "pricing",
         fields: [],
       },
     ],
@@ -319,6 +330,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
             maxLength: 60,
             defaultValue: "Passe o mouse ou toque nos logos",
           }),
+        ],
+      },
+      {
+        // "Como o método funciona em 3 passos?" é uma dobra PRÓPRIA na página,
+        // mas as chaves dela moram na seção dos Apoiadores no banco (nasceu
+        // como o texto abaixo do carrossel de logos, slide 2 de 03/08). O
+        // título e o selo caíam em "Outros campos", com rótulo humanizado do
+        // nome cru da chave — editáveis, mas ninguém adivinha que
+        // "Purpose Title" é o título daquela dobra. As três respostas têm
+        // editor próprio, na aba "Propósito".
+        label: "Bloco “Como o método funciona em 3 passos”",
+        note: "Esta é a dobra numerada 01/02/03 que vem logo depois dos logos. Só o SELO e o TÍTULO se editam aqui; os três passos ficam na aba “Propósito”, na lista da esquerda. Apagar o título esconde a dobra inteira da página.",
+        fields: [
+          t("purposeKicker", "Selo acima do título", { maxLength: 40 }),
+          t("purposeTitle", "Título da dobra", { maxLength: 90 }),
         ],
       },
       {
@@ -598,21 +624,18 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
         ],
       },
       {
-        label: "Itens (3)",
-        fields: [
-          t("bullet1", "Item 1"),
-          t("bullet2", "Item 2"),
-          t("bullet3", "Item 3"),
-        ],
-      },
-      {
         label: "Botão",
         fields: [t("ctaButton", "Botão (CTA 5)", { maxLength: 60 })],
       },
     ],
     // accessNote: a nota "Acesso por 6 meses..." saiu de baixo do botão em
     // 2026-07-26.
-    hiddenKeys: ["accessNote"],
+    //
+    // bullet1..3: a lista "O que isso significa na prática" foi eliminada na
+    // V5, slide 4 ("Eliminar os 3 bullets"). A LP não lê mais essas chaves;
+    // deixá-las no editor seria oferecer três caixas que não mudam nada na
+    // página. Continuam gravadas no banco caso ele peça a lista de volta.
+    hiddenKeys: ["accessNote", "bullet1", "bullet2", "bullet3"],
   },
 
   // Depoimento do Lucas (Francis, slide 7). Mesmo modelo do Rodrigo, sem o
@@ -1549,12 +1572,24 @@ export function buildSectionGroups(
     // O par disto está no editor: campo que continua vazio e não existia no
     // banco NÃO é gravado, senão o primeiro "Salvar" escreveria "" por cima e
     // apagaria o texto que hoje vem do ContentData da landing.
+    // `note`/`noteJumpTo` VIAJAM JUNTO. Ficaram de fora deste push desde que o
+    // recado foi criado, então o editor tinha o box âmbar pronto para renderizar
+    // e nunca recebia texto nenhum: nenhum grupo do painel jamais exibiu aviso.
+    //
+    // E grupo só de recado (fields: []) era descartado inteiro pelo
+    // `if (g.fields.length)`. Era exatamente o caso do "Kit no topo (Hero)",
+    // criado para dizer ao Francis onde fica o botão do topo — ele sumia da
+    // tela, e a pergunta "não encontrei no ADM como alterar o CTA?" voltou.
+    // Agora o grupo sobrevive quando tem recado; some só se não tiver nem
+    // campo nem aviso, que aí é entrada morta no manifesto mesmo.
     for (const g of schema.groups) {
       for (const f of g.fields) {
         if (isComposite(f)) f.parts.forEach((p) => known.add(p.key));
         else known.add(f.key);
       }
-      if (g.fields.length) groups.push({ label: g.label, fields: g.fields });
+      if (g.fields.length || g.note) {
+        groups.push({ label: g.label, fields: g.fields, note: g.note, noteJumpTo: g.noteJumpTo });
+      }
     }
   }
 

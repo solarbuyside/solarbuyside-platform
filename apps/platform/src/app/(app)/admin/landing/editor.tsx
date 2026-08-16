@@ -25,6 +25,7 @@ import {
   Tag,
   ListOrdered,
   Pilcrow,
+  ArrowRight,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -867,11 +868,28 @@ export function LandingEditor({
                       Francis procurou por três vezes uma frase na seção errada
                       (ela aparece no topo da página mas pertence a outra
                       seção). Aviso curto vale mais que outra rodada de
-                      "não encontrei no ADM". */}
+                      "não encontrei no ADM".
+
+                      Com `noteJumpTo` o aviso deixa de ser passivo e vira
+                      atalho: mandar procurar em outra seção é devolver o
+                      problema para quem já não achou. O botão troca a seção
+                      selecionada, e o rascunho da atual continua em memória
+                      (drafts é indexado por seção), então ninguém perde
+                      alteração ao pular. */}
                   {group.note && (
-                    <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
-                      {group.note}
-                    </p>
+                    <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+                      <p>{group.note}</p>
+                      {group.noteJumpTo && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedId(group.noteJumpTo!)}
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-amber-200/70 px-2.5 py-1.5 text-xs font-semibold text-amber-900 transition hover:bg-amber-200"
+                        >
+                          Ir para “{meta.get(group.noteJumpTo)?.label ?? group.noteJumpTo}”
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   )}
                   {group.fields.map((field) =>
                     isComposite(field) ? (
