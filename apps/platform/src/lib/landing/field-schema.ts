@@ -122,15 +122,21 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     order: 0,
     groups: [
       {
+        // Os rótulos identificam o item pelo DESTINO, não pelo nome atual: o
+        // nome é justamente o que se edita aqui, e um campo chamado
+        // "Menu — Vídeo" com "Método" escrito dentro não ajuda ninguém. Foi o
+        // que gerou a confusão de 20/08, quando renomear a barra deixou dois
+        // itens apontando para o bloco errado.
         label: "Cabeçalho e navegação",
+        note: "Aqui se muda só o NOME de cada item do menu. Para onde cada um leva está fixo no código — se você renomear um item e ele passar a prometer outra seção, peça o reapontamento. Deixar um campo vazio remove aquele item da barra.",
         fields: [
-          t("navPlatform", "Menu — Plataforma", { defaultValue: "Plataforma" }),
-          t("navMentor", "Menu — Mentor", { defaultValue: "Mentor" }),
-          t("navPanorama", "Menu — Panorama", { defaultValue: "Panorama" }),
-          t("navVideo", "Menu — Vídeo", { defaultValue: "Vídeo" }),
-          t("navAudience", "Menu — Para Quem", { defaultValue: "Para Quem" }),
-          t("navFaq", "Menu — FAQ", { defaultValue: "FAQ" }),
-          t("headerCta", "Botão do cabeçalho", { defaultValue: "Garantir Acesso" }),
+          t("navPlatform", "Menu — 1º item (vai para a Plataforma)", { defaultValue: "Plataforma" }),
+          t("navMentor", "Menu — 2º item (vai para os Mentores)", { defaultValue: "Mentor" }),
+          t("navPanorama", "Menu — 3º item (vai para o Panorama)", { defaultValue: "Panorama" }),
+          t("navVideo", "Menu — 4º item (vai para o Manual + Código)", { defaultValue: "Método" }),
+          t("navAudience", "Menu — 5º item (vai para O retorno Solar Buy-Side)", { defaultValue: "Retorno Buy-Side" }),
+          t("navFaq", "Menu — 6º item (vai para o FAQ)", { defaultValue: "FAQ" }),
+          t("headerCta", "Botão do cabeçalho (vai para a Oferta)", { defaultValue: "Garantir Acesso" }),
         ],
       },
       {

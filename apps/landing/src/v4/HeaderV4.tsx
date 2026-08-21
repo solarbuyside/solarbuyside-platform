@@ -10,19 +10,31 @@ import { VARIANTES, useVarianteHero } from './heroVariante'
    AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
    navegação, e o indicador de progresso do topo anda ao contrário.
 
-   Na V5 (15/08) a Plataforma desceu da 2ª para a 4ª dobra e os Mentores da 5ª
-   para a 6ª. A ORDEM RELATIVA dos itens não mudou (4 < 6 < 7 < 8 < 9), então a
-   lista fica como estava.
+   RÓTULO E DESTINO MORAM EM LUGARES DIFERENTES, e isto já custou um bug.
 
-   O que muda é o ALVO do "Para Quem": `#para-quem` no lugar de
-   `#transformacao`. Ele apontava para lá porque a resposta era o fecho daquela
-   seção; agora o bloco vive abaixo do vídeo, com id só dele (slides 5 e 8).
-   Mantido o link velho, o item levaria o visitante ao topo da comparação
-   Hoje/Depois, vários parágrafos acima da resposta.
+   O rótulo vem do CMS desde 14/08 (`navPlatform`, `navMentor`…, na seção
+   `hero`); rótulo vazio tira o item do menu. O href fica aqui, porque é
+   âncora de estrutura, não texto de cliente. A consequência é que o Francis
+   consegue RENOMEAR um item sozinho, mas não consegue REAPONTAR — e renomear
+   sem reapontar deixa o botão mentindo.
 
-   Os RÓTULOS vêm do CMS desde 14/08 (`navPlatform`, `navMentor`…, na seção
-   `hero`); rótulo vazio tira o item do menu. O href continua no código: é
-   âncora de estrutura, não texto de cliente. */
+   Foi o que aconteceu: com a nova ordem da V5 ele reescreveu a barra inteira
+   pelo admin (Francis, 20/08) e dois itens passaram a prometer outro destino:
+
+     "Método"           era "Vídeo",     e ia para #video-section
+     "Retorno Buy-Side" era "Para Quem", e ia para #para-quem
+
+   Ele mandou a correspondência com a POSIÇÃO do bloco (10 e 12), e ela bate
+   contando os blocos sem o `autor`, que é id duplicado da seção dos Mentores:
+   10 = manual-strategic (Manual + Código), 12 = retorno. É o que está abaixo.
+
+   As CHAVES do CMS seguem `navVideo` e `navAudience` de propósito: renomear
+   chave exige migração no banco e o Francis perderia o texto que já gravou.
+   Quem diz o que elas são hoje é o rótulo do campo no admin (field-schema.ts).
+
+   A ORDEM continua a da página (4 < 6 < 7 < 10 < 12 < 19). Menu fora de ordem
+   faz o visitante rolar para trás no meio da navegação, e o indicador de
+   progresso do topo anda ao contrário. */
 export const HeaderV4: React.FC = () => {
   const { variante, modoAvaliacao, trocar } = useVarianteHero()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -34,8 +46,8 @@ export const HeaderV4: React.FC = () => {
     { href: '#plataforma', label: txt('navPlatform', 'Plataforma') },
     { href: '#autor', label: txt('navMentor', 'Mentor') },
     { href: '#contexto', label: txt('navPanorama', 'Panorama') },
-    { href: '#video-section', label: txt('navVideo', 'Vídeo') },
-    { href: '#para-quem', label: txt('navAudience', 'Para Quem') },
+    { href: '#manual-strategic', label: txt('navVideo', 'Método') },
+    { href: '#retorno', label: txt('navAudience', 'Retorno Buy-Side') },
     { href: '#faq', label: txt('navFaq', 'FAQ') },
   ].filter((item) => item.label)
   const headerCta = txt('headerCta', 'Garantir Acesso')
