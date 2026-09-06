@@ -8,6 +8,8 @@ export type EbookLead = {
   sobrenome: string | null;
   email: string;
   celular: string | null;
+  /** "teaser" (download do PDF) ou "belenergy-credenciamento" (modal da oferta). */
+  origem: string;
   createdAt: string;
 };
 
@@ -30,7 +32,7 @@ export async function getLeadsOverview(): Promise<LeadsOverview> {
       .limit(100),
     admin
       .from("ebook_leads")
-      .select("nome,sobrenome,email,celular,created_at")
+      .select("nome,sobrenome,email,celular,origem,created_at")
       .order("created_at", { ascending: false })
       .limit(100),
   ]);
@@ -44,6 +46,7 @@ export async function getLeadsOverview(): Promise<LeadsOverview> {
       sobrenome: r.sobrenome,
       email: r.email,
       celular: r.celular,
+      origem: r.origem ?? "teaser",
       createdAt: r.created_at,
     })),
   };

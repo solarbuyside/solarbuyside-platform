@@ -45,13 +45,17 @@ export default async function AdminLeadsPage() {
 
       {/* Ebook leads */}
       <LeadTable
-        title="Ebook — últimos 100"
-        empty="Nenhum lead de ebook ainda."
-        head={["Nome", "E-mail", "Celular", "Quando"]}
+        title="Leads da LP — últimos 100"
+        empty="Nenhum lead ainda."
+        head={["Nome", "E-mail", "Celular", "Origem", "Quando"]}
         rows={ebook.map((l) => [
           [l.nome, l.sobrenome].filter(Boolean).join(" ") || "—",
           l.email,
           l.celular || "—",
+          // Os dois formulários gravam na mesma tabela: o teaser (PDF) e o
+          // modal de credenciamento Belenergy. Sem esta coluna não dá para
+          // montar o relatório que vai para a Belenergy.
+          l.origem === "belenergy-credenciamento" ? "Credenciamento Belenergy" : "Teaser",
           fmtDate(l.createdAt),
         ])}
       />

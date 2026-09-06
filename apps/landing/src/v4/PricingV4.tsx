@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ArrowRight, ArrowUpRight, CheckCircle2, Lock as LockIcon, ShieldCheck, Sparkles } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { trackBuyClick } from '../utils/analytics'
 import { CMSText } from '../components/CMSText'
 import { Img, GrainOverlay, Reveal, Stamp } from './atoms'
 import { criarTxt, temConteudo } from './cms'
+import { CredenciamentoModalV4 } from './CredenciamentoModalV4'
 
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
@@ -61,6 +62,9 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   const section = getSection('pricing')
   const txt = criarTxt(section)
   const isFirstSection = id === 'oferta'
+  /* O CTA da promo deixou de sair direto para a Belenergy: agora abre o modal
+     de captura (Francis, 05/09). Ver CredenciamentoModalV4. */
+  const [modalAberto, setModalAberto] = useState(false)
   const featuresTitle = txt('featuresTitle', 'VEJA TUDO QUE VOCÊ RECEBE:')
   // Preço "de", riscado, acima do parcelado. Aparece nas duas chamadas.
   const priceFrom = txt('priceFrom', 'De R$ 997,00 por apenas:')
@@ -474,15 +478,14 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                   )}
 
                   {promoCtaLigado && (
-                    <a
-                      href={promoCtaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => setModalAberto(true)}
                       className="group mx-auto mt-5 flex w-full max-w-md items-center justify-center gap-2.5 rounded-xl border border-orange-500/45 bg-orange-500/[0.06] px-5 py-3 text-sm font-bold text-orange-200 transition-colors duration-300 hover:border-orange-400 hover:bg-orange-500/15 hover:text-white"
                     >
                       {promoCtaLabel}
                       <ArrowUpRight size={16} className="shrink-0 transition-transform group-hover:-translate-y-0.5" />
-                    </a>
+                    </button>
                   )}
                 </div>
               )}
@@ -534,6 +537,25 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           </div>
         </Reveal>
       </div>
+
+      {/* Editável pelo admin como o resto da seção: os defaults são a copy que
+          o Francis mandou em 05/09, palavra por palavra. */}
+      <CredenciamentoModalV4
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        url={promoCtaUrl}
+        logo={promoLogo}
+        titulo={txt('modalTitle', 'Seu desconto está a um passo')}
+        texto={txt(
+          'modalText',
+          'Cadastre-se gratuitamente como integrador BelEnergy e, após a aprovação do seu cadastro, desbloqueie seu benefício exclusivo no Método Solar Buy-Side.',
+        )}
+        precoDe={txt('modalPriceFrom', 'De R$ 797,00')}
+        precoPor={txt('modalPriceTo', 'Por R$ 677,45')}
+        selo={txt('modalBadge', '15% OFF')}
+        rotuloCta={txt('modalCtaLabel', 'Continuar para o cadastro Belenergy')}
+        assinatura={txt('modalFooter', 'Seja um integrador credenciado Belenergy')}
+      />
     </section>
   )
 }

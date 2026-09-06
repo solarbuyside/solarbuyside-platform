@@ -98,6 +98,7 @@ export type Database = {
           sobrenome: string | null;
           email: string;
           celular: string | null;
+          origem: string;
           ip_address: string | null;
           user_agent: string | null;
           created_at: string;
@@ -108,6 +109,7 @@ export type Database = {
           sobrenome?: string | null;
           email: string;
           celular?: string | null;
+          origem?: string;
           ip_address?: string | null;
           user_agent?: string | null;
           created_at?: string;

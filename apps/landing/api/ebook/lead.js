@@ -16,9 +16,18 @@ export default async function handler(req, res) {
     return;
   }
   try {
-    const { nome, sobrenome, celular } = req.body || {};
+    const { nome, celular } = req.body || {};
+    const sobrenome = req.body?.sobrenome || "";
     const email = (req.body?.email || "").trim().toLowerCase();
-    if (!nome || !sobrenome || !email || !celular) {
+    /* `origem` separa o lead do teaser do lead do credenciamento Belenergy.
+       Lista fechada: o campo vem do navegador e vai para o banco e para o
+       Brevo, então não se aceita string livre de quem chamar a rota. */
+    const origem = req.body?.origem === "belenergy-credenciamento" ? "belenergy-credenciamento" : "teaser";
+    /* Sobrenome deixou de ser obrigatório: o modal de credenciamento pede
+       "Nome completo" num campo só (pedido do Francis), e quem só tem um nome
+       não pode ficar de fora do cadastro por causa disso. O teaser continua
+       mandando os dois campos, então nada muda para ele. */
+    if (!nome || !email || !celular) {
       res.status(400).json({ success: false, message: "Todos os campos são obrigatórios" });
       return;
     }
@@ -45,7 +54,7 @@ export default async function handler(req, res) {
           "content-type": "application/json",
           Prefer: "return=minimal",
         },
-        body: JSON.stringify({ nome, sobrenome, email, celular: sms, ip_address: ip, user_agent: ua }),
+        body: JSON.stringify({ nome, sobrenome, email, celular: sms, origem, ip_address: ip, user_agent: ua }),
       }).catch((e) => console.error("[ebook] supabase:", e?.message));
     }
 
@@ -58,23 +67,29 @@ export default async function handler(req, res) {
           email,
           listIds: [EBOOK_LIST_ID],
           updateEnabled: true,
-          attributes: { NOME: nome, SOBRENOME: sobrenome, SMS: sms },
+          attributes: { NOME: nome, SOBRENOME: sobrenome, SMS: sms, ORIGEM: origem },
         }),
       }).catch((e) => console.error("[ebook] brevo contact:", e?.message));
 
-      await fetch(`${BREVO}/smtp/email`, {
-        method: "POST",
-        headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
-        body: JSON.stringify({
-          sender: {
-            name: process.env.BREVO_SENDER_NAME || "Solar Buy-Side",
-            email: process.env.BREVO_SENDER_EMAIL || "contato@solarbuyside.com.br",
-          },
-          to: [{ email, name: `${nome} ${sobrenome}` }],
-          subject: "Seu teaser do Código do Vendedor Consultivo",
-          htmlContent: `<p>Olá, ${escapeHtml(nome)}!</p><p>Aqui está o seu teaser gratuito do <strong>Código do Vendedor Consultivo</strong>:</p><p><a href="${PDF_URL}">Baixar o teaser (PDF)</a></p><p>Equipe Solar Buy-Side</p>`,
-        }),
-      }).catch((e) => console.error("[ebook] brevo email:", e?.message));
+      /* O e-mail do teaser só sai para quem pediu o teaser. Quem veio do modal
+         de credenciamento está indo para o cadastro da Belenergy e receberia
+         um PDF que não pediu; a comunicação dele (aprovação + link com
+         desconto) depende da Belenergy responder, e ainda não existe. */
+      if (origem === "teaser") {
+        await fetch(`${BREVO}/smtp/email`, {
+          method: "POST",
+          headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({
+            sender: {
+              name: process.env.BREVO_SENDER_NAME || "Solar Buy-Side",
+              email: process.env.BREVO_SENDER_EMAIL || "contato@solarbuyside.com.br",
+            },
+            to: [{ email, name: `${nome} ${sobrenome}` }],
+            subject: "Seu teaser do Código do Vendedor Consultivo",
+            htmlContent: `<p>Olá, ${escapeHtml(nome)}!</p><p>Aqui está o seu teaser gratuito do <strong>Código do Vendedor Consultivo</strong>:</p><p><a href="${PDF_URL}">Baixar o teaser (PDF)</a></p><p>Equipe Solar Buy-Side</p>`,
+          }),
+        }).catch((e) => console.error("[ebook] brevo email:", e?.message));
+      }
     }
 
     res.status(200).json({ success: true });
