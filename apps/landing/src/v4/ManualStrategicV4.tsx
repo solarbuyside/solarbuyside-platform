@@ -313,7 +313,15 @@ export const ManualStrategicV4: React.FC = () => {
         <div className="my-14 h-px w-full bg-gradient-to-r from-transparent via-orange-500/25 to-transparent" aria-hidden />
 
         {/* ── Parte 1: spotlight do produto ─────────────────────────────── */}
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+        {/* [&>*]:min-w-0 — a capa é um item do grid com largura fixa
+            (w-[390px]). No celular a grade tem UMA coluna, e o mínimo
+            automático de um item de grid é o tamanho do seu conteúdo — então a
+            trilha inteira crescia para 390px numa tela de 360px e TODO o texto
+            desta seção (kicker, título, citação, parágrafos) saía cortado pela
+            borda direita. O `max-w-full` da imagem não resolve: ele limita a
+            imagem depois que a trilha já foi dimensionada. `min-w-0` nos itens
+            devolve o controle à coluna. */}
+        <div className="grid grid-cols-1 items-start gap-12 [&>*]:min-w-0 lg:grid-cols-12">
           {/* Texto */}
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
@@ -414,7 +422,7 @@ export const ManualStrategicV4: React.FC = () => {
             isto a do Código cairia no começo do bloco do Manual, ou seja, na
             explicação errada. O `scroll-margin-top: 76px` de `.v4-root [id]`
             já desconta o cabeçalho fixo. */}
-        <div id="codigo" className="mt-24 grid grid-cols-1 items-start gap-12 lg:grid-cols-12">
+        <div id="codigo" className="mt-24 grid grid-cols-1 items-start gap-12 [&>*]:min-w-0 lg:grid-cols-12">
           <div className="relative z-10 flex flex-col lg:col-span-7">
             <Reveal>
               <Kicker tone="dark">{txt('codeBadge', 'Diferencial estratégico')}</Kicker>

@@ -362,7 +362,14 @@ export const FAQV4: React.FC = () => {
                   </button>
                   <div className={`v4-faq-body ${isOpen ? 'open' : ''}`}>
                     <div>
-                      <p className="whitespace-pre-line pb-7 leading-relaxed text-slate-400">{item.answer}</p>
+                      {/* `break-words`: uma resposta do FAQ termina com a URL
+                          do primeiro acesso da plataforma, que sozinha é mais
+                          larga que a coluna no celular e vazava para fora da
+                          tela. Vale para qualquer link que o admin escreva
+                          aqui, não só para esse. */}
+                      <p className="whitespace-pre-line break-words pb-7 leading-relaxed text-slate-400">
+                        {item.answer}
+                      </p>
                     </div>
                   </div>
                 </div>

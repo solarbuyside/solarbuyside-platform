@@ -45,14 +45,20 @@ export const TestimonialsV4: React.FC = () => {
                 </figcaption>
               </figure>
 
+              {/* O miolo do selo é limitado a ~60% do disco e quebra linha:
+                  "+5 Sistemas" e "Fechados em 30 dias" saíam do círculo e
+                  caíam em cima da foto, ilegíveis, no celular. O corpo menor
+                  vale só até `sm`, onde o selo está reduzido a 0.8. */}
               <div className="absolute right-0 -top-6 origin-top-right scale-[0.8] md:-right-8 md:-top-8 md:scale-100">
                 <Stamp text={txt('statLabel', 'Crescimento')} tone="ink" size={140}>
-                  <p className="font-['Sora'] text-base font-extrabold leading-tight text-slate-900">
-                    {txt('statValue', '+5 Sistemas')}
-                  </p>
-                  <p className="v4-mono mt-1 text-[8px] uppercase tracking-[0.18em] text-slate-900">
-                    {txt('statSubtext', 'Fechados em 30 dias')}
-                  </p>
+                  <div className="mx-auto max-w-[84px]">
+                    <p className="font-['Sora'] text-sm font-extrabold leading-tight text-slate-900 sm:text-base">
+                      {txt('statValue', '+5 Sistemas')}
+                    </p>
+                    <p className="v4-mono mt-1 text-[7px] uppercase leading-tight tracking-[0.12em] text-slate-900 sm:text-[8px] sm:tracking-[0.18em]">
+                      {txt('statSubtext', 'Fechados em 30 dias')}
+                    </p>
+                  </div>
                 </Stamp>
               </div>
             </div>

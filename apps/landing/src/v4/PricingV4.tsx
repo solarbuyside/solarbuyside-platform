@@ -426,13 +426,18 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
               {priceFrom && <p className="mt-6 font-bold text-slate-500 line-through">{priceFrom}</p>}
               {/* Parcela como unidade legível: "12x de" e os centavos têm peso
                   suficiente para ninguém ler "R$ 61". */}
+              {/* `whitespace-nowrap` no "12x de" e o número partindo de 3.5rem
+                  (era 4.5rem): num celular de 360px o algarismo gigante comia a
+                  linha inteira e empurrava "12x de" para duas linhas, que
+                  desencontravam da base do preço. O clamp mantém o tamanho
+                  antigo assim que há largura para ele. */}
               <div className="flex items-baseline justify-center gap-2">
-                <span className="text-2xl font-bold text-slate-200 md:text-3xl">
+                <span className="whitespace-nowrap text-2xl font-bold text-slate-200 md:text-3xl">
                   {txt('priceInstallments', '12x de')}
                 </span>
                 <span className="flex items-baseline">
                   <span className="mr-1 self-start pt-3 text-3xl font-extrabold">R$</span>
-                  <span className="font-['Sora'] text-[clamp(4.5rem,10vw,7rem)] font-extrabold leading-none tracking-tighter text-white">
+                  <span className="font-['Sora'] text-[clamp(3.5rem,10vw,7rem)] font-extrabold leading-none tracking-tighter text-white">
                     {txt('priceValue', '81')}
                   </span>
                   <span className="text-4xl font-extrabold text-white md:text-5xl">{txt('priceCents', ',94')}</span>
