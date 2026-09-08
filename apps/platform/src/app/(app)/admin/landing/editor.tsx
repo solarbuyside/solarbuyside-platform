@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import type { LandingSection, LandingGlobals } from "@/lib/landing/content-admin";
 import {
   buildSectionGroups,
+  subviewsOf,
   isComposite,
   composeComposite,
   decomposeComposite,
@@ -57,6 +58,25 @@ const EQUIPE_VIEW = "__equipe__";
 const PROPOSITO_VIEW = "__proposito__";
 const MANUAL_INDEX_VIEW = "__manual-index__";
 const CODE_INDEX_VIEW = "__code-index__";
+
+/**
+ * SUBVISÃO — um recorte de uma seção, com linha própria na barra lateral.
+ *
+ * Id no formato "__sub__:<sectionId>:<subviewId>". A seção continua sendo UMA
+ * linha no banco: o recorte é só de tela. Por isso tudo que grava (rascunho,
+ * "não publicado", Salvar) trabalha com `editId`, a seção de verdade, e não
+ * com `selectedId`, que é o que está aceso na lista.
+ */
+const SUB_PREFIX = "__sub__:";
+const subKey = (sectionId: string, subviewId: string) => `${SUB_PREFIX}${sectionId}:${subviewId}`;
+
+function parseSelection(id: string): { sectionId: string; subviewId: string | null } {
+  if (!id.startsWith(SUB_PREFIX)) return { sectionId: id, subviewId: null };
+  const rest = id.slice(SUB_PREFIX.length);
+  const i = rest.indexOf(":");
+  if (i < 0) return { sectionId: rest, subviewId: null };
+  return { sectionId: rest.slice(0, i), subviewId: rest.slice(i + 1) };
+}
 
 // A LP oficial é o v4 "Solar Dawn" e hoje vive na RAIZ. (/v4 ainda cai no mesmo
 // render por causa do default do roteador, mas apontar pra raiz é o correto.)
@@ -340,10 +360,16 @@ export function LandingEditor({
     return null;
   }, [selectedId]);
 
-  const selected = sections.find((s) => s.sectionId === selectedId);
+  /* `selectedId` é o que está aceso na lista; `editId` é a seção do banco por
+     trás dele. Numa subvisão os dois divergem — e é `editId` que manda em
+     rascunho, Salvar e "não publicado", senão o recorte tentaria gravar uma
+     seção que não existe. */
+  const { sectionId: editId, subviewId } = React.useMemo(() => parseSelection(selectedId), [selectedId]);
+
+  const selected = sections.find((s) => s.sectionId === editId);
   const draft = React.useMemo(
-    () => drafts[selectedId] ?? { texts: {}, images: {} },
-    [drafts, selectedId],
+    () => drafts[editId] ?? { texts: {}, images: {} },
+    [drafts, editId],
   );
 
   /**
@@ -415,20 +441,20 @@ export function LandingEditor({
   // No preview, ao trocar de seção, manda o iframe rolar até a âncora.
   React.useEffect(() => {
     if (mode !== "preview") return;
-    const hash = SECTION_ANCHOR[selectedId] ?? selectedId;
+    const hash = SECTION_ANCHOR[editId] ?? editId;
     const id = window.setTimeout(() => {
       const msg = { type: "scrollToSection", hash };
       iframeRef.current?.contentWindow?.postMessage(msg, LP_ORIGIN);
       modalIframeRef.current?.contentWindow?.postMessage(msg, LP_ORIGIN);
     }, 400);
     return () => window.clearTimeout(id);
-  }, [mode, selectedId, iframeKey, device]);
+  }, [mode, editId, iframeKey, device]);
 
   // Chaves que o usuário realmente mexeu nesta sessão. Ver pruneUntouched: é o
   // que distingue "campo que ele esvaziou de propósito" de "campo que nasceu
   // vazio porque o manifesto declara e o banco nunca teve".
   const [touched, setTouched] = React.useState<Set<string>>(() => new Set());
-  const touchId = (kind: "text" | "image", k: string) => `${selectedId}:${kind}:${k}`;
+  const touchId = (kind: "text" | "image", k: string) => `${editId}:${kind}:${k}`;
   const markTouched = (kind: "text" | "image", k: string) => {
     const id = touchId(kind, k);
     setTouched((t) => (t.has(id) ? t : new Set(t).add(id)));
@@ -436,11 +462,11 @@ export function LandingEditor({
 
   function setText(k: string, v: string) {
     markTouched("text", k);
-    setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], texts: { ...d[selectedId].texts, [k]: v } } }));
+    setDrafts((d) => ({ ...d, [editId]: { ...d[editId], texts: { ...d[editId].texts, [k]: v } } }));
   }
   function setImage(k: string, v: string) {
     markTouched("image", k);
-    setDrafts((d) => ({ ...d, [selectedId]: { ...d[selectedId], images: { ...d[selectedId].images, [k]: v } } }));
+    setDrafts((d) => ({ ...d, [editId]: { ...d[editId], images: { ...d[editId].images, [k]: v } } }));
   }
   /**
    * Grava só o que existe no banco ou o que ele realmente mexeu.
@@ -457,7 +483,7 @@ export function LandingEditor({
   function pruneUntouched(kind: "text" | "image", next: Record<string, string>, original: Record<string, string>) {
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(next)) {
-      if (!(k in original) && !touched.has(`${selectedId}:${kind}:${k}`)) continue;
+      if (!(k in original) && !touched.has(`${editId}:${kind}:${k}`)) continue;
       out[k] = v;
     }
     return out;
@@ -468,14 +494,14 @@ export function LandingEditor({
     start(async () => {
       try {
         await saveLandingSectionAction(
-          selectedId,
+          editId,
           pruneUntouched("text", draft.texts, selected?.texts ?? {}),
           pruneUntouched("image", draft.images, selected?.images ?? {}),
         );
         // O que está na tela passa a ser o "já salvo" desta seção.
-        setBaselines((b) => ({ ...b, [selectedId]: stableStringify(draft) }));
-        setTouched((current) => new Set([...current].filter((id) => !id.startsWith(`${selectedId}:`))));
-        setLocalPending((p) => new Set(p).add(selectedId));
+        setBaselines((b) => ({ ...b, [editId]: stableStringify(draft) }));
+        setTouched((current) => new Set([...current].filter((id) => !id.startsWith(`${editId}:`))));
+        setLocalPending((p) => new Set(p).add(editId));
         setState("saved");
         setTimeout(() => setState("idle"), 1500);
       } catch {
@@ -497,14 +523,17 @@ export function LandingEditor({
   });
 
   // No buyer-wave, os campos testimonial* são editados na aba "Depoimentos".
-  const hideTestimonial = selectedId === "buyer-wave";
+  const hideTestimonial = editId === "buyer-wave";
   const groups = React.useMemo(() => {
     const tKeys = Object.keys(draft.texts).filter((k) => !(hideTestimonial && isTestimonialKey(k)));
     const iKeys = Object.keys(draft.images).filter((k) => !(hideTestimonial && isTestimonialKey(k)));
-    return buildSectionGroups(selectedId, tKeys, iKeys).groups;
-  }, [selectedId, draft, hideTestimonial]);
+    return buildSectionGroups(editId, tKeys, iKeys, subviewId).groups;
+  }, [editId, subviewId, draft, hideTestimonial]);
   const hasFields = groups.some((g) => g.fields.length > 0);
-  const selectedLabel = meta.get(selectedId)?.label ?? selected?.name ?? selectedId;
+  const sectionLabel = meta.get(editId)?.label ?? selected?.name ?? editId;
+  const subviews = subviewsOf(editId);
+  const subviewLabel = subviewId ? subviews.find((v) => v.id === subviewId)?.label : undefined;
+  const selectedLabel = subviewLabel ?? sectionLabel;
 
   return (
     <div className="space-y-5">
@@ -544,8 +573,18 @@ export function LandingEditor({
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      {/* ESQUERDA — globais + lista de seções (ordem da LP) */}
-      <div className="space-y-4 lg:col-span-1">
+      {/* ESQUERDA — globais + lista de seções (ordem da LP).
+
+          GRUDA na tela ao rolar: as seções longas passam de uma tela de altura
+          e voltar ao topo só para trocar de seção era o preço de cada pulo.
+          `self-start` porque item de grid estica por padrão, e um bloco da
+          altura da linha inteira nunca chega a grudar.
+
+          A rolagem própria da lista some no desktop (`lg:max-h-none`): com a
+          coluna grudada e ela mesma rolável, dá dois scrolls concorrentes na
+          mesma área e a roda do mouse acerta o errado. No celular não há
+          `sticky`, então o teto de 460px continua valendo. */}
+      <div className="space-y-4 lg:col-span-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
         <GlobalsCard globals={globals} onSaved={() => setGlobalsDirty(true)} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-3">
@@ -554,7 +593,7 @@ export function LandingEditor({
               Na mesma ordem em que aparecem no site, de cima para baixo.
             </p>
           </div>
-          <div className="max-h-[460px] overflow-y-auto p-2">
+          <div className="max-h-[460px] overflow-y-auto p-2 lg:max-h-none lg:overflow-visible">
             {liveSections.map((s, i) => (
               <SectionRow
                 key={s.sectionId}
@@ -589,16 +628,36 @@ export function LandingEditor({
                     onSelect={() => setSelectedId(FAQ_VIEW)}
                   />
                 ) : null}
-                {/* Tabela do bloco "Capacite seu time", entre os apoiadores
-                    e a oferta. */}
-                {s.sectionId === "pricing" && pricingSection ? (
-                  <SubRow
-                    icon={ListOrdered}
-                    label="Tabela “Capacite seu time”"
-                    active={selectedId === EQUIPE_VIEW}
-                    onSelect={() => setSelectedId(EQUIPE_VIEW)}
-                  />
-                ) : null}
+                {/* SUBVISÕES declaradas no manifesto — hoje só a oferta tem.
+                    Ela é a maior seção do painel e, pior, alimenta três pontos
+                    diferentes da página: o kit lá no topo, o bloco "Capacite
+                    seu time" e a oferta. Uma rolagem só obrigava a procurar o
+                    topo do site no item 13 da lista.
+
+                    A tabela do "Capacite seu time" entra AQUI DENTRO, logo
+                    abaixo dos textos do mesmo bloco e indentada: ela tem editor
+                    próprio (lista, com adicionar/remover), então não é um
+                    recorte genérico — mas na leitura da barra lateral as duas
+                    linhas são o mesmo bloco da página. */}
+                {subviewsOf(s.sectionId).map((v) => (
+                  <React.Fragment key={v.id}>
+                    <SubRow
+                      icon={Type}
+                      label={v.label}
+                      active={selectedId === subKey(s.sectionId, v.id)}
+                      onSelect={() => setSelectedId(subKey(s.sectionId, v.id))}
+                    />
+                    {s.sectionId === "pricing" && v.id === "equipe" && pricingSection ? (
+                      <SubRow
+                        icon={ListOrdered}
+                        label="Tabela “Capacite seu time”"
+                        indent
+                        active={selectedId === EQUIPE_VIEW}
+                        onSelect={() => setSelectedId(EQUIPE_VIEW)}
+                      />
+                    ) : null}
+                  </React.Fragment>
+                ))}
                 {/* Parágrafos do bloco "Código do Vendedor", que antes eram 4
                     slots fixos — não havia como quebrar um em dois. */}
                 {s.sectionId === "manual-strategic" && manualSection ? (
@@ -762,8 +821,12 @@ export function LandingEditor({
         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
             <div className="min-w-0">
+              {/* Numa subvisão o título é o recorte e a linha de cima diz de
+                  onde ele veio. Sem isso a tela "Kit do topo" não contaria que
+                  o Salvar dela grava a seção da oferta. */}
+              {subviewLabel && <p className="truncate text-[11px] font-semibold text-slate-400">{sectionLabel}</p>}
               <h3 className="truncate text-lg font-bold text-slate-900">{selectedLabel}</h3>
-              <span className="font-mono text-[11px] text-slate-400">{selectedId}</span>
+              <span className="font-mono text-[11px] text-slate-400">{editId}</span>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
@@ -844,7 +907,7 @@ export function LandingEditor({
             </div>
           ) : (
             <div className="space-y-7 p-6">
-              {meta.get(selectedId)?.onlyOnV1 && (
+              {meta.get(editId)?.onlyOnV1 && (
                 <div className="flex gap-2.5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-[13px] leading-snug text-amber-900">
                   <Archive className="mt-px h-4 w-4 shrink-0" />
                   <p>
@@ -854,11 +917,33 @@ export function LandingEditor({
                   </p>
                 </div>
               )}
-              {!hasFields && (
+              {/* Seção inteiramente repartida em subvisões: a tela principal
+                  fica sem campo nenhum. Em vez do aviso de "sem campos" — que
+                  aqui seria mentira — ela vira o índice do que existe, na
+                  ordem da página. Some sozinha no dia em que um grupo novo
+                  nascer sem recorte, porque aí há campo para mostrar. */}
+              {!hasFields && subviews.length > 0 && !subviewId ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-slate-500">
+                    Esta seção é longa e está dividida em partes, na ordem em que aparecem no site:
+                  </p>
+                  {subviews.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => setSelectedId(subKey(editId, v.id))}
+                      className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-colors hover:border-primary/40 hover:bg-slate-50 hover:text-primary"
+                    >
+                      {v.label}
+                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-300" />
+                    </button>
+                  ))}
+                </div>
+              ) : !hasFields ? (
                 <p className="rounded-lg bg-slate-50 p-4 text-sm text-slate-400">
                   Sem campos editáveis nesta seção (o texto é fixo no código da landing).
                 </p>
-              )}
+              ) : null}
               {groups.map((group) => (
                 <div key={group.label} className="space-y-4">
                   <p className="flex items-center gap-1.5 border-b border-slate-100 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -894,7 +979,7 @@ export function LandingEditor({
                   {group.fields.map((field) =>
                     isComposite(field) ? (
                       <CompositeField
-                        key={`${selectedId}:${field.key}`}
+                        key={`${editId}:${field.key}`}
                         field={field}
                         texts={draft.texts}
                         setText={setText}
@@ -903,7 +988,7 @@ export function LandingEditor({
                       <FieldInput
                         key={field.key}
                         field={field}
-                        folder={selectedId}
+                        folder={editId}
                         value={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) ?? field.defaultValue ?? ""}
                         inherited={(field.type === "image" ? draft.images[field.key] : draft.texts[field.key]) === undefined && field.defaultValue !== undefined}
                         onChange={(v) => (field.type === "image" ? setImage(field.key, v) : setText(field.key, v))}

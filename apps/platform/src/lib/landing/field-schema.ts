@@ -64,12 +64,38 @@ export type GroupDef = {
   noteJumpTo?: string;
 };
 
+/**
+ * SUBVISÃO: um recorte da seção que ganha linha própria na barra lateral.
+ *
+ * Existe porque "seção do banco" e "lugar na página" não são a mesma coisa. A
+ * linha `pricing` alimenta TRÊS pontos da LP: o kit no topo (dentro do Hero),
+ * o bloco "Capacite seu time" (logo antes da oferta) e a oferta em si. Numa
+ * lista só, o cliente ia procurar o kit do topo do site no item 13 do painel —
+ * e procurou, mais de uma vez.
+ *
+ * O corte é por RÓTULO DE GRUPO, não por chave: os grupos já são a unidade que
+ * o manifesto edita, e assim renomear um campo não desfaz o recorte.
+ *
+ * Grupo que nenhuma subvisão reivindica continua na tela principal da seção.
+ * É de propósito: criar um grupo novo e esquecer de encaixá-lo aqui deixa ele
+ * visível no lugar errado, não invisível.
+ */
+export type SubviewDef = {
+  /** Sufixo do id da visão. O editor monta "__sub__:<sectionId>:<id>". */
+  id: string;
+  label: string;
+  /** Rótulos dos grupos desta seção, na ordem em que devem aparecer. */
+  groups: string[];
+};
+
 export type SectionSchema = {
   /** Nome humano da seção (substitui o section_id cru). */
   label: string;
   /** Ordem na landing (de cima pra baixo). */
   order: number;
   groups: GroupDef[];
+  /** Recortes com linha própria na barra lateral. Ver SubviewDef. */
+  subviews?: SubviewDef[];
   /** Chaves legadas/duplicadas a ocultar do editor (não viram "Outros campos"). */
   hiddenKeys?: string[];
   /**
@@ -1039,6 +1065,38 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
   pricing: {
     label: "Oferta / Preço",
     order: 12,
+    /* A oferta é a maior seção do painel: 9 grupos, 70 campos numa rolagem
+       só — e dois desses grupos nem aparecem na oferta. Aqui ela vira cinco
+       telas curtas, na ordem em que o visitante encontra cada coisa no site.
+
+       O "Capacite seu time" fica com duas linhas (textos e tabela) porque a
+       tabela tem editor próprio, de lista, com adicionar/remover/reordenar.
+       Fundir os dois exigiria a lista aceitar campos avulsos; enquanto não
+       aceita, duas linhas vizinhas dizem a verdade melhor que uma que esconde
+       metade. */
+    subviews: [
+      { id: "kit", label: "Kit do topo (aparece no Hero)", groups: ["Kit do topo (Hero)"] },
+      {
+        id: "equipe",
+        label: "Bloco “Capacite seu time”",
+        groups: ["Bloco “Capacite seu time” (antes da oferta)"],
+      },
+      {
+        id: "cards",
+        label: "Título e cards da oferta",
+        groups: ["Cabeçalho", "Entregáveis (cards)", "Card bônus — Plataforma"],
+      },
+      { id: "plano", label: "Plano e preço", groups: ["Plano e preço"] },
+      {
+        id: "promo",
+        label: "Promoção Belenergy",
+        groups: [
+          "Promoção (parceiro)",
+          "Promoção — botão do formulário",
+          "Promoção — modal de credenciamento",
+        ],
+      },
+    ],
     groups: [
       {
         label: "Kit do topo (Hero)",
@@ -1608,14 +1666,34 @@ export function humanizeKey(key: string): string {
  * estado real (chaves vindas do banco). Chaves não mapeadas caem num grupo
  * "Outros campos" com rótulo humanizado — nada some, regressão impossível.
  */
+/** Subvisões declaradas por uma seção (vazio quando não há). */
+export function subviewsOf(sectionId: string): SubviewDef[] {
+  return LANDING_SCHEMA[sectionId]?.subviews ?? [];
+}
+
+/**
+ * @param subviewId Recorte a exibir. `null` = a tela principal da seção, que
+ *   mostra só os grupos que NENHUMA subvisão reivindicou, mais os campos
+ *   órfãos ("Outros campos"). Os órfãos ficam sempre aqui de propósito: chave
+ *   nova no banco não tem grupo, e enterrá-la dentro de um recorte seria
+ *   escondê-la justamente de quem precisa achá-la.
+ */
 export function buildSectionGroups(
   sectionId: string,
   textKeys: string[],
   imageKeys: string[],
+  subviewId: string | null = null,
 ): { label: string; order: number; groups: GroupDef[]; mapped: boolean; onlyOnV1: boolean } {
   const schema = LANDING_SCHEMA[sectionId];
   const known = new Set<string>();
   const groups: GroupDef[] = [];
+
+  const subviews = schema?.subviews ?? [];
+  const subview = subviewId ? subviews.find((v) => v.id === subviewId) : undefined;
+  // Rótulos que já têm tela própria — a tela principal não os repete.
+  const emSubvisao = new Set(subviews.flatMap((v) => v.groups));
+  const cabeAqui = (label: string) =>
+    subview ? subview.groups.includes(label) : !emSubvisao.has(label);
 
   if (schema) {
     // Todo campo do manifesto aparece, esteja ou não no banco.
@@ -1645,10 +1723,13 @@ export function buildSectionGroups(
         if (isComposite(f)) f.parts.forEach((p) => known.add(p.key));
         else known.add(f.key);
       }
-      if (g.fields.length || g.note) {
+      if ((g.fields.length || g.note) && cabeAqui(g.label)) {
         groups.push({ label: g.label, fields: g.fields, note: g.note, noteJumpTo: g.noteJumpTo });
       }
     }
+    // Dentro de um recorte manda a ordem que a subvisão declarou, não a do
+    // manifesto: é ela que segue a leitura da página.
+    if (subview) groups.sort((a, b) => subview.groups.indexOf(a.label) - subview.groups.indexOf(b.label));
   }
 
   const hidden = new Set(schema?.hiddenKeys ?? []);
@@ -1658,7 +1739,7 @@ export function buildSectionGroups(
   const leftoverImg = imageKeys
     .filter((k) => !known.has(k) && !hidden.has(k))
     .map((k) => img(k, humanizeKey(k)));
-  const leftover = [...leftoverText, ...leftoverImg];
+  const leftover = subview ? [] : [...leftoverText, ...leftoverImg];
   if (leftover.length) groups.push({ label: "Outros campos", fields: leftover });
 
   return {
