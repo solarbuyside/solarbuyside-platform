@@ -1184,7 +1184,58 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
           }),
           t("promoCtaUrl", "Link do formulário", {
             type: "url",
-            help: "Abre em nova aba. Ex.: https://belenergy.com.br/seja-um-integrador-credenciado/",
+            help: "Abre em nova aba. Ex.: https://belenergy.com.br/seja-um-integrador-credenciado/. Também é o destino do botão do modal abaixo.",
+          }),
+        ],
+      },
+      {
+        /* Modal "Seu desconto está a um passo" (Francis, 05/09). O botão da
+           promo deixou de sair direto para a Belenergy: agora abre este modal,
+           que coleta o lead antes de mandar a pessoa para o cadastro. Os textos
+           estavam só no código — ele pediu em 08/09 para poder editá-los aqui.
+
+           Sem campo próprio de propósito: o LOGO e o LINK do modal são os
+           mesmos do grupo acima (promoLogo e promoCtaUrl); duas caixas para o
+           mesmo valor é como o editor cria divergência silenciosa. */
+        label: "Promoção — modal de credenciamento",
+        note: "Janela que abre ao clicar no botão do formulário. Usa o mesmo logo e o mesmo link dos grupos acima. Apagar um campo faz a LP voltar ao texto padrão.",
+        fields: [
+          t("modalTitle", "Título", {
+            defaultValue: "Seu desconto está a um passo",
+          }),
+          ml("modalText", "Texto de abertura", {
+            defaultValue:
+              "Deixe seus contatos aqui no Solar Buy-Side e continue seu cadastro na plataforma Belenergy. Após a aprovação, você desbloqueia seu benefício exclusivo no Método Solar Buy-Side.",
+          }),
+          t("modalPriceFrom", "Preço — 'de' (riscado)", {
+            defaultValue: "De R$ 797,00",
+            maxLength: 20,
+          }),
+          t("modalPriceTo", "Preço — 'por'", {
+            defaultValue: "Por R$ 677,45",
+            maxLength: 20,
+          }),
+          t("modalBadge", "Selo do desconto", {
+            defaultValue: "15% OFF",
+            help: "Aparece na tarja laranja e também dentro do texto de sucesso.",
+            maxLength: 12,
+          }),
+          t("modalCtaLabel", "Botão (CTA)", {
+            defaultValue: "Continuar para o cadastro Belenergy",
+            maxLength: 60,
+          }),
+          t("modalFooter", "Linha abaixo do botão", {
+            defaultValue: "Seja um integrador credenciado Belenergy",
+            maxLength: 60,
+          }),
+          t("modalSuccessTitle", "Sucesso — título", {
+            defaultValue: "Falta só o cadastro",
+            help: "Tela que aparece depois que a pessoa envia os dados.",
+          }),
+          ml("modalSuccessText", "Sucesso — mensagem", {
+            defaultValue:
+              "Recebemos seus dados. Agora conclua seu cadastro de integrador na Belenergy: assim que ele for aprovado, seu benefício de {selo} é liberado por e-mail.",
+            help: "Escreva {selo} onde o desconto deve aparecer — vira o valor do campo “Selo do desconto”.",
           }),
         ],
       },

@@ -44,6 +44,10 @@ type Props = {
   selo?: string
   rotuloCta?: string
   assinatura?: string
+  /** Tela de sucesso (depois do envio do formulário). */
+  sucessoTitulo?: string
+  /** `{selo}` é trocado pelo selo — assim o texto não repete o valor à mão. */
+  sucessoTexto?: string
 }
 
 type Campos = { nome: string; email: string; celular: string }
@@ -65,12 +69,15 @@ export const CredenciamentoModalV4: React.FC<Props> = ({
   url,
   logo = '/assets/apoiadores/belenergy.png',
   titulo = 'Seu desconto está a um passo',
-  texto = 'Cadastre-se gratuitamente como integrador BelEnergy e, após a aprovação do seu cadastro, desbloqueie seu benefício exclusivo no Método Solar Buy-Side.',
+  texto = 'Deixe seus contatos aqui no Solar Buy-Side e continue seu cadastro na plataforma Belenergy. Após a aprovação, você desbloqueia seu benefício exclusivo no Método Solar Buy-Side.',
   precoDe = 'De R$ 797,00',
   precoPor = 'Por R$ 677,45',
   selo = '15% OFF',
   rotuloCta = 'Continuar para o cadastro Belenergy',
   assinatura = 'Seja um integrador credenciado Belenergy',
+  sucessoTitulo = 'Falta só o cadastro',
+  sucessoTexto =
+    'Recebemos seus dados. Agora conclua seu cadastro de integrador na Belenergy: assim que ele for aprovado, seu benefício de {selo} é liberado por e-mail.',
 }) => {
   const caixa = useRef<HTMLDivElement | null>(null)
   const primeiroCampo = useRef<HTMLInputElement | null>(null)
@@ -325,11 +332,10 @@ export const CredenciamentoModalV4: React.FC<Props> = ({
               <div className="text-center">
                 <CheckCircle2 size={44} className="mx-auto text-emerald-500" aria-hidden />
                 <h2 id="credenciamento-titulo" className="mt-5 font-['Sora'] text-2xl font-extrabold tracking-tight text-white">
-                  Falta só o cadastro
+                  {sucessoTitulo}
                 </h2>
                 <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-slate-300">
-                  Recebemos seus dados. Agora conclua seu cadastro de integrador na Belenergy: assim que ele for
-                  aprovado, seu benefício de {selo} é liberado por e-mail.
+                  {sucessoTexto.split('{selo}').join(selo)}
                 </p>
 
                 <a

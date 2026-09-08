@@ -553,13 +553,18 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
         titulo={txt('modalTitle', 'Seu desconto está a um passo')}
         texto={txt(
           'modalText',
-          'Cadastre-se gratuitamente como integrador BelEnergy e, após a aprovação do seu cadastro, desbloqueie seu benefício exclusivo no Método Solar Buy-Side.',
+          'Deixe seus contatos aqui no Solar Buy-Side e continue seu cadastro na plataforma Belenergy. Após a aprovação, você desbloqueia seu benefício exclusivo no Método Solar Buy-Side.',
         )}
         precoDe={txt('modalPriceFrom', 'De R$ 797,00')}
         precoPor={txt('modalPriceTo', 'Por R$ 677,45')}
         selo={txt('modalBadge', '15% OFF')}
         rotuloCta={txt('modalCtaLabel', 'Continuar para o cadastro Belenergy')}
         assinatura={txt('modalFooter', 'Seja um integrador credenciado Belenergy')}
+        sucessoTitulo={txt('modalSuccessTitle', 'Falta só o cadastro')}
+        sucessoTexto={txt(
+          'modalSuccessText',
+          'Recebemos seus dados. Agora conclua seu cadastro de integrador na Belenergy: assim que ele for aprovado, seu benefício de {selo} é liberado por e-mail.',
+        )}
       />
     </section>
   )
