@@ -1454,6 +1454,149 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  /* PRÉ-LANÇAMENTO (Francis, 29/10/2026). Tudo o que a LP mostra no período
+     da campanha da live mora AQUI, numa seção só, e não por cima dos campos
+     de vendas: assim, na noite da live, voltar para a página de vendas é
+     trocar o "Modo da página" e Publicar, sem redigitar nada.
+
+     Estes campos só aparecem na página com o modo em "Pré-lançamento" (card
+     "Modo da página", no topo da barra lateral). Espelha
+     apps/landing/src/v4/LancamentoV4.tsx e prelancamento.ts. */
+  lancamento: {
+    label: "Pré-lançamento (live)",
+    // Fica logo depois da Oferta, que é onde o bloco aparece na página.
+    order: 12.5,
+    groups: [
+      {
+        label: "Data da live",
+        note: "A contagem regressiva usa este campo, sempre no horário de Brasília. Formato: 01/12/2026 20:00. Se a data não for reconhecida, a contagem some e o resto do bloco continua.",
+        fields: [
+          t("startsAt", "Data e hora de início", {
+            help: "DD/MM/AAAA HH:MM, horário de Brasília. Ex.: 01/12/2026 20:00",
+            maxLength: 20,
+            defaultValue: "01/12/2026 20:00",
+          }),
+          t("durationMin", "Duração estimada (minutos)", {
+            help: "Enquanto durar, o bloco mostra \"Ao vivo agora\". Depois, o recado de fim de live até o modo voltar para Vendas.",
+            maxLength: 4,
+            defaultValue: "150",
+          }),
+          rich("dateLine", "Linha da data (texto exibido)", {
+            help: "É o texto que aparece embaixo do título. Destaques em Laranja saem em âmbar, na cor da contagem.",
+            defaultValue:
+              'Terça-feira, <span class="cms-orange">1º de dezembro de 2026</span>, às <span class="cms-orange">20h</span> (horário de Brasília)',
+          }),
+        ],
+      },
+      {
+        label: "Bloco da live (antes de começar)",
+        fields: [
+          t("kicker", "Selo acima do título", { maxLength: 50, defaultValue: "Lançamento ao vivo · Solar Buy-Side" }),
+          rich("title", "Título", {
+            defaultValue: "Em poucos dias, o Solar Buy-Side<br/>será revelado ao vivo.",
+          }),
+          t("ctaLabel", "Botão (abre o formulário)", { maxLength: 50, defaultValue: "Garantir minha vaga na live" }),
+        ],
+      },
+      {
+        label: "Participantes",
+        note: "Até 4. Participante sem nome não aparece. Convidado sem foto aparece com as iniciais num círculo.",
+        fields: [
+          ml("hostsIntro", "Frase acima dos participantes", {
+            defaultValue: "Com os criadores da solução e convidados que vivem a venda solar na prática:",
+          }),
+          t("host1Name", "Participante 1: nome", { defaultValue: "Francis Poloni" }),
+          t("host1Role", "Participante 1: papel", { defaultValue: "Criador da solução" }),
+          img("host1Photo", "Participante 1: foto", { help: "Vazio = usa a foto do Francis da seção Mentores (enquanto o nome for o dele)." }),
+          t("host2Name", "Participante 2: nome", { defaultValue: "Ovídio Collesi" }),
+          t("host2Role", "Participante 2: papel", { defaultValue: "Criador da solução" }),
+          img("host2Photo", "Participante 2: foto", { help: "Vazio = usa a foto do Ovídio da seção Mentores (enquanto o nome for o dele)." }),
+          t("host3Name", "Participante 3: nome", { help: "Vazio = não aparece." }),
+          t("host3Role", "Participante 3: papel", { defaultValue: "Integrador · moderação" }),
+          img("host3Photo", "Participante 3: foto"),
+          t("host4Name", "Participante 4: nome", { help: "Vazio = não aparece." }),
+          t("host4Role", "Participante 4: papel", { defaultValue: "Vendedor solar · moderação" }),
+          img("host4Photo", "Participante 4: foto"),
+        ],
+      },
+      {
+        label: "Formulário de inscrição",
+        note: "Abre ao clicar no botão do bloco. Pede nome completo, WhatsApp e e-mail; o lead aparece em Leads com a origem \"Live de lançamento\". Nenhum e-mail é enviado automaticamente.",
+        fields: [
+          t("modalTitle", "Título", { maxLength: 60, defaultValue: "Garanta sua vaga na live" }),
+          ml("modalText", "Texto", {
+            defaultValue:
+              "Deixe seus contatos para receber o link da transmissão e entrar no grupo exclusivo para integradores e vendedores do setor solar.",
+          }),
+          t("modalCtaLabel", "Botão de enviar", { maxLength: 40, defaultValue: "Quero participar da live" }),
+          t("modalFooter", "Nota abaixo do botão", { maxLength: 60, defaultValue: "Seus dados ficam só com a Solar Buy-Side" }),
+          t("modalSuccessTitle", "Depois de enviar: título", { maxLength: 40, defaultValue: "Vaga garantida!" }),
+          ml("modalSuccessText", "Depois de enviar: texto (com link do grupo)", {
+            defaultValue:
+              "Agora entre no grupo exclusivo do WhatsApp: é por lá que vão chegar o link da transmissão e os avisos da live.",
+          }),
+          ml("modalSuccessTextNoGroup", "Depois de enviar: texto (sem link do grupo)", {
+            help: "Usado enquanto o link do grupo estiver vazio.",
+            defaultValue: "Recebemos seus dados. Anote na agenda e nos vemos na live!",
+          }),
+        ],
+      },
+      {
+        label: "Grupo do WhatsApp",
+        fields: [
+          t("groupUrl", "Link do grupo", {
+            type: "url",
+            help: "Começa com https://chat.whatsapp.com/… Vazio = o botão do grupo não aparece.",
+          }),
+          t("groupLabel", "Texto do botão do grupo", { maxLength: 40, defaultValue: "Entrar no grupo do WhatsApp" }),
+        ],
+      },
+      {
+        label: "Durante a live",
+        fields: [
+          t("liveKicker", "Selo", { maxLength: 30, defaultValue: "Ao vivo agora" }),
+          rich("liveTitle", "Título", { defaultValue: "A live de lançamento<br/>está no ar agora." }),
+          t("liveUrl", "Link da transmissão", {
+            type: "url",
+            help: "YouTube, Instagram etc. Vazio = o botão continua abrindo o formulário de inscrição.",
+          }),
+          t("liveCtaLabel", "Botão da transmissão", { maxLength: 40, defaultValue: "Assistir agora" }),
+        ],
+      },
+      {
+        label: "Depois da live",
+        note: "Aparece quando a duração estimada acaba, até o modo da página voltar para Vendas.",
+        fields: [
+          rich("afterTitle", "Título", { defaultValue: "A live terminou.<br/>A oferta abre em instantes." }),
+          ml("afterText", "Texto", {
+            defaultValue:
+              "Obrigado por estar com a gente. A página com a condição de lançamento volta ao ar em poucos minutos.",
+          }),
+        ],
+      },
+      {
+        label: "Resto da página no pré-lançamento",
+        note: "No período, Compra simples, Capacite seu time, o card de preço e o FAQ saem da página, e todos os botões de compra (inclusive os dos depoimentos) levam para a inscrição na live com os textos abaixo. Os textos de vendas não mudam.",
+        fields: [
+          rich("offerTitle", "Título que substitui \"Compre agora…\" (acima das 4 capas)", {
+            defaultValue: 'Tudo o que você vai conhecer <span class="cms-orange">na live de lançamento</span>',
+          }),
+          t("heroCta", "Botão do topo da página (Hero)", {
+            maxLength: 50,
+            defaultValue: "Quero participar da live de lançamento",
+          }),
+          t("headerCta", "Botão do menu", { maxLength: 30, defaultValue: "Garantir minha vaga" }),
+          t("floatingCta", "Botão flutuante (desktop)", { maxLength: 40, defaultValue: "Garantir minha vaga na live" }),
+          t("sectionCta", "Botões do meio da página (Plataforma e Manual)", {
+            maxLength: 50,
+            help: "Em vendas esses dois botões mostram o preço; no pré-lançamento usam este texto e levam à inscrição.",
+            defaultValue: "Quero participar da live de lançamento",
+          }),
+        ],
+      },
+    ],
+  },
+
   contact: {
     label: "Contato / Rodapé",
     order: 14,

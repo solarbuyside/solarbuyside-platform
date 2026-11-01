@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Users, Mail, Download } from "lucide-react";
+import { ArrowLeft, Users, Mail, Download, Radio } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { getLeadsOverview } from "@/lib/landing/leads";
+import { getLeadsOverview, rotuloOrigem } from "@/lib/landing/leads";
 
 function fmtDate(iso: string) {
   const d = new Date(iso);
@@ -15,7 +15,7 @@ export default async function AdminLeadsPage() {
   const user = await getCurrentUser();
   if (!user?.isAdmin) notFound();
 
-  const { newsletterCount, ebookCount, newsletter, ebook } = await getLeadsOverview();
+  const { newsletterCount, ebookCount, liveCount, newsletter, ebook } = await getLeadsOverview();
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -38,10 +38,24 @@ export default async function AdminLeadsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4 sm:max-w-md">
+      <div className="grid grid-cols-2 gap-4 sm:max-w-2xl sm:grid-cols-3">
         <Kpi icon={Mail} label="Newsletter" value={newsletterCount} />
-        <Kpi icon={Download} label="Ebook (teaser)" value={ebookCount} />
+        <Kpi icon={Download} label="Formulários da LP" value={ebookCount} />
+        <Kpi icon={Radio} label="Inscritos na live" value={liveCount} />
       </div>
+
+      {/* A tabela abaixo mostra só os 100 últimos de todas as origens; a lista
+          da live (pré-lançamento) é a que vai para o grupo e para os avisos,
+          então sai inteira num arquivo. */}
+      {liveCount > 0 ? (
+        <a
+          href="/api/admin/leads?origem=live-lancamento"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-primary hover:text-primary"
+        >
+          <Download className="h-4 w-4" />
+          Baixar inscritos na live (CSV, {liveCount})
+        </a>
+      ) : null}
 
       {/* Ebook leads */}
       <LeadTable
@@ -52,10 +66,10 @@ export default async function AdminLeadsPage() {
           [l.nome, l.sobrenome].filter(Boolean).join(" ") || "—",
           l.email,
           l.celular || "—",
-          // Os dois formulários gravam na mesma tabela: o teaser (PDF) e o
-          // modal de credenciamento Belenergy. Sem esta coluna não dá para
-          // montar o relatório que vai para a Belenergy.
-          l.origem === "belenergy-credenciamento" ? "Credenciamento Belenergy" : "Teaser",
+          // Os formulários gravam na mesma tabela: o teaser (PDF), o modal de
+          // credenciamento Belenergy e a inscrição na live. Sem esta coluna não
+          // dá para montar o relatório que vai para a Belenergy.
+          rotuloOrigem(l.origem),
           fmtDate(l.createdAt),
         ])}
       />

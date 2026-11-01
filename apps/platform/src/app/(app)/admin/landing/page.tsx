@@ -36,6 +36,7 @@ export default async function AdminLandingPage() {
       <LandingEditor
         sections={sections}
         globals={globals.values}
+        globalsPublished={globals.published}
         globalsPending={globals.hasUnpublishedChanges}
       />
     </div>

@@ -19,6 +19,9 @@ export interface GlobalAssets {
 export interface GlobalSettings {
   whatsappNumber: string
   purchaseLink: string
+  /** "prelancamento" liga a versão da campanha da live; qualquer outro valor
+      (inclusive vazio/ausente) é a página de vendas. Ver src/v4/prelancamento.ts. */
+  modoPagina: string
 }
 
 interface ContentContextType {
@@ -49,7 +52,17 @@ const DEFAULT_GLOBAL_ASSETS: GlobalAssets = {
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   whatsappNumber: '',
   purchaseLink: '',
+  modoPagina: '',
 }
+
+/** Lê as configurações globais de um objeto qualquer (embutido, cache, preview),
+    caindo em `base` campo a campo. Um só lugar para a lista de chaves: a cada
+    configuração nova eram seis cópias deste mesmo bloco para lembrar. */
+const lerSettings = (fonte: Record<string, unknown>, base: GlobalSettings): GlobalSettings => ({
+  whatsappNumber: typeof fonte.whatsappNumber === 'string' ? fonte.whatsappNumber : base.whatsappNumber,
+  purchaseLink: typeof fonte.purchaseLink === 'string' ? fonte.purchaseLink : base.purchaseLink,
+  modoPagina: typeof fonte.modoPagina === 'string' ? fonte.modoPagina : base.modoPagina,
+})
 
 const DEFAULT_BUYER_TESTIMONIALS = [
   {
@@ -412,13 +425,7 @@ const getStoredGlobalAssets = (): GlobalAssets => {
 const getStoredGlobalSettings = (): GlobalSettings => {
   const embutido = conteudoEmbutido()
   if (isRecord(embutido?.settings)) {
-    const s = embutido.settings
-    return {
-      whatsappNumber:
-        typeof s.whatsappNumber === 'string' ? s.whatsappNumber : DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
-      purchaseLink:
-        typeof s.purchaseLink === 'string' ? s.purchaseLink : DEFAULT_GLOBAL_SETTINGS.purchaseLink,
-    }
+    return lerSettings(embutido.settings, DEFAULT_GLOBAL_SETTINGS)
   }
 
   const saved = localStorage.getItem('cms-global-settings')
@@ -427,10 +434,7 @@ const getStoredGlobalSettings = (): GlobalSettings => {
   try {
     const parsed = JSON.parse(saved)
     if (!isRecord(parsed)) return DEFAULT_GLOBAL_SETTINGS
-    return {
-      whatsappNumber: typeof parsed.whatsappNumber === 'string' ? parsed.whatsappNumber : DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
-      purchaseLink: typeof parsed.purchaseLink === 'string' ? parsed.purchaseLink : DEFAULT_GLOBAL_SETTINGS.purchaseLink,
-    }
+    return lerSettings(parsed, DEFAULT_GLOBAL_SETTINGS)
   } catch {
     return DEFAULT_GLOBAL_SETTINGS
   }
@@ -459,6 +463,8 @@ const frozenGlobalAssets = (): GlobalAssets => ({
 const frozenGlobalSettings = (): GlobalSettings => ({
   whatsappNumber: frozenGlobals.whatsappNumber ?? DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
   purchaseLink: frozenGlobals.purchaseLink ?? DEFAULT_GLOBAL_SETTINGS.purchaseLink,
+  // A /1 é a salvaguarda da página de VENDAS: nunca entra no pré-lançamento.
+  modoPagina: '',
 })
 
 export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }> = ({
@@ -493,10 +499,7 @@ export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }
         favicon: typeof values.favicon === 'string' ? values.favicon : previous.favicon,
         logo: typeof values.logo === 'string' ? values.logo : previous.logo,
       }))
-      setGlobalSettings((previous) => ({
-        whatsappNumber: typeof values.whatsappNumber === 'string' ? values.whatsappNumber : previous.whatsappNumber,
-        purchaseLink: typeof values.purchaseLink === 'string' ? values.purchaseLink : previous.purchaseLink,
-      }))
+      setGlobalSettings((previous) => lerSettings(values, previous))
     }
     window.addEventListener('message', receivePreview)
     window.parent.postMessage({ type: 'cmsPreviewReady' }, '*')
@@ -543,16 +546,7 @@ export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }
         if (settingsRes.ok) {
           const settingsData = await settingsRes.json()
           if (settingsData.success && isRecord(settingsData.data)) {
-            const nextSettings: GlobalSettings = {
-              whatsappNumber:
-                typeof settingsData.data.whatsappNumber === 'string'
-                  ? settingsData.data.whatsappNumber
-                  : DEFAULT_GLOBAL_SETTINGS.whatsappNumber,
-              purchaseLink:
-                typeof settingsData.data.purchaseLink === 'string'
-                  ? settingsData.data.purchaseLink
-                  : DEFAULT_GLOBAL_SETTINGS.purchaseLink,
-            }
+            const nextSettings = lerSettings(settingsData.data, DEFAULT_GLOBAL_SETTINGS)
             setGlobalSettings(nextSettings)
             localStorage.setItem('cms-global-settings', JSON.stringify(nextSettings))
           }
@@ -604,10 +598,18 @@ export const ContentProvider: React.FC<{ children: ReactNode; frozen?: boolean }
               favicon: map.favicon ?? prev.favicon,
               logo: map.logo ?? prev.logo,
             }))
-            setGlobalSettings((prev) => ({
-              whatsappNumber: map.whatsappNumber ?? prev.whatsappNumber,
-              purchaseLink: map.purchaseLink ?? prev.purchaseLink,
-            }))
+            /* Grava no cache como as seções já faziam. Não é só cache: é daqui
+               que o prerender tira o `settings` do window.__SBS_CONTENT__.
+               Sem gravar, o build embutia `null` e o primeiro render do
+               visitante usava o default (modo vendas, link de checkout vazio)
+               enquanto o HTML congelado mostrava o valor do banco. No modo
+               pré-lançamento isso seria a página de vendas piscando na tela
+               até o fetch voltar. */
+            setGlobalSettings((prev) => {
+              const next = lerSettings(map, prev)
+              localStorage.setItem('cms-global-settings', JSON.stringify(next))
+              return next
+            })
           }
         }
       } catch (error) {

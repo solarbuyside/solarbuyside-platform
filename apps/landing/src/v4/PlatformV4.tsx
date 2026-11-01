@@ -3,6 +3,7 @@ import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { Cta, CtaArrow, GrainOverlay, Kicker, Reveal, SolarCells } from './atoms'
 import { scrollToId } from './scroll'
+import { ID_LIVE, usePreLancamento } from './prelancamento'
 import { criarTxt, temConteudo } from './cms'
 import { JornadaPlataformaV4 } from './JornadaPlataformaV4'
 
@@ -123,9 +124,15 @@ export const PlatformV4: React.FC = () => {
   // mudou foi a frase: agora nomeia os três itens do pacote. O texto anterior
   // é tratado como legado para a LP não depender do seed.
   const ctaCms = txt('ctaButton', '')
-  const ctaButton = ctaCms === 'Quero o Manual + Plataforma'
-    ? 'Quero o Manual + o Código + acesso à Plataforma'
-    : ctaCms
+  /* Pré-lançamento: o rótulo de vendas traz o preço ("R$ 797,00"), que não
+     pode aparecer antes da live; o botão leva à inscrição, com o texto do
+     período (seção `lancamento`, campo sectionCta). */
+  const { preLancamento, live } = usePreLancamento()
+  const ctaButton = preLancamento
+    ? live('sectionCta', 'Quero participar da live de lançamento')
+    : ctaCms === 'Quero o Manual + Plataforma'
+      ? 'Quero o Manual + o Código + acesso à Plataforma'
+      : ctaCms
 
   return (
     <section className="relative overflow-hidden bg-[#07090d] text-slate-100 antialiased">
@@ -220,7 +227,7 @@ export const PlatformV4: React.FC = () => {
         {/* Botão laranja cheio (era ghost-dark, apagado demais) e sem a nota
             "Acesso por 6 meses..." embaixo. Gabriel, 26/07. */}
         {temConteudo(ctaButton) && <Reveal delay={200} className="mt-12 flex justify-center">
-          <Cta size="lg" onClick={() => scrollToId('oferta')}>
+          <Cta size="lg" onClick={() => scrollToId(preLancamento ? ID_LIVE : 'oferta')}>
             {ctaButton}
             <CtaArrow size={20} />
           </Cta>

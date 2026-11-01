@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BarChart3, Building2, Check, ChevronLeft, ChevronRight, ClipboardList, Cpu, Crown, Pause, Play, Trophy, X } from 'lucide-react'
+import { capturaDoBuild } from './ambiente'
 
 /* A JORNADA DA PLATAFORMA — cinco painéis, do primeiro formulário à escolhida.
 
@@ -197,7 +198,8 @@ function useProgresso(ativo: boolean, duracao = 1400, chave: unknown = null): nu
   const [t, setT] = useState(reduzido ? 1 : 0)
 
   useEffect(() => {
-    if (!ativo || reduzido) return
+    // No build o progresso fica no zero, que é onde o visitante começa. Ver ambiente.ts.
+    if (!ativo || reduzido || capturaDoBuild()) return
     let raf = 0
     let inicio = 0
     const passo = (agora: number) => {
@@ -258,7 +260,7 @@ export const JornadaPlataformaV4: React.FC = () => {
   /* Avanço automático. Para quando o visitante pausa, quando ele escolhe um
      passo e quando a moldura sai da tela. */
   useEffect(() => {
-    if (!tocando || !visivel || movimentoReduzido()) return
+    if (!tocando || !visivel || movimentoReduzido() || capturaDoBuild()) return
     const id = window.setTimeout(() => setAtual((a) => (a + 1) % PAINEIS.length), PAINEIS[atual].duracao)
     return () => window.clearTimeout(id)
   }, [atual, tocando, visivel])
@@ -607,7 +609,8 @@ const PainelPreencher: React.FC<{ ativo: boolean }> = ({ ativo }) => {
                       style={{ width: `${pct}%` }}
                     />
                   </span>
-                  <span className="v4-mono text-[8px] text-slate-500">{pct}%</span>
+                  {/* Uma expressão só: `{pct}%` são dois nós de texto, que o HTML congelado funde e a hidratação acusa (#418). */}
+                  <span className="v4-mono text-[8px] text-slate-500">{`${pct}%`}</span>
                 </div>
               </button>
             )
@@ -621,7 +624,7 @@ const PainelPreencher: React.FC<{ ativo: boolean }> = ({ ativo }) => {
             <Building2 size={13} />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold text-white">{COMPANIES[empresa]} · A empresa de solar</p>
+            <p className="truncate text-[13px] font-bold text-white">{`${COMPANIES[empresa]} · A empresa de solar`}</p>
             <p className="truncate text-[10px] text-slate-500">Etapa 1 de 3 · salvamento automático</p>
           </div>
           {/* O selo de salvo só acende quando os campos terminam de entrar: é o
@@ -712,7 +715,7 @@ const PainelCriterios: React.FC<{ ativo: boolean; criterios: Criterio[]; ocultos
                     `overflow-hidden`. */}
                 <td className="w-[44%] px-3 py-1.5 sm:w-[38%]">
                   <p className="text-[11px] leading-tight text-slate-300">{c.label}</p>
-                  <p className="v4-mono mt-0.5 text-[9px] text-slate-600">peso {c.peso}%</p>
+                  <p className="v4-mono mt-0.5 text-[9px] text-slate-600">{`peso ${c.peso}%`}</p>
                 </td>
                 {c.notas.map((nota, i) => {
                   /* Escalonado pelo par linha+coluna: a leitura corre em
@@ -755,7 +758,7 @@ const PainelCriterios: React.FC<{ ativo: boolean; criterios: Criterio[]; ocultos
         </table>
       </div>
       <p className="v4-mono mt-2 text-[9px] uppercase tracking-[0.14em] text-slate-600">
-        + {ocultos} critérios neste grupo · os pesos somam 100%
+        {`+ ${ocultos} critérios neste grupo · os pesos somam 100%`}
       </p>
     </div>
   )
@@ -908,7 +911,7 @@ const PainelEscolhida: React.FC<{ ativo: boolean }> = ({ ativo }) => {
         </div>
 
         <h4 className="relative mt-4 text-2xl font-extrabold tracking-tight text-white">{COMPANIES[VENCEDORA]}</h4>
-        <p className="text-[11px] text-slate-500">Proposta #{VENCEDORA + 1} de 6</p>
+        <p className="text-[11px] text-slate-500">{`Proposta #${VENCEDORA + 1} de 6`}</p>
 
         <div className="relative mt-5 flex items-end gap-5">
           <p className="shrink-0">
@@ -940,7 +943,7 @@ const PainelEscolhida: React.FC<{ ativo: boolean }> = ({ ativo }) => {
           <span className="text-[11px] text-slate-400">Investimento total</span>
           <span className="text-base font-bold tabular-nums text-white">{BRL.format(INVESTMENTS[VENCEDORA])}</span>
           <span className="v4-mono w-full text-[9px] uppercase tracking-[0.14em] text-orange-300/80">
-            {BRL.format(diferenca)} acima da proposta mais barata
+            {`${BRL.format(diferenca)} acima da proposta mais barata`}
           </span>
         </div>
       </div>

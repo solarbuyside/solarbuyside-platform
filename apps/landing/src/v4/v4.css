@@ -751,6 +751,22 @@ html:not(.js) .v4-rise {
   .v4-promo-glow::after { animation: none; opacity: 0; }
 }
 
+/* Bloco da live (pré-lançamento). O destaque do CMS na linha da data sai como
+   .cms-orange, que é a cor de conversão da página; aqui ele vira o âmbar dos
+   números da contagem, que é o que a arte do Francis (slide 5) pede: a data e
+   o relógio na mesma cor, separados do laranja do botão. */
+.v4-live .cms-orange {
+  color: #fbbf24;
+}
+/* A quebra de linha do título (o <br> do CMS) é composição de DESKTOP. No
+   celular a coluna é estreita e a quebra forçada somava com a natural,
+   deixando "vivo." sozinho na última linha; ali a frase corre livre. */
+@media (max-width: 639px) {
+  .v4-live h2 br {
+    display: none;
+  }
+}
+
 /* Destaque do título da Autoridade. O título virou UM campo rich-text, e o
    trecho pintado sai como .cms-orange — que é só cor. Aqui ele reganha o serif
    itálico que a seção sempre teve, sem mudar o .cms-orange usado no resto da

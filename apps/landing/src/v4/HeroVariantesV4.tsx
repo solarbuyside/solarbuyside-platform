@@ -5,7 +5,6 @@ import { CMSText } from '../components/CMSText'
 import { Img, WordReveal } from './atoms'
 import { useApoiadores } from './ApoiadoresV4'
 import { scrollToId } from './scroll'
-import { trackBuyClick } from '../utils/analytics'
 import { criarTxt, temConteudo } from './cms'
 import { useKit, useRodizio, type Peca } from './kit'
 import { TelaPlataformaV4 } from './TelaPlataformaV4'
@@ -316,12 +315,17 @@ const SetaLeque: React.FC<{ direcao: 'anterior' | 'proximo'; aoClicar: () => voi
   )
 }
 
-const BotaoPrimario: React.FC<{ texto: string; link: string; externo: boolean }> = ({ texto, link, externo }) => (
+const BotaoPrimario: React.FC<{ texto: string; link: string; externo: boolean; aoClicar?: () => void }> = ({
+  texto,
+  link,
+  externo,
+  aoClicar,
+}) => (
   <a
     href={link}
     target={externo ? '_blank' : undefined}
     rel={externo ? 'noopener noreferrer' : undefined}
-    onClick={trackBuyClick}
+    onClick={aoClicar}
     className="v4-cta-shine group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-b from-orange-500 to-orange-600 px-8 py-4 text-[15px] font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:text-base"
   >
     <span className="relative z-10">{texto}</span>
@@ -397,7 +401,7 @@ const Prova: React.FC<{ rotulo: string; centro?: boolean }> = ({ rotulo, centro 
 
 export const HeroEditorialV4: React.FC = () => {
   const { titlePrefix, titleHighlight, titleSuffix, subtitle, selo } = useTextosHero()
-  const { pecas, cta, link, externo } = useKit()
+  const { pecas, cta, link, externo, rastrear } = useKit()
 
   /* O leque começa no MANUAL (índice 0) porque é a peça que dá nome à oferta,
      e daí roda sozinho pelas outras duas. Antes o centro era fixo no Código do
@@ -534,7 +538,7 @@ export const HeroEditorialV4: React.FC = () => {
             className="v4-rise mt-9 flex flex-col gap-3 sm:flex-row sm:items-center"
             style={{ ['--d' as string]: '700ms' }}
           >
-            {temConteudo(cta) && <BotaoPrimario texto={cta} link={link} externo={externo} />}
+            {temConteudo(cta) && <BotaoPrimario texto={cta} link={link} externo={externo} aoClicar={rastrear} />}
             <BotaoSecundario texto="Ver a Plataforma" alvo="plataforma" />
           </div>
 
@@ -587,7 +591,7 @@ export const HeroEditorialV4: React.FC = () => {
 
 export const HeroVitrineV4: React.FC = () => {
   const { titlePrefix, titleHighlight, titleSuffix, subtitle } = useTextosHero()
-  const { cta, link, externo } = useKit()
+  const { cta, link, externo, rastrear } = useKit()
 
   return (
     <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[#07090d] pb-8">
@@ -663,7 +667,7 @@ export const HeroVitrineV4: React.FC = () => {
           className="v4-rise mt-8 flex flex-col gap-3 sm:flex-row sm:items-center"
           style={{ ['--d' as string]: '700ms' }}
         >
-          {temConteudo(cta) && <BotaoPrimario texto={cta} link={link} externo={externo} />}
+          {temConteudo(cta) && <BotaoPrimario texto={cta} link={link} externo={externo} aoClicar={rastrear} />}
           <BotaoSecundario texto="Ver como funciona" alvo="plataforma" />
         </div>
 

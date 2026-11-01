@@ -26,6 +26,8 @@ import {
   ListOrdered,
   Pilcrow,
   ArrowRight,
+  Radio,
+  ShoppingCart,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -265,10 +267,12 @@ const CODE_INDEX_GROUPS: ListGroup[] = [{
 export function LandingEditor({
   sections: rawSections,
   globals,
+  globalsPublished,
   globalsPending,
 }: {
   sections: LandingSection[];
   globals: LandingGlobals;
+  globalsPublished: LandingGlobals;
   globalsPending: boolean;
 }) {
   const router = useRouter();
@@ -585,6 +589,18 @@ export function LandingEditor({
           mesma área e a roda do mouse acerta o errado. No celular não há
           `sticky`, então o teto de 460px continua valendo. */}
       <div className="space-y-4 lg:col-span-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
+        <ModoPaginaCard
+          rascunho={globals.modoPagina}
+          publicado={globalsPublished.modoPagina}
+          onSaved={() => {
+            setGlobalsDirty(true);
+            // Recarrega os globais do servidor para o preview receber o modo novo.
+            router.refresh();
+          }}
+          onEditarLive={
+            rawSections.some((s) => s.sectionId === "lancamento") ? () => setSelectedId("lancamento") : undefined
+          }
+        />
         <GlobalsCard globals={globals} onSaved={() => setGlobalsDirty(true)} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-3">
@@ -1236,6 +1252,120 @@ function DeviceBtn({
       <Icon className="h-3.5 w-3.5" />
       <span className="hidden sm:inline">{label}</span>
     </button>
+  );
+}
+
+/* MODO DA PÁGINA (pré-lançamento da live, Francis 29/10/2026).
+
+   O interruptor que troca a LP entre a página de VENDAS e a versão da campanha
+   da live. Fica fora do card de "Configurações globais" de propósito: aquele
+   card vive fechado e guarda coisas que quase nunca mudam; este é O botão da
+   noite da live, e precisa estar à vista, dizendo o que está no ar.
+
+   Segue o mesmo rascunho/publicar do resto do editor: escolher aqui grava o
+   rascunho (o preview já mostra), e só o "Publicar na LP" leva para o site,
+   disparando o rebuild. Voltar para vendas é o mesmo caminho ao contrário; os
+   textos de vendas nunca são tocados. */
+type ModoPagina = "vendas" | "prelancamento";
+const lerModoPagina = (v: string | undefined): ModoPagina =>
+  v?.trim().toLowerCase() === "prelancamento" ? "prelancamento" : "vendas";
+const NOME_MODO: Record<ModoPagina, string> = { vendas: "Vendas", prelancamento: "Pré-lançamento" };
+const OPCOES_MODO: { id: ModoPagina; icon: React.ComponentType<{ className?: string }>; dica: string }[] = [
+  { id: "vendas", icon: ShoppingCart, dica: "Página completa, com preço, compra e FAQ." },
+  { id: "prelancamento", icon: Radio, dica: "Sem blocos de compra: contagem regressiva e inscrição na live." },
+];
+
+function ModoPaginaCard({
+  rascunho,
+  publicado,
+  onSaved,
+  onEditarLive,
+}: {
+  rascunho: string | undefined;
+  publicado: string | undefined;
+  onSaved: () => void;
+  onEditarLive?: () => void;
+}) {
+  const [valor, setValor] = React.useState<ModoPagina>(() => lerModoPagina(rascunho));
+  const [erro, setErro] = React.useState(false);
+  const [pending, start] = React.useTransition();
+  const noAr = lerModoPagina(publicado);
+
+  function escolher(novo: ModoPagina) {
+    if (novo === valor || pending) return;
+    const anterior = valor;
+    setValor(novo);
+    setErro(false);
+    start(async () => {
+      try {
+        await saveLandingGlobalAction("modoPagina", novo);
+        onSaved();
+      } catch {
+        setValor(anterior);
+        setErro(true);
+      }
+    });
+  }
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-bold text-slate-800">Modo da página</p>
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+          <span className={cn("h-2 w-2 rounded-full", noAr === "prelancamento" ? "bg-amber-500" : "bg-emerald-500")} />
+          No ar: {NOME_MODO[noAr]}
+        </span>
+      </div>
+
+      <div role="radiogroup" aria-label="Modo da página" className="mt-3 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1">
+        {OPCOES_MODO.map(({ id, icon: Icon }) => {
+          const ativo = valor === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={ativo}
+              disabled={pending}
+              onClick={() => escolher(id)}
+              className={cn(
+                "inline-flex h-9 items-center justify-center gap-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-70",
+                ativo ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800",
+              )}
+            >
+              {pending && ativo ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Icon className={cn("h-3.5 w-3.5", ativo && id === "prelancamento" && "text-amber-600")} />
+              )}
+              {NOME_MODO[id]}
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2 text-[11px] leading-snug text-slate-500">{OPCOES_MODO.find((o) => o.id === valor)?.dica}</p>
+
+      {erro ? (
+        <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          Não deu para salvar o modo. Tente de novo.
+        </p>
+      ) : valor !== noAr ? (
+        <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+          Rascunho em <strong>{NOME_MODO[valor]}</strong>. O site só muda quando você clicar em{" "}
+          <strong>Publicar na LP</strong>; depois disso a página leva alguns minutos para atualizar.
+        </p>
+      ) : null}
+
+      {valor === "prelancamento" && onEditarLive ? (
+        <button
+          type="button"
+          onClick={onEditarLive}
+          className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+        >
+          Editar textos da live <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
+    </div>
   );
 }
 

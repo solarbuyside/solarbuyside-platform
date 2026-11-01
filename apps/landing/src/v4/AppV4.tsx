@@ -18,6 +18,7 @@ import { PricingV4 } from './PricingV4'
 import { EquipeV4 } from './EquipeV4'
 import { AuthorityV4 } from './AuthorityV4'
 import { ContactV4, FAQV4, FooterV4 } from './ClosingV4'
+import { usePreLancamento } from './prelancamento'
 
 /* V4 "SOLAR DAWN" — a LP oficial, na raiz "/".
 
@@ -83,6 +84,8 @@ const SECTION_IDS = [
   'compra-simples',
   'equipe',
   'oferta',
+  // Bloco da live, dentro da oferta: só existe no modo pré-lançamento.
+  'lancamento',
   'faq',
   'contact',
 ] as const
@@ -91,6 +94,10 @@ export default function AppV4() {
   /* Qual Hero renderizar. Em produção, sem `?hero=`, é sempre a variante A e
      nada disto tem efeito; o seletor vive no cabeçalho. Ver heroVariante.ts. */
   const { variante } = useVarianteHero()
+  /* Pré-lançamento (Francis, 29/10): Compra simples, Capacite seu time e o
+     FAQ saem; o card de preço vira o bloco da live (dentro do PricingV4). Ver
+     src/v4/prelancamento.ts. */
+  const { preLancamento } = usePreLancamento()
 
   useEffect(() => {
     trackPageView()
@@ -235,22 +242,34 @@ export default function AppV4() {
       </div>
       {/* "Compra simples. Acesso imediato. Suporte garantido." (slide 19):
           tira as três dúvidas de pré-compra imediatamente antes do preço. */}
-      <div id="compra-simples">
-        <CompraSimplesV4 />
-      </div>
-      {/* "Capacite todo o seu time comercial": justifica o preço antes de o
-          preço aparecer. */}
-      <div id="equipe" className="v4-just">
-        <EquipeV4 />
-      </div>
+      {preLancamento ? (
+        /* Sem Compra simples e Capacite, quem encosta no arco da oferta é o
+           depoimento do Rodrigo, que fecha com pb-20: exatamente os 80px que o
+           arco (-mt-20) sobe. O botão dele ficaria colado na curva. Este
+           respiro na cor do ato claro devolve a folga que a Equipe dava. */
+        <div className="h-12 bg-[#f7f8fa] md:h-16" aria-hidden />
+      ) : (
+        <>
+          <div id="compra-simples">
+            <CompraSimplesV4 />
+          </div>
+          {/* "Capacite todo o seu time comercial": justifica o preço antes de o
+              preço aparecer. */}
+          <div id="equipe" className="v4-just">
+            <EquipeV4 />
+          </div>
+        </>
+      )}
 
       {/* ─────────────────── ATO 5 · ESCURO ─────────────────── */}
       {/* O id vem por prop: envolver num <div id="oferta"> criaria id
           duplicado, e este é o alvo mais referenciado da LP. */}
       <PricingV4 id="oferta" />
-      <div id="faq" className="v4-just">
-        <FAQV4 />
-      </div>
+      {!preLancamento && (
+        <div id="faq" className="v4-just">
+          <FAQV4 />
+        </div>
+      )}
       <ContactV4 />
       </main>
       <FooterV4 />

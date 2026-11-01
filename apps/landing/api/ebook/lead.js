@@ -10,6 +10,9 @@ const PDF_URL =
   process.env.BREVO_PDF_URL ||
   "https://solarbuyside.com.br/assets/Teaser_Codigo_Vendedor_Consultivo.pdf";
 
+/* Espelha `OrigemLead` em src/v4/captura.ts. Só o "teaser" recebe e-mail. */
+const ORIGENS = ["teaser", "belenergy-credenciamento", "live-lancamento"];
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ success: false, message: "Método não permitido" });
@@ -19,10 +22,11 @@ export default async function handler(req, res) {
     const { nome, celular } = req.body || {};
     const sobrenome = req.body?.sobrenome || "";
     const email = (req.body?.email || "").trim().toLowerCase();
-    /* `origem` separa o lead do teaser do lead do credenciamento Belenergy.
+    /* `origem` separa o lead do teaser do credenciamento Belenergy e da
+       inscrição na live de lançamento (pré-lançamento, Francis 29/10).
        Lista fechada: o campo vem do navegador e vai para o banco e para o
        Brevo, então não se aceita string livre de quem chamar a rota. */
-    const origem = req.body?.origem === "belenergy-credenciamento" ? "belenergy-credenciamento" : "teaser";
+    const origem = ORIGENS.includes(req.body?.origem) ? req.body.origem : "teaser";
     /* Sobrenome deixou de ser obrigatório: o modal de credenciamento pede
        "Nome completo" num campo só (pedido do Francis), e quem só tem um nome
        não pode ficar de fora do cadastro por causa disso. O teaser continua
@@ -74,7 +78,10 @@ export default async function handler(req, res) {
       /* O e-mail do teaser só sai para quem pediu o teaser. Quem veio do modal
          de credenciamento está indo para o cadastro da Belenergy e receberia
          um PDF que não pediu; a comunicação dele (aprovação + link com
-         desconto) depende da Belenergy responder, e ainda não existe. */
+         desconto) depende da Belenergy responder, e ainda não existe. Quem se
+         inscreveu na live também não recebe nada daqui: confirmação e
+         lembrete, se houver, são decisão do Francis e saem pelo Brevo, nunca
+         disparados sem autorização. */
       if (origem === "teaser") {
         await fetch(`${BREVO}/smtp/email`, {
           method: "POST",

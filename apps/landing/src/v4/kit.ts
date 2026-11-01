@@ -1,6 +1,9 @@
 import React from 'react'
 import { useContent } from '../contexts/ContentContext'
 import { criarTxt } from './cms'
+import { usePreLancamento } from './prelancamento'
+import { trackBuyClick } from '../utils/analytics'
+import { capturaDoBuild } from './ambiente'
 
 /* O KIT E O RODÍZIO DELE, fora dos arquivos de Hero.
 
@@ -28,6 +31,11 @@ export function useKit() {
   const { getSection, globalSettings } = useContent()
   const pricing = getSection('pricing')
   const t = criarTxt(pricing)
+  /* Pré-lançamento: este é o único botão da página que saía DIRETO para o
+     checkout (os outros descem até a oferta). No período ele desce até a
+     inscrição na live, com rótulo próprio, e o clique deixa de contar como
+     buy_click no funil. */
+  const { preLancamento, ancora, live } = usePreLancamento()
 
   return {
     pecas: [
@@ -65,9 +73,12 @@ export function useKit() {
         alvo: 'equipe',
       },
     ],
-    cta: t('heroKitCta', 'Quero o Kit Completo Agora'),
-    link: globalSettings.purchaseLink || '#oferta',
-    externo: Boolean(globalSettings.purchaseLink),
+    cta: preLancamento
+      ? live('heroCta', 'Quero participar da live de lançamento')
+      : t('heroKitCta', 'Quero o Kit Completo Agora'),
+    link: preLancamento ? ancora : globalSettings.purchaseLink || '#oferta',
+    externo: !preLancamento && Boolean(globalSettings.purchaseLink),
+    rastrear: preLancamento ? undefined : trackBuyClick,
   }
 }
 
@@ -88,6 +99,9 @@ export function useRodizio(total: number): { ativo: number; escolher: (i: number
   React.useEffect(() => {
     if (!auto) return
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    /* No build não roda: o HTML congelado saía com a 2ª ou 3ª peça na frente
+       e a hidratação acusava mismatch na legenda do leque. Ver ambiente.ts. */
+    if (capturaDoBuild()) return
     const id = window.setTimeout(() => setAtivo((a) => (a + 1) % total), RODIZIO)
     return () => window.clearTimeout(id)
   }, [ativo, auto, total])

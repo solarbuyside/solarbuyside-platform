@@ -5,6 +5,7 @@ import { trackBuyClick } from '../utils/analytics'
 import { Img } from './atoms'
 import { criarTxt } from './cms'
 import { VARIANTES, useVarianteHero } from './heroVariante'
+import { usePreLancamento } from './prelancamento'
 
 /* Na MESMA ordem em que as seções aparecem na página (ver SECTION_IDS no
    AppV4). Um menu fora de ordem faz o visitante rolar para trás no meio da
@@ -42,15 +43,18 @@ export const HeaderV4: React.FC = () => {
   const progressRef = useRef<HTMLDivElement | null>(null)
   const { globalAssets, getSection } = useContent()
   const txt = criarTxt(getSection('hero'))
+  /* Pré-lançamento: o FAQ não está na página, então sai do menu, e o botão
+     do topo leva à inscrição na live com o rótulo do período. */
+  const { preLancamento, ancora, live } = usePreLancamento()
   const navItems = [
     { href: '#plataforma', label: txt('navPlatform', 'Plataforma') },
     { href: '#autor', label: txt('navMentor', 'Mentor') },
     { href: '#contexto', label: txt('navPanorama', 'Panorama') },
     { href: '#manual-strategic', label: txt('navVideo', 'Método') },
     { href: '#retorno', label: txt('navAudience', 'Retorno Buy-Side') },
-    { href: '#faq', label: txt('navFaq', 'FAQ') },
+    { href: '#faq', label: preLancamento ? '' : txt('navFaq', 'FAQ') },
   ].filter((item) => item.label)
-  const headerCta = txt('headerCta', 'Garantir Acesso')
+  const headerCta = preLancamento ? live('headerCta', 'Garantir minha vaga') : txt('headerCta', 'Garantir Acesso')
 
   useEffect(() => {
     let rafId = 0
@@ -166,7 +170,7 @@ export const HeaderV4: React.FC = () => {
             </a>
           ))}
           {headerCta && <a
-            href="#oferta"
+            href={ancora}
             className="group ml-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_24px_-8px_rgba(249,115,22,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-8px_rgba(249,115,22,0.8)]"
           >
             {headerCta}
@@ -215,7 +219,7 @@ export const HeaderV4: React.FC = () => {
             </a>
           ))}
           {headerCta && <a
-            href="#oferta"
+            href={ancora}
             className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-b from-orange-500 to-orange-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg"
             onClick={() => setIsMenuOpen(false)}
           >
@@ -228,7 +232,7 @@ export const HeaderV4: React.FC = () => {
   )
 }
 
-const BLOCKING_SELECTORS = ['#oferta', '#faq', '#contact', 'footer']
+const BLOCKING_SELECTORS = ['#oferta', '#lancamento', '#faq', '#contact', 'footer']
 
 /* Visibilidade compartilhada dos CTAs persistentes: aparece depois do hero,
    some quando uma seção de conversão/encerramento já está na viewport. */
@@ -277,13 +281,18 @@ export const FloatingCTAV4: React.FC = () => {
   const section = getSection('pricing')
   const txt = criarTxt(section)
   const isVisible = useCtaVisibility('desktop')
+  const { preLancamento, ancora, live } = usePreLancamento()
+  const rotulo = preLancamento
+    ? live('floatingCta', 'Garantir minha vaga na live')
+    : txt('ctaButton', 'Garantir meu acesso agora')
 
   return (
     <a
-      href="#oferta"
+      href={ancora}
       onClick={(e) => {
-        trackBuyClick()
-        const target = document.getElementById('oferta')
+        // No pré-lançamento não há compra: o clique não conta como buy_click.
+        if (!preLancamento) trackBuyClick()
+        const target = document.getElementById(ancora.slice(1))
         if (target) {
           e.preventDefault()
           target.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -315,9 +324,7 @@ export const FloatingCTAV4: React.FC = () => {
       <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-orange-500 to-orange-600 shadow-[0_6px_16px_-6px_rgba(249,115,22,0.7)]">
         <ArrowRight size={14} />
       </span>
-      <span className="truncate text-[12px] font-bold leading-tight text-slate-50">
-        {txt('ctaButton', 'Garantir meu acesso agora')}
-      </span>
+      <span className="truncate text-[12px] font-bold leading-tight text-slate-50">{rotulo}</span>
     </a>
   )
 }

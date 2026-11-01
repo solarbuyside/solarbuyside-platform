@@ -3,7 +3,6 @@ import { ArrowRight } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { CMSText } from '../components/CMSText'
 import { WordReveal } from './atoms'
-import { trackBuyClick } from '../utils/analytics'
 import { criarTxt, temConteudo } from './cms'
 /* O leque é da variante B e vive lá porque é lá que ele nasceu e onde está o
    grosso do raciocínio dele. Importar em vez de duplicar mantém as duas
@@ -55,7 +54,7 @@ const HeroKitV4: React.FC = () => {
      UMA capa. As peças vêm de `useKit`, o mesmo hook da variante B, então o
      `alvo` de cada uma vem junto e clicar na capa da frente leva para a seção
      que a explica. */
-  const { pecas, cta, link, externo } = useKit()
+  const { pecas, cta, link, externo, rastrear } = useKit()
   const { ativo, escolher } = useRodizio(pecas.length)
 
   /* AS FRASES CURTAS VOLTARAM A TER LEITOR. `heroKit1Desc`..`heroKit4Desc`
@@ -138,7 +137,7 @@ const HeroKitV4: React.FC = () => {
           href={link}
           target={externo ? '_blank' : undefined}
           rel={externo ? 'noopener noreferrer' : undefined}
-          onClick={trackBuyClick}
+          onClick={rastrear}
           className="v4-cta-shine group relative mx-auto mt-10 inline-flex items-center justify-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-b from-orange-500 to-orange-600 px-9 py-4 text-base font-extrabold tracking-tight text-white shadow-[0_18px_40px_-12px_rgba(249,115,22,0.65),inset_0_1px_0_rgba(255,255,255,0.3)] transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] md:mt-12 md:px-10 md:py-5 md:text-lg"
         >
           <span className="relative z-10">{cta}</span>

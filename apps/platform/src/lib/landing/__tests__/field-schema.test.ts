@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { LANDING_SCHEMA, buildSectionGroups, subviewsOf, isComposite } from "../field-schema";
 
@@ -68,5 +70,38 @@ describe("subvisões", () => {
   it("seção sem subvisões continua devolvendo tudo de uma vez", () => {
     const gs = buildSectionGroups("faq", [], [], null).groups;
     expect(labelsDe(gs)).toEqual(LANDING_SCHEMA.faq.groups.map((g) => g.label));
+  });
+});
+
+describe("pré-lançamento (seção lancamento)", () => {
+  // Pares 'chave', 'valor' do jsonb_build_object da migration que cria a seção.
+  const seed = (() => {
+    const sql = readFileSync(
+      fileURLToPath(new URL("../../../../supabase/migrations/0026_landing_prelancamento.sql", import.meta.url)),
+      "utf8",
+    );
+    const corpo = sql.slice(sql.indexOf("jsonb_build_object("), sql.indexOf(") as t"));
+    const pares = [...corpo.matchAll(/'([^']+)',\s*'((?:[^']|'')*)'/g)];
+    return new Map(pares.map((m) => [m[1], m[2].replace(/''/g, "'")]));
+  })();
+
+  const campos = LANDING_SCHEMA.lancamento.groups.flatMap((g) => g.fields).filter((f) => !isComposite(f));
+
+  it("o default de cada campo do editor é o mesmo texto semeado no banco", () => {
+    expect(seed.size).toBeGreaterThan(20);
+    for (const f of campos) {
+      if (isComposite(f) || f.defaultValue === undefined) continue;
+      expect(seed.get(f.key), `chave ${f.key}`).toBe(f.defaultValue);
+    }
+  });
+
+  it("toda chave semeada tem campo no editor", () => {
+    const chaves = new Set(campos.map((f) => (isComposite(f) ? "" : f.key)));
+    expect([...seed.keys()].filter((k) => !chaves.has(k))).toEqual([]);
+  });
+
+  it("vem logo depois da Oferta na barra lateral", () => {
+    expect(LANDING_SCHEMA.lancamento.order).toBeGreaterThan(LANDING_SCHEMA.pricing.order);
+    expect(LANDING_SCHEMA.lancamento.order).toBeLessThan(LANDING_SCHEMA.faq.order);
   });
 });

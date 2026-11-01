@@ -6,6 +6,8 @@ import { CMSText } from '../components/CMSText'
 import { Img, GrainOverlay, Reveal, Stamp } from './atoms'
 import { criarTxt, temConteudo } from './cms'
 import { CredenciamentoModalV4 } from './CredenciamentoModalV4'
+import { LancamentoV4 } from './LancamentoV4'
+import { usePreLancamento } from './prelancamento'
 
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
@@ -62,6 +64,12 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
   const section = getSection('pricing')
   const txt = criarTxt(section)
   const isFirstSection = id === 'oferta'
+  /* PRÉ-LANÇAMENTO (Francis, 29/10, slides 3 e 4): o selo "Nossa oferta
+     exclusiva", a caixa de payback e o card de preço inteiro saem; o título
+     ganha o texto do período; as quatro capas ficam. No lugar do card de
+     preço entra o bloco da live. Os campos de vendas não são tocados: o título
+     do período mora na seção `lancamento` (campo offerTitle). */
+  const { preLancamento, live } = usePreLancamento()
   /* O CTA da promo deixou de sair direto para a Belenergy: agora abre o modal
      de captura (Francis, 05/09). Ver CredenciamentoModalV4. */
   const [modalAberto, setModalAberto] = useState(false)
@@ -280,18 +288,26 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
       <div className="relative z-10 mx-auto max-w-7xl px-6">
         {/* Cabeçalho central */}
         <div className="text-center">
-          <Reveal>
-            <div className="v4-mono inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
-              <Sparkles size={13} className="animate-pulse" />
-              {txt('badge', 'Condição de pré-venda • antes do lançamento oficial')}
-            </div>
-          </Reveal>
+          {!preLancamento && (
+            <Reveal>
+              <div className="v4-mono inline-flex items-center gap-2.5 rounded-full border border-orange-500/25 bg-orange-500/10 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-orange-400">
+                <Sparkles size={13} className="animate-pulse" />
+                {txt('badge', 'Condição de pré-venda • antes do lançamento oficial')}
+              </div>
+            </Reveal>
+          )}
 
           <Reveal delay={90}>
-            <h2 className="mx-auto mt-7 max-w-4xl font-['Sora'] text-[clamp(2.2rem,5vw,4rem)] font-extrabold leading-[1.08] tracking-tight">
+            <h2
+              className={`mx-auto max-w-4xl font-['Sora'] text-[clamp(2.2rem,5vw,4rem)] font-extrabold leading-[1.08] tracking-tight ${
+                preLancamento ? '' : 'mt-7'
+              }`}
+            >
               <CMSText
                 value={
-                  section?.texts.title?.trim()
+                  preLancamento
+                    ? live('offerTitle', 'Tudo o que você vai conhecer <span class="cms-orange">na live de lançamento</span>')
+                    : section?.texts.title?.trim()
                     ? section.texts.title
                     : isFirstSection
                       ? section?.texts.titleFirst?.trim() ||
@@ -401,7 +417,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
             "acrescentar a frase e a destacar"). Sem travessão: o original dele
             usava um, e a LP não usa travessão em lugar nenhum. Some do ar se o
             campo for apagado no admin. */}
-        {paybackNote && (
+        {paybackNote && !preLancamento && (
           <Reveal delay={160}>
             <p className="mx-auto mt-16 max-w-3xl rounded-2xl border border-orange-500/25 bg-orange-500/[0.06] px-7 py-6 text-center font-['Sora'] text-xl font-bold leading-snug text-white md:text-2xl">
               <CMSText value={paybackNote} />
@@ -409,7 +425,11 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           </Reveal>
         )}
 
-        {/* Preço — center stage */}
+        {/* No pré-lançamento o palco do preço vira o palco da live. */}
+        {preLancamento ? (
+          <LancamentoV4 />
+        ) : (
+        /* Preço — center stage */
         <Reveal delay={120} className="mx-auto mt-24 max-w-2xl">
           <div className="v4-conic-frame rounded-[2.5rem] p-px">
             <div className="v4-conic-inner rounded-[calc(2.5rem-1px)] bg-[#0d0a08] p-10 text-center md:p-14">
@@ -541,10 +561,12 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
             </div>
           </div>
         </Reveal>
+        )}
       </div>
 
       {/* Editável pelo admin como o resto da seção: os defaults são a copy que
           o Francis mandou em 05/09, palavra por palavra. */}
+      {!preLancamento && (
       <CredenciamentoModalV4
         aberto={modalAberto}
         aoFechar={() => setModalAberto(false)}
@@ -566,6 +588,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
           'Recebemos seus dados. Agora conclua seu cadastro de integrador na Belenergy: assim que ele for aprovado, seu benefício de {selo} é liberado por e-mail.',
         )}
       />
+      )}
     </section>
   )
 }

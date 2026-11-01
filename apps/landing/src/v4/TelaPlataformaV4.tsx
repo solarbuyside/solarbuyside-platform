@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { BookOpen, Check, LayoutGrid, Search, Sparkles, Trophy, X, ZoomIn } from 'lucide-react'
 import { Img } from './atoms'
+import { capturaDoBuild } from './ambiente'
 
 /* O MOCKUP DA PLATAFORMA — duas cenas, não um print.
 
@@ -96,7 +97,7 @@ function useCiclo(): { cena: Cena; irPara: (c: Cena) => void; auto: boolean } {
   const [auto, setAuto] = useState(true)
 
   useEffect(() => {
-    if (!auto || movimentoReduzido()) return
+    if (!auto || movimentoReduzido() || capturaDoBuild()) return
     const id = window.setTimeout(() => setCena((c) => (c === 'manual' ? 'avaliacao' : 'manual')), DURACAO[cena])
     return () => window.clearTimeout(id)
   }, [cena, auto])
@@ -297,7 +298,7 @@ function useAnalise(ativa: boolean): { p: (i: number) => number; automaticas: st
   const [pronto, setPronto] = useState(reduzido)
 
   useEffect(() => {
-    if (!ativa || reduzido) return
+    if (!ativa || reduzido || capturaDoBuild()) return
     let raf = 0
     let inicio = 0
     const DUR = 1100
@@ -452,7 +453,7 @@ const CenaAvaliacao: React.FC<{ ativa: boolean }> = ({ ativa }) => {
                     >
                       {eh ? <Trophy size={12} aria-hidden /> : <X size={12} aria-hidden />}
                       {eh ? 'Finalista' : 'Descartada'}
-                      <span className="sr-only"> — {prop.nome}</span>
+                      <span className="sr-only">{` — ${prop.nome}`}</span>
                     </button>
                   </td>
                 )

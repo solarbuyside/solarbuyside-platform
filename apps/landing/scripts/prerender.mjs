@@ -106,6 +106,41 @@ async function carregarSecoes(url, anon) {
   return secoes
 }
 
+/* Modo da página (pré-lançamento da live, Francis 29/10). Lido do valor
+   PUBLICADO de landing_globals, o mesmo que a página lê. Falha de rede aqui
+   não derruba o build: cai em "vendas", que é a página de sempre. */
+async function lerModoPagina(url, anon) {
+  const headers = { apikey: anon, Authorization: `Bearer ${anon}` }
+  try {
+    const res = await fetch(`${url}/rest/v1/landing_globals?select=value&key=eq.modoPagina`, { headers })
+    if (!res.ok) return 'vendas'
+    const linhas = await res.json()
+    const valor = Array.isArray(linhas) ? String(linhas[0]?.value ?? '') : ''
+    return valor.trim().toLowerCase() === 'prelancamento' ? 'prelancamento' : 'vendas'
+  } catch {
+    return 'vendas'
+  }
+}
+
+/* A /1 é a cópia congelada da página de VENDAS, com preço e checkout. No
+   pré-lançamento ela furaria a campanha para quem tem o link: vira um
+   redirecionamento para a raiz, no próprio HTML (meta refresh + script), sem
+   carregar o bundle. No modo vendas ela volta a ser capturada normalmente no
+   próximo build, que é o Publicar da volta. */
+const HTML_REDIRECIONA_RAIZ = `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Solar Buy-Side</title>
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://solarbuyside.com.br/">
+<meta http-equiv="refresh" content="0; url=/">
+<script>location.replace('/' + location.search + location.hash)</script>
+</head>
+<body><a href="/">Solar Buy-Side</a></body>
+</html>
+`
+
 /* ── JSON-LD (Fase 4) ─────────────────────────────────────────────────────
    Gerado AQUI, e não à mão no index.html, para a marcação espelhar sempre o
    que está no ar: FAQ e preço saem do DOM renderizado; as pessoas espelham a
@@ -651,6 +686,9 @@ async function main() {
 
   const secoes = await carregarSecoes(supaUrl, supaAnon)
   console.log(`[prerender] banco OK: ${secoes.length} seções em landing_sections`)
+  const modo = await lerModoPagina(supaUrl, supaAnon)
+  console.log(`[prerender] modo da página: ${modo}`)
+  const rotas = modo === 'prelancamento' ? ROTAS.filter((r) => r.rota !== '/1') : ROTAS
 
   // Template lido UMA vez, antes de a raiz sobrescrever dist/index.html.
   const template = await inlinarFontes(await readFile(path.join(DIST, 'index.html'), 'utf8'))
@@ -664,7 +702,7 @@ async function main() {
   const browser = await abrirNavegador()
   const capturas = []
   try {
-    for (const rota of ROTAS) {
+    for (const rota of rotas) {
       capturas.push({ rota, captura: await capturarRota(browser, rota) })
     }
   } finally {
@@ -678,6 +716,12 @@ async function main() {
     console.log(
       `[prerender] ${rota.rota} -> ${rota.saida} (${(saida.length / 1024).toFixed(0)} KB, ${captura.chars} chars de texto, CSS crítico ${(captura.cssCritico.length / 1024).toFixed(0)} KB)`,
     )
+  }
+  if (modo === 'prelancamento') {
+    const destino = path.join(DIST, '1', 'index.html')
+    await mkdir(path.dirname(destino), { recursive: true })
+    await writeFile(destino, HTML_REDIRECIONA_RAIZ)
+    console.log('[prerender] /1 -> redirecionamento para a raiz (pré-lançamento)')
   }
   console.log('[prerender] concluído.')
 }

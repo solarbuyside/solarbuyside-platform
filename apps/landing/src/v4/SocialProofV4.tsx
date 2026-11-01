@@ -3,6 +3,7 @@ import { Quote } from 'lucide-react'
 import { useContent } from '../contexts/ContentContext'
 import { Img, Cta, CtaArrow, Reveal, Stamp } from './atoms'
 import { criarTxt } from './cms'
+import { usePreLancamento } from './prelancamento'
 
 /* Depoimento do Rodrigo — segundo relato do ato "paper": foto em arch com selo
    girando + citação gigante em serif.
@@ -14,6 +15,8 @@ import { criarTxt } from './cms'
    contínuo, e o -mt-20 comia 80px do respiro entre os dois relatos. */
 export const TestimonialsV4: React.FC = () => {
   const { getSection } = useContent()
+  // No pré-lançamento o botão desce até a live, não até a oferta.
+  const { ancora } = usePreLancamento()
   const section = getSection('testimonials')
   const txt = criarTxt(section)
   const rodrigoImage = section?.images.testimonialImage ?? '/assets/Integrador_Rodrigo_SP.png'
@@ -108,7 +111,7 @@ export const TestimonialsV4: React.FC = () => {
         </div>
 
         <Reveal delay={140} className="mt-14 flex justify-center">
-          <Cta size="lg" variant="ghost-paper" href="#oferta">
+          <Cta size="lg" variant="ghost-paper" href={ancora}>
             {txt('ctaButton', 'Quero fechar mais projetos solares')}
             <CtaArrow size={20} />
           </Cta>
@@ -131,6 +134,7 @@ export const TestimonialsV4: React.FC = () => {
    para tirar. */
 export const TestimonialLucasV4: React.FC = () => {
   const { getSection } = useContent()
+  const { ancora } = usePreLancamento()
   const section = getSection('testimonial-lucas')
   const txt = criarTxt(section)
   const foto = section?.images.testimonialImage ?? '/assets/Integrador_Lucas_BH.jpg'
@@ -202,7 +206,7 @@ export const TestimonialLucasV4: React.FC = () => {
 
         {/* CTA 2 */}
         <Reveal delay={140} className="mt-14 flex justify-center">
-          <Cta size="lg" variant="ghost-paper" href="#oferta">
+          <Cta size="lg" variant="ghost-paper" href={ancora}>
             {txt('ctaButton', 'Quero parar de perder venda por preço')}
             <CtaArrow size={20} />
           </Cta>

@@ -77,25 +77,29 @@ export async function listLandingSections(): Promise<LandingSection[]> {
 
 export async function getLandingGlobals(): Promise<{
   values: LandingGlobals;
+  /** O que está NO AR (coluna publicada). O card "Modo da página" compara os dois. */
+  published: LandingGlobals;
   hasUnpublishedChanges: boolean;
 }> {
   const admin = createAdminClient();
   const { data, error } = await admin.from("landing_globals").select("key,value,value_draft");
   const values: LandingGlobals = {};
+  const published: LandingGlobals = {};
   let hasUnpublishedChanges = false;
   // Fallback: migration 0019 (value_draft) ainda não aplicada — lê só o publicado.
   if (error) {
     const pub = await admin.from("landing_globals").select("key,value");
-    for (const r of pub.data ?? []) if (r.value != null) values[r.key] = r.value;
-    return { values, hasUnpublishedChanges: false };
+    for (const r of pub.data ?? []) if (r.value != null) values[r.key] = published[r.key] = r.value;
+    return { values, published, hasUnpublishedChanges: false };
   }
   for (const r of data ?? []) {
     const pub = r.value ?? "";
     const draft = r.value_draft == null ? pub : r.value_draft;
     values[r.key] = draft;
+    published[r.key] = pub;
     if (draft !== pub) hasUnpublishedChanges = true;
   }
-  return { values, hasUnpublishedChanges };
+  return { values, published, hasUnpublishedChanges };
 }
 
 /** Salva no RASCUNHO da seção (não publica). */

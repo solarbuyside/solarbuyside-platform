@@ -6,6 +6,7 @@ import { Img, Cta, CtaArrow, GrainOverlay, Kicker, Reveal } from './atoms'
 import { LightboxV4 } from './LightboxV4'
 import { scrollToId } from './scroll'
 import { criarTxt, temConteudo } from './cms'
+import { ID_LIVE, usePreLancamento } from './prelancamento'
 
 /* OS DOIS ÍNDICES, do Manual e do Código.
 
@@ -193,6 +194,8 @@ export const ManualStrategicV4: React.FC = () => {
   const { getSection } = useContent()
   const section = getSection('manual-strategic')
   const txt = criarTxt(section)
+  const { preLancamento, live } = usePreLancamento()
+  const ctaLive = live('sectionCta', 'Quero participar da live de lançamento')
 
   const manualImage = section?.images.manualImage === undefined ? '/assets/Capa-manual-buy-side-definitiva.png' : section.images.manualImage
   const codeImage = section?.images.codeImage === undefined ? '/assets/codigo-oficial-norm.png' : section.images.codeImage
@@ -503,11 +506,16 @@ export const ManualStrategicV4: React.FC = () => {
             Texto novo na revisão de 25/07, slide 12. O valor antigo ("Quero
             vender com estratégia") é tratado como legado para a LP não
             depender do seed. */}
-        {temConteudo(txt('ctaButton', 'Quero vender mais e com estratégia')) && <Reveal delay={120} className="mt-12">
-          <Cta size="lg" onClick={() => scrollToId('oferta')}>
-            {section?.texts.ctaButton === undefined || section.texts.ctaButton === 'Quero vender com estratégia'
-              ? 'Quero vender mais e com estratégia'
-              : section.texts.ctaButton}
+        {/* Pré-lançamento: o rótulo de vendas traz o preço, que não aparece
+            antes da live; o botão leva à inscrição (campo sectionCta da seção
+            `lancamento`). */}
+        {temConteudo(preLancamento ? ctaLive : txt('ctaButton', 'Quero vender mais e com estratégia')) && <Reveal delay={120} className="mt-12">
+          <Cta size="lg" onClick={() => scrollToId(preLancamento ? ID_LIVE : 'oferta')}>
+            {preLancamento
+              ? ctaLive
+              : section?.texts.ctaButton === undefined || section.texts.ctaButton === 'Quero vender com estratégia'
+                ? 'Quero vender mais e com estratégia'
+                : section.texts.ctaButton}
             <CtaArrow size={20} />
           </Cta>
         </Reveal>}

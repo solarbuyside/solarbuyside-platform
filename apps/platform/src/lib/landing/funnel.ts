@@ -48,6 +48,10 @@ const SECOES: { id: string; label: string }[] = [
   { id: "compra-simples", label: "Compra simples" },
   { id: "equipe", label: "Capacite seu time" },
   { id: "oferta", label: "Oferta" },
+  // Só existe no modo pré-lançamento (bloco da live, no lugar do card de
+  // preço). Fora do período fica em 0, assim como Compra simples, Capacite e
+  // FAQ ficam em 0 durante o período: é a página que mudou, não queda de funil.
+  { id: "lancamento", label: "Live (pré-lançamento)" },
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contato" },
 ];

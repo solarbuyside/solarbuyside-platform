@@ -81,3 +81,21 @@ Efeitos de texto próprios: `.v4-stroke` (contorno fantasma), `.v4-grad-text`
   a hidratação acusa mismatch (#418) e repinta o subtree. Funda numa expressão
   única: `` {`${x} `} `` e `` {`0${i + 1}`} ``. Mismatches aparecem no console
   como `[hydrate] mismatch recuperado` (ver main.tsx).
+- **Animação movida a relógio não anda durante a captura do build.** O
+  prerender passa segundos rolando a página antes de copiar o DOM; rodízio,
+  painéis automáticos, progresso e contagem regressiva andavam junto, o HTML
+  saía num quadro do meio e o visitante começava do zero (mismatch #418 em toda
+  visita, corrigido em 01/11/2026). Todo `setTimeout`/`setInterval`/`rAF` que
+  muda TEXTO renderizado checa `capturaDoBuild()` (`src/v4/ambiente.ts`) e não
+  roda quando ela é verdadeira. Animação de scroll (reveals) não entra: o
+  prerender já limpa as classes dela.
+
+## 6. Modo pré-lançamento
+
+A configuração global `modoPagina` (card "Modo da página" no /admin) troca a LP
+entre **vendas** (padrão) e **prelancamento** (campanha da live). No período,
+Compra simples, Capacite seu time, o card de preço e o FAQ saem; o bloco da live
+(`LancamentoV4`) entra no lugar do card de preço; todo CTA de compra aponta para
+`#lancamento`; a `/1` vira redirecionamento no build. Os textos do período moram
+na seção `lancamento` do banco, nunca por cima dos de vendas. Para esconder ou
+mostrar algo por modo, use `usePreLancamento()` (`src/v4/prelancamento.ts`).
