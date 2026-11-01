@@ -81,6 +81,24 @@ body {
   min-height: 100vh;
 }
 
+/* Mãozinha em tudo que é clicável. O Tailwind v4 tirou o `cursor: pointer`
+   do reset de <button> (volta o padrão do navegador, a seta), e a plataforma
+   inteira ficou com botões que não pareciam clicáveis. Na camada base, para
+   que `cursor-not-allowed`, `cursor-default` e afins continuem vencendo. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="radio"]:not(:disabled),
+  [role="tab"],
+  summary,
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  label[for] {
+    cursor: pointer;
+  }
+}
+
 /* Custom visual utilities according to design.md */
 
 /* Sidebar: degradê azul profundo + textura de grid solar bem leve */
