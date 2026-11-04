@@ -28,10 +28,12 @@ import {
   ArrowRight,
   Radio,
   ShoppingCart,
+  BadgePercent,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { LandingSection, LandingGlobals } from "@/lib/landing/content-admin";
+import { formatarBrasilia, statusPromocao } from "@/lib/landing/promocao";
 import {
   buildSectionGroups,
   subviewsOf,
@@ -601,6 +603,14 @@ export function LandingEditor({
             rawSections.some((s) => s.sectionId === "lancamento") ? () => setSelectedId("lancamento") : undefined
           }
         />
+        {rawSections.some((s) => s.sectionId === "promocao") ? (
+          <PromocaoCard
+            texts={drafts.promocao?.texts}
+            pendente={rawSections.find((s) => s.sectionId === "promocao")?.hasUnpublishedChanges ?? false}
+            modoRascunho={globals.modoPagina}
+            onEditar={() => setSelectedId("promocao")}
+          />
+        ) : null}
         <GlobalsCard globals={globals} onSaved={() => setGlobalsDirty(true)} />
         <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-3">
@@ -1365,6 +1375,108 @@ function ModoPaginaCard({
           Editar textos da live <ArrowRight className="h-3.5 w-3.5" />
         </button>
       ) : null}
+    </div>
+  );
+}
+
+/* PROMOÇÃO DE LANÇAMENTO (Francis, 03/11/2026). Ao contrário do modo da
+   página, não tem botão de ligar: a promoção entra e sai sozinha pela data da
+   seção "Promoção de lançamento". Este card existe para responder, sem abrir a
+   seção, a pergunta da semana da live: "ela vai entrar na hora certa?" — e
+   para gritar quando falta o link do checkout com desconto, sem o qual a
+   página não mostra a promoção. Lê o rascunho (o que está sendo editado). */
+const NOME_FASE = { desligada: "Desligada", agendada: "Agendada", ativa: "No ar", encerrada: "Encerrada" } as const;
+
+function PromocaoCard({
+  texts,
+  pendente,
+  modoRascunho,
+  onEditar,
+}: {
+  texts: Record<string, string> | undefined;
+  pendente: boolean;
+  modoRascunho: string | undefined;
+  onEditar: () => void;
+}) {
+  // Hora só no navegador: no servidor o card sairia com outra hora e a
+  // hidratação acusaria diferença. Atualiza a cada 30s.
+  const [agora, setAgora] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    const tick = () => setAgora(Date.now());
+    const primeiro = window.setTimeout(tick, 0);
+    const id = window.setInterval(tick, 30_000);
+    return () => {
+      window.clearTimeout(primeiro);
+      window.clearInterval(id);
+    };
+  }, []);
+
+  const st = agora === null ? null : statusPromocao(texts, agora);
+  const emPreLancamento = modoRascunho?.trim().toLowerCase() === "prelancamento";
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
+        <p className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-800">
+          <BadgePercent className="h-4 w-4 text-primary" />
+          Promoção de lançamento
+        </p>
+        {st ? (
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+            <span
+              className={cn(
+                "h-2 w-2 rounded-full",
+                st.fase === "ativa" ? "bg-emerald-500" : st.fase === "agendada" ? "bg-amber-500" : "bg-slate-300",
+              )}
+            />
+            {NOME_FASE[st.fase]}
+          </span>
+        ) : null}
+      </div>
+
+      {st && st.fase !== "desligada" ? (
+        <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          {st.fase === "encerrada" ? "Terminou " : st.fase === "ativa" ? "Termina " : "Começa "}
+          {st.fase === "agendada" ? (
+            <>
+              <strong>{formatarBrasilia(st.inicio)}</strong> e termina <strong>{formatarBrasilia(st.fim)}</strong>
+            </>
+          ) : (
+            <strong>{formatarBrasilia(st.fim)}</strong>
+          )}{" "}
+          (Brasília). Entra e sai sozinha.
+        </p>
+      ) : st ? (
+        <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          {st.motivo === "dataInvalida"
+            ? "A data de início não foi reconhecida. Use o formato 01/12/2026 21:00."
+            : "Sem data de início. Preencha para agendar."}
+        </p>
+      ) : null}
+
+      {st && st.fase !== "desligada" && st.fase !== "encerrada" && st.semLink ? (
+        <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-700">
+          Falta o <strong>link do checkout com desconto</strong> da Greenn. Sem ele a promoção não aparece na página.
+        </p>
+      ) : null}
+      {st && st.fase !== "desligada" && st.fase !== "encerrada" && emPreLancamento ? (
+        <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+          A página está em <strong>Pré-lançamento</strong>. A promoção só aparece depois que o modo voltar para Vendas.
+        </p>
+      ) : null}
+      {pendente ? (
+        <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+          Há mudanças não publicadas. O site só muda quando você clicar em <strong>Publicar na LP</strong>.
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onEditar}
+        className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+      >
+        Editar promoção <ArrowRight className="h-3.5 w-3.5" />
+      </button>
     </div>
   );
 }

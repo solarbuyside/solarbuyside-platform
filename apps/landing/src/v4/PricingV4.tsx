@@ -8,6 +8,8 @@ import { criarTxt, temConteudo } from './cms'
 import { CredenciamentoModalV4 } from './CredenciamentoModalV4'
 import { LancamentoV4 } from './LancamentoV4'
 import { usePreLancamento } from './prelancamento'
+import { usePromocao } from './promocao'
+import { OfertaPromocaoV4 } from './PromocaoV4'
 
 /* Marcas de pagamento em traço mono — substituem os PNGs coloridos que
    quebravam a direção de arte dentro do painel premium do preço. */
@@ -70,6 +72,7 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
      preço entra o bloco da live. Os campos de vendas não são tocados: o título
      do período mora na seção `lancamento` (campo offerTitle). */
   const { preLancamento, live } = usePreLancamento()
+  const promo = usePromocao()
   /* O CTA da promo deixou de sair direto para a Belenergy: agora abre o modal
      de captura (Francis, 05/09). Ver CredenciamentoModalV4. */
   const [modalAberto, setModalAberto] = useState(false)
@@ -432,7 +435,19 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
         /* Preço — center stage */
         <Reveal delay={120} className="mx-auto mt-24 max-w-2xl">
           <div className="v4-conic-frame rounded-[2.5rem] p-px">
-            <div className="v4-conic-inner rounded-[calc(2.5rem-1px)] bg-[#0d0a08] p-10 text-center md:p-14">
+            {/* Na promoção a lateral encolhe no celular: o relógio de três
+                casas não cabe em 360px com os 40px de cada lado do card. */}
+            <div
+              className={`v4-conic-inner rounded-[calc(2.5rem-1px)] bg-[#0d0a08] text-center md:p-14 ${
+                promo.ativa ? 'px-4 py-10 sm:px-10' : 'p-10'
+              }`}
+            >
+              {/* Promoção de lançamento (ver promocao.ts): troca o miolo,
+                  do selo ao botão; benefícios, garantia e pagamento ficam. */}
+              {promo.ativa && promo.fim !== null ? (
+                <OfertaPromocaoV4 txt={promo.txt} fim={promo.fim} link={promo.linkCompra} />
+              ) : (
+              <>
               <span className="v4-mono text-[11px] font-bold uppercase tracking-[0.25em] text-orange-400">
                 {txt('planBadge', 'Plano de Acesso')}
               </span>
@@ -527,6 +542,8 @@ export const PricingV4: React.FC<PricingV4Props> = ({ id }) => {
                 </span>
                 <ArrowRight size={20} className="relative z-10 shrink-0 transition-transform group-hover:translate-x-1" />
               </a>
+              </>
+              )}
 
               <div className="v4-mono mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">
                 <span className="flex items-center gap-2">

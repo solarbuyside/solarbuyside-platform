@@ -99,3 +99,15 @@ Compra simples, Capacite seu time, o card de preço e o FAQ saem; o bloco da liv
 `#lancamento`; a `/1` vira redirecionamento no build. Os textos do período moram
 na seção `lancamento` do banco, nunca por cima dos de vendas. Para esconder ou
 mostrar algo por modo, use `usePreLancamento()` (`src/v4/prelancamento.ts`).
+
+## 7. Promoção de lançamento
+
+A seção `promocao` do banco (card "Promoção de lançamento" no /admin) troca o
+**miolo** do card de preço, do selo ao botão, por uma oferta com preço riscado,
+economia e contagem regressiva (`PromocaoV4.tsx`). Moldura, benefícios, selo de
+garantia e formas de pagamento continuam os do card de vendas. Liga e desliga
+**sozinha pelo relógio** (`startsAt` + `durationHours`, Brasília); só entra com
+o modo em vendas **e** com `checkoutUrl` (link do cupom na Greenn) preenchido,
+para a página nunca anunciar o preço da promoção apontando para o checkout
+cheio. O estado vem só no navegador (`usePromocao()`, `src/v4/promocao.ts`): o
+HTML pré-renderizado sai sempre com o card de vendas. Prévia: `?promocao=previa`.

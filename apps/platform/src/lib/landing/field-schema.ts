@@ -1597,6 +1597,81 @@ export const LANDING_SCHEMA: Record<string, SectionSchema> = {
     ],
   },
 
+  /* PROMOÇÃO DE LANÇAMENTO (Francis, 03/11/2026: "Promoção de lançamento 48
+     horas"). Nas primeiras horas depois da live, o card de preço da Oferta
+     troca o miolo por esta oferta com contagem regressiva. Liga e desliga
+     SOZINHA pelo relógio (início + duração, horário de Brasília); ao fim, o
+     card volta aos campos de vendas, que nunca são tocados.
+
+     Só entra com o modo da página em Vendas E com o link do checkout com
+     desconto preenchido. Espelha apps/landing/src/v4/PromocaoV4.tsx e
+     promocao.ts. */
+  promocao: {
+    label: "Promoção de lançamento",
+    order: 12.6,
+    groups: [
+      {
+        label: "Quando vale",
+        note: "A promoção entra e sai sozinha, no horário de Brasília. Para desligar antes da hora, apague a data e publique. Ela só aparece com o modo da página em Vendas e com o link do checkout abaixo preenchido.",
+        fields: [
+          t("startsAt", "Começa em", {
+            help: "DD/MM/AAAA HH:MM, horário de Brasília. Ex.: 01/12/2026 21:00. Vazio = promoção desligada.",
+            maxLength: 20,
+          }),
+          t("durationHours", "Duração (horas)", {
+            help: "Ao terminar, o card volta a R$ 797,00 e aos textos de vendas. Use a MESMA hora de fim na validade do cupom da Greenn.",
+            maxLength: 4,
+            defaultValue: "48",
+          }),
+          t("checkoutUrl", "Link do checkout com desconto (Greenn)", {
+            type: "url",
+            help: "O link da Greenn que já abre com o cupom de 25% aplicado. Enquanto a promoção vale, todos os botões de compra levam para ele. Vazio = a promoção não aparece.",
+          }),
+        ],
+      },
+      {
+        label: "Topo do card",
+        fields: [
+          t("badge", "Selo laranja", { maxLength: 50, defaultValue: "Promoção de lançamento · Só 48 horas" }),
+          t("kicker", "Etiqueta acima do título", { maxLength: 40, defaultValue: "Seu acesso direto" }),
+          t("title", "Título", { maxLength: 60, defaultValue: "Método Solar Buy-Side Completo" }),
+          t("subtitle", "Subtítulo", { maxLength: 60, defaultValue: "Oferta especial da Buy-Side Soluções" }),
+        ],
+      },
+      {
+        label: "Preço",
+        note: "Confira os valores com o checkout da Greenn antes de publicar: o parcelamento sai da tabela de juros dela.",
+        fields: [
+          t("priceFromLabel", "Rótulo do preço cheio", { maxLength: 40, defaultValue: "Valor real do método" }),
+          t("priceFrom", "Preço cheio (sai riscado)", { maxLength: 20, defaultValue: "R$ 797,00" }),
+          t("priceToLabel", "Frase antes do preço", { maxLength: 40, defaultValue: "Hoje, por apenas" }),
+          t("priceTo", "Preço da promoção", { maxLength: 20, defaultValue: "R$ 597,75" }),
+          t("priceNote", "Linha abaixo do preço", { maxLength: 60, defaultValue: "à vista no PIX · ou 12x de R$ 61,46" }),
+          t("savings", "Etiqueta verde de economia", { maxLength: 50, defaultValue: "25% OFF · Você economiza R$ 199,25" }),
+        ],
+      },
+      {
+        label: "Contagem regressiva",
+        fields: [
+          t("timerKicker", "Etiqueta do relógio", { maxLength: 40, defaultValue: "O relógio está correndo" }),
+          ml("timerNote", "Frase abaixo do relógio", {
+            defaultValue: "Quando chegar a zero, a condição sai do ar e o valor volta para R$ 797,00.",
+          }),
+        ],
+      },
+      {
+        label: "Botão",
+        fields: [
+          t("ctaLabel", "Texto do botão", { maxLength: 50, defaultValue: "Quero o método completo com 25% OFF" }),
+          t("ctaNote", "Frase abaixo do botão", {
+            maxLength: 80,
+            defaultValue: "Aproveite já: quem decide hoje paga R$ 199,25 a menos.",
+          }),
+        ],
+      },
+    ],
+  },
+
   contact: {
     label: "Contato / Rodapé",
     order: 14,

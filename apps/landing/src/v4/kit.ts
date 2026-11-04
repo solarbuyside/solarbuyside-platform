@@ -2,6 +2,7 @@ import React from 'react'
 import { useContent } from '../contexts/ContentContext'
 import { criarTxt } from './cms'
 import { usePreLancamento } from './prelancamento'
+import { usePromocao } from './promocao'
 import { trackBuyClick } from '../utils/analytics'
 import { capturaDoBuild } from './ambiente'
 
@@ -28,7 +29,7 @@ import { capturaDoBuild } from './ambiente'
    próprio porque mora dentro da seção do Manual — foi preciso criar um lá (ver
    ManualStrategicV4). Sem isso ele cairia na explicação do Manual. */
 export function useKit() {
-  const { getSection, globalSettings } = useContent()
+  const { getSection } = useContent()
   const pricing = getSection('pricing')
   const t = criarTxt(pricing)
   /* Pré-lançamento: este é o único botão da página que saía DIRETO para o
@@ -36,6 +37,8 @@ export function useKit() {
      inscrição na live, com rótulo próprio, e o clique deixa de contar como
      buy_click no funil. */
   const { preLancamento, ancora, live } = usePreLancamento()
+  // Na promoção de lançamento o checkout pode ser o link do cupom (promocao.ts).
+  const { linkCompra } = usePromocao()
 
   return {
     pecas: [
@@ -76,8 +79,8 @@ export function useKit() {
     cta: preLancamento
       ? live('heroCta', 'Quero participar da live de lançamento')
       : t('heroKitCta', 'Quero o Kit Completo Agora'),
-    link: preLancamento ? ancora : globalSettings.purchaseLink || '#oferta',
-    externo: !preLancamento && Boolean(globalSettings.purchaseLink),
+    link: preLancamento ? ancora : linkCompra || '#oferta',
+    externo: !preLancamento && Boolean(linkCompra),
     rastrear: preLancamento ? undefined : trackBuyClick,
   }
 }
