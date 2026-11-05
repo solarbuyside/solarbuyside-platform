@@ -102,6 +102,30 @@
       })
     </script>
 
+    <!--
+      Chat do site do Dialogon (atendimento com IA, cai no Inbox da Solar
+      Buy-Side). Mesma regra do gtag.js: entra na ociosidade depois do load,
+      para não disputar LCP com o hero. A chave é pública (vai no HTML de
+      qualquer jeito) e só funciona nos domínios cadastrados no Dialogon.
+      Enquanto o canal estiver pausado lá, o script não desenha nada.
+    -->
+    <script>
+      addEventListener('load', function () {
+        // Fora do domínio real (prerender, dev, preview) o Dialogon recusa a
+        // origem de qualquer jeito: nem pede.
+        if (location.hostname !== 'solarbuyside.com.br' && location.hostname !== 'www.solarbuyside.com.br') return
+        var carregar = function () {
+          var s = document.createElement('script')
+          s.async = true
+          s.src = 'https://dialogon.com.br/chat/v1.js'
+          s.setAttribute('data-chave', 'aya42IIcZ_osik0RhFRwL5tN')
+          document.body.appendChild(s)
+        }
+        if (window.requestIdleCallback) requestIdleCallback(carregar, { timeout: 6000 })
+        else setTimeout(carregar, 2500)
+      })
+    </script>
+
     <!-- Schema.org JSON-LD -->
     <script type="application/ld+json">
     {
