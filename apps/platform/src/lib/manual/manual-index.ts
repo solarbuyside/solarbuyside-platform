@@ -1,28 +1,23 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-
 import type { ManualIndex } from "@/app/(app)/manual/types";
 import { flattenTocForSearch } from "./manual-toc";
+// Fora de public/ de propósito: tem o texto de todas as páginas do Manual, que
+// é conteúdo pago. Importado no servidor, nunca servido como arquivo.
+import indiceDoManual from "../../../conteudo/manual-index.json";
 
 export type ManualChapter = { title: string; page: number };
 
 let cached: ManualIndex | null | undefined;
 
-/** Carrega o índice do Manual de public/manual/manual-index.json (cacheado). */
+/** O índice do Manual (texto por página), embutido no código do servidor. */
 export async function loadManualIndex(): Promise<ManualIndex | null> {
   if (cached !== undefined) return cached;
-  try {
-    const file = join(process.cwd(), "public", "manual", "manual-index.json");
-    cached = JSON.parse(await readFile(file, "utf-8")) as ManualIndex;
-  } catch {
-    cached = null;
-  }
+  cached = indiceDoManual as unknown as ManualIndex;
   return cached;
 }
 
 /**
  * Capítulos do Manual para a busca global e o card "continue lendo".
- * Fonte: índice curado (tópicos + subtópicos), não os bookmarks do PDF — assim a
+ * Fonte: índice curado (tópicos + subtópicos), não os bookmarks do PDF, assim a
  * busca cobre todo o índice detalhado e segue a numeração correta.
  */
 export async function loadManualChapters(): Promise<ManualChapter[]> {

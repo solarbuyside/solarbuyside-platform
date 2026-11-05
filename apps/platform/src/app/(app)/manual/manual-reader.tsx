@@ -42,10 +42,14 @@ const FLAT_TOPICS: { key: TopicKey; page: number }[] = MANUAL_TOC.flatMap((part,
 export function ManualReader({
   index,
   pdfUrl,
+  pdfBytes,
   initialPage = 1,
 }: {
   index: ManualIndex;
+  /** Link assinado e temporário do bucket privado (ver page.tsx). */
   pdfUrl: string;
+  /** Tamanho do PDF: o leitor pede os pedaços sozinho, por Range. */
+  pdfBytes: number;
   initialPage?: number;
 }) {
   const searchParams = useSearchParams();
@@ -94,7 +98,7 @@ export function ManualReader({
     }
   }
 
-  // Tela cheia REAL dentro da plataforma (Fullscreen API) — sem abrir o PDF.
+  // Tela cheia REAL dentro da plataforma (Fullscreen API), sem abrir o PDF.
   function toggleFullscreen() {
     const el = viewerRef.current;
     if (!el) return;
@@ -110,7 +114,7 @@ export function ManualReader({
       const fs = Boolean(document.fullscreenElement);
       setIsFullscreen(fs);
       if (!fs) setDrawerOpen(false); // sai da tela cheia → fecha o drawer
-      // A largura disponível muda ao entrar/sair da tela cheia — refaz o
+      // A largura disponível muda ao entrar/sair da tela cheia, refaz o
       // ajuste de zoom para a página caber na nova largura.
       didFitRef.current = false;
     }
@@ -180,13 +184,28 @@ export function ManualReader({
           "pdfjs-dist/build/pdf.worker.min.mjs",
           import.meta.url,
         ).toString();
-        // disableAutoFetch + range requests: o pdf.js busca só os bytes da
-        // página atual em vez de baixar os 61MB inteiros — abre muito mais
-        // rápido. rangeChunkSize maior reduz o nº de requisições.
+        // O pdf.js busca só os bytes da página atual em vez de baixar os 47MB
+        // inteiros. Quem pede cada pedaço é este transporte, com Range, direto
+        // no link assinado do Storage: o Supabase não expõe Accept-Ranges para
+        // outro domínio, e sem isso o pdf.js baixaria o arquivo todo.
+        const transporte = new pdfjs.PDFDataRangeTransport(pdfBytes, null);
+        transporte.requestDataRange = (inicio: number, fim: number) => {
+          fetch(pdfUrl, { headers: { Range: `bytes=${inicio}-${fim - 1}` } })
+            .then((r) => {
+              if (r.status !== 206 && r.status !== 200) throw new Error(`HTTP ${r.status}`);
+              return r.arrayBuffer();
+            })
+            .then((dados) => {
+              if (!cancelled) transporte.onDataRange(inicio, new Uint8Array(dados));
+            })
+            .catch(() => {
+              if (!cancelled) setLoadError("A conexão com o manual expirou. Recarregue a página.");
+            });
+        };
         const loaded = await pdfjs.getDocument({
-          url: pdfUrl,
+          range: transporte,
+          length: pdfBytes,
           disableAutoFetch: true,
-          disableStream: false,
           rangeChunkSize: 262144,
         }).promise;
         if (!cancelled) setDoc(loaded as unknown as PdfDoc);
@@ -197,7 +216,7 @@ export function ManualReader({
     return () => {
       cancelled = true;
     };
-  }, [pdfUrl]);
+  }, [pdfUrl, pdfBytes]);
 
   // Renderiza a página atual sempre que muda página/zoom/documento.
   React.useEffect(() => {
@@ -222,7 +241,7 @@ export function ManualReader({
           if (availW > 0 && base.width > 0) {
             const fitW = availW / base.width;
             const fitH = availH > 0 && base.height > 0 ? availH / base.height : fitW;
-            // Tela cheia (modo leitura): a ALTURA é a referência — a página
+            // Tela cheia (modo leitura): a ALTURA é a referência, a página
             // encaixa inteira na altura da tela, sem scroll vertical; a largura
             // ajusta proporcional (sobra nas laterais, centralizada). O zoom
             // acompanha o monitor (~100% numa tela comum, maior em telas
@@ -257,7 +276,7 @@ export function ManualReader({
         renderTaskRef.current = task;
         await task.promise;
       } catch {
-        /* render cancelado ao trocar de página — ok */
+        /* render cancelado ao trocar de página, ok */
       } finally {
         if (!cancelled) setRendering(false);
       }
@@ -273,7 +292,7 @@ export function ManualReader({
   // Prefetch inteligente: aquece a janela vizinha (2 atrás, 3 à frente) em
   // segundo plano. Com disableAutoFetch, cada getPage baixa só os bytes daquela
   // página; o pdf.js cacheia, então ao navegar para perto a renderização é
-  // instantânea — sem baixar o documento inteiro.
+  // instantânea, sem baixar o documento inteiro.
   React.useEffect(() => {
     if (!doc) return;
     let cancelled = false;
@@ -285,7 +304,7 @@ export function ManualReader({
         try {
           await doc.getPage(p);
         } catch {
-          /* ignora — só pré-aquecimento */
+          /* ignora, só pré-aquecimento */
         }
       }
     })();
@@ -307,9 +326,9 @@ export function ManualReader({
     return () => window.removeEventListener("keydown", onKey);
   }, [page, goTo]);
 
-  // Navegação pela roda do mouse — com proteção anti-esbarrão para não virar
+  // Navegação pela roda do mouse, com proteção anti-esbarrão para não virar
   // várias páginas sem querer:
-  //  (1) só vira quando o scroll já está no LIMITE (topo/fundo) da página —
+  //  (1) só vira quando o scroll já está no LIMITE (topo/fundo) da página -
   //      assim uma página ampliada rola normalmente primeiro;
   //  (2) exige um overscroll ACUMULADO acima de um limiar (gesto deliberado,
   //      não um toque leve); muda de direção zera o acúmulo;
@@ -378,7 +397,7 @@ export function ManualReader({
           isFullscreen && "rounded-none",
         )}
       >
-        {/* Índice fixo à esquerda — permanente no desktop E na tela cheia.
+        {/* Índice fixo à esquerda, permanente no desktop E na tela cheia.
             Clicar num tópico só navega; o painel não fecha. */}
         <aside className="hidden w-[300px] shrink-0 flex-col overflow-hidden border-r border-slate-200 lg:flex">
           <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
@@ -403,7 +422,7 @@ export function ManualReader({
           {/* Toolbar */}
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5">
             <div className="flex items-center gap-2">
-              {/* Botão de índice — só no mobile (lg-): o painel lateral some em
+              {/* Botão de índice, só no mobile (lg-): o painel lateral some em
                   telas pequenas. No desktop e na tela cheia o índice fixo já
                   está visível, então o botão fica oculto. */}
               <button
@@ -462,7 +481,7 @@ export function ManualReader({
                     <span className="hidden sm:inline">Modo leitura</span>
                   </button>
 
-                  {/* Balãozinho de dica — sutil, com seta e botão de fechar. */}
+                  {/* Balãozinho de dica, sutil, com seta e botão de fechar. */}
                   {showReadingHint && (
                     <div className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 animate-in fade-in slide-in-from-top-1 duration-300">
                       <div className="absolute -top-1.5 right-6 h-3 w-3 rotate-45 rounded-[2px] bg-slate-900" />
@@ -513,7 +532,7 @@ export function ManualReader({
               </div>
             )}
 
-            {/* Setas flutuantes — só na tela cheia (no modo normal a navegação
+            {/* Setas flutuantes, só na tela cheia (no modo normal a navegação
                 fica nos botões grandes da barra inferior). */}
             {doc && isFullscreen && (
               <>
@@ -523,7 +542,7 @@ export function ManualReader({
             )}
           </div>
 
-          {/* Índice flutuante (drawer) — sobrepõe o leitor, útil na tela cheia. */}
+          {/* Índice flutuante (drawer), sobrepõe o leitor, útil na tela cheia. */}
           {drawerOpen && (
             <>
               <div
@@ -560,7 +579,7 @@ export function ManualReader({
             </>
           )}
 
-          {/* Barra inferior de navegação — botões grandes e fáceis */}
+          {/* Barra inferior de navegação, botões grandes e fáceis */}
           <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
             <button
               onClick={() => goTo(page - 1)}
@@ -609,14 +628,14 @@ function IndexList({
   onGo: (n: number) => void;
   activeRef?: React.Ref<HTMLButtonElement>;
   /** Quando true (drawer), clicar num tópico COM subtópicos só os expande (não
-      navega nem fecha) — o usuário escolhe a página nos subitens. */
+      navega nem fecha), o usuário escolhe a página nos subitens. */
   expandOnly?: boolean;
 }) {
   return (
     <nav className="min-h-0 flex-1 overflow-y-auto px-2.5 py-3">
       {MANUAL_TOC.map((part, pi) => (
         <div key={`${part.title}-${pi}`} className={pi > 0 ? "mt-4" : undefined}>
-          {/* Cabeçalho da parte — navega para a página divisória da fase/anexo. */}
+          {/* Cabeçalho da parte, navega para a página divisória da fase/anexo. */}
           <button
             onClick={() => onGo(part.page)}
             className="group flex w-full items-baseline gap-2 rounded-lg px-2.5 py-1.5 text-left transition-colors hover:bg-slate-50"

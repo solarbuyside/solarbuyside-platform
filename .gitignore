@@ -53,3 +53,6 @@ ajustes/xlsx/
 
 # Backup de linha do CMS gerado por scripts/restaurar-logos-ocultos.mjs
 apps/platform/scripts/.backup-*.json
+
+# PDFs pagos: servidos só do bucket privado "manuais" do Supabase, nunca daqui.
+/apps/platform/conteudo/pdfs/
