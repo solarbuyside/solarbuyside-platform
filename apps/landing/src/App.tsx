@@ -11,6 +11,7 @@ import AppV4 from './v4/AppV4'
 // React e o chunk chegar (o HTML pré-renderizado cobre até o mount).
 const AppV4Full = lazy(() => import('./v4-full/AppV4'))
 const LegalRoute = lazy(() => import('./LegalRoute'))
+const DesignSystemV4 = lazy(() => import('./v4/DesignSystemV4'))
 
 const LEGAL_PATHS = ['/politica-de-privacidade', '/termos-de-uso', '/medidas-antipiratarias']
 
@@ -56,6 +57,16 @@ function App() {
     return (
       <Suspense fallback={null}>
         <LegalRoute pathname={pathname} />
+      </Suspense>
+    )
+  }
+
+  // /design-system = referência de cores, fontes e componentes da LP para
+  // agência/parceiros. Chunk próprio, noindex no prerender.
+  if (pathname === '/design-system') {
+    return (
+      <Suspense fallback={null}>
+        <DesignSystemV4 />
       </Suspense>
     )
   }

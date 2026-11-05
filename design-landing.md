@@ -36,6 +36,12 @@ Nada de modo claro: o claro só aparece no ato paper, de propósito.
 --v4-orange: #f97316;  --v4-amber: #fbbf24;  --v4-blue: #3b82f6;
 ```
 
+Vitrine pública desta paleta (cores, fontes, componentes, logo) para agência e
+parceiros: rota `/design-system` (`src/v4/DesignSystemV4.tsx`, noindex), com
+chave Site/Sistema (`?v=sistema` mostra a plataforma, ver `design.md`). Os
+valores lá são escritos à mão: mudou token aqui ou no `globals.css` da
+plataforma, atualize a página.
+
 O laranja `#f97316` é compartilhado com a plataforma — é o único ponto de
 contato entre os dois sistemas. Azul `#3b82f6` = lado Buy-Side (comprador);
 laranja = lado Sell-Side (vendedor) — ver o "duelo" em `AuthorityV4.tsx`.
