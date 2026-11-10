@@ -14,7 +14,7 @@ import {
   roleChangeError,
   type UserRole,
 } from "@/lib/auth/roles";
-import { validatePassword } from "@/lib/auth/password-rules";
+import { generatePassword, validatePassword } from "@/lib/auth/password-rules";
 import { sendNewAccountEmail } from "@/lib/email/brevo";
 
 /*
@@ -204,6 +204,60 @@ export async function setUserBlockedAction(userId: string, blocked: boolean): Pr
   if (error) return { ok: false, error: `Falha ao atualizar acesso: ${error.message}` };
   refresh();
   return { ok: true };
+}
+
+export type ResendAccessResult =
+  | { ok: true; email: string; password: string; emailSent: boolean; emailError?: string }
+  | { ok: false; error: string };
+
+/**
+ * Reenvia o acesso: a senha antiga não fica guardada em lugar nenhum, então
+ * gera uma nova, grava e manda o mesmo e-mail do cadastro. A senha volta para
+ * a tela para o admin poder copiar e mandar por outro canal se o e-mail falhar.
+ */
+export async function resendAccessAction(userId: string): Promise<ResendAccessResult> {
+  const actor = await getStaff();
+  if (!actor) return { ok: false, error: "Não autorizado." };
+  if (actor.id === userId) {
+    return { ok: false, error: "Para trocar a sua própria senha, use Configurações." };
+  }
+  const target = await getManagedUserById(userId);
+  if (!target) return { ok: false, error: "Usuário não encontrado." };
+  const denied = manageTargetError(actor, target);
+  if (denied) return { ok: false, error: denied };
+  if (!target.email) return { ok: false, error: "Esta conta não tem e-mail." };
+
+  const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", userId)
+    .maybeSingle();
+  const password = generatePassword(12);
+  const { error } = await admin.auth.admin.updateUserById(userId, { password });
+  if (error) return { ok: false, error: `Não foi possível gerar a nova senha: ${error.message}` };
+
+  await admin
+    .from("profiles")
+    .update({ password_set_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq("id", userId);
+
+  const mail = await sendNewAccountEmail({
+    to: target.email,
+    name: profile?.full_name,
+    password,
+    loginUrl: `${getAppUrl()}/login`,
+    roleLabel: ROLE_LABELS[target.role],
+  });
+
+  refresh();
+  return {
+    ok: true,
+    email: target.email,
+    password,
+    emailSent: mail.ok,
+    emailError: mail.ok ? undefined : (mail.error ?? `status ${mail.status}`),
+  };
 }
 
 export async function deleteUserAction(userId: string): Promise<ActionResult> {

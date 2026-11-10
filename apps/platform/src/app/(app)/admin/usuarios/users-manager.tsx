@@ -20,6 +20,7 @@ import {
   MailCheck,
   MailWarning,
   ShieldCheck,
+  Send,
 } from "lucide-react";
 
 import { cn, formatDateBR } from "@/lib/utils";
@@ -42,6 +43,7 @@ import {
   updateUserProfileAction,
   setUserBlockedAction,
   deleteUserAction,
+  resendAccessAction,
 } from "./actions";
 
 const ROLE_BADGE: Record<UserRole, "orange" | "default" | "secondary"> = {
@@ -97,6 +99,7 @@ export function UsersManager({
   const [creating, setCreating] = React.useState(false);
   const [editing, setEditing] = React.useState<ManagedUser | null>(null);
   const [deleting, setDeleting] = React.useState<ManagedUser | null>(null);
+  const [resending, setResending] = React.useState<ManagedUser | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [rowError, setRowError] = React.useState<string | null>(null);
 
@@ -204,6 +207,15 @@ export function UsersManager({
                     : protectedAdmin
                       ? "Apenas um administrador pode remover um administrador"
                       : null;
+                const resendLock = u.protected
+                  ? "Conta protegida"
+                  : isSelf
+                    ? "Para trocar a sua própria senha, use Configurações"
+                    : protectedAdmin
+                      ? "Apenas um administrador pode reenviar o acesso de um administrador"
+                      : !u.email
+                        ? "Conta sem e-mail"
+                        : null;
                 const busy = busyId === u.id;
                 return (
                   <TableRow key={u.id}>
@@ -250,6 +262,16 @@ export function UsersManager({
                           }}
                         >
                           <Pencil className="h-4 w-4" />
+                        </IconButton>
+                        <IconButton
+                          title={resendLock ?? "Reenviar acesso por e-mail"}
+                          disabled={Boolean(resendLock)}
+                          onClick={() => {
+                            setRowError(null);
+                            setResending(u);
+                          }}
+                        >
+                          <Send className="h-4 w-4" />
                         </IconButton>
                         <IconButton
                           title={blockLock ?? (u.blocked ? "Desbloquear acesso" : "Bloquear acesso")}
@@ -304,6 +326,14 @@ export function UsersManager({
             setEditing(null);
             router.refresh();
           }}
+        />
+      )}
+
+      {resending && (
+        <ResendModal
+          user={resending}
+          onClose={() => setResending(null)}
+          onResent={() => router.refresh()}
         />
       )}
 
@@ -510,7 +540,92 @@ function CreateUserModal({
   );
 }
 
+function ResendModal({
+  user,
+  onClose,
+  onResent,
+}: {
+  user: ManagedUser;
+  onClose: () => void;
+  onResent: () => void;
+}) {
+  const [sending, setSending] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [done, setDone] = React.useState<{
+    email: string;
+    password: string;
+    emailSent: boolean;
+    emailError?: string;
+  } | null>(null);
+
+  async function handleResend() {
+    setSending(true);
+    setError(null);
+    try {
+      const res = await resendAccessAction(user.id);
+      if (!res.ok) {
+        setError(res.error);
+        setSending(false);
+        return;
+      }
+      setDone(res);
+      onResent();
+    } catch {
+      setError("Erro ao reenviar o acesso. Tente de novo.");
+      setSending(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <Overlay onClose={onClose}>
+        <CreatedView
+          mode="resent"
+          fullName={user.fullName ?? done.email}
+          email={done.email}
+          password={done.password}
+          role={user.role}
+          emailSent={done.emailSent}
+          emailError={done.emailError}
+          onClose={onClose}
+        />
+      </Overlay>
+    );
+  }
+
+  return (
+    <Overlay onClose={onClose}>
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Send className="h-5 w-5" />
+        </span>
+        <div>
+          <h3 className="text-lg font-bold text-slate-900">Reenviar acesso?</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Vamos gerar uma senha nova e enviar o login para{" "}
+            <strong className="text-slate-700">{user.email}</strong>. A senha atual deixa de
+            funcionar.
+          </p>
+        </div>
+      </div>
+
+      {error && <p className="mt-4 text-sm font-medium text-destructive">{error}</p>}
+
+      <div className="mt-6 flex justify-end gap-2">
+        <button type="button" onClick={onClose} className={secondaryButtonClass}>
+          Cancelar
+        </button>
+        <button type="button" onClick={handleResend} disabled={sending} className={primaryButtonClass}>
+          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {sending ? "Enviando…" : "Gerar senha e enviar"}
+        </button>
+      </div>
+    </Overlay>
+  );
+}
+
 function CreatedView({
+  mode = "created",
   fullName,
   email,
   password,
@@ -519,6 +634,7 @@ function CreatedView({
   emailError,
   onClose,
 }: {
+  mode?: "created" | "resent";
   fullName: string;
   email: string;
   password: string;
@@ -527,6 +643,7 @@ function CreatedView({
   emailError?: string;
   onClose: () => void;
 }) {
+  const resent = mode === "resent";
   const [copied, setCopied] = React.useState(false);
 
   async function copyAccess() {
@@ -553,16 +670,23 @@ function CreatedView({
           {emailSent ? <MailCheck className="h-5 w-5" /> : <MailWarning className="h-5 w-5" />}
         </span>
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Conta criada</h3>
+          <h3 className="text-lg font-bold text-slate-900">{resent ? "Acesso reenviado" : "Conta criada"}</h3>
           <p className="mt-1 text-sm text-slate-500">
             {emailSent ? (
-              <>
-                {fullName} entrou como <strong className="text-slate-700">{ROLE_LABELS[role]}</strong>.
-                Enviamos o login e a senha para <strong className="text-slate-700">{email}</strong>.
-              </>
+              resent ? (
+                <>
+                  Geramos uma senha nova e enviamos o login para{" "}
+                  <strong className="text-slate-700">{email}</strong>.
+                </>
+              ) : (
+                <>
+                  {fullName} entrou como <strong className="text-slate-700">{ROLE_LABELS[role]}</strong>.
+                  Enviamos o login e a senha para <strong className="text-slate-700">{email}</strong>.
+                </>
+              )
             ) : (
               <>
-                A conta foi criada, mas o e-mail não saiu
+                {resent ? "A senha nova já vale" : "A conta foi criada"}, mas o e-mail não saiu
                 {emailError ? ` (${emailError})` : ""}. Copie os dados abaixo e envie para a pessoa.
               </>
             )}
