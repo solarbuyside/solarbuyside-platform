@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { CircleAlert, MailCheck } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/env";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { verify2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 import { VerifyForm } from "./verify-form";
 
@@ -26,7 +26,7 @@ export default async function VerificarPage({
   const email = (data?.claims?.email as string | undefined) ?? "";
 
   if (!userId) redirect("/login");
-  if (isAdminEmail(email)) redirect("/dashboard"); // admins não usam 2FA
+  if ((await getCurrentUser())?.isAdmin) redirect("/dashboard"); // equipe não usa 2FA
 
   const cookieStore = await cookies();
   if (verify2faToken(userId, cookieStore.get(TWO_FA_COOKIE)?.value)) {

@@ -28,9 +28,10 @@ export default async function AdminUsersPage() {
           Usuários
         </h2>
         <p className="mt-1 max-w-2xl text-sm text-slate-500">
-          Edite os dados, bloqueie o acesso ou remova contas da plataforma.{" "}
+          Cadastre contas novas, edite os dados e o papel, bloqueie o acesso ou remova contas da
+          plataforma.{" "}
           {user.role === "writer"
-            ? "Como editor, você tem acesso completo — exceto remover ou bloquear um administrador."
+            ? "Como editor, você tem acesso completo, exceto mexer na conta de um administrador."
             : "Como administrador, você gerencia todas as contas."}
         </p>
       </div>

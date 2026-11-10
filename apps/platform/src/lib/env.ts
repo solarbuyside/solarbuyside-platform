@@ -43,10 +43,10 @@ export function getSupabaseSecretKey() {
 export type StaffRole = "admin" | "writer";
 
 /**
- * Equipe interna padrão (e-mail → papel). É a fonte de verdade de runtime para
- * o acesso ao painel e para as regras de proteção (writer não remove admin).
- * Mantido em config (não no banco) de propósito: a equipe é fixa e pequena, e
- * assim não há risco de se trancar fora por um UPDATE errado. Pode ser
+ * Equipe interna PADRÃO (e-mail → papel). Desde a migration 0028 o papel de
+ * verdade vem da tabela user_roles (o Francis troca pelo /admin/usuarios);
+ * este mapa só vale para quem ainda não tem papel salvo no banco, e para as
+ * contas protegidas (sempre). Ver src/lib/auth/roles.ts. Pode ser
  * estendido/ajustado via env STAFF_ROLES="email:admin,email:writer".
  */
 const DEFAULT_STAFF_ROLES: Record<string, StaffRole> = {
@@ -64,6 +64,19 @@ function parseStaffRolesEnv(): Record<string, StaffRole> {
     if (email && (role === "admin" || role === "writer")) out[email] = role;
   }
   return out;
+}
+
+/**
+ * Contas protegidas: o papel delas é SEMPRE o do mapa acima (a tabela
+ * user_roles é ignorada) e ninguém pelo painel consegue trocar o papel,
+ * bloquear ou remover. É a conta do desenvolvedor, que precisa continuar
+ * entrando no painel aconteça o que acontecer com os outros papéis.
+ */
+const PROTECTED_ACCOUNTS: readonly string[] = ["gab.feelix@gmail.com"];
+
+export function isProtectedAccount(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return PROTECTED_ACCOUNTS.includes(email.trim().toLowerCase());
 }
 
 /** Mapa efetivo de staff (defaults sobrescritos pelo env STAFF_ROLES). */

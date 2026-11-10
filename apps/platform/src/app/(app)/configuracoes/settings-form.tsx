@@ -133,7 +133,7 @@ export function SettingsForm({
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">Segurança</h3>
         <Link
-          href="/reset-password"
+          href="/update-password"
           className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-700 transition-all hover:border-primary/40 hover:text-primary active:scale-[0.98]"
         >
           <KeyRound className="h-4 w-4" />

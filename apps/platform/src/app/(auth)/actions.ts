@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminEmail, getAppUrl } from "@/lib/env";
+import { getAppUrl } from "@/lib/env";
+import { resolveRoleById } from "@/lib/auth/role-store";
 import { make2faToken, TWO_FA_COOKIE } from "@/lib/auth/two-factor";
 import { validatePassword } from "@/lib/auth/password-rules";
 import { sendAccessEmail } from "@/lib/email/brevo";
@@ -55,8 +56,9 @@ export async function signInAction(formData: FormData) {
   // picked up before navigating, avoiding the client "unexpected response" race.
   revalidatePath("/", "layout");
 
-  // Admins não passam pelo 2FA por e-mail.
-  if (isAdminEmail(email) || !data.user) {
+  // Equipe (admin/editor) não passa pelo 2FA por e-mail. O papel vem do banco
+  // (user_roles), igual ao portão do app, para os dois nunca discordarem.
+  if (!data.user || (await resolveRoleById(data.user.id, data.user.email ?? email)) !== "user") {
     redirect(next);
   }
 

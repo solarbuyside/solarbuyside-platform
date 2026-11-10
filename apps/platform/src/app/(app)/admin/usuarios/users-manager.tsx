@@ -11,10 +11,20 @@ import {
   Loader2,
   AlertTriangle,
   Search,
+  UserPlus,
+  Dices,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  MailCheck,
+  MailWarning,
+  ShieldCheck,
 } from "lucide-react";
 
 import { cn, formatDateBR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Select } from "@/components/ui/select";
 import {
   TableContainer,
   Table,
@@ -25,17 +35,25 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import type { ManagedUser } from "@/lib/admin/users";
-import type { UserRole } from "@/lib/auth/current-user";
+import { ROLE_LABELS, USER_ROLES, assignableRoles, type UserRole } from "@/lib/auth/roles";
+import { generatePassword, passwordRules } from "@/lib/auth/password-rules";
 import {
+  createUserAction,
   updateUserProfileAction,
   setUserBlockedAction,
   deleteUserAction,
 } from "./actions";
 
-const ROLE_BADGE: Record<UserRole, { label: string; variant: "orange" | "default" | "secondary" }> = {
-  admin: { label: "Administrador", variant: "orange" },
-  writer: { label: "Editor", variant: "default" },
-  user: { label: "Comprador", variant: "secondary" },
+const ROLE_BADGE: Record<UserRole, "orange" | "default" | "secondary"> = {
+  admin: "orange",
+  writer: "default",
+  user: "secondary",
+};
+
+const ROLE_HELP: Record<UserRole, string> = {
+  user: "Usa a plataforma para avaliar propostas. Não vê o painel admin.",
+  writer: "Acessa todo o painel admin, mas não mexe em administradores.",
+  admin: "Acesso total, inclusive para gerenciar outros administradores.",
 };
 
 function statusFor(u: ManagedUser): { label: string; variant: "destructive" | "warning" | "emerald" } {
@@ -46,8 +64,24 @@ function statusFor(u: ManagedUser): { label: string; variant: "destructive" | "w
   return { label: "Ativo", variant: "emerald" };
 }
 
+/** Motivo para o ator NÃO poder trocar o papel desta conta (espelha o servidor). */
+function roleLockReason(u: ManagedUser, currentUserId: string, currentUserRole: UserRole): string | null {
+  if (u.protected) return "Conta protegida: o papel não pode ser alterado.";
+  if (u.id === currentUserId) return "Você não pode mudar o seu próprio papel.";
+  if (u.role === "admin" && currentUserRole !== "admin") {
+    return "Apenas um administrador pode alterar outro administrador.";
+  }
+  return null;
+}
+
 const inputClass =
   "h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 shadow-sm outline-none transition-all hover:border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/15";
+
+const primaryButtonClass =
+  "inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all duration-200 hover:bg-primary/95 hover:shadow-[0_4px_15px_rgba(249,115,22,0.2)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none";
+
+const secondaryButtonClass =
+  "inline-flex h-11 items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50";
 
 export function UsersManager({
   users,
@@ -60,6 +94,7 @@ export function UsersManager({
 }) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
+  const [creating, setCreating] = React.useState(false);
   const [editing, setEditing] = React.useState<ManagedUser | null>(null);
   const [deleting, setDeleting] = React.useState<ManagedUser | null>(null);
   const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -82,10 +117,11 @@ export function UsersManager({
     setRowError(null);
     setBusyId(u.id);
     try {
-      await setUserBlockedAction(u.id, !u.blocked);
-      router.refresh();
-    } catch (err) {
-      setRowError(err instanceof Error ? err.message : "Erro ao atualizar acesso.");
+      const res = await setUserBlockedAction(u.id, !u.blocked);
+      if (res.ok) router.refresh();
+      else setRowError(res.error);
+    } catch {
+      setRowError("Erro ao atualizar acesso.");
     } finally {
       setBusyId(null);
     }
@@ -99,14 +135,27 @@ export function UsersManager({
           <strong className="text-slate-800">{users.length}</strong>{" "}
           {users.length === 1 ? "conta" : "contas"}
         </p>
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar por nome, e-mail ou empresa…"
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
-          />
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar por nome, e-mail ou empresa…"
+              className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-700 outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setRowError(null);
+              setCreating(true);
+            }}
+            className={cn(primaryButtonClass, "h-10 px-4")}
+          >
+            <UserPlus className="h-4 w-4" />
+            Novo usuário
+          </button>
         </div>
       </div>
 
@@ -138,10 +187,23 @@ export function UsersManager({
               </TableRow>
             ) : (
               filtered.map((u) => {
-                const role = ROLE_BADGE[u.role];
                 const status = statusFor(u);
                 const isSelf = u.id === currentUserId;
                 const protectedAdmin = u.role === "admin" && !canManageAdmins;
+                const blockLock = u.protected
+                  ? "Conta protegida"
+                  : isSelf
+                    ? "Você não pode bloquear a própria conta"
+                    : protectedAdmin
+                      ? "Apenas um administrador pode bloquear um administrador"
+                      : null;
+                const deleteLock = u.protected
+                  ? "Conta protegida"
+                  : isSelf
+                    ? "Você não pode remover a própria conta"
+                    : protectedAdmin
+                      ? "Apenas um administrador pode remover um administrador"
+                      : null;
                 const busy = busyId === u.id;
                 return (
                   <TableRow key={u.id}>
@@ -160,9 +222,16 @@ export function UsersManager({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={role.variant} className="text-[10px]">
-                        {role.label}
-                      </Badge>
+                      <span className="inline-flex items-center gap-1.5">
+                        <Badge variant={ROLE_BADGE[u.role]} className="text-[10px]">
+                          {ROLE_LABELS[u.role]}
+                        </Badge>
+                        {u.protected && (
+                          <span title="Conta protegida" className="text-slate-400">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                          </span>
+                        )}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge variant={status.variant} className="text-[10px]">
@@ -174,7 +243,7 @@ export function UsersManager({
                     <TableCell>
                       <div className="flex items-center justify-end gap-1">
                         <IconButton
-                          title="Editar dados"
+                          title="Editar dados e papel"
                           onClick={() => {
                             setRowError(null);
                             setEditing(u);
@@ -183,14 +252,8 @@ export function UsersManager({
                           <Pencil className="h-4 w-4" />
                         </IconButton>
                         <IconButton
-                          title={
-                            protectedAdmin
-                              ? "Apenas um administrador pode bloquear um administrador"
-                              : u.blocked
-                                ? "Desbloquear acesso"
-                                : "Bloquear acesso"
-                          }
-                          disabled={protectedAdmin || busy}
+                          title={blockLock ?? (u.blocked ? "Desbloquear acesso" : "Bloquear acesso")}
+                          disabled={Boolean(blockLock) || busy}
                           onClick={() => toggleBlock(u)}
                           className={u.blocked ? "text-amber-600 hover:bg-amber-50" : undefined}
                         >
@@ -203,14 +266,8 @@ export function UsersManager({
                           )}
                         </IconButton>
                         <IconButton
-                          title={
-                            isSelf
-                              ? "Você não pode remover a própria conta"
-                              : protectedAdmin
-                                ? "Apenas um administrador pode remover um administrador"
-                                : "Remover conta"
-                          }
-                          disabled={isSelf || protectedAdmin}
+                          title={deleteLock ?? "Remover conta"}
+                          disabled={Boolean(deleteLock)}
                           onClick={() => {
                             setRowError(null);
                             setDeleting(u);
@@ -229,9 +286,19 @@ export function UsersManager({
         </Table>
       </TableContainer>
 
+      {creating && (
+        <CreateUserModal
+          currentUserRole={currentUserRole}
+          onClose={() => setCreating(false)}
+          onCreated={() => router.refresh()}
+        />
+      )}
+
       {editing && (
         <EditModal
           user={editing}
+          roleLock={roleLockReason(editing, currentUserId, currentUserRole)}
+          currentUserRole={currentUserRole}
           onClose={() => setEditing(null)}
           onSaved={() => {
             setEditing(null);
@@ -273,29 +340,321 @@ function IconButton({
   );
 }
 
+function roleOptions(roles: readonly UserRole[]) {
+  return roles.map((r) => ({ value: r, label: ROLE_LABELS[r] }));
+}
+
+function CreateUserModal({
+  currentUserRole,
+  onClose,
+  onCreated,
+}: {
+  currentUserRole: UserRole;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [fullName, setFullName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [role, setRole] = React.useState<UserRole>("user");
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [done, setDone] = React.useState<{ emailSent: boolean; emailError?: string } | null>(null);
+
+  const rulesOk = passwordRules.every((r) => r.test(password));
+  const canSubmit = fullName.trim().length >= 2 && email.trim().length > 3 && rulesOk && !saving;
+
+  function randomize() {
+    setPassword(generatePassword(12));
+    setShowPassword(true);
+  }
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await createUserAction({ fullName, email, password, role });
+      if (!res.ok) {
+        setError(res.error);
+        setSaving(false);
+        return;
+      }
+      setDone({ emailSent: res.emailSent, emailError: res.emailError });
+      onCreated();
+    } catch {
+      setError("Erro ao criar a conta. Tente de novo.");
+      setSaving(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <Overlay onClose={onClose}>
+        <CreatedView
+          fullName={fullName.trim()}
+          email={email.trim().toLowerCase()}
+          password={password}
+          role={role}
+          emailSent={done.emailSent}
+          emailError={done.emailError}
+          onClose={onClose}
+        />
+      </Overlay>
+    );
+  }
+
+  return (
+    <Overlay onClose={onClose}>
+      <form onSubmit={handleCreate}>
+        <div className="mb-5 flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Novo usuário</h3>
+            <p className="text-xs text-slate-500">A pessoa recebe o login e a senha por e-mail.</p>
+          </div>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <Field label="Nome completo">
+            <input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className={inputClass}
+              placeholder="Nome da pessoa"
+              autoFocus
+              autoComplete="off"
+            />
+          </Field>
+          <Field label="E-mail">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+              placeholder="nome@empresa.com.br"
+              autoComplete="off"
+            />
+          </Field>
+          <div className="grid gap-1.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Papel</span>
+            <Select
+              value={role}
+              options={roleOptions(assignableRoles(currentUserRole))}
+              onValueChange={(v) => setRole(v as UserRole)}
+              ariaLabel="Papel"
+            />
+            <span className="text-xs text-slate-500">{ROLE_HELP[role]}</span>
+          </div>
+          <div className="grid gap-1.5">
+            <label htmlFor="new-user-password" className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Senha
+            </label>
+            <div className="relative">
+              <input
+                id="new-user-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={cn(inputClass, "pr-20 font-mono")}
+                placeholder="Digite ou gere uma senha"
+                autoComplete="new-password"
+                spellCheck={false}
+              />
+              <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-black/5 hover:text-slate-700"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={randomize}
+                  title="Gerar senha aleatória"
+                  aria-label="Gerar senha aleatória"
+                  className="flex h-8 w-8 items-center justify-center rounded-md text-primary transition-colors hover:bg-primary/10"
+                >
+                  <Dices className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-lg bg-slate-50 px-3.5 py-3">
+              {passwordRules.map((rule) => (
+                <RuleItem key={rule.id} met={rule.test(password)} label={rule.label} />
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {error && <p className="mt-4 text-sm font-medium text-destructive">{error}</p>}
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button type="button" onClick={onClose} className={secondaryButtonClass}>
+            Cancelar
+          </button>
+          <button type="submit" disabled={!canSubmit} className={primaryButtonClass}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+            {saving ? "Criando…" : "Criar e enviar acesso"}
+          </button>
+        </div>
+      </form>
+    </Overlay>
+  );
+}
+
+function CreatedView({
+  fullName,
+  email,
+  password,
+  role,
+  emailSent,
+  emailError,
+  onClose,
+}: {
+  fullName: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  emailSent: boolean;
+  emailError?: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = React.useState(false);
+
+  async function copyAccess() {
+    const loginUrl = `${window.location.origin}/login`;
+    const text = `Acesso à Plataforma Solar Buy-Side\nE-mail: ${email}\nSenha: ${password}\nEntre em: ${loginUrl}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Sem permissão de área de transferência: os dados seguem visíveis na tela.
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex items-start gap-3">
+        <span
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+            emailSent ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600",
+          )}
+        >
+          {emailSent ? <MailCheck className="h-5 w-5" /> : <MailWarning className="h-5 w-5" />}
+        </span>
+        <div>
+          <h3 className="text-lg font-bold text-slate-900">Conta criada</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            {emailSent ? (
+              <>
+                {fullName} entrou como <strong className="text-slate-700">{ROLE_LABELS[role]}</strong>.
+                Enviamos o login e a senha para <strong className="text-slate-700">{email}</strong>.
+              </>
+            ) : (
+              <>
+                A conta foi criada, mas o e-mail não saiu
+                {emailError ? ` (${emailError})` : ""}. Copie os dados abaixo e envie para a pessoa.
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-slate-50">
+        <div className="px-4 py-3">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">E-mail</p>
+          <p className="mt-0.5 break-all text-sm text-slate-800">{email}</p>
+        </div>
+        <div className="px-4 py-3">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Senha</p>
+          <p className="mt-0.5 break-all font-mono text-sm font-semibold text-slate-800">{password}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end gap-2">
+        <button type="button" onClick={copyAccess} className={cn(secondaryButtonClass, "gap-2")}>
+          {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+          {copied ? "Copiado" : "Copiar dados"}
+        </button>
+        <button type="button" onClick={onClose} className={primaryButtonClass}>
+          Concluir
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RuleItem({ met, label }: { met: boolean; label: string }) {
+  return (
+    <li className="flex items-center gap-2">
+      <span
+        className={cn(
+          "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors",
+          met
+            ? "border-emerald-500 bg-emerald-500/10 text-emerald-600"
+            : "border-slate-300 bg-white text-transparent",
+        )}
+      >
+        <Check className="h-3 w-3" strokeWidth={3} />
+      </span>
+      <span className={cn("text-xs transition-colors", met ? "text-emerald-600" : "text-slate-500")}>
+        {label}
+      </span>
+    </li>
+  );
+}
+
 function EditModal({
   user,
+  roleLock,
+  currentUserRole,
   onClose,
   onSaved,
 }: {
   user: ManagedUser;
+  roleLock: string | null;
+  currentUserRole: UserRole;
   onClose: () => void;
   onSaved: () => void;
 }) {
   const [fullName, setFullName] = React.useState(user.fullName ?? "");
   const [companyName, setCompanyName] = React.useState(user.companyName ?? "");
   const [phone, setPhone] = React.useState(user.phone ?? "");
+  const [role, setRole] = React.useState<UserRole>(user.role);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Travado: mostra todos os papéis só para o atual aparecer com o nome certo.
+  const options = roleOptions(roleLock ? USER_ROLES : assignableRoles(currentUserRole));
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     try {
-      await updateUserProfileAction(user.id, { fullName, companyName, phone });
+      const res = await updateUserProfileAction(user.id, {
+        fullName,
+        companyName,
+        phone,
+        ...(roleLock ? {} : { role }),
+      });
+      if (!res.ok) {
+        setError(res.error);
+        setSaving(false);
+        return;
+      }
       onSaved();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao salvar.");
+    } catch {
+      setError("Erro ao salvar.");
       setSaving(false);
     }
   }
@@ -322,22 +681,26 @@ function EditModal({
         <Field label="Telefone">
           <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" className={inputClass} placeholder="(00) 00000-0000" />
         </Field>
+        <div className="grid gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Papel</span>
+          <Select
+            value={role}
+            options={options}
+            onValueChange={(v) => setRole(v as UserRole)}
+            disabled={Boolean(roleLock)}
+            ariaLabel="Papel"
+          />
+          <span className="text-xs text-slate-500">{roleLock ?? ROLE_HELP[role]}</span>
+        </div>
       </div>
 
       {error && <p className="mt-4 text-sm font-medium text-destructive">{error}</p>}
 
       <div className="mt-6 flex justify-end gap-2">
-        <button
-          onClick={onClose}
-          className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-        >
+        <button onClick={onClose} className={secondaryButtonClass}>
           Cancelar
         </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/95 disabled:opacity-50"
-        >
+        <button onClick={handleSave} disabled={saving} className={primaryButtonClass}>
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {saving ? "Salvando…" : "Salvar"}
         </button>
@@ -362,10 +725,15 @@ function DeleteModal({
     setDeleting(true);
     setError(null);
     try {
-      await deleteUserAction(user.id);
+      const res = await deleteUserAction(user.id);
+      if (!res.ok) {
+        setError(res.error);
+        setDeleting(false);
+        return;
+      }
       onDeleted();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao remover.");
+    } catch {
+      setError("Erro ao remover.");
       setDeleting(false);
     }
   }
@@ -389,10 +757,7 @@ function DeleteModal({
       {error && <p className="mt-4 text-sm font-medium text-destructive">{error}</p>}
 
       <div className="mt-6 flex justify-end gap-2">
-        <button
-          onClick={onClose}
-          className="inline-flex h-11 items-center rounded-lg border border-slate-200 px-5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-        >
+        <button onClick={onClose} className={secondaryButtonClass}>
           Cancelar
         </button>
         <button
@@ -417,11 +782,15 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // O scroll fica no overlay (não no cartão) para o menu do Select nunca ser
+  // cortado e o modal alto continuar acessível em tela pequena.
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95">
-        {children}
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="pointer-events-none relative flex min-h-full items-center justify-center p-4">
+        <div className="pointer-events-auto relative w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl animate-in fade-in zoom-in-95">
+          {children}
+        </div>
       </div>
     </div>
   );

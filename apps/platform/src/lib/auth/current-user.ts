@@ -1,10 +1,11 @@
 import { cache } from "react";
 
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail, staffRoleForEmail } from "@/lib/env";
+import { isUserRole, type UserRole } from "@/lib/auth/roles";
+import { resolveRole } from "@/lib/auth/role-resolution";
 
 /** Papel do usuário no painel. "user" = comprador comum (sem acesso ao admin). */
-export type UserRole = "admin" | "writer" | "user";
+export type { UserRole };
 
 export type CurrentUser = {
   id: string;
@@ -68,14 +69,34 @@ export const getGateProfile = cache(async (): Promise<GateProfile | null> => {
   return data ?? null;
 });
 
+/**
+ * Papel salvo na tabela user_roles — UMA query por request (memoizada). Lida
+ * com a sessão do próprio usuário (a RLS só deixa ler a própria linha). Falha
+ * ou tabela ausente = null, e vale o papel padrão do código.
+ */
+const getStoredRole = cache(async (userId: string): Promise<UserRole | null> => {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) return null;
+    return isUserRole(data?.role) ? data.role : null;
+  } catch {
+    return null;
+  }
+});
+
 /** Reads the authenticated user's identity for UI (header, admin gating). */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const claims = await getSessionClaims();
   if (!claims) return null;
 
-  // Papel vem do mapa de staff; e-mails listados em ADMIN_EMAILS (sem papel
-  // explícito) caem como "admin" por compatibilidade.
-  const role: UserRole = staffRoleForEmail(claims.email) ?? (isAdminEmail(claims.email) ? "admin" : "user");
+  // Papel salvo no banco (o Francis troca pelo /admin/usuarios); sem papel
+  // salvo vale o mapa de staff / ADMIN_EMAILS. Conta protegida ignora o banco.
+  const role = resolveRole(claims.email, await getStoredRole(claims.sub));
 
   return {
     id: claims.sub,
@@ -84,6 +105,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     role,
     isAdmin: role !== "user",
   };
+});
+
+/** True quando o usuário logado é da equipe (admin ou editor). */
+async function isStaffSession(): Promise<boolean> {
+  return (await getCurrentUser())?.isAdmin ?? false;
 }
 
 export type AccessGate = { allowed: boolean; reason: "ok" | "expired" | "blocked" };
@@ -95,7 +121,7 @@ export type AccessGate = { allowed: boolean; reason: "ok" | "expired" | "blocked
  */
 export async function getAccessExpiry(): Promise<{ expiresAt: string; daysLeft: number } | null> {
   const claims = await getSessionClaims();
-  if (!claims || isAdminEmail(claims.email)) return null;
+  if (!claims || (await isStaffSession())) return null;
 
   const exp = (await getGateProfile())?.access_expires_at;
   if (!exp) return null;
@@ -111,7 +137,7 @@ export async function getAccessExpiry(): Promise<{ expiresAt: string; daysLeft: 
 export async function getAccessGate(): Promise<AccessGate> {
   const claims = await getSessionClaims();
   if (!claims) return { allowed: true, reason: "ok" }; // não logado → middleware trata
-  if (isAdminEmail(claims.email)) return { allowed: true, reason: "ok" };
+  if (await isStaffSession()) return { allowed: true, reason: "ok" };
 
   const data = await getGateProfile();
   if (!data) return { allowed: true, reason: "ok" }; // não trava o app em falha de query
@@ -146,7 +172,7 @@ export async function needsOnboarding(): Promise<boolean> {
  */
 export async function needsPasswordSetup(): Promise<boolean> {
   const claims = await getSessionClaims();
-  if (!claims || isAdminEmail(claims.email)) return false;
+  if (!claims || (await isStaffSession())) return false;
   const data = await getGateProfile();
   if (!data) return false; // não trava o app em falha de query
   return !data.password_set_at;

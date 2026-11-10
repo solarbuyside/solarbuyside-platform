@@ -1,4 +1,4 @@
-import { cleanEnv } from "@/lib/env";
+import { cleanEnv } from "../env";
 
 /**
  * Envio de e-mail transacional via Brevo (API v3). Server-only.
@@ -103,6 +103,81 @@ export async function sendAccessEmail(opts: {
   </body>
 </html>`;
 
+  return sendTransactionalEmail({
+    to: [{ email: opts.to, name: opts.name ?? undefined }],
+    subject,
+    htmlContent,
+  });
+}
+
+/**
+ * Conta criada pela equipe no /admin/usuarios: manda o login e a senha que o
+ * admin definiu, com o botão para entrar. Sem link mágico: a pessoa entra
+ * pelo /login normal (comprador ainda recebe o código 2FA na hora).
+ */
+export function buildNewAccountEmail(opts: {
+  name?: string | null;
+  email: string;
+  password: string;
+  loginUrl: string;
+  roleLabel: string;
+}): { subject: string; htmlContent: string } {
+  const firstName = opts.name?.trim().split(/\s+/)[0] ?? "";
+  const greeting = firstName ? `Olá, ${escapeHtml(firstName)}!` : "Olá!";
+  const subject = "Sua conta na Plataforma Solar Buy-Side";
+  const htmlContent = `<!doctype html>
+<html lang="pt-BR">
+  <body style="margin:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+    <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
+      <h1 style="font-size:20px;margin:0 0 8px;color:#0f172a;">${greeting}</h1>
+      <p style="font-size:15px;line-height:1.6;color:#334155;margin:0 0 16px;">
+        A equipe Solar Buy-Side criou uma conta para você na Plataforma de Avaliação de Propostas,
+        com o perfil de <strong>${escapeHtml(opts.roleLabel)}</strong>. Estes são os seus dados de acesso:
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0"
+             style="width:100%;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;margin:0 0 8px;">
+        <tr>
+          <td style="padding:14px 18px;border-bottom:1px solid #e2e8f0;">
+            <div style="font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#64748b;">E-mail</div>
+            <div style="font-size:15px;color:#0f172a;margin-top:4px;">${escapeHtml(opts.email)}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:14px 18px;">
+            <div style="font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#64748b;">Senha</div>
+            <div style="font-size:17px;font-family:'Courier New',Courier,monospace;font-weight:bold;letter-spacing:1px;color:#0f172a;margin-top:4px;">${escapeHtml(opts.password)}</div>
+          </td>
+        </tr>
+      </table>
+      <p style="text-align:center;margin:28px 0;">
+        <a href="${escapeAttr(opts.loginUrl)}"
+           style="background:#f97316;color:#ffffff;text-decoration:none;font-weight:bold;
+                  font-size:15px;padding:14px 28px;border-radius:10px;display:inline-block;">
+          Entrar na plataforma
+        </a>
+      </p>
+      <p style="font-size:13px;line-height:1.6;color:#64748b;margin:0 0 16px;">
+        Por segurança, troque a senha depois do primeiro acesso, em Configurações &gt; Trocar senha.
+      </p>
+      <p style="font-size:12px;color:#94a3b8;margin:24px 0 0;">
+        Se você não esperava este e-mail, fale com a gente em
+        <a href="mailto:contato@solarbuyside.com.br" style="color:#f97316;">contato@solarbuyside.com.br</a>.
+      </p>
+      <p style="font-size:12px;color:#94a3b8;margin:16px 0 0;">Equipe Solar Buy-Side</p>
+    </div>
+  </body>
+</html>`;
+  return { subject, htmlContent };
+}
+
+export async function sendNewAccountEmail(opts: {
+  to: string;
+  name?: string | null;
+  password: string;
+  loginUrl: string;
+  roleLabel: string;
+}): Promise<SendResult> {
+  const { subject, htmlContent } = buildNewAccountEmail({ ...opts, email: opts.to });
   return sendTransactionalEmail({
     to: [{ email: opts.to, name: opts.name ?? undefined }],
     subject,

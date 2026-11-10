@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { staffRoleForEmail } from "@/lib/env";
-import type { UserRole } from "@/lib/auth/current-user";
+import { isProtectedAccount } from "@/lib/env";
+import type { UserRole } from "@/lib/auth/roles";
+import { resolveRole } from "@/lib/auth/role-resolution";
+import { getStoredRolesById, resolveRoleById } from "@/lib/auth/role-store";
 
 export type ManagedUser = {
   id: string;
@@ -9,17 +11,14 @@ export type ManagedUser = {
   companyName: string | null;
   phone: string | null;
   role: UserRole;
+  /** Conta protegida: ninguém troca o papel, bloqueia ou remove pelo painel. */
+  protected: boolean;
   blocked: boolean;
   accessExpiresAt: string | null;
   accessSource: string | null;
   createdAt: string;
   comparisonCount: number;
 };
-
-/** Papel efetivo de um usuário (equipe via mapa de staff; resto é "user"). */
-export function roleForUser(email: string | null): UserRole {
-  return staffRoleForEmail(email) ?? "user";
-}
 
 /**
  * Lista todos os usuários da plataforma para a tela de gestão. Usa a service
@@ -28,7 +27,7 @@ export function roleForUser(email: string | null): UserRole {
 export async function listManagedUsers(): Promise<ManagedUser[]> {
   const admin = createAdminClient();
 
-  const [profilesRes, comparisonsRes] = await Promise.all([
+  const [profilesRes, comparisonsRes, storedRoles] = await Promise.all([
     admin
       .from("profiles")
       .select(
@@ -36,6 +35,7 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
       )
       .order("created_at", { ascending: false }),
     admin.from("comparisons").select("owner_id"),
+    getStoredRolesById(),
   ]);
 
   const profiles = profilesRes.data ?? [];
@@ -52,7 +52,8 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
     fullName: p.full_name,
     companyName: p.company_name,
     phone: p.phone,
-    role: roleForUser(p.email),
+    role: resolveRole(p.email, storedRoles.get(p.id) ?? null),
+    protected: isProtectedAccount(p.email),
     blocked: Boolean(p.blocked_at),
     accessExpiresAt: p.access_expires_at,
     accessSource: p.access_source,
@@ -63,11 +64,11 @@ export async function listManagedUsers(): Promise<ManagedUser[]> {
 
 /**
  * Carrega e-mail + papel efetivo de um usuário (para checagens de permissão
- * no servidor antes de bloquear/remover). Retorna null se não houver perfil.
+ * no servidor antes de bloquear/remover/trocar papel). Null se não houver perfil.
  */
 export async function getManagedUserById(
   userId: string,
-): Promise<{ email: string | null; role: UserRole } | null> {
+): Promise<{ id: string; email: string | null; role: UserRole; protected: boolean } | null> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("profiles")
@@ -75,5 +76,10 @@ export async function getManagedUserById(
     .eq("id", userId)
     .maybeSingle();
   if (!data) return null;
-  return { email: data.email, role: roleForUser(data.email) };
+  return {
+    id: userId,
+    email: data.email,
+    role: await resolveRoleById(userId, data.email),
+    protected: isProtectedAccount(data.email),
+  };
 }

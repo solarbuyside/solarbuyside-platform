@@ -20,6 +20,40 @@ export const passwordRules: PasswordRule[] = [
   },
 ];
 
+// Sem caracteres que se confundem ao copiar de um e-mail (0/O, 1/l/I).
+const UPPER = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+const LOWER = "abcdefghijkmnopqrstuvwxyz";
+const DIGITS = "23456789";
+const SYMBOLS = "!@#$%&*?";
+
+function randomIndex(max: number): number {
+  const buf = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(buf);
+  return buf[0] % max;
+}
+
+/**
+ * Senha aleatória que sempre passa em todas as regras acima (o botão de
+ * randomizar do cadastro de usuário no admin). Usa o crypto do navegador/Node.
+ */
+export function generatePassword(length = 12): string {
+  const size = Math.max(8, length);
+  const all = UPPER + LOWER + DIGITS + SYMBOLS;
+  const chars = [
+    UPPER[randomIndex(UPPER.length)],
+    LOWER[randomIndex(LOWER.length)],
+    DIGITS[randomIndex(DIGITS.length)],
+    SYMBOLS[randomIndex(SYMBOLS.length)],
+  ];
+  while (chars.length < size) chars.push(all[randomIndex(all.length)]);
+  // Embaralha (Fisher-Yates) para os obrigatórios não ficarem sempre no começo.
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = randomIndex(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join("");
+}
+
 export function validatePassword(value: string): {
   ok: boolean;
   failed: string[];

@@ -135,6 +135,22 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["login_2fa_codes"]["Insert"]>;
         Relationships: [];
       };
+      user_roles: {
+        Row: {
+          user_id: string;
+          role: "admin" | "writer" | "user";
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          user_id: string;
+          role: "admin" | "writer" | "user";
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["user_roles"]["Insert"]>;
+        Relationships: [];
+      };
       greenn_events: {
         Row: {
           id: number;
