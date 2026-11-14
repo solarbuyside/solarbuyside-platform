@@ -15,6 +15,7 @@ import { trackEbookDownload, trackNewsletterSubscribe } from '../utils/analytics
 import { track } from '../lib/analytics'
 import { Img, Cta, GrainOverlay, Reveal } from './atoms'
 import { criarTxt } from './cms'
+import { usePreLancamento } from './prelancamento'
 
 /* ── Lead magnet (teaser gratuito) — "THE UNLOCK" ──────────────────────── */
 export const LeadMagnetV4: React.FC = () => {
@@ -260,6 +261,18 @@ const WhatsAppIcon: React.FC<{ size?: number; className?: string }> = ({ size = 
 )
 
 /** Teto de perguntas do FAQ (espelha MAX_FAQ no editor do admin). */
+/* O número do WhatsApp vem do admin ("Número do WhatsApp"). Vazio ou curto
+   demais, o botão não aparece: um `wa.me/` sem número abre uma tela de erro do
+   WhatsApp, pior do que não ter botão nenhum. Aceita o número com máscara e
+   sem DDI; sem o 55 na frente, entra o do Brasil. */
+const MENSAGEM_WHATSAPP = 'Tenho dúvidas sobre o Manual Solar Buy-Side'
+function linkDoWhatsApp(numero: string | undefined | null): string | null {
+  let digitos = (numero || '').replace(/\D/g, '')
+  if (digitos.length === 10 || digitos.length === 11) digitos = `55${digitos}`
+  if (digitos.length < 12) return null
+  return `https://wa.me/${digitos}?text=${encodeURIComponent(MENSAGEM_WHATSAPP)}`
+}
+
 const MAX_FAQ = 20
 
 /** Conteúdo publicado hoje — usado só se o banco não trouxer pergunta nenhuma. */
@@ -293,10 +306,7 @@ export const FAQV4: React.FC = () => {
     return doCms.length ? doCms : FAQ_PADRAO
   })()
 
-  const getWhatsAppLink = () => {
-    const number = globalSettings.whatsappNumber || ''
-    return `https://wa.me/${number}?text=Tenho dúvidas sobre o Manual Solar Buy-Side`
-  }
+  const linkWhatsApp = linkDoWhatsApp(globalSettings.whatsappNumber)
 
   const toggleFaq = (index: number) => {
     const abrindo = openFaq !== index
@@ -378,9 +388,10 @@ export const FAQV4: React.FC = () => {
           })}
         </div>
 
+        {linkWhatsApp && (
         <Reveal delay={120} className="mt-14 flex justify-center">
           <a
-            href={getWhatsAppLink()}
+            href={linkWhatsApp}
             target="_blank"
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 font-bold text-white shadow-[0_18px_40px_-14px_rgba(37,211,102,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#20bd5a]"
@@ -390,6 +401,7 @@ export const FAQV4: React.FC = () => {
             <ArrowUpRight size={18} className="opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
           </a>
         </Reveal>
+        )}
       </div>
     </section>
   )
@@ -503,10 +515,16 @@ export const NewsletterV4: React.FC = () => {
 
 /* ── Contato ───────────────────────────────────────────────────────────── */
 export const ContactV4: React.FC = () => {
-  const { getSection } = useContent()
+  const { getSection, globalSettings } = useContent()
   const section = getSection('contact')
   const txt = criarTxt(section)
   const email = txt('emailAddress', 'contato@buyside.com.br')
+  // No pré-lançamento o FAQ sai da página e leva junto o único botão de
+  // WhatsApp (Francis, 13/11/2026: a pré-venda também precisa de atendimento
+  // pelo WhatsApp). Aqui ele aparece só nesse modo, para a página de vendas
+  // não ganhar dois botões iguais a uma seção de distância.
+  const { preLancamento } = usePreLancamento()
+  const linkWhatsApp = preLancamento ? linkDoWhatsApp(globalSettings.whatsappNumber) : null
 
   return (
     <section id="contact" className="bg-[#07090d] px-6 py-20 text-white">
@@ -588,6 +606,22 @@ export const ContactV4: React.FC = () => {
             </div>
           </div>
         </Reveal>
+
+        {linkWhatsApp && (
+          <Reveal delay={160} className="mt-10 flex justify-center">
+            <a
+              href={linkWhatsApp}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => track('whatsapp_click', { origem: 'contato' })}
+              className="group inline-flex items-center gap-3 rounded-full bg-[#25D366] px-9 py-4 font-bold text-white shadow-[0_18px_40px_-14px_rgba(37,211,102,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#20bd5a]"
+            >
+              <WhatsAppIcon size={20} />
+              <span>{txt('whatsappButton', 'Fale com a equipe Buy-Side')}</span>
+              <ArrowUpRight size={18} className="opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
+            </a>
+          </Reveal>
+        )}
       </div>
     </section>
   )

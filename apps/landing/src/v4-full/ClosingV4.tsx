@@ -305,8 +305,11 @@ export const FAQV4: React.FC = () => {
     },
   ]
 
+  // Sem número no admin, sem botão: `wa.me/` vazio abre uma tela de erro.
+  const digitosWhatsApp = (globalSettings.whatsappNumber || '').replace(/\D/g, '')
+  const temWhatsApp = digitosWhatsApp.length >= 10
   const getWhatsAppLink = () => {
-    const number = globalSettings.whatsappNumber || ''
+    const number = digitosWhatsApp.length <= 11 ? `55${digitosWhatsApp}` : digitosWhatsApp
     return `https://wa.me/${number}?text=Tenho dúvidas sobre o Manual Solar Buy-Side`
   }
 
@@ -372,6 +375,7 @@ export const FAQV4: React.FC = () => {
           })}
         </div>
 
+        {temWhatsApp && (
         <Reveal delay={120} className="mt-14 flex justify-center">
           <a
             href={getWhatsAppLink()}
@@ -384,6 +388,7 @@ export const FAQV4: React.FC = () => {
             <ArrowUpRight size={18} className="opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100" />
           </a>
         </Reveal>
+        )}
       </div>
     </section>
   )
